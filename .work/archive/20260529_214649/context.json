@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "meta": {
+    "project": "EDIT ME: your-project-name",
+    "work_item_prefix": "WORK",
+    "phase": 0,
+    "last_updated": "EDIT ME: YYYY-MM-DD",
+    "description": "EDIT ME: one-line project description"
+  },
+  "project_version": "0.0.0",
+  "releases": {},
+  "state": {
+    "phase_0_complete": false,
+    "_edit_me": "Update phase_0_complete to true when /phase-complete has been run."
+  },
+  "structure": {
+    "CLAUDE.md": "primary project context — read every session",
+    ".work/work.json": "backlog and active work items",
+    ".work/context.json": "this file — repo state",
+    ".work/session.json": "last session summary",
+    ".work/phases/": "phase definitions and registry",
+    ".work/decisions/": "architecture decision records (ADRs)",
+    ".work/reviews/": "adversarial review verdicts",
+    ".claude/commands/": "5 core slash commands",
+    ".claude/agents/": "7 core adversarial review agents"
+  },
+  "decisions": [],
+  "_edit_me": "Set meta.project to your project name, meta.last_updated to today.",
+  "notes": "Clean v0 starting state. Edit phase-0.json and work.json with your project's real content, then run /start-session."
+}

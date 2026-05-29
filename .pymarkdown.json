@@ -1,0 +1,44 @@
+{
+  "mode": {
+    "strict-config": true
+  },
+  "extensions": {
+    "front-matter": {
+      "enabled": true
+    }
+  },
+  "plugins": {
+    "md013": {
+      "line_length": 120,
+      "code_blocks": false
+    },
+    "//comment-md012": "Multiple blank lines — instructional command files use them for visual separation.",
+    "md012": {
+      "enabled": false
+    },
+    "//comment-md022": "Blank lines around headings — too noisy for .claude/commands/ instructional content. Re-enable once those files are tightened in a follow-up PR.",
+    "md022": {
+      "enabled": false
+    },
+    "//comment-md031": "Blank lines around fenced code — same rationale as md022.",
+    "md031": {
+      "enabled": false
+    },
+    "//comment-md032": "Blank lines around lists — same rationale as md022.",
+    "md032": {
+      "enabled": false
+    },
+    "//comment-md040": "Fenced code language — encourage but don't gate. Many existing fences in .claude/commands/ are instructional pseudo-code, not syntactically-valid in any language.",
+    "md040": {
+      "enabled": false
+    },
+    "//comment-md029": "Ordered list numbering — legacy command files use non-1-based numbering for intent. Re-enable after a docs cleanup pass.",
+    "md029": {
+      "enabled": false
+    },
+    "//comment-md033": "Inline HTML — ADRs use anchor IDs for section linking; legitimate use, not noise.",
+    "md033": {
+      "enabled": false
+    }
+  }
+}

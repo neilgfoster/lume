@@ -1,0 +1,38 @@
+{
+  "_edit_me": "Replace every placeholder below with your project's real content before running /iterate.",
+  "phase": 0,
+  "name": "Project Phase 0",
+  "goal": "EDIT ME: One sentence describing what this phase achieves and why it matters.",
+  "status": "active",
+  "started": "EDIT ME: YYYY-MM-DD",
+  "completed": null,
+  "definition_of_done": [
+    "EDIT ME: Replace these with your real acceptance criteria.",
+    "Each criterion should be binary — either true or false, never 'mostly done'.",
+    "am_i_done.py passes on this branch"
+  ],
+  "constraints": [
+    "am_i_done.py must remain deterministic — no inference in the gate",
+    "Existing pytest suite must pass throughout",
+    "EDIT ME: Add any phase-specific constraints here"
+  ],
+  "workstreams": [
+    {
+      "id": "WS-PLAN",
+      "name": "Planning",
+      "items": []
+    },
+    {
+      "id": "WS-ARCH",
+      "name": "Architecture",
+      "items": []
+    }
+  ],
+  "learning_goals": [
+    "EDIT ME: What assumptions will this phase validate or invalidate?"
+  ],
+  "assumptions_to_validate": [
+    "EDIT ME: State the biggest assumption you are making entering this phase."
+  ],
+  "next_phase_trigger": "All DoD items verified. Run /phase-complete."
+}

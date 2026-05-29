@@ -1,0 +1,27 @@
+{
+  "_edit_me": "Replace the example item below with your real backlog. Set active_item to the ID you are working on.",
+  "meta": {
+    "current_phase": 0,
+    "active_item": null,
+    "last_updated": "EDIT ME: YYYY-MM-DD"
+  },
+  "active": [],
+  "backlog": [],
+  "completed": [],
+  "example": [
+    {
+      "_note": "This shows the schema. Copy to backlog and replace with real content, then delete this block.",
+      "id": "WORK-0001",
+      "title": "EDIT ME: Short imperative title",
+      "phase": 0,
+      "workstream": "WS-PLAN",
+      "change_class": "chore",
+      "status": "backlog",
+      "description": "EDIT ME: What must be built and why.",
+      "acceptance_criteria": [
+        "EDIT ME: Binary criterion — true or false",
+        "am_i_done.py passes"
+      ]
+    }
+  ]
+}
