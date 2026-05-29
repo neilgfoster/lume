@@ -1,0 +1,65 @@
+{
+  "mandatory_agents": [
+    {
+      "pattern": "(^|/)[^/]+\\.py$",
+      "agents": ["security-auditor"],
+      "note": "Any Python file"
+    },
+    {
+      "pattern": "(^|/)[^/]+\\.(sh|bash)$",
+      "agents": ["security-auditor"],
+      "note": "Any shell script"
+    },
+    {
+      "pattern": "^\\.github/workflows/",
+      "agents": ["security-auditor"],
+      "note": "GitHub Actions workflows"
+    },
+    {
+      "pattern": "^\\.github/scripts/",
+      "agents": ["security-auditor", "determinism-auditor"],
+      "note": "Gate scripts — security + determinism (no inference in the gate)"
+    },
+    {
+      "pattern": "^skill/hedl/scripts/",
+      "agents": ["security-auditor", "determinism-auditor"],
+      "note": "Skill scripts (symlink targets) — same gate-code rules apply"
+    },
+    {
+      "pattern": "^\\.claude/agents/[^/]+\\.md$",
+      "agents": ["security-auditor", "historian", "determinism-auditor"],
+      "note": "Agent definitions — security audit + principle consistency + inference audit"
+    },
+    {
+      "pattern": "^\\.claude/settings\\.json$",
+      "agents": ["security-auditor"],
+      "note": "Claude Code hook configuration"
+    },
+    {
+      "pattern": "^\\.claudeignore$",
+      "agents": ["security-auditor"],
+      "note": "File visibility rules"
+    },
+    {
+      "pattern": "(^|/)CLAUDE\\.md$",
+      "agents": ["historian"],
+      "note": "Project principles — root or any subdirectory"
+    },
+    {
+      "pattern": "^\\.work/decisions/",
+      "agents": ["historian"],
+      "note": "ADRs — root .work/ only, not nested copies"
+    },
+    {
+      "pattern": "^docs/standards\\.md$",
+      "agents": ["historian"],
+      "note": "Development standards"
+    },
+    {
+      "pattern": "^\\.work/phases/",
+      "agents": ["historian", "scope-auditor"],
+      "note": "Phase definitions"
+    }
+  ],
+  "always_required": ["scope-auditor"]
+}

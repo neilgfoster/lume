@@ -1,0 +1,43 @@
+# Files and paths the agent should not read or write without explicit instruction.
+# Sensitive, generated, or protected paths.
+
+# Phase state — modify only via /phase-complete or /promote-phase
+.work/phases/
+.work/session.json
+.work/context.json
+
+# Secrets and credentials (mirror of .gitignore — keep in sync)
+.env
+.env.*
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+
+# Local overrides (personal, not shared)
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Generated / build artefacts
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Budget and review queue (runtime state — not source)
+.work/budget.json
+.work/reviews/queue.json
+
+# Git internals
+.git/
+
+# Large binary or data files
+*.tar.gz
+*.zip
+*.sqlite
+*.db

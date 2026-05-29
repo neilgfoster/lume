@@ -1,0 +1,15 @@
+{
+  "current_phase": 0,
+  "phases": [
+    {
+      "phase": 0,
+      "name": "Setup",
+      "status": "active",
+      "file": ".work/phases/phase-0.json"
+    }
+  ],
+
+  "transition_log": [],
+
+  "direction_changes": []
+}

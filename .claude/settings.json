@@ -1,0 +1,41 @@
+{
+  "_comment_security": "This file is committed and runs shell on every Edit/Write, Stop, and SessionStart. Any change to it must be highlighted in the PR description so reviewers can consciously approve the trust expansion.",
+  "permissions": {
+    "allow": [
+      "Write(.claude/agents/*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/startup.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/scripts/posttooluse_lint.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/scripts/stop_reminder.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "_schema": {
+    "competing_projects": "Project-level alternatives discovered by project-scout or added manually. Fields: name (string), url (string), description (string), license (SPDX or 'unknown'), source ('manual'|'discovered'), added (YYYY-MM-DD), tags ([string]), notes (string|null)",
+    "prior_art": "Component-level prior art discovered by oss-scout or added manually. Fields: name (string), url (string), description (string), license (SPDX), source ('manual'|'discovered'), added (YYYY-MM-DD), component (feature/module), verdict ('ADOPT'|'ADAPT'|'WRAP'|'REJECT'), notes (string|null)"
+  },
+  "competing_projects": [],
+  "prior_art": []
+}

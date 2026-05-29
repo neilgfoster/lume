@@ -1,0 +1,88 @@
+{
+  "$schema_version": "1",
+  "schemas": [
+    {
+      "id": "agent",
+      "description": "Agent definition files in .claude/agents/",
+      "glob": ".claude/agents/*.md",
+      "frontmatter": {
+        "required": ["name", "description", "tools", "model"],
+        "fields": {
+          "name": {
+            "pattern": "^[a-z][a-z0-9-]+$",
+            "description": "lowercase kebab-case identifier"
+          },
+          "description": {
+            "min_length": 10,
+            "max_length": 200
+          },
+          "model": {
+            "enum": ["haiku", "sonnet", "opus"]
+          }
+        }
+      }
+    },
+    {
+      "id": "command",
+      "description": "Slash command definition files in .claude/commands/",
+      "glob": ".claude/commands/*.md",
+      "frontmatter": null,
+      "required_title": true,
+      "title_max_length": 120
+    },
+    {
+      "id": "review-report",
+      "description": "Synthesized review report files (report.md under any review run directory)",
+      "glob": ".work/reviews/**/report.md",
+      "frontmatter": null,
+      "required_headings": [
+        "Dimension Scores",
+        "Strengths",
+        "Blocking Findings",
+        "Significant Findings",
+        "Minor Findings",
+        "Next Actions"
+      ],
+      "required_patterns": [
+        {"pattern": "\\*\\*Log:\\*\\*", "description": "log line"},
+        {"pattern": "\\*\\*Session:\\*\\*", "description": "session type (fresh or in-session)"},
+        {"pattern": "\\*\\*Depth:\\*\\*", "description": "review depth (Standard or Full)"},
+        {"pattern": "\\*\\*Commit:\\*\\*", "description": "commit SHA"}
+      ]
+    },
+    {
+      "id": "review-agent",
+      "description": "Individual agent output files under .work/reviews/ run directories",
+      "glob": ".work/reviews/**/*.md",
+      "exclude_globs": [
+        ".work/reviews/**/report.md",
+        ".work/reviews/README.md",
+        ".work/reviews/adversarial-review-*.md",
+        ".work/reviews/repo-health-*.md"
+      ],
+      "frontmatter": null,
+      "required_headings": ["Findings"],
+      "required_patterns": [
+        {"pattern": "\\*\\*Run:\\*\\*", "description": "run identifier"},
+        {"pattern": "\\*\\*Model:\\*\\*", "description": "model used"},
+        {"pattern": "\\*\\*Commit:\\*\\*", "description": "commit SHA"}
+      ]
+    },
+    {
+      "id": "adr",
+      "description": "Architecture Decision Records in .work/decisions/",
+      "glob": ".work/decisions/ADR-*.md",
+      "frontmatter": null,
+      "title_pattern": "^# ADR-\\d{3}-.+",
+      "required_headings": ["Status", "Context", "Decision", "Consequences"]
+    },
+    {
+      "id": "doc",
+      "description": "Documentation files in docs/",
+      "glob": "docs/*.md",
+      "frontmatter": null,
+      "required_title": true,
+      "title_max_length": 100
+    }
+  ]
+}

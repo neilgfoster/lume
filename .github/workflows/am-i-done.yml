@@ -1,0 +1,44 @@
+name: am-i-done
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+# Cancel in-flight runs on rapid pushes (OP14, CA6).
+concurrency:
+  group: am-i-done-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+# Minimum permissions. pull-requests: read required for template and
+# thread checks via gh CLI. security-events: read required for the
+# Dependabot alerts endpoint.
+permissions:
+  contents: read
+  pull-requests: read
+  security-events: read
+
+jobs:
+  am-i-done:
+    name: am_i_done (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # Assign to env var — avoids ${{ }} expression injection in run: steps.
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+
+      - name: Install dev dependencies
+        run: uv sync --frozen --only-group dev --python ${{ matrix.python-version }}
+
+      - name: Run am_i_done
+        run: uv run --python ${{ matrix.python-version }} python .github/scripts/am_i_done.py --pr "$PR_NUMBER"
