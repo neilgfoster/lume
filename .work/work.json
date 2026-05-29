@@ -1,27 +1,241 @@
 {
-  "_edit_me": "Replace the example item below with your real backlog. Set active_item to the ID you are working on.",
   "meta": {
     "current_phase": 0,
-    "active_item": null,
-    "last_updated": "EDIT ME: YYYY-MM-DD"
+    "active_item": "WORK-0001",
+    "last_updated": "2026-05-29"
   },
-  "active": [],
-  "backlog": [],
-  "completed": [],
-  "example": [
+  "active": [
     {
-      "_note": "This shows the schema. Copy to backlog and replace with real content, then delete this block.",
       "id": "WORK-0001",
-      "title": "EDIT ME: Short imperative title",
+      "title": "Write core requirements doc",
       "phase": 0,
-      "workstream": "WS-PLAN",
-      "change_class": "chore",
-      "status": "backlog",
-      "description": "EDIT ME: What must be built and why.",
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "active",
+      "description": "Conduct a structured requirements interview with Neil and synthesise the answers into docs/requirements.md. Covers: who uses Lume and what pain does it solve in 3 months, what Lume must never do, how we know it is working, which existing tools must integrate vs can be replaced, and open questions Neil already knows about.",
       "acceptance_criteria": [
-        "EDIT ME: Binary criterion — true or false",
-        "am_i_done.py passes"
+        "docs/requirements.md exists and covers: users and pain, must-nots, success metrics, integration constraints, known open questions",
+        "Neil has reviewed and approved the document (explicit APPROVE in conversation)",
+        "No architecture decisions or implementation details — requirements only"
       ]
     }
-  ]
+  ],
+  "backlog": [
+    {
+      "id": "WORK-0002",
+      "title": "Write orchestrator design doc",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "Document the Lume Orchestrator's responsibilities, MCP surface (max 5 tools), state model, failure model, and multi-agent workflow coordination approach.",
+      "acceptance_criteria": [
+        "docs/orchestrator-design.md exists",
+        "MCP tool surface defined (max 5 tools, each with name, description, inputs, outputs)",
+        "State model documented: what state the orchestrator holds, where, how it flows",
+        "Failure model documented: what happens when an agent fails, times out, or returns a bad result",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
+    {
+      "id": "WORK-0003",
+      "title": "Write agent boundary analysis",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "For each of the 5 agents (Coding, Infra, Work, Provisioning, Obs): document responsibilities, MCP tools, validation suite, and escalation chain. Verify no overlaps between agents.",
+      "acceptance_criteria": [
+        "docs/agent-boundaries.md exists with a section per agent",
+        "Each agent section: responsibilities, MCP tools (name + purpose), validation suite, escalation chain",
+        "No overlapping responsibilities between agents (explicitly checked)",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
+    {
+      "id": "WORK-0004",
+      "title": "Write security and auth requirements",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "Document the threat model, identity model, blast radius controls, audit requirements, and build-vs-adopt decisions for Lume's security architecture.",
+      "acceptance_criteria": [
+        "docs/security-requirements.md exists",
+        "Threat model: attack surfaces, trust boundaries, adversary goals",
+        "Identity model: all identity levels and their trust/permission scope",
+        "Blast radius controls: how each level is enforced, who can approve high-blast actions",
+        "Audit requirements: what is logged, where, retention, tamper-evidence",
+        "Build vs adopt: for each security capability, decision on building or adopting existing tool",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
+    {
+      "id": "WORK-0005",
+      "title": "Write data and state architecture",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "Document what state Lume holds, where it lives, how it flows between components, context store design, and local vs cloud storage decisions.",
+      "acceptance_criteria": [
+        "docs/data-architecture.md exists",
+        "State inventory: every category of state Lume holds, with owner and lifetime",
+        "Data flow diagram or equivalent prose: how state moves between orchestrator and agents",
+        "Context store design: how agent context is compressed, stored, retrieved",
+        "Local vs cloud storage decision for each state category",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
+    {
+      "id": "WORK-0006",
+      "title": "Write CLI and self-building requirements",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "Document the lume CLI command surface, approval gate requirements, rollback requirements, and self-modification safety constraints.",
+      "acceptance_criteria": [
+        "docs/cli-requirements.md exists",
+        "Command surface: each command with intent, inputs, outputs, examples",
+        "Approval gate requirements: which actions require human approval and why",
+        "Rollback requirements: what can be rolled back, how, within what window",
+        "Self-modification safety: constraints on Lume modifying its own code or config",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
+    {
+      "id": "WORK-0007",
+      "title": "Spike: MCP SDK + two-layer pattern",
+      "phase": 0,
+      "workstream": "WS-TECH",
+      "change_class": "spike",
+      "status": "backlog",
+      "description": "Prove the two-layer MCP architecture in practice: an orchestrator MCP server that coordinates a downstream agent MCP server. Measure latency. Evaluate SDK options. Produce a GO/NO-GO verdict.",
+      "acceptance_criteria": [
+        "spikes/mcp-two-layer/ contains a working proof of concept",
+        "PoC demonstrates: external client → orchestrator MCP → agent MCP → result",
+        "Latency measured for a representative multi-step task",
+        "SDK options evaluated (Python MCP SDK, TypeScript MCP SDK, others)",
+        "decisions/ADR-001-mcp-two-layer.md written with GO/NO-GO verdict and rationale"
+      ]
+    },
+    {
+      "id": "WORK-0008",
+      "title": "Spike: kagent evaluation",
+      "phase": 0,
+      "workstream": "WS-TECH",
+      "change_class": "spike",
+      "status": "backlog",
+      "description": "Evaluate kagent as Lume's agent runtime. Can it run Lume's agents as CRDs on k3s? What does Lume need to add? Produce a GO/NO-GO verdict.",
+      "acceptance_criteria": [
+        "spikes/kagent/ contains evaluation notes and any PoC code",
+        "Tested: deploying a simple kagent CRD on k3s inside devcontainer",
+        "Evaluated: what kagent provides vs what Lume needs beyond it",
+        "Evaluated: MCP tool integration with kagent agents",
+        "decisions/ADR-002-kagent.md written with GO/NO-GO verdict and rationale"
+      ]
+    },
+    {
+      "id": "WORK-0009",
+      "title": "Spike: GitOps operator + Crossplane on k3s",
+      "phase": 0,
+      "workstream": "WS-TECH",
+      "change_class": "spike",
+      "status": "backlog",
+      "description": "Evaluate Flux vs Argo CD for GitOps reconciliation. Prove Crossplane provider-kubernetes for local profile on k3s. Produce a decision + ADR.",
+      "acceptance_criteria": [
+        "spikes/gitops/ contains evaluation notes and any PoC config",
+        "Flux and Argo CD both stood up on k3s and compared on: complexity, resource use, Lume fit",
+        "Crossplane provider-kubernetes deployed on k3s and a test claim reconciled",
+        "decisions/ADR-003-gitops-operator.md written with Flux vs Argo decision and rationale",
+        "decisions/ADR-004-crossplane.md written with GO/NO-GO for Crossplane approach"
+      ]
+    },
+    {
+      "id": "WORK-0010",
+      "title": "Spike: local model evaluation",
+      "phase": 0,
+      "workstream": "WS-TECH",
+      "change_class": "spike",
+      "status": "backlog",
+      "description": "Measure actual task performance of candidate local models for each role in Lume's model routing table. Produce documented model assignments with performance data.",
+      "acceptance_criteria": [
+        "spikes/local-models/ contains benchmarks and test cases",
+        "Models tested: llama3.2:3b (router), qwen2.5-coder:7b (code), qwen2.5-coder:14b (complex code), at minimum",
+        "Each model measured on representative tasks for its assigned role",
+        "Pass/fail rate and latency documented for each role",
+        "decisions/ADR-005-model-routing.md written with final model assignments and evidence"
+      ]
+    },
+    {
+      "id": "WORK-0011",
+      "title": "Spike: validation loop proof of concept",
+      "phase": 0,
+      "workstream": "WS-TECH",
+      "change_class": "spike",
+      "status": "backlog",
+      "description": "Build a standalone validation loop PoC (not inside Lume): PLAN → ACT → VALIDATE → REFINE → ESCALATE. Prove that done/failures/next_action are deterministic outputs, never inferred.",
+      "acceptance_criteria": [
+        "spikes/validation-loop/ contains a working standalone PoC",
+        "PoC demonstrates all 5 loop stages with a real (if simple) task",
+        "VALIDATE output is a typed struct: done: bool, failures: list, next_action: str",
+        "LLM is used only in PLAN and REFINE stages — VALIDATE is fully deterministic",
+        "Escalation chain tested: local failure → larger local → cloud",
+        "decisions/ADR-006-validation-loop.md written with conclusions"
+      ]
+    },
+    {
+      "id": "WORK-0012",
+      "title": "Design provisioning agent boundary",
+      "phase": 0,
+      "workstream": "WS-ARCH",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "Document the provisioning agent's tool set, bootstrap flow, and config structure. Differentiate clearly from the infra agent.",
+      "acceptance_criteria": [
+        "docs/provisioning-agent.md exists",
+        "All MCP tools defined: name, description, inputs, outputs, git-write behaviour",
+        "bootstrap_lume_project flow documented end-to-end",
+        "Config structure documented: what a provisioned project's repo contains",
+        "Clear boundary with Infra Agent: no overlapping responsibilities",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
+    {
+      "id": "WORK-0013",
+      "title": "Design project template",
+      "phase": 0,
+      "workstream": "WS-ARCH",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "Define what every Lume-provisioned project gets: directory structure, CLAUDE.md, hedl setup, CI config, devcontainer config, etc.",
+      "acceptance_criteria": [
+        "docs/project-template.md exists",
+        "Template structure documented with rationale for each element",
+        "CLAUDE.md template content defined",
+        "hedl configuration for new projects defined",
+        "Dogfooding loop documented: provisioned projects are built like Lume",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
+    {
+      "id": "WORK-0014",
+      "title": "Write high-level plan (phases 1-3)",
+      "phase": 0,
+      "workstream": "WS-ARCH",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "Synthesise all Phase 0 outputs into a high-level plan for phases 1-3: draft DoD, known unknowns, risks, and build order rationale.",
+      "acceptance_criteria": [
+        "docs/plan.md exists",
+        "Phases 1, 2, 3 each have: goal, draft DoD (binary criteria), known unknowns, risks",
+        "Build order rationale: why this sequence, what unblocks what",
+        "Phase 0 findings referenced: each spike conclusion influences the plan",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    }
+  ],
+  "completed": [],
+  "archived": []
 }
