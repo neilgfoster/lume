@@ -128,7 +128,7 @@ Before validating DoD criteria, convene the phase review panel:
 ```
 
 Phase review panel (see docs/review-panels.md):
-  Core (named agents): scope-auditor, historian
+  Core (named agents): scope-auditor, historian, existential-challenger (mandatory at /phase-complete per ADR-013)
   From reference library: evidence-checker, assumption-challenger
   Optional from reference library: devil-advocate or new-engineer
 

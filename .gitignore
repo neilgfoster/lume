@@ -1,0 +1,10 @@
+# >>> hedl-managed (local-only artefacts) >>>
+# Insights data is local-only — never commit it (privacy; cf. ADR-005).
+.work/insights/*.jsonl
+.work/insights/metrics.json
+.work/insights/proposals/
+# Python caches
+.pytest_cache/
+__pycache__/
+*.pyc
+# <<< hedl-managed <<<
