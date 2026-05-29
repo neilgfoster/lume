@@ -1,38 +1,65 @@
 {
-  "_edit_me": "Replace every placeholder below with your project's real content before running /iterate.",
   "phase": 0,
-  "name": "Project Phase 0",
-  "goal": "EDIT ME: One sentence describing what this phase achieves and why it matters.",
+  "name": "Discovery & Requirements",
+  "goal": "Understand before building: validate assumptions, produce an approved plan, and get a green light before Phase 1. No production code.",
   "status": "active",
-  "started": "EDIT ME: YYYY-MM-DD",
+  "started": "2026-05-29",
   "completed": null,
   "definition_of_done": [
-    "EDIT ME: Replace these with your real acceptance criteria.",
-    "Each criterion should be binary — either true or false, never 'mostly done'.",
+    "Core requirements doc approved by Neil (docs/requirements.md)",
+    "Orchestrator design approved by Neil (docs/orchestrator-design.md)",
+    "Agent boundary analysis approved by Neil (docs/agent-boundaries.md)",
+    "Security and auth requirements approved by Neil (docs/security-requirements.md)",
+    "Data and state architecture approved by Neil (docs/data-architecture.md)",
+    "CLI and self-building requirements approved by Neil (docs/cli-requirements.md)",
+    "MCP SDK + two-layer pattern spike: GO/NO-GO verdict + ADR written",
+    "kagent evaluation spike: GO/NO-GO verdict + ADR written",
+    "GitOps operator + Crossplane on k3s spike: Flux vs Argo decision + ADR written",
+    "Local model evaluation spike: task performance measurements + model assignments documented",
+    "Validation loop proof of concept spike: standalone PoC runs + ADR written",
+    "Provisioning agent boundary design approved by Neil (docs/provisioning-agent.md)",
+    "Project template design approved by Neil (docs/project-template.md)",
+    "High-level plan phases 1-3 approved by Neil (docs/plan.md)",
     "am_i_done.py passes on this branch"
   ],
   "constraints": [
+    "No production code — spikes and proofs of concept only",
+    "No Lume-specific implementation — evaluate tools and patterns only",
+    "Everything disposable — nothing from Phase 0 ships in Phase 1",
+    "Write conclusions, not just notes — every spike produces a decision",
     "am_i_done.py must remain deterministic — no inference in the gate",
-    "Existing pytest suite must pass throughout",
-    "EDIT ME: Add any phase-specific constraints here"
+    "Existing pytest suite must pass throughout"
   ],
   "workstreams": [
     {
-      "id": "WS-PLAN",
-      "name": "Planning",
-      "items": []
+      "id": "WS-REQ",
+      "name": "Requirements",
+      "items": ["WORK-0001", "WORK-0002", "WORK-0003", "WORK-0004", "WORK-0005", "WORK-0006"]
+    },
+    {
+      "id": "WS-TECH",
+      "name": "Technology Spikes",
+      "items": ["WORK-0007", "WORK-0008", "WORK-0009", "WORK-0010", "WORK-0011"]
     },
     {
       "id": "WS-ARCH",
-      "name": "Architecture",
-      "items": []
+      "name": "Architecture Design",
+      "items": ["WORK-0012", "WORK-0013", "WORK-0014"]
     }
   ],
   "learning_goals": [
-    "EDIT ME: What assumptions will this phase validate or invalidate?"
+    "Can the two-layer MCP pattern work in practice (orchestrator MCP calling agent MCP)?",
+    "Is kagent a viable agent runtime for Lume, or do we build our own?",
+    "Which GitOps operator (Flux vs Argo) fits the Lume architecture better?",
+    "Which local models can handle which roles at acceptable quality and speed?",
+    "Can a validation loop be built that is truly deterministic (no LLM inference for pass/fail)?"
   ],
   "assumptions_to_validate": [
-    "EDIT ME: State the biggest assumption you are making entering this phase."
+    "The two-layer MCP pattern scales: orchestrator can coordinate 5+ agents via internal MCP without latency becoming a problem",
+    "kagent provides enough of the agent runtime that we don't need to build our own k8s scheduling",
+    "Local models (qwen2.5-coder:7b) are good enough for routine code tasks without cloud escalation on every call",
+    "A single devcontainer with k3s + all dependencies is practical on a developer laptop (8-16GB RAM)",
+    "Declarative GitOps config separation is enforceable — Lume can be prevented from applying infra directly"
   ],
-  "next_phase_trigger": "All DoD items verified. Run /phase-complete."
+  "next_phase_trigger": "All DoD items verified and Neil gives green light. Run /phase-complete."
 }
