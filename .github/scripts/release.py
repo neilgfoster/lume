@@ -10,6 +10,11 @@ Usage:
   release.py --work-json .work/work.json --phase 1 --current-version 0.3.0
   release.py --schema   (machine-readable CLI spec)
 
+--current-version must be a canonical X.Y.Z (three dot-separated non-negative
+integers; no 'v' prefix, pre-release, or build metadata). Non-canonical input
+yields a JSON error envelope ({"error": ...}) and a non-zero exit, never a
+traceback.
+
 Output (JSON):
   {
     "phase": 1,
@@ -29,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from typing import Any
 
@@ -89,15 +95,41 @@ def compute_bump(completed_items: list[dict[str, Any]]) -> str:
     return "patch"
 
 
+# Supported version grammar: a canonical semver CORE only — exactly three
+# dot-separated non-negative integers (X.Y.Z) with no leading zeros. No 'v'
+# prefix, pre-release, or build metadata; that matches release.py's stated
+# contract (see module docstring) and the consumer version axis.
+# `\Z` (not `$`) anchors the true end of string so a trailing newline cannot
+# sneak through; re.ASCII keeps `\d` to 0-9 (not Unicode digits).
+_NUM = r"(0|[1-9]\d*)"
+_VERSION_RE = re.compile(rf"^{_NUM}\.{_NUM}\.{_NUM}\Z", re.ASCII)
+
+
+def _parse_version(current: str) -> tuple[int, int, int]:
+    """Parse a canonical X.Y.Z version into (major, minor, patch).
+
+    Raises ValueError with an actionable message on any non-canonical input
+    (e.g. ``1.2``, ``v1.2.3``, ``1.2.3-rc1``, ``""``)."""
+    m = _VERSION_RE.match(current)
+    if not m:
+        raise ValueError(
+            f"--current-version {current!r} is not a canonical X.Y.Z version "
+            "(three dot-separated non-negative integers, no leading zeros, "
+            "e.g. 1.4.2; no 'v' prefix, pre-release, or build metadata)"
+        )
+    return int(m.group(1)), int(m.group(2)), int(m.group(3))
+
+
 def next_version(current: str, bump: str) -> str:
     """Increment the X.Y.Z version string according to bump type."""
-    parts = current.split(".")
-    major, minor, patch = int(parts[0]), int(parts[1]), int(parts[2])
+    major, minor, patch = _parse_version(current)
     if bump == "major":
         return f"{major + 1}.0.0"
     if bump == "minor":
         return f"{major}.{minor + 1}.0"
-    return f"{major}.{minor}.{patch + 1}"
+    if bump == "patch":
+        return f"{major}.{minor}.{patch + 1}"
+    raise ValueError(f"unknown bump {bump!r} (expected major, minor, or patch)")
 
 
 def group_by_class(items: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
@@ -132,8 +164,14 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        _parse_version(args.current_version)
+    except ValueError as exc:
+        print(json.dumps({"error": str(exc)}))
+        return 1
+
+    try:
         items = _load_phase_completed(args.work_json, args.phase)
-    except (OSError, json.JSONDecodeError, KeyError) as exc:
+    except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
         print(json.dumps({"error": str(exc)}))
         return 1
 

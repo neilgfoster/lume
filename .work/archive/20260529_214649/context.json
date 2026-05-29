@@ -1,5 +1,5 @@
 {
-  "schema_version": "2",
+  "schema_version": "1",
   "meta": {
     "project": "EDIT ME: your-project-name",
     "work_item_prefix": "WORK",
@@ -14,9 +14,9 @@
     "_edit_me": "Update phase_0_complete to true when /phase-complete has been run."
   },
   "structure": {
-    "CLAUDE.md": "primary project context \u2014 read every session",
+    "CLAUDE.md": "primary project context — read every session",
     ".work/work.json": "backlog and active work items",
-    ".work/context.json": "this file \u2014 repo state",
+    ".work/context.json": "this file — repo state",
     ".work/session.json": "last session summary",
     ".work/phases/": "phase definitions and registry",
     ".work/decisions/": "architecture decision records (ADRs)",

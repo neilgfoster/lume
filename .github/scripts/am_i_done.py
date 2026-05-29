@@ -459,9 +459,10 @@ def check_dispatch(panel: list[str]) -> CheckResult:
 # ---------------------------------------------------------------------------
 # State backend abstraction
 # ---------------------------------------------------------------------------
-# The gate reads work items from whichever backend context.json specifies.
-# Default is "local-file" (.work/work.json). Set "state_backend":
-# "github-issues" in context.json to read from open GitHub Issues instead.
+# The gate reads work items from whichever backend hedl.toml specifies (ADR-022).
+# Default is "local-file" (.work/work.json). Set [state] backend = "github-issues"
+# in hedl.toml to read from open GitHub Issues instead. install.py migrates any
+# legacy .work/context.json "state_backend" value into hedl.toml.
 # The GitHub Issues backend expects issues with titles like "WORK-NNNN: ..."
 # and treats open issues as live items.
 
@@ -469,16 +470,15 @@ _WORK_ITEM_ID_RE = re.compile(r"^(WORK-\d+):")
 
 
 def _state_backend() -> str:
-    """Return the configured state backend name (default 'local-file')."""
-    context_path = os.path.join(REPO_ROOT, ".work", "context.json")
-    if not os.path.exists(context_path):
+    """Return the configured state backend name (default 'local-file').
+
+    Read from hedl.toml [state] backend (ADR-022).
+    """
+    config = _load_hedl_config()
+    if config is None:
         return "local-file"
-    try:
-        with open(context_path, encoding="utf-8") as fh:
-            ctx = json.load(fh)
-        return str(ctx.get("state_backend", "local-file"))
-    except (json.JSONDecodeError, KeyError, TypeError, OSError):
-        return "local-file"
+    state_section = config.get("state") or {}
+    return str(state_section.get("backend", "local-file"))
 
 
 def _load_work_items() -> tuple[set[str], Optional[str]]:
@@ -1109,7 +1109,7 @@ CLI_SPEC: dict[str, Any] = {
                         "git", "branch", "dispatch", "config", "commands",
                         "schemas", "markdown", "lint", "types", "tests",
                         "template", "dependabot", "threads", "ci",
-                        "budget", "streams", "skill-meta", "docs-index",
+                        "budget", "streams", "skill-meta", "docs-index", "doc-facts",
                     ],
                     "help": "Run only this check",
                 },
@@ -1231,6 +1231,139 @@ def check_docs_index() -> CheckResult:
     return CheckResult("docs-index", True, "all human-facing docs reachable from README.md")
 
 
+# Source-derived documentation facts (WORK-0028)
+# ---------------------------------------------------------------------------
+# Counts and names that docs assert must derive from the filesystem / config,
+# not be hand-maintained. This is the standing drift-detector: any doc fact with
+# a deterministic source is enumerated here and checked verbatim — no inference
+# (ADR-003). Modelled on check_skill_metadata (a single source of truth governs
+# what shipped docs may claim). Skips when the source tree is absent (gate-only
+# adopter installs ship am_i_done.py but not skill/hedl/).
+
+_NUMBER_WORDS = {
+    "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+    "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
+}
+
+
+def _word_or_int(token: str) -> Optional[int]:
+    token = token.strip().lower()
+    if token.isdigit():
+        return int(token)
+    return _NUMBER_WORDS.get(token)
+
+
+def _count_command_behaviours(text: str) -> int:
+    """Count `## ` command-behaviour headings in commands.md, excluding any that
+    sit inside fenced code blocks (e.g. the ADR template shown under new-decision).
+    Fence-aware rather than name-matched so renaming/adding an example heading, or
+    a real command sharing a template heading's name, cannot miscount."""
+    in_fence = False
+    n = 0
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        indent = len(line) - len(stripped)
+        # CommonMark fence: ``` or ~~~ with at most 3 spaces of indent (4+ is an
+        # indented code block, not a fence).
+        if indent <= 3 and (stripped.startswith("```") or stripped.startswith("~~~")):
+            in_fence = not in_fence
+            continue
+        if not in_fence and line.startswith("## "):
+            n += 1
+    return n
+
+
+def check_doc_generated_facts() -> Optional[CheckResult]:
+    """Fail when a documentation count/name diverges from its filesystem source.
+
+    Authoritative sources: skill/hedl/agents/*.md (core agents), tiers.json
+    (tiers), and the `##` command-behaviour headings in commands.md (outside code
+    fences). Returns None (skip) outside the Hedl source tree.
+    """
+    agents_dir = os.path.join(REPO_ROOT, "skill", "hedl", "agents")
+    if not os.path.isdir(agents_dir):
+        return None  # not the Hedl source tree
+
+    agent_names = sorted(f[:-3] for f in os.listdir(agents_dir) if f.endswith(".md"))
+    n_agents = len(agent_names)
+
+    failures: list[str] = []
+
+    # Inside the source tree (agents/ present) the sibling sources must exist and
+    # parse — a missing or corrupt source is a FAIL, not a silent skip, so the
+    # detector can never report PASS without the authority it checks against.
+    n_tiers: Optional[int] = None
+    tiers_path = os.path.join(REPO_ROOT, "skill", "hedl", "tiers.json")
+    if not os.path.exists(tiers_path):
+        failures.append("  skill/hedl/tiers.json: missing (expected in source tree)")
+    else:
+        try:
+            with open(tiers_path, encoding="utf-8") as fh:
+                n_tiers = len(json.load(fh).get("tiers", {}))
+        except (json.JSONDecodeError, OSError) as exc:
+            failures.append(f"  skill/hedl/tiers.json: unreadable/invalid ({exc})")
+
+    n_behaviours: Optional[int] = None
+    commands_md = os.path.join(REPO_ROOT, "skill", "hedl", "references", "commands.md")
+    if not os.path.exists(commands_md):
+        failures.append("  skill/hedl/references/commands.md: missing (expected in source tree)")
+    else:
+        try:
+            with open(commands_md, encoding="utf-8") as fh:
+                n_behaviours = _count_command_behaviours(fh.read())
+        except OSError as exc:
+            failures.append(f"  skill/hedl/references/commands.md: unreadable ({exc})")
+
+    def _check_number(relpath: str, pattern: str, expected: int, what: str) -> None:
+        path = os.path.join(REPO_ROOT, relpath)
+        if not os.path.exists(path):
+            return
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        # A doc that does not state the fact makes no claim to verify — only a
+        # stated-but-wrong value is drift. Every stated form is checked, so the
+        # same count written two ways (e.g. "all 7 core agents" and "(core 7)")
+        # is each verified.
+        for m in re.finditer(pattern, text):
+            if _word_or_int(m.group(1)) != expected:
+                failures.append(f"  {relpath}: {what} says {m.group(1)!r}, source has {expected}")
+
+    # Core-agent count (current reality = filesystem count). Both the prose form
+    # and the parenthetical "(core N)" form in commands.md are checked.
+    _check_number("skill/hedl/references/review-library.md",
+                  r"(\w+) core agents live as named", n_agents, "core-agent count")
+    _check_number("skill/hedl/references/agents.md",
+                  r"(\w+) core agents live as named", n_agents, "core-agent count")
+    _check_number("skill/hedl/references/commands.md",
+                  r"all (\d+) core agents", n_agents, "core-agent count")
+    _check_number("skill/hedl/references/commands.md",
+                  r"\(core (\d+)\)", n_agents, "core-agent count")
+    # Every agent file must be named (whole-word) in review-library.md.
+    rl = os.path.join(REPO_ROOT, "skill", "hedl", "references", "review-library.md")
+    if os.path.exists(rl):
+        with open(rl, encoding="utf-8") as fh:
+            rl_text = fh.read()
+        missing = [a for a in agent_names if not re.search(rf"\b{re.escape(a)}\b", rl_text)]
+        if missing:
+            failures.append(f"  review-library.md: agent(s) not named: {', '.join(missing)}")
+    # Command-behaviour count (anchored to the summary sentence) and tier count.
+    if n_behaviours is not None:
+        _check_number("skill/hedl/references/tiers.md",
+                      r"All (\d+) command behaviors", n_behaviours, "command-behaviour count")
+    if n_tiers is not None:
+        _check_number("skill/hedl/references/tiers.md",
+                      r"(\w+) tiers[^\n]*drop in", n_tiers, "tier count")
+
+    if failures:
+        return CheckResult("doc-facts", False,
+                           "documentation facts diverge from their filesystem source",
+                           "\n".join(failures))
+    return CheckResult(
+        "doc-facts", True,
+        f"doc facts match source ({n_agents} agents, {n_tiers} tiers, {n_behaviours} command behaviours)",
+    )
+
+
 def main() -> int:
     if "--schema" in sys.argv:
         print(json.dumps(CLI_SPEC, indent=2))
@@ -1296,6 +1429,8 @@ def main() -> int:
         maybe_add(check_skill_metadata())
     if not only or only == "docs-index":
         maybe_add(check_docs_index())
+    if not only or only == "doc-facts":
+        maybe_add(check_doc_generated_facts())
     # Extra declared checks: any [verify] key that is not a standard check name.
     # These only run in the default (no --check filter) mode.
     if not only:

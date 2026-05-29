@@ -4,6 +4,10 @@ Controller loop that drives a branch to an operator-ready PR. Runs the local
 gate, opens or updates the PR, then loops gate -> adversarial review -> fix
 until the PR is green and clean — or escalates with `/stuck`.
 
+Invoked automatically as the final phase of `/iterate` once implementation
+completes; also remains independently invokable to drive an existing branch
+through PR cycles without a fresh implementation step.
+
 Natural-language aliases (routed via SKILL.md): "is the PR ready",
 "check PR", "pre-PR", "PR ready".
 
