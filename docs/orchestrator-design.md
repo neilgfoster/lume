@@ -106,18 +106,22 @@ never parse prose:
 - `outcome` — enum: `accepted` | `needs_clarification` | `rejected` | `error`.
 - `reason_code` — machine-readable code. An **open, additive set** within a major
   `surface_version`; clients MUST handle unknown codes via a default branch keyed on
-  `outcome`. Build-now codes: `permission_denied`, `unknown_intent`, `needs_approval`,
+  `outcome`. Build-now codes: `permission_denied`, `unknown_intent`,
   `invalid_context_ref`, `context_in_use`, `not_found`, `idempotency_conflict`,
-  `capability_degraded`, `escalation_exhausted`.
+  `capability_degraded`, `escalation_exhausted`. (Approval gating is *not* a
+  `reason_code` — it is signalled by `pending_approval` / `pending_approvals[]`; see
+  `lume_task`.)
 - `message` — human-readable detail.
 - `clarification[]` — present only for `needs_clarification`: structured prompts.
 - `surface_version` — semver of the MCP surface; additive-only within a major. A
   client reads this to negotiate compatibility.
 
 **Field-presence rule:** the tool-specific output fields below (e.g. `task_id`,
-`plan_ref`, `items[]`, `result`) are populated **only when `outcome=accepted`**.
-Under `needs_clarification` | `rejected` | `error`, only the envelope is populated
-(plus `clarification[]` where stated). This is the contract clients branch on.
+`plan_ref`, `items[]`, `result`) are populated **only when `outcome=accepted`**, and
+then per the tool's spec **except where a documented mode omits them** (e.g. `dry_run`
+omits `task_id` — so clients must null-check it when using that mode). Under
+`needs_clarification` | `rejected` | `error`, only the envelope is populated (plus
+`clarification[]` where stated). This is the contract clients branch on.
 
 ### `lume_task` — submit an intent
 
