@@ -18,18 +18,22 @@ an MCP *server* to the external client and an MCP *client* of the agent (its `lu
 tool coordinates a multi-step task by calling the agent N times), and a `bench.py`
 external client. The full path **client → orchestrator MCP → agent MCP → result** runs.
 
-**Latency** (Python MCP SDK 1.27.2, stdio transport, warm, 100 iterations each):
+**Latency** (Python MCP SDK 1.27.2, stdio, warm, 200 iterations/config; figures are
+**p50**, taken verbatim from the committed `results.json`):
 
-| steps/task | two-layer mean | direct-baseline mean | orchestrator overhead | p95 (two-layer) |
-|-----------:|---------------:|---------------------:|----------------------:|----------------:|
-| 1 | 7.8 ms | 3.3 ms | ~4.5 ms | 10.6 ms |
-| 3 | 12.9 ms | 10.0 ms | ~2.9 ms | 19.5 ms |
-| 10 | 35.6 ms | 32.5 ms | ~3.1 ms | 52.4 ms |
+| steps/task | two-layer p50 | direct-baseline p50 | orchestrator overhead (p50) | per agent call (p50) |
+|-----------:|--------------:|--------------------:|----------------------------:|---------------------:|
+| 1 | 5.51 ms | 2.92 ms | 2.59 ms | 2.92 ms |
+| 3 | 12.22 ms | 9.32 ms | 2.89 ms | 3.11 ms |
+| 10 | 31.27 ms | 31.21 ms | 0.05 ms | 3.12 ms |
 
-The second MCP layer adds a **constant ~3–4 ms** (one extra stdio round-trip),
-**independent of step count** — it does not scale with task size. Each agent MCP call is
-~3.3 ms over stdio. All figures are single-digit-to-low-tens of ms; **negligible against
-LLM inference** (hundreds of ms to seconds), which dominates any real task.
+The orchestrator layer adds **one extra MCP round-trip per task** — measured at **~2–3 ms
+(p50)**, and at steps=10 the difference is at the **noise floor** (~0 ms). Overhead is a
+difference of two noisy stdio measurements, so the absolute ms vary run to run (an earlier
+single 100-iter run showed baseline jitter inflating it to ~9 ms); the **robust** finding
+is the order of magnitude — **single-digit ms, a constant per-task hop (not per-step)** —
+and that it is **negligible against LLM inference** (hundreds of ms to seconds), which
+dominates any real task. Each agent MCP call is ~3 ms over stdio.
 
 **SDK options evaluated:**
 
@@ -56,8 +60,9 @@ its agents (PoC pattern), not spawn a process per task.
 ## Consequences
 
 - The architecture's central premise is validated: layering the orchestrator over agent
-  MCPs is cheap (~3–4 ms/hop) and the cost is constant, not per-step — it will be lost in
-  the noise of inference. No reason to flatten the two layers for performance.
+  MCPs is cheap (~2–3 ms/hop p50, often at the measurement noise floor) and the cost is
+  constant, not per-step — it will be lost in the noise of inference. No reason to flatten
+  the two layers for performance.
 - **Server-as-client nesting works**: the orchestrator being both an MCP server and an MCP
   client (via lifespan-managed agent sessions) is a clean, supported pattern — this is how
   Layer 1 coordinates Layer 2.

@@ -25,18 +25,21 @@ client (bench.py) --stdio--> orchestrator_server.py --stdio--> agent_server.py
 ```bash
 uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python mcp        # pinned: mcp 1.27.2
-.venv/bin/python bench.py 100 3                      # iterations, steps-per-task
+.venv/bin/python bench.py suite                      # writes the canonical multi-config run
+.venv/bin/python bench.py 200 3                      # or a single config: iterations, steps
 ```
 
-`results.json` holds a captured run (100 iterations, 3 steps). The `.venv` is gitignored.
+`results.json` holds the canonical suite (200 iterations/config, configs 1/3/10). The
+`.venv` is gitignored.
 
-## Result (this machine, stdio, warm)
+## Result (this machine, stdio, warm; p50 from results.json)
 
-| steps | two-layer mean | baseline mean | orchestrator overhead | per agent call |
-|------:|---------------:|--------------:|----------------------:|---------------:|
-| 1 | 7.8 ms | 3.3 ms | ~4.5 ms | 3.3 ms |
-| 3 | 12.9 ms | 10.0 ms | ~2.9 ms | 3.3 ms |
-| 10 | 35.6 ms | 32.5 ms | ~3.1 ms | 3.2 ms |
+| steps | two-layer p50 | baseline p50 | orchestrator overhead (p50) | per agent call |
+|------:|--------------:|-------------:|----------------------------:|---------------:|
+| 1 | 5.51 ms | 2.92 ms | 2.59 ms | 2.92 ms |
+| 3 | 12.22 ms | 9.32 ms | 2.89 ms | 3.11 ms |
+| 10 | 31.27 ms | 31.21 ms | 0.05 ms | 3.12 ms |
 
-The orchestrator layer adds a **constant ~3–4 ms** (one extra stdio MCP round-trip),
-independent of step count — single-digit ms, negligible against LLM inference.
+The orchestrator layer adds **one extra MCP round-trip per task** — ~2–3 ms (p50), at the
+noise floor by steps=10. Overhead is a noisy difference of two stdio measurements; the
+robust finding is single-digit ms, constant per-task, negligible vs LLM inference.

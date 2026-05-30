@@ -74,24 +74,39 @@ async def _baseline(steps, iterations, warmup=5):
             return lat
 
 
-async def main(iterations=100, steps=3):
-    two_layer = await _measure(_ORCH, "lume_task", {"steps": steps}, iterations)
-    baseline = await _baseline(steps, iterations)
-    two = _stats("two_layer (client->orch->agent)", two_layer, steps=steps)
-    base = _stats("baseline (client->agent direct)", baseline, steps=steps)
-    overhead_ms = round(two["mean_ms"] - base["mean_ms"], 3)
-    out = {
-        "steps_per_task": steps,
+async def _one(steps, iterations):
+    two = _stats("two_layer", await _measure(_ORCH, "lume_task", {"steps": steps}, iterations), steps=steps)
+    base = _stats("baseline", await _baseline(steps, iterations), steps=steps)
+    # Overhead is a difference of two noisy means, so report BOTH mean- and
+    # median-based: the median diff is the steadier signal (less jitter-sensitive).
+    return {
+        "steps": steps,
         "two_layer": two,
         "baseline": base,
-        "orchestrator_layer_overhead_mean_ms": overhead_ms,
-        "per_agent_call_mean_ms": round(base["mean_ms"] / steps, 3),
+        "overhead_mean_ms": round(two["mean_ms"] - base["mean_ms"], 3),
+        "overhead_p50_ms": round(two["p50_ms"] - base["p50_ms"], 3),
+        "per_agent_call_p50_ms": round(base["p50_ms"] / steps, 3),
+    }
+
+
+async def suite(iterations=200, step_configs=(1, 3, 10)):
+    runs = [await _one(s, iterations) for s in step_configs]
+    out = {
+        "note": "Overhead is a difference of two noisy stdio measurements; the p50 diff "
+                "is the steadier signal. Absolute ms vary run to run — the robust finding "
+                "is the order of magnitude (single-digit ms) and that overhead is a "
+                "constant per-task hop, not per-step.",
+        "iterations_per_config": iterations,
+        "runs": runs,
     }
     print(json.dumps(out, indent=2))
     return out
 
 
 if __name__ == "__main__":
-    it = int(sys.argv[1]) if len(sys.argv) > 1 else 100
-    st = int(sys.argv[2]) if len(sys.argv) > 2 else 3
-    asyncio.run(main(it, st))
+    if len(sys.argv) > 1 and sys.argv[1] == "suite":
+        asyncio.run(suite())
+    else:
+        it = int(sys.argv[1]) if len(sys.argv) > 1 else 200
+        st = int(sys.argv[2]) if len(sys.argv) > 2 else 3
+        asyncio.run(suite(it, (st,)))
