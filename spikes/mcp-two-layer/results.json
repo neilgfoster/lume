@@ -1,0 +1,84 @@
+{
+  "note": "Overhead is a difference of two noisy stdio measurements; the p50 diff is the steadier signal. Absolute ms vary run to run \u2014 the robust finding is the order of magnitude (single-digit ms) and that overhead is a constant per-task hop, not per-step.",
+  "iterations_per_config": 200,
+  "runs": [
+    {
+      "steps": 1,
+      "two_layer": {
+        "path": "two_layer",
+        "steps": 1,
+        "iterations": 200,
+        "mean_ms": 5.79,
+        "p50_ms": 5.51,
+        "p95_ms": 9.222,
+        "min_ms": 2.661,
+        "max_ms": 16.767
+      },
+      "baseline": {
+        "path": "baseline",
+        "steps": 1,
+        "iterations": 200,
+        "mean_ms": 3.124,
+        "p50_ms": 2.92,
+        "p95_ms": 5.113,
+        "min_ms": 1.472,
+        "max_ms": 7.84
+      },
+      "overhead_mean_ms": 2.666,
+      "overhead_p50_ms": 2.59,
+      "per_agent_call_p50_ms": 2.92
+    },
+    {
+      "steps": 3,
+      "two_layer": {
+        "path": "two_layer",
+        "steps": 3,
+        "iterations": 200,
+        "mean_ms": 12.361,
+        "p50_ms": 12.217,
+        "p95_ms": 18.834,
+        "min_ms": 5.619,
+        "max_ms": 24.246
+      },
+      "baseline": {
+        "path": "baseline",
+        "steps": 3,
+        "iterations": 200,
+        "mean_ms": 9.679,
+        "p50_ms": 9.324,
+        "p95_ms": 15.885,
+        "min_ms": 4.612,
+        "max_ms": 20.873
+      },
+      "overhead_mean_ms": 2.682,
+      "overhead_p50_ms": 2.893,
+      "per_agent_call_p50_ms": 3.108
+    },
+    {
+      "steps": 10,
+      "two_layer": {
+        "path": "two_layer",
+        "steps": 10,
+        "iterations": 200,
+        "mean_ms": 33.103,
+        "p50_ms": 31.265,
+        "p95_ms": 48.551,
+        "min_ms": 18.785,
+        "max_ms": 56.689
+      },
+      "baseline": {
+        "path": "baseline",
+        "steps": 10,
+        "iterations": 200,
+        "mean_ms": 31.566,
+        "p50_ms": 31.211,
+        "p95_ms": 46.339,
+        "min_ms": 15.912,
+        "max_ms": 56.741
+      },
+      "overhead_mean_ms": 1.537,
+      "overhead_p50_ms": 0.054,
+      "per_agent_call_p50_ms": 3.121
+    }
+  ]
+}

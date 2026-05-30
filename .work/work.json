@@ -7,22 +7,6 @@
   "active": [],
   "backlog": [
     {
-      "id": "WORK-0007",
-      "title": "Spike: MCP SDK + two-layer pattern",
-      "phase": 0,
-      "workstream": "WS-TECH",
-      "change_class": "spike",
-      "status": "backlog",
-      "description": "Prove the two-layer MCP architecture in practice: an orchestrator MCP server that coordinates a downstream agent MCP server. Measure latency. Evaluate SDK options. Produce a GO/NO-GO verdict.",
-      "acceptance_criteria": [
-        "spikes/mcp-two-layer/ contains a working proof of concept",
-        "PoC demonstrates: external client → orchestrator MCP → agent MCP → result",
-        "Latency measured for a representative multi-step task",
-        "SDK options evaluated (Python MCP SDK, TypeScript MCP SDK, others)",
-        "decisions/ADR-001-mcp-two-layer.md written with GO/NO-GO verdict and rationale"
-      ]
-    },
-    {
       "id": "WORK-0008",
       "title": "Spike: kagent evaluation",
       "phase": 0,
@@ -156,6 +140,23 @@
     }
   ],
   "completed": [
+    {
+      "id": "WORK-0007",
+      "title": "Spike: MCP SDK + two-layer pattern",
+      "phase": 0,
+      "workstream": "WS-TECH",
+      "change_class": "spike",
+      "status": "completed",
+      "completed_date": "2026-05-30",
+      "description": "Prove the two-layer MCP architecture in practice: an orchestrator MCP server that coordinates a downstream agent MCP server. Measure latency. Evaluate SDK options. Produce a GO/NO-GO verdict.",
+      "acceptance_criteria": [
+        "spikes/mcp-two-layer/ contains a working proof of concept",
+        "PoC demonstrates: external client → orchestrator MCP → agent MCP → result",
+        "Latency measured for a representative multi-step task",
+        "SDK options evaluated (Python MCP SDK, TypeScript MCP SDK, others)",
+        "decisions/ADR-001-mcp-two-layer.md written with GO/NO-GO verdict and rationale"
+      ]
+    },
     {
       "id": "WORK-0006",
       "title": "Write CLI and self-building requirements",
