@@ -1,27 +1,10 @@
 {
   "meta": {
     "current_phase": 0,
-    "active_item": "WORK-0002",
+    "active_item": null,
     "last_updated": "2026-05-30"
   },
-  "active": [
-    {
-      "id": "WORK-0002",
-      "title": "Write orchestrator design doc",
-      "phase": 0,
-      "workstream": "WS-REQ",
-      "change_class": "docs",
-      "status": "active",
-      "description": "Document the Lume Orchestrator's responsibilities, MCP surface (max 5 tools), state model, failure model, and multi-agent workflow coordination approach.",
-      "acceptance_criteria": [
-        "docs/orchestrator-design.md exists",
-        "MCP tool surface defined (max 5 tools, each with name, description, inputs, outputs)",
-        "State model documented: what state the orchestrator holds, where, how it flows",
-        "Failure model documented: what happens when an agent fails, times out, or returns a bad result",
-        "Neil has reviewed and approved (explicit APPROVE in conversation)"
-      ]
-    }
-  ],
+  "active": [],
   "backlog": [
     {
       "id": "WORK-0003",
@@ -239,6 +222,23 @@
     }
   ],
   "completed": [
+    {
+      "id": "WORK-0002",
+      "title": "Write orchestrator design doc",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "completed",
+      "completed_date": "2026-05-30",
+      "description": "Document the Lume Orchestrator's responsibilities, MCP surface (max 5 tools), state model, failure model, and multi-agent workflow coordination approach.",
+      "acceptance_criteria": [
+        "docs/orchestrator-design.md exists",
+        "MCP tool surface defined (max 5 tools, each with name, description, inputs, outputs)",
+        "State model documented: what state the orchestrator holds, where, how it flows",
+        "Failure model documented: what happens when an agent fails, times out, or returns a bad result",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
     {
       "id": "WORK-0001",
       "title": "Write core requirements doc",
