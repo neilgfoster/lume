@@ -7,24 +7,6 @@
   "active": [],
   "backlog": [
     {
-      "id": "WORK-0004",
-      "title": "Write security and auth requirements",
-      "phase": 0,
-      "workstream": "WS-REQ",
-      "change_class": "docs",
-      "status": "backlog",
-      "description": "Document the threat model, identity model, blast radius controls, audit requirements, and build-vs-adopt decisions for Lume's security architecture.",
-      "acceptance_criteria": [
-        "docs/security-requirements.md exists",
-        "Threat model: attack surfaces, trust boundaries, adversary goals",
-        "Identity model: all identity levels and their trust/permission scope",
-        "Blast radius controls: how each level is enforced, who can approve high-blast actions",
-        "Audit requirements: what is logged, where, retention, tamper-evidence",
-        "Build vs adopt: for each security capability, decision on building or adopting existing tool",
-        "Neil has reviewed and approved (explicit APPROVE in conversation)"
-      ]
-    },
-    {
       "id": "WORK-0005",
       "title": "Write data and state architecture",
       "phase": 0,
@@ -208,6 +190,25 @@
     }
   ],
   "completed": [
+    {
+      "id": "WORK-0004",
+      "title": "Write security and auth requirements",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "completed",
+      "completed_date": "2026-05-30",
+      "description": "Document the threat model, identity model, blast radius controls, audit requirements, and build-vs-adopt decisions for Lume's security architecture.",
+      "acceptance_criteria": [
+        "docs/security-requirements.md exists",
+        "Threat model: attack surfaces, trust boundaries, adversary goals",
+        "Identity model: all identity levels and their trust/permission scope",
+        "Blast radius controls: how each level is enforced, who can approve high-blast actions",
+        "Audit requirements: what is logged, where, retention, tamper-evidence",
+        "Build vs adopt: for each security capability, decision on building or adopting existing tool",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
     {
       "id": "WORK-0003",
       "title": "Write agent boundary analysis",
