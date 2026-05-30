@@ -1,18 +1,23 @@
 # Lume — Core Requirements
 
-**Status**: approved
+**Status**: in review (revised after adversarial review; awaiting re-approval)
 **Author**: Neil Foster (interview), synthesised by Claude Code
 **Date**: 2026-05-30
-**Approved by**: Neil Foster — 2026-05-30
 **Work item**: WORK-0001
 
 ---
 
 This document records *what Lume must be and do* at the requirements level. It
 contains no architecture decisions and no implementation detail — those belong
-to the design docs and ADRs that follow. Where this document conflicts with the
-current framing in `CLAUDE.md` (which reads as "Lume is an IDP"), **this document
-is the corrected, broader intent.** `CLAUDE.md` should be reconciled to it.
+to the design docs and ADRs that follow.
+
+**Relationship to `CLAUDE.md`.** `CLAUDE.md` currently frames Lume narrowly as an
+IDP and is *not* changed by this document. Reconciling it is tracked as a separate
+follow-up (**WORK-0015**) and must not be assumed done. Until that lands, the
+governing rule is: **for Lume's vision, scope, and the must-nots in section 3,
+this document governs; for Phase 0 process, gates, and review discipline,
+`CLAUDE.md` governs.** Where the two still conflict on vision, this document is
+the corrected, broader intent.
 
 ---
 
@@ -89,13 +94,17 @@ non-Lume projects.
 
 **The primary pain:** ambitions outrun budget. The cost of frontier AI usage
 (Claude Code on a Pro plan) caps how much can be built. The first job of Lume is
-to absorb the grunt work onto local models so that fixed budget goes further.
+to absorb the **grunt work** onto local models so that fixed budget goes further.
+*Grunt work* here means low-novelty or deterministic tasks a local model can
+complete within validation limits — as distinct from the frontier-only work that
+genuinely needs a cloud model.
 
 **Incremental adoption is a requirement, not a nice-to-have.** Lume must never be
-all-or-nothing. A new user must be able to offload one or two responsibilities to
-Lume while keeping their current tools, then expand Lume's role over time until
-the balance feels right — anywhere from "Lume for simple stuff only" to "Lume for
-everything." That balance is the operator's choice at all times.
+all-or-nothing. The system requirement: **any subset of responsibilities can be
+offloaded to Lume — and revoked — at any time**, with the rest staying on the
+operator's existing tools. This spans the full range from "Lume for simple stuff
+only" to "Lume for everything." Which subset is active is the operator's choice
+at all times.
 
 ---
 
@@ -107,9 +116,12 @@ Hard lines and default postures Lume must honour.
 
 1. **No tech-stack lock-in.** Lume must never tie the operator to a particular
    third-party tech stack. Everything modular, everything swappable, with clean
-   contracts providing abstraction at every level. (This is the structural
-   expression of the independence north star — it applies even to current
-   defaults like Kubernetes and Ollama.)
+   contracts providing abstraction at every level. A *clean contract* here means a
+   typed boundary that hides the vendor behind it, such that swapping the
+   implementation requires no change to callers. The hard line is on the
+   *principle*, not on any technology — current defaults (e.g. Kubernetes, Ollama)
+   are permitted precisely because they sit behind such contracts and stay
+   swappable.
 2. **No private data to third parties without explicit opt-in.** Private code or
    data must never be sent to a cloud model or external service unless the
    operator has explicitly opted in.
@@ -117,8 +129,10 @@ Hard lines and default postures Lume must honour.
    or what to do next. Those are always deterministic outputs. (A core HEDL
    fundamental, carried into Lume.)
 4. **Use inference only where it is genuinely needed.** Everything else is
-   deterministic. This is possibly *the* central engineering principle, ranked
-   alongside independence.
+   deterministic. The decision rule is concrete (per `CLAUDE.md`): *if a function
+   can do it, an LLM must not.* "Genuinely needed" means no deterministic
+   function or lookup can produce the output. This is possibly *the* central
+   engineering principle, ranked alongside independence.
 
 ### Permanent discipline
 
@@ -136,23 +150,33 @@ Hard lines and default postures Lume must honour.
    data, spending money, sending external communications (email, voice, posts).
 
    Postures 6 and 7 are **not fixed**. Lume operates an **earned-autonomy model**:
-   it can gain more autonomy over time by demonstrating reliability (e.g. through
-   adversarial review and a reputation/track-record signal). As Lume proves it
-   does things right, guardrails can be relaxed. The system must be *capable* of
-   safely relaxing them; the mechanism for doing so is a design concern, not a
+   it can gain more autonomy over time by demonstrating reliability — measured on
+   the rate of validated-correct outputs within a given blast-radius class (e.g.
+   via adversarial review and a track-record signal). As Lume proves it does
+   things right, guardrails can be relaxed. The system must be *capable* of safely
+   relaxing them; the threshold and mechanism are a design concern, not a
    requirement here.
+
+   **Deliberate revision of `CLAUDE.md`.** This earned-autonomy posture
+   intentionally supersedes `CLAUDE.md`'s current absolute rule that *"High always
+   requires human approval — no exceptions."* Under the earned-autonomy model that
+   rule becomes the *default*, not a permanent absolute. Resolving the wording in
+   `CLAUDE.md` is part of the reconciliation tracked as **WORK-0015**.
 
 ---
 
 ## 4. Success metrics
 
 **Headline outcome — leverage at fixed cost.** Lume succeeds if the operator
-**builds and delivers more on the same budget.** Spend stays roughly flat (the
-existing Claude Code Pro plan). Token usage may not drop — and that is fine,
-because freed tokens are redirected to the genuinely hard, frontier-only problems
-while Lume absorbs the rest. There will always be more ideas than budget; Lume's
-first measure of success is enabling more of those ideas to be realised within a
-realistic timeframe and budget.
+**delivers more per fixed budget.** The counted unit is **delivered work items /
+merged PRs per month**, compared against the pre-Lume baseline. "Fixed budget"
+means **no new paid spend beyond the existing Claude Code Pro plan** (token usage
+within that plan may not drop — and that is fine, because freed tokens are
+redirected to the genuinely hard, frontier-only problems while Lume absorbs the
+rest). There will always be more ideas than budget; Lume's first measure of
+success is enabling more of those ideas to be realised in a realistic timeframe.
+Precise numeric targets and the baseline window are deferred (see open
+questions).
 
 **Diagnostic indicators** (explain *why* throughput rose):
 
@@ -182,8 +206,11 @@ the *principles* (independence, determinism-over-inference, no lock-in,
 modularity, validation loops, the earned-autonomy posture).
 
 - **HEDL** — a must, for now. The foundation that gets Lume off the ground
-  (including work tracking). May become redundant as Lume's capabilities grow,
-  or persist for non-Lume projects.
+  (including work tracking). This is an **acknowledged bootstrap-period
+  dependency**, not a counter-example to the no-lock-in hard line: that line
+  forbids creating *new permanent* lock-in, and HEDL's long-term fate is an
+  explicit open question (see section 6). It may become redundant as Lume's
+  capabilities grow, or persist for non-Lume projects.
 - **Kubernetes** — current best answer for scaling from one desktop to
   enterprise. **Not a permanent constraint** — open to alternatives; sits behind
   a clean contract like everything else.
@@ -219,7 +246,8 @@ as the work proceeds rather than up front.
 
 ## Sign-off
 
-- [x] **Neil has reviewed and explicitly approved this document.** (2026-05-30)
+- [x] Neil approved the original draft (2026-05-30).
+- [ ] **Neil has re-approved after adversarial-review revisions.**
 
-*Once approved, `CLAUDE.md` should be reconciled to the broader
-"platform + capabilities + templates" framing recorded here.*
+*`CLAUDE.md` reconciliation to the broader "platform + capabilities + templates"
+framing is tracked as **WORK-0015** — not done in this document.*
