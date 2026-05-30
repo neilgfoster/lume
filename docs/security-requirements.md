@@ -73,7 +73,11 @@ spike** (§6) — Phase 0 evaluates, it does not install.
   deterministic cloud-escalation gate reads the label from the signed envelope (not
   mutable store metadata) and **strips or blocks (never silently sends)** any payload
   above the operator's cloud-egress ceiling; an unverifiable label is treated as
-  over-ceiling. Egress is classified, audited, gated; local-first default.
+  over-ceiling. Egress is classified, audited, gated; local-first default. Context
+  ingestion (`lume_context` writes) is itself subject to the full pipeline (identity +
+  permission), and the label is **bound to the verified submitter identity, not
+  self-declared by the payload** — untrusted content cannot be laundered as high-trust
+  context.
 - **Operator error / approval spoofing** — the human approves something destructive, or
   is socially-engineered by a benign-washed `applied_effects` self-report. *Mitigation:*
   approval prompts for medium/high show the **actual change** — the rendered diff from the
@@ -199,7 +203,10 @@ capability's effective trust is realised as an audited grant, not a base-level m
   composed-privilege-escalation adversary goal). The aggregation dimensions (spend,
   data-movement, irreversibility count), the scoring function, and the default
   operator-configurable budgets are specified by the security-stack spike (§6) — this is
-  a named requirement with a routed mechanism, not a placeholder.
+  a named requirement with a routed mechanism, not a placeholder. Because `applied_effects`
+  are capability-reported, the orchestrator **cross-checks** at least each effect's
+  irreversibility flag and external id against the write-ahead record before the scorer
+  consumes them — a capability cannot under-report to dodge budget escalation.
 - **Approval authority.** `high`/irreversible → human by default (a matching active grant
   may pre-authorise a class). `medium` → policy; `low`/`none` → proceed under scope.
   `lume-agent-local` can never act on `high`. **Cloud-escalation limits** (rate/spend per
@@ -232,11 +239,16 @@ capability's effective trust is realised as an audited grant, not a base-level m
   to agents.
 - **Approval integrity.** An `approval_id` is an **unguessable CSPRNG token**;
   `lume_approve` **verifies the caller's trust meets the gated action's `required_trust`**
-  before acting (not merely that the id is valid), and `lume_status` does not return a
-  pending approval to an identity below that required trust.
+  before acting (not merely that the id is valid), and its `idempotency_key` is scoped per
+  identity. `lume_status` returns **no field of a pending approval descriptor** (not just
+  the id — also `blast_radius`, `prompt`, `step_id`) to an identity below the required
+  trust, so in-flight high-blast operations are not leaked.
 - **Emission/observability:** events emitted via **OpenTelemetry** for the Obs capability
   to consume — but the signed append-only log, not the telemetry pipeline, is
-  authoritative.
+  authoritative. The OTel path is **best-effort for detection**: an emission failure is
+  itself recorded in the append-only log, and the Obs capability must not be the *sole*
+  alerting path for security-relevant/high-blast events (so a compromised emitter cannot
+  silence detection).
 - **Retention:** security-relevant records retained **permanently** by default
   (configurable); never silently truncated.
 
@@ -284,7 +296,10 @@ dependency, consistent with OSS-only-by-default.
 - **Secrets management** — choose a candidate against criteria: encrypted-at-rest;
   never appears in any audit/telemetry record; integrates with SPIRE so agents *fetch*
   rather than store; secrets never mounted where a capability's MCP tools (e.g.
-  `read_files`) or its LLM context can read them.
+  `read_files`) or its LLM context can read them. **Caveat:** if any Phase 1 capability
+  handles external credentials (Git tokens, cloud-model keys, registry creds), secrets
+  management is **promoted to a Phase 1 blocker** — Phase 1 scope must be audited against
+  these criteria before such a capability ships.
 - **Prompt-injection & semantic-validation efficacy** — adversarial red-team pass,
   alongside the validation-loop spike (WORK-0011).
 - **Multi-tenant isolation** — Phase 2+.
