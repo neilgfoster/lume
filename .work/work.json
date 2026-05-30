@@ -7,23 +7,6 @@
   "active": [],
   "backlog": [
     {
-      "id": "WORK-0005",
-      "title": "Write data and state architecture",
-      "phase": 0,
-      "workstream": "WS-REQ",
-      "change_class": "docs",
-      "status": "backlog",
-      "description": "Document what state Lume holds, where it lives, how it flows between components, context store design, and local vs cloud storage decisions.",
-      "acceptance_criteria": [
-        "docs/data-architecture.md exists",
-        "State inventory: every category of state Lume holds, with owner and lifetime",
-        "Data flow diagram or equivalent prose: how state moves between orchestrator and agents",
-        "Context store design: how agent context is compressed, stored, retrieved",
-        "Local vs cloud storage decision for each state category",
-        "Neil has reviewed and approved (explicit APPROVE in conversation)"
-      ]
-    },
-    {
       "id": "WORK-0006",
       "title": "Write CLI and self-building requirements",
       "phase": 0,
@@ -190,6 +173,24 @@
     }
   ],
   "completed": [
+    {
+      "id": "WORK-0005",
+      "title": "Write data and state architecture",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "completed",
+      "completed_date": "2026-05-30",
+      "description": "Document what state Lume holds, where it lives, how it flows between components, context store design, and local vs cloud storage decisions.",
+      "acceptance_criteria": [
+        "docs/data-architecture.md exists",
+        "State inventory: every category of state Lume holds, with owner and lifetime",
+        "Data flow diagram or equivalent prose: how state moves between orchestrator and agents",
+        "Context store design: how agent context is compressed, stored, retrieved",
+        "Local vs cloud storage decision for each state category",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
     {
       "id": "WORK-0004",
       "title": "Write security and auth requirements",

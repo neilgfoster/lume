@@ -8,6 +8,7 @@
 - [Orchestrator design](docs/orchestrator-design.md)
 - [Agent boundary analysis](docs/agent-boundaries.md)
 - [Security and auth requirements](docs/security-requirements.md)
+- [Data and state architecture](docs/data-architecture.md)
 
 ## Spec templates
 
