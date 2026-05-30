@@ -168,8 +168,9 @@ Hard lines and default postures Lume must honour.
 ## 4. Success metrics
 
 **Headline outcome — leverage at fixed cost.** Lume succeeds if the operator
-**delivers more per fixed budget.** The counted unit is **delivered work items /
-merged PRs per month**, compared against the pre-Lume baseline. "Fixed budget"
+**delivers more per fixed budget.** The canonical headline unit is **merged PRs
+per month** (delivered work items are tracked as a secondary diagnostic),
+compared against the pre-Lume baseline. "Fixed budget"
 means **no new paid spend beyond the existing Claude Code Pro plan** (token usage
 within that plan may not drop — and that is fine, because freed tokens are
 redirected to the genuinely hard, frontier-only problems while Lume absorbs the
@@ -204,6 +205,13 @@ movement in it. Precise targets are deferred (see open questions).
 There are **no permanent technology constraints.** The only non-negotiables are
 the *principles* (independence, determinism-over-inference, no lock-in,
 modularity, validation loops, the earned-autonomy posture).
+
+**Deliberate narrowing of `CLAUDE.md`.** `CLAUDE.md` principle 10 states *"OSS
+only — no paid runtime dependencies."* This document narrows it: Lume must require
+**no paid runtime dependency by default** — it must run fully on open-source plus
+local models — but **operator-chosen** paid services (e.g. AWS Bedrock, the Claude
+Code Pro plan) are permitted when the operator opts in. Reconciling the wording is
+part of **WORK-0015**.
 
 - **HEDL** — a must, for now. The foundation that gets Lume off the ground
   (including work tracking). This is an **acknowledged bootstrap-period

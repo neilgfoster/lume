@@ -6,7 +6,7 @@
 **Session:** in-session
 **Depth:** Standard
 **Commit:** 32a153b
-**Verdict:** CONDITIONAL — findings actioned in-PR; doc revised, awaiting operator re-approval.
+**Verdict:** cycle 1 CONDITIONAL → cycle 2 PASS (zero BLOCKING). Findings actioned in-PR; awaiting operator re-approval.
 
 ## Dimension Scores
 
@@ -63,7 +63,20 @@
   requirements altitude — fuller quantification would cross into architecture (criterion 3),
   which scope-auditor confirmed.
 
+## Cycle 2 (verification, commit 6e84826)
+
+Re-ran the same panel against the revised doc. **Zero BLOCKING.**
+
+- scope-auditor: no findings — revisions did not introduce scope/architecture violations.
+- contradiction-finder: confirmed the cycle-1 BLOCKING is genuinely resolved (jurisdiction split,
+  CLAUDE.md's unchanged state explicit, WORK-0015 tracked). One new SIGNIFICANT: CLAUDE.md
+  principle 10 "OSS only — no paid runtime dependencies" vs the doc's Bedrock/Claude-Pro
+  provisions. **FIXED:** explicit narrowing note added; WORK-0015 extended to name it.
+- ambiguity-hunter: one MINOR — headline metric slash conflated two units. **FIXED:** canonical
+  unit set to merged PRs/month; work items demoted to diagnostic.
+
 ## Next Actions
 
-- CONDITIONAL → revisions applied; proceed once Neil re-approves the revised doc.
-- `CLAUDE.md` reconciliation tracked as **WORK-0015** — must not be assumed done.
+- Stop condition met (0 BLOCKING). Proceed once Neil re-approves the revised doc.
+- `CLAUDE.md` reconciliation tracked as **WORK-0015** (now names 3 conflicts) — must not be
+  assumed done; gate it before Phase 1 implementation.

@@ -228,10 +228,11 @@
       "workstream": "WS-REQ",
       "change_class": "docs",
       "status": "backlog",
-      "description": "Update CLAUDE.md so its framing matches the approved docs/requirements.md: Lume as an extensible AI platform (capabilities + templates) with the SDLC as the first/bootstrap template, not an IDP-only system. Reconcile the security-model 'High always requires human approval — no exceptions' line with the earned-autonomy posture recorded in requirements.md. Raised by adversarial review of WORK-0001 (two contradictory governing documents).",
+      "description": "Update CLAUDE.md so its framing matches the approved docs/requirements.md: Lume as an extensible AI platform (capabilities + templates) with the SDLC as the first/bootstrap template, not an IDP-only system. Reconcile three named contradictions: (1) the security-model 'High always requires human approval — no exceptions' line vs the earned-autonomy posture; (2) principle 10 'OSS only — no paid runtime dependencies' vs operator-chosen paid services (Bedrock, Claude Pro) being permitted; (3) the IDP-only vision framing. Raised by adversarial review of WORK-0001.",
       "acceptance_criteria": [
         "CLAUDE.md vision framing matches docs/requirements.md (platform + capabilities + templates; SDLC is first template)",
         "CLAUDE.md security model reconciled with the earned-autonomy posture (no silent contradiction on high-blast-radius approval)",
+        "CLAUDE.md principle 10 (OSS only) reconciled with operator-opt-in paid services (no paid runtime dependency by default; operator-chosen paid services permitted)",
         "No requirement from docs/requirements.md is contradicted by CLAUDE.md after the edit",
         "Neil has reviewed and approved (explicit APPROVE in conversation)"
       ]
