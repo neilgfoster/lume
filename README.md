@@ -5,6 +5,7 @@
 ## Requirements
 
 - [Core requirements](docs/requirements.md)
+- [Orchestrator design](docs/orchestrator-design.md)
 
 ## Spec templates
 
