@@ -7,6 +7,7 @@
 - [Core requirements](docs/requirements.md)
 - [Orchestrator design](docs/orchestrator-design.md)
 - [Agent boundary analysis](docs/agent-boundaries.md)
+- [Security and auth requirements](docs/security-requirements.md)
 
 ## Spec templates
 
