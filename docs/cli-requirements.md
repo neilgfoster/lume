@@ -126,7 +126,8 @@ as a normal change. Specifically:
 - Self-modifying changes are **high-blast by default** (they alter the running system).
 - Rolled back like any change (§3) — they are Git commits.
 
-Under earned autonomy, *these* classes can graduate to grant-pre-authorised over time.
+Under earned autonomy, *these* classes can graduate to grant-pre-authorised over time —
+subject to the Tier-2 interim block: **not** until the protected-core boundary is drawn.
 
 ### Tier 2 — the constitutional core (never autonomously modifiable)
 
@@ -145,10 +146,12 @@ idempotency key, no cached prior approval can satisfy it (this is stronger than 
 ordinary high-blast gate, which a grant may pre-authorise).
 
 **Interim safe default (until the boundary is drawn):** every change to the `lume/`
-orchestration repo (Lume modifying itself) is treated as **core-touching** — non-grantable
-and human-gated. The boundary is deliberately over-approximated until WORK-0014 draws the
-precise one; **no Tier-1 self-modification class may graduate to grant-pre-authorised
-until that boundary exists.**
+orchestration repo (Lume modifying itself) — **and** to constitutional-core policy/config
+wherever it lives (e.g. the OPA blast/approval/grant policy and audit-key config, which
+may sit in the `config/` GitOps repo, not `lume/`) — is treated as **core-touching**:
+non-grantable and human-gated. The boundary is deliberately over-approximated until
+WORK-0014 draws the precise one (and confirms where core policy resides); **no Tier-1
+self-modification class may graduate to grant-pre-authorised until that boundary exists.**
 
 Why this tier exists: without it, the earned-autonomy model is self-referentially unsafe
 — a sufficiently-trusted Lume could grant itself the right to relax its own guardrails. A
