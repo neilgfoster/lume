@@ -1,33 +1,17 @@
 {
   "meta": {
     "current_phase": 0,
-    "active_item": "WORK-0001",
-    "last_updated": "2026-05-29"
+    "active_item": "WORK-0002",
+    "last_updated": "2026-05-30"
   },
   "active": [
-    {
-      "id": "WORK-0001",
-      "title": "Write core requirements doc",
-      "phase": 0,
-      "workstream": "WS-REQ",
-      "change_class": "docs",
-      "status": "active",
-      "description": "Conduct a structured requirements interview with Neil and synthesise the answers into docs/requirements.md. Covers: who uses Lume and what pain does it solve in 3 months, what Lume must never do, how we know it is working, which existing tools must integrate vs can be replaced, and open questions Neil already knows about.",
-      "acceptance_criteria": [
-        "docs/requirements.md exists and covers: users and pain, must-nots, success metrics, integration constraints, known open questions",
-        "Neil has reviewed and approved the document (explicit APPROVE in conversation)",
-        "No architecture decisions or implementation details — requirements only"
-      ]
-    }
-  ],
-  "backlog": [
     {
       "id": "WORK-0002",
       "title": "Write orchestrator design doc",
       "phase": 0,
       "workstream": "WS-REQ",
       "change_class": "docs",
-      "status": "backlog",
+      "status": "active",
       "description": "Document the Lume Orchestrator's responsibilities, MCP surface (max 5 tools), state model, failure model, and multi-agent workflow coordination approach.",
       "acceptance_criteria": [
         "docs/orchestrator-design.md exists",
@@ -36,7 +20,9 @@
         "Failure model documented: what happens when an agent fails, times out, or returns a bad result",
         "Neil has reviewed and approved (explicit APPROVE in conversation)"
       ]
-    },
+    }
+  ],
+  "backlog": [
     {
       "id": "WORK-0003",
       "title": "Write agent boundary analysis",
@@ -236,6 +222,22 @@
       ]
     }
   ],
-  "completed": [],
+  "completed": [
+    {
+      "id": "WORK-0001",
+      "title": "Write core requirements doc",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "completed",
+      "completed_date": "2026-05-30",
+      "description": "Conduct a structured requirements interview with Neil and synthesise the answers into docs/requirements.md. Covers: who uses Lume and what pain does it solve in 3 months, what Lume must never do, how we know it is working, which existing tools must integrate vs can be replaced, and open questions Neil already knows about.",
+      "acceptance_criteria": [
+        "docs/requirements.md exists and covers: users and pain, must-nots, success metrics, integration constraints, known open questions",
+        "Neil has reviewed and approved the document (explicit APPROVE in conversation)",
+        "No architecture decisions or implementation details — requirements only"
+      ]
+    }
+  ],
   "archived": []
 }
