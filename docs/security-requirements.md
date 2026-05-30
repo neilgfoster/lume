@@ -46,11 +46,18 @@ spike** (§6) — Phase 0 evaluates, it does not install.
 
 - **Prompt injection** — untrusted content (repo file, issue, email, web page) steers an
   agent. The **PLAN step is inference and is the primary injection surface**: injected
-  content can steer decomposition to add an individually-valid-but-malicious step.
-  *Mitigations:* (a) untrusted content is **tagged data, never instructions** — it enters
-  an LLM only via clearly-delimited, provenance-tagged data fields, never concatenated
-  into the instruction/planning region, and is resolved by a capability during ACT, not
-  fed verbatim to the planner; (b) a steered PLAN still **cannot escape the gates** —
+  content can steer decomposition to add an individually-valid-but-malicious step. The
+  external `intent` string submitted to `lume_task` is itself attacker-controllable and
+  is a **distinct, direct injection vector** into PLAN (separate from content-pipeline
+  injection); it must be length-bounded and sanitised (no control characters / embedded
+  tool-call syntax) before entering PLAN.
+  *Mitigations:* (a) untrusted content is **tagged data, never instructions** — the
+  testable requirement: **no external/untrusted string may appear outside a delimited,
+  provenance-tagged data block in any LLM prompt**, enforced deterministically at prompt
+  assembly (not by the LLM), and resolved by a capability during ACT, not fed verbatim to
+  the planner. The data-block schema, the tag/envelope format, and the enforcement point
+  are specified by the security-stack spike and red-teamed in WORK-0011 (§6); (b) a
+  steered PLAN still **cannot escape the gates** —
   identity + OPA scope + blast-radius + human approval bound every resulting action
   regardless of what content "asked"; (c) **semantic output validation** (below) catches
   malicious-but-schema-valid outputs. The protection is the gates and the data/instruction
@@ -61,9 +68,12 @@ spike** (§6) — Phase 0 evaluates, it does not install.
   **per-call verification** (§2).
 - **Data exfiltration to cloud** — private code/data reaches a cloud model/service
   without opt-in. *Mitigation:* must-not #1; every context payload is **classified at
-  ingestion** with a confidentiality label; cloud escalation checks all in-scope payloads
-  are at/below the operator's cloud-egress ceiling and **strips or blocks (never silently
-  sends)** above it; egress is classified, audited, gated; local-first default.
+  ingestion** with a confidentiality label that is **integrity-bound to the payload**
+  (signed envelope) and **propagated through every pipeline hop including PLAN/REFINE**; a
+  deterministic cloud-escalation gate reads the label from the signed envelope (not
+  mutable store metadata) and **strips or blocks (never silently sends)** any payload
+  above the operator's cloud-egress ceiling; an unverifiable label is treated as
+  over-ceiling. Egress is classified, audited, gated; local-first default.
 - **Operator error / approval spoofing** — the human approves something destructive, or
   is socially-engineered by a benign-washed `applied_effects` self-report. *Mitigation:*
   approval prompts for medium/high show the **actual change** — the rendered diff from the
@@ -121,9 +131,13 @@ min) — no long-lived secrets in agents.
 **Identity must be verified, not just issued.** All internal MCP transport uses **mutual
 TLS with per-call SVID verification** on both sides (orchestrator verifies the
 capability's SVID; capability verifies the orchestrator's). The internal MCP socket is
-unreachable without a valid SVID. Each capability response carries a **nonce/sequence
-bound to the orchestrator's request** to prevent replay within the SVID window. A SPIRE
-adoption that issues but does not verify SVIDs is not a control.
+unreachable without a valid SVID. Each capability response carries a **CSPRNG nonce
+bound to the orchestrator's request** to prevent replay within the SVID window; the nonce
+is **recorded in the write-ahead step record before the capability is invoked** (so it
+survives a crash), a resumed orchestrator **reissues a fresh nonce** for a re-attempted
+step, and a response bearing a stale/unknown nonce is rejected (resolving the
+resume-vs-replay tension). A SPIRE adoption that issues but does not verify SVIDs is not
+a control.
 
 ### Earned autonomy = grant overlay (static base + grants)
 
@@ -136,9 +150,14 @@ capability's effective trust is realised as an audited grant, not a base-level m
   action-class is a **predicate**: `tool name + argument-constraint expression +
   optional blast-radius ceiling` (e.g. `merge_pr where author == 'dependabot[bot]'`). An
   action is pre-authorised only if it **matches the predicate AND falls within the
-  grant's bound** — a tool-name-only match is not sufficient.
-- Grants are **scoped, revocable, audited**, and may be bounded (time, count,
-  blast-radius ceiling).
+  grant's bound** — a tool-name-only match is not sufficient. Matching is **deterministic
+  and fail-closed**: an unparseable or non-matching predicate never pre-authorises. The
+  constraint-expression operator set (at least equality, set-membership, prefix/glob) and
+  full grammar are specified by the security-stack spike (§6); this doc fixes the matching
+  *model* (predicate + bound + fail-closed), not the expression grammar.
+- Grants **must carry an explicit expiry** (time and/or use-count) and may add a
+  blast-radius ceiling; an **unbounded grant is a policy violation** — OPA rejects it at
+  issuance and re-checks expiry at every evaluation. Grants are scoped, revocable, audited.
 - **Issuing a grant is itself a high-blast action — `human` only.** An agent never
   self-approves; the operator pre-approved the action-class.
 - The grant-*earning* mechanism (what evidence merits a grant) is deferred (requirements
@@ -154,10 +173,16 @@ capability's effective trust is realised as an audited grant, not a base-level m
 
 - **Tiers and rubric.** `none | low | medium | high`, assigned by a **testable rubric**
   (not author judgment alone): **high** = irreversible OR cloud spend OR external comms
-  OR cross-tenant effect; **medium** = reversible in-cluster desired-state change; **low**
-  = side-effect-free write to Lume-internal state; **none** = pure read. Every tool
-  declares its tier + `irreversible` flag in its contract; the declared tier is reviewed
-  against the rubric (self-declaration alone is not trusted).
+  OR cross-tenant effect *(cross-tenant is RESERVED until Phase 2 — inert in Phase 0/1)*;
+  **medium** = reversible in-cluster desired-state change; **low** = side-effect-free
+  write to Lume-internal state; **none** = pure read. Every tool declares its tier +
+  `irreversible` flag in its contract; the declared tier is reviewed against the rubric
+  (self-declaration alone is not trusted).
+- **Required-trust** is a typed field every tool contract declares (reviewed like the
+  blast tier): the **minimum base trust permitted to invoke the tool**. Default rubric:
+  high-blast tools require ≥ `standard`; `lume-agent-local` (low) is suggest-only and may
+  invoke no tool above `none`/`low`. Detailed per-tool assignment is part of the tool
+  contracts (WORK-0003) / the spike.
 - **Per-tool coverage** (from WORK-0003): the delete tools (`delete_workload_manifest`,
   `delete_provisioned_artifact`, and Obs's delete path in `write_obs_artifact`) are
   `high`; `write_crossplane_claim` (cloud spend) is `high`; tools with external side
@@ -168,9 +193,13 @@ capability's effective trust is realised as an audited grant, not a base-level m
   Required-trust is a precondition composed *before* the blast-radius check — not a
   redundant field.
 - **Cumulative / workflow-level blast.** Beyond per-step: a workflow's cumulative
-  `applied_effects[]` are scored against spend / data-movement / irreversibility budgets,
-  so a sequence of individually-low-blast steps that sums to a high effect is gated. This
-  is distinct from per-tool classification.
+  `applied_effects[]` are scored across the workflow, and **crossing a budget escalates
+  the workflow's required approval to the summed tier** — so a sequence of
+  individually-low-blast steps that sums to a high effect is gated (defends the
+  composed-privilege-escalation adversary goal). The aggregation dimensions (spend,
+  data-movement, irreversibility count), the scoring function, and the default
+  operator-configurable budgets are specified by the security-stack spike (§6) — this is
+  a named requirement with a routed mechanism, not a placeholder.
 - **Approval authority.** `high`/irreversible → human by default (a matching active grant
   may pre-authorise a class). `medium` → policy; `low`/`none` → proceed under scope.
   `lume-agent-local` can never act on `high`. **Cloud-escalation limits** (rate/spend per
@@ -189,14 +218,22 @@ capability's effective trust is realised as an audited grant, not a base-level m
   truth for "what happened."
 - **Where:** an **append-only** store, separate from mutable workflow state.
 - **Tamper-evidence:** records are **chained and signed** so any deletion/edit is
-  detectable. **The signing key lives in a separate trust domain from the orchestrator
-  runtime** (e.g. a transparency log such as Sigstore/Rekor, or a hardware-backed/separate
-  identity), so a compromised orchestrator cannot re-sign a tampered chain. Key rotation
-  is itself an audited, human-gated action.
+  detectable. The concrete threat the design must defeat: **an attacker who fully controls
+  the orchestrator process must be unable to produce a validly-signed forged record.** The
+  signing key therefore **lives in a separate trust domain from the orchestrator runtime**
+  and the orchestrator process must not be able to assume it; which mechanism achieves
+  this (a remote co-signing service under a separate identity, a hardware-backed key, with
+  a transparency log such as Rekor as a secondary witness — *not* a substitute for key
+  separation) is chosen by the security-stack spike (§6). Key rotation is itself an
+  audited, human-gated action.
 - **Access control.** Only `human` and `claude-code` may read raw audit records (via
   `lume_query` scope=audit); `lume-agent-*` receive only scoped, redacted summaries —
   raw audit (past high-blast actions, pending grants, approval patterns) is not exposed
   to agents.
+- **Approval integrity.** An `approval_id` is an **unguessable CSPRNG token**;
+  `lume_approve` **verifies the caller's trust meets the gated action's `required_trust`**
+  before acting (not merely that the id is valid), and `lume_status` does not return a
+  pending approval to an identity below that required trust.
 - **Emission/observability:** events emitted via **OpenTelemetry** for the Obs capability
   to consume — but the signed append-only log, not the telemetry pipeline, is
   authoritative.
@@ -234,7 +271,11 @@ dependency, consistent with OSS-only-by-default.
 
 - **Security-stack spike (not yet in the backlog)** — validate SPIRE, OPA, and signing on
   k3s in the devcontainer; measure per-MCP-call latency of the 6-step pipeline; confirm
-  candidate licences. Recommend adding a dedicated spike (raise with the plan, WORK-0014).
+  candidate licences. It must also **specify the mechanisms this doc routes to it**: the
+  PLAN prompt data-block schema + tag/envelope format + enforcement point; the
+  cumulative-blast scoring function and default budgets; the audit-key separation
+  mechanism (vs the stated threat); the constraint-expression grammar; and SVID/nonce
+  validity bounds. Recommend adding a dedicated spike (raise with the plan, WORK-0014).
 - **Earned-autonomy grant-earning mechanism** — soft-dependent on WORK-0015 (the CLAUDE.md
   "no exceptions" reconciliation must land first).
 
