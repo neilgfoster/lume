@@ -4,6 +4,7 @@
 .work/insights/metrics.json
 .work/insights/proposals/
 # Python caches
+spikes/**/.venv/
 .pytest_cache/
 __pycache__/
 *.pyc

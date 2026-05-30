@@ -1,0 +1,25 @@
+{
+  "steps_per_task": 3,
+  "two_layer": {
+    "path": "two_layer (client->orch->agent)",
+    "steps": 3,
+    "iterations": 100,
+    "mean_ms": 15.311,
+    "p50_ms": 15.184,
+    "p95_ms": 20.466,
+    "min_ms": 7.792,
+    "max_ms": 23.261
+  },
+  "baseline": {
+    "path": "baseline (client->agent direct)",
+    "steps": 3,
+    "iterations": 100,
+    "mean_ms": 5.485,
+    "p50_ms": 5.33,
+    "p95_ms": 6.973,
+    "min_ms": 4.211,
+    "max_ms": 10.153
+  },
+  "orchestrator_layer_overhead_mean_ms": 9.826,
+  "per_agent_call_mean_ms": 1.828
+}
