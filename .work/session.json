@@ -1,6 +1,6 @@
 {
   "date": "2026-05-30",
-  "completed": ["WORK-0001", "WORK-0002", "WORK-0003", "WORK-0004"],
+  "completed": ["WORK-0001", "WORK-0002", "WORK-0003", "WORK-0004", "WORK-0005"],
   "decisions": [
     "Lume reframed: extensible AI platform (capabilities + templates), not just an IDP. SDLC is the first/bootstrap template.",
     "No permanent tech constraints (K8s included) — opinions become swappable options behind clean contracts. Only principles are non-negotiable.",
@@ -15,9 +15,11 @@
     "Work is a deterministic service (ACT->VALIDATE only, no inference); orchestrator owns the per-workflow branch+PR and is sole writer of work-item status during execution; auto-remediation RESERVED.",
     "Security: threat model (prompt injection incl. PLAN surface + direct intent vector, over-permissioned agent, exfiltration, operator error/approval-spoofing, semantic-malicious capability, denial-of-wallet; capability supply-chain designed-for; multi-tenant Phase 2+).",
     "Identity: 4 static base levels + SPIFFE/SPIRE workload identity with per-call mutual-TLS verification; earned autonomy = scoped/expiring/audited grants (granting is human-only high-blast).",
-    "Adopt the security primitives (SPIRE/OPA/OTel/Sigstore — pending a recommended security-stack spike), build only the AI-native defences + pipeline glue. CLAUDE.md 'no exceptions' + OSS-only reconciliation tracked in WORK-0015."
+    "Adopt the security primitives (SPIRE/OPA/OTel/Sigstore — pending a recommended security-stack spike), build only the AI-native defences + pipeline glue. CLAUDE.md 'no exceptions' + OSS-only reconciliation tracked in WORK-0015.",
+    "Data/state: workflow state event-sourced (model) with the simplest build-now realisation (append write-ahead records + replay-on-resume; snapshots/compaction RESERVED scale). Resume is side-effect-free; per-effect check-then-act on the one uncommitted step.",
+    "Context store layered: structured slices build-now; semantic vector store (Chroma/Qdrant candidate) + blob RESERVED/opt-in; compression local-model only; confidentiality label propagates through compression. Audit excluded from the orchestrator-callable store contract (write-only emit, separate trust domain). Local-first; networked store OSS+operator-controlled (required at multi-instance scale, not optional)."
   ],
-  "next_item": "WORK-0005",
+  "next_item": "WORK-0006",
   "blockers": [],
-  "notes": "WORK-0004 complete: docs/security-requirements.md, decisions from interview (threat scope + grant-overlay), hardened through 3 adversarial-review cycles to 0 BLOCKING. On branch docs/work-0004-security-requirements; PR pending. Active empty per /iterate; next /iterate selects WORK-0005 (data & state architecture). RECOMMENDATION FOR NEIL: add a dedicated security-stack spike to Phase 0 (SPIRE/OPA/signing on k3s; must specify the routed mechanisms). Downstream: WORK-0007, WORK-0010/0011, WORK-0012/0013, WORK-0015 (CLAUDE.md reconciliation, 6 items)."
+  "notes": "WORK-0005 complete: docs/data-architecture.md, decisions from interview (hybrid event-sourced + layered context store), hardened through 3 adversarial-review cycles to 0 BLOCKING (simplicity-enforcer dissent on snapshots resolved -> RESERVED; store contract held as approved WORK-0002 seam). On branch docs/work-0005-data-architecture; PR pending. Active empty per /iterate; next /iterate selects WORK-0006 (CLI & self-building requirements) -> completes the WS-REQ workstream. OUTSTANDING FOR NEIL: (1) add a security-stack spike; (2) add a storage-stack spike -- both recommended, raise with the high-level plan WORK-0014. Downstream: WORK-0007 (multi-effect resume), WORK-0010/0011, WORK-0012/0013, WORK-0015 (CLAUDE.md reconciliation, 6 items)."
 }
