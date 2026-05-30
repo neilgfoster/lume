@@ -19,9 +19,10 @@ obligations from [security requirements](security-requirements.md). Builds on
 - **Workflow state is event-sourced (model) with the simplest build-now realisation.**
   The write-ahead step-intents + step-results Lume already records (WORK-0002) *are* an
   append-only event stream. **Build-now** is the minimal realisation: append those
-  records + take **periodic snapshots** for fast current-state reads and bounded
-  resume — *not* elaborate projection/replay machinery. Heavier event-sourcing tooling is
-  **RESERVED**.
+  records and, on resume, **replay them to rebuild state** — at solo-desktop scale a
+  workflow is ~tens of records, so no snapshot machinery is needed. **Periodic
+  snapshots, compaction, and projection tooling are RESERVED** (scale optimisations,
+  justified only when replay cost or log growth is measured to matter).
 - **Context store is layered, structured-first.** **Build-now** = deterministic scoping +
   **structured slices** only. A **semantic vector store** (candidate: Chroma/Qdrant) is
   **RESERVED/opt-in** — built only when a fuzzy-retrieval need is demonstrated and
@@ -40,7 +41,7 @@ Format: **Category** — owner; lifetime; backing; tier. Confidentiality labels
 (security §1) ride with any payload that can contain operator data.
 
 - **Workflow state** (task, steps, write-ahead intents, step results, `applied_effects`)
-  — orchestrator; until done/archived; append-only records + periodic snapshots; local.
+  — orchestrator; until done/archived; append-only records (snapshots RESERVED); local.
 - **Approvals** — orchestrator; until resolved (then audited); state store; local.
 - **Grants** (earned autonomy) — policy (OPA); until expiry/revoke; policy store; local.
 - **Audit log** — orchestrator (sole writer, write-only emit); permanent (configurable);
@@ -66,20 +67,22 @@ made concrete as events):
 1. External client → `lume_task` → orchestrator **appends a `workflow-created` record**,
    returns `task_id` (status `planning`).
 2. Inline planner produces the step plan → **`plan-recorded` record** (status `running`).
-3. Per step: orchestrator **appends a `step-intent` record** (with the deterministic
-   external identity for check-then-act) *before* acting → invokes the capability with
-   **scoped, compressed context** (§3) → capability returns a structured result +
-   `applied_effects[]` → deterministic VALIDATE → **`step-result` record** (orchestrator
-   cross-checks `applied_effects` per security §3) → audit emitted.
-4. Periodically: a **snapshot** of current workflow state is written for fast reads and
-   to bound resume.
+3. Per step: orchestrator **appends a `step-intent` record** — recording the
+   deterministic query-key for **every** external effect the step may apply (a step can
+   push a branch *and* open a PR *and* trigger CI; each gets a key, per orchestrator
+   design §3) — *before* acting → invokes the capability with **scoped, compressed
+   context** (§3) → capability returns a structured result + `applied_effects[]` →
+   deterministic VALIDATE → **`step-result` record** (orchestrator cross-checks
+   `applied_effects` per security §3) → audit emitted.
 
-**Resume is side-effect-free.** A crashed instance rebuilds the current-state projection
-by **replaying records from the latest snapshot — applying ZERO external effects** (it is
-a pure in-memory reconstruction). External effects are re-attempted **only** by the
-WORK-0002 check-then-act resume of the *single* uncommitted step (the one with a
-`step-intent` but no `step-result`), gated on its recorded deterministic identity.
-Replaying the event tail never re-pushes a branch or re-opens a PR.
+**Resume is side-effect-free.** A crashed instance rebuilds current state by **replaying
+the appended records — applying ZERO external effects** (a pure in-memory
+reconstruction). External effects are re-attempted **only** by the WORK-0002
+check-then-act resume of the one uncommitted step *per workflow* (the step with a
+`step-intent` but no `step-result`): for **each** effect the step-intent recorded, the
+resume checks "already applied?" by its query-key and acts only if absent, in a defined
+order. Replaying records never re-pushes a branch or re-opens a PR. (The multi-effect
+intra-step ordering is proven by WORK-0007.)
 
 Context never becomes durable orchestrator state; it is fetched, scoped/compressed,
 handed to the capability for the step, and dropped.
@@ -120,23 +123,27 @@ security §1); an unverifiable label is treated as over-ceiling.
 
 ## 4. Durability mechanism
 
-Durable state (except audit) sits behind a single **store contract** — clean and
-swappable. **Build-now** is one embedded/local implementation behind a code seam, **no
-multi-backend swap machinery**; networked enterprise backends are RESERVED and swap in
-behind the same contract. The contract's operation surface (requirements altitude):
-`append-record` / `read-snapshot` / `write-snapshot` / `get-by-id` / `list-by-type` (+ a
-`blob put/ref` and a `vector query` slot once those tiers are built). Per-category
-backing differs behind it.
+Durable state (except audit) sits behind the **store contract committed in WORK-0002**
+(the seam that makes the orchestrator stateless and the store swappable — required for
+the scale-agnostic principle). **Build-now** is one embedded/local implementation behind
+that code seam, **no multi-backend swap machinery**; networked enterprise backends are
+RESERVED and swap in behind the same contract. Build-now operation surface:
+`append-record` / `read-records-since(position)` (the ordered replay read resume needs) /
+`get-by-id` / `list-by-type` / `update` (approvals/context mutate, context `remove`).
+RESERVED operations: `read-snapshot` / `write-snapshot` (with snapshots), `blob put/ref`,
+`vector query`. Per-category backing differs behind the seam.
 
-- **Workflow** — append-only records + periodic snapshots; resume via projection rebuild
-  (§2). Resume-only records are **compactable once a snapshot supersedes them**
-  (retention distinct from audit — see below); this bounds event-log growth on a
-  solo desktop. Snapshot cadence/compaction thresholds are tuning (→ spike).
+- **Workflow** — append-only records; resume by replaying records (§2). **Snapshots and
+  compaction are RESERVED** scale optimisations — at solo-desktop scale a workflow is a
+  few tens of records, so neither is built now; both are justified only when measured
+  replay cost or log growth demands them (→ spike).
 - **Audit** — **NOT behind the store contract above.** Audit is a **write-only emit to a
   separate trust domain**; the orchestrator can append but cannot obtain a signing
   capability or mutate the chain (security §4: an attacker controlling the orchestrator
-  must be unable to forge a signed record). It keeps its **own permanent signed chain**,
-  independent of workflow-record compaction.
+  must be unable to forge a signed record). It keeps its **own permanent signed chain**.
+  Note: chain-and-sign detects deletion/edit, **not omission-at-emit** (a compromised
+  orchestrator never emitting a record) — closing that is routed to the security spike
+  (expected-sequence / dual-path emission).
 - **Context / grants / approvals / registry** — structured store / policy store / KV as
   in §1; registry RESERVED.
 
@@ -172,12 +179,13 @@ Two distinct claims, kept separate:
 
 ## 6. Known open questions / deferred
 
-- **Storage-stack spike (not yet in the backlog)** — validate the append+snapshot
+- **Storage-stack spike (not yet in the backlog)** — validate the append+replay
   realisation and (if/when built) the vector store (Chroma vs Qdrant); **prove the one
   store contract holds across the deterministic categories, or split the vector tier into
-  a sibling interface**; measure **persist-per-step latency** (must not regress the
-  solo-desktop feel, WORK-0002) and retrieval latency. Recommend adding a spike (raise
-  with the plan, WORK-0014) — alongside the recommended security-stack spike.
+  a sibling interface**; measure **persist-per-step and replay latency** (must not
+  regress the solo-desktop feel, WORK-0002) — the result tells us *whether/when* snapshots
+  and compaction are needed (they are RESERVED until then). Recommend adding a spike
+  (raise with the plan, WORK-0014) — alongside the recommended security-stack spike.
 - **Embedding + summarisation models** — selected in WORK-0010 (a Phase-1 blocker only
   if the semantic tier is built).
 - **Context TTL / eviction** — route to the storage spike. **Invariant:** context
@@ -186,7 +194,8 @@ Two distinct claims, kept separate:
 - **Summarisation size threshold** — the exact context-budget threshold that triggers
   local-model summarisation (the *rule* — size-check vs the capability's budget — is
   fixed in §3; the *value* is tuning).
-- **Snapshot cadence, compaction & replay bounds** — tuning, validated by the spike.
+- **Snapshots & compaction** — RESERVED scale optimisations; if/when the spike shows
+  replay cost or log growth matters, add them (cadence/bounds are then tuning).
 - **Enterprise networked backends & vector tier** — RESERVED; the contract admits the
   former without orchestrator change; the latter pending a demonstrated need.
 
