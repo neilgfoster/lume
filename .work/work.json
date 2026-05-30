@@ -7,21 +7,6 @@
   "active": [],
   "backlog": [
     {
-      "id": "WORK-0003",
-      "title": "Write agent boundary analysis",
-      "phase": 0,
-      "workstream": "WS-REQ",
-      "change_class": "docs",
-      "status": "backlog",
-      "description": "For each of the 5 agents (Coding, Infra, Work, Provisioning, Obs): document responsibilities, MCP tools, validation suite, and escalation chain. Verify no overlaps between agents.",
-      "acceptance_criteria": [
-        "docs/agent-boundaries.md exists with a section per agent",
-        "Each agent section: responsibilities, MCP tools (name + purpose), validation suite, escalation chain",
-        "No overlapping responsibilities between agents (explicitly checked)",
-        "Neil has reviewed and approved (explicit APPROVE in conversation)"
-      ]
-    },
-    {
       "id": "WORK-0004",
       "title": "Write security and auth requirements",
       "phase": 0,
@@ -223,6 +208,22 @@
     }
   ],
   "completed": [
+    {
+      "id": "WORK-0003",
+      "title": "Write agent boundary analysis",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "completed",
+      "completed_date": "2026-05-30",
+      "description": "For each of the 5 agents (Coding, Infra, Work, Provisioning, Obs): document responsibilities, MCP tools, validation suite, and escalation chain. Verify no overlaps between agents.",
+      "acceptance_criteria": [
+        "docs/agent-boundaries.md exists with a section per agent",
+        "Each agent section: responsibilities, MCP tools (name + purpose), validation suite, escalation chain",
+        "No overlapping responsibilities between agents (explicitly checked)",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
     {
       "id": "WORK-0002",
       "title": "Write orchestrator design doc",
