@@ -7,180 +7,224 @@
 
 ---
 
-This document defines the five internal SDLC agents — the **first registered
+This document defines the five internal SDLC capabilities — the **first registered
 capabilities** of the orchestrator (see [orchestrator design](orchestrator-design.md)).
 For each: responsibilities, MCP tools (name + purpose), validation suite, and
 escalation chain. It then **explicitly verifies no overlapping responsibilities**.
 
 It is a design doc; no production code, per Phase 0. Model assignments are
-provisional pending the local-model evaluation (WORK-0010); the store/idempotency
-mechanics are pending WORK-0007/WORK-0005.
+provisional pending WORK-0010; store/idempotency mechanics pending WORK-0007/0005.
 
-## Scope: capabilities, not a fixed agent set
+## Scope and classification
 
 Per the orchestrator design, these five are the SDLC template's capabilities. The
 "agent" framing is build-now; the general capability/template model is RESERVED. The
-planner is **not** a sixth agent here — it runs inline in the orchestrator for the
-SDLC template (build-now).
+planner runs inline in the orchestrator (not a sixth capability here).
 
-## Cross-cutting contract (applies to every agent below)
+The partition axis is **artifact class** — each capability owns a disjoint class of
+artifact (or work). Ownership of any Git artifact is decided by its **resource kind /
+reconciling controller**, not its file location; a file mixing kinds is split into
+per-kind artifacts. This axis is robust to GitOps desired-state (it never asks an
+agent to pre-classify a write as "create" vs "mutate") and gives every create, change,
+and **delete** a single owner.
 
-Routed here from the orchestrator design — binding on **every** agent's MCP tools:
+**Inference vs deterministic.** Coding, Infra, Provisioning, and Obs are inference
+capabilities (they run the orchestrator's PLAN/ACT/VALIDATE/REFINE/ESCALATE loop). The
+**Work agent is a deterministic service** — it performs no inference (Principle 1), so
+the orchestrator calls its typed tools directly without a PLAN/REFINE loop. (This
+nuances CLAUDE.md's flat "5 agents" framing; reconciliation is tracked in WORK-0015.)
+
+## Cross-cutting contract (applies to every capability below)
+
+Routed here from the orchestrator design — binding on **every** capability's MCP tools:
 
 - **Typed result.** Every tool returns the deterministic validation struct
   (`done: bool`, `failures: Finding[]`, `next_action: enum` — never inferred) **plus**
   `applied_effects[]` (each effect's `type`, external `id`, `reversible` flag),
-  reported by the agent, never inferred by the orchestrator.
+  reported by the capability, never inferred by the orchestrator.
 - **Idempotency / check-then-act.** Every tool must be idempotent or check-then-act
-  safe. A tool with a non-idempotent external effect (e.g. opening a PR, creating a
-  repo) must let the orchestrator record the **deterministic external identity** (e.g.
-  computed branch name) before acting, so a crash-resume can detect "already done."
-- **Loop + escalation.** Every action runs through the orchestrator's loop (PLAN ·
-  ACT · VALIDATE · REFINE · ESCALATE). The escalation chain is uniform: local model
-  ×2 → larger local → ×4 cumulative → one targeted cloud call → blocked work item to
-  the human. Per-agent rows below name only the *model class*; final model
-  assignments are WORK-0010.
+  safe; a tool with a non-idempotent external effect lets the orchestrator record the
+  deterministic external identity before acting, so a crash-resume detects "already
+  done" (orchestrator design §3).
+- **The orchestrator owns the change-set.** Capabilities write files to the
+  orchestrator-managed working branch; **the orchestrator opens and updates one PR per
+  workflow** (recording the branch/PR identity). No capability opens its own PR — this
+  is why a single workflow that touches several artifact classes still lands as one
+  coherent PR.
+- **Loop + escalation.** The escalation chain is uniform (orchestrator design §5):
+  **2 failures on the local model → larger local model; 4 cumulative local failures →
+  one targeted cloud call; cloud fails/unavailable → blocked work item to the human.**
+  Rows below name only the *model class*; final assignments are WORK-0010.
 
 ---
 
 ## 1. Coding Agent
 
-- **Responsibility.** Write and modify **application source code** within a repo:
-  implement features and fixes, refactor, run and interpret tests. Owns code, nothing
-  else.
+- **Owns artifact class:** application source code.
+- **Responsibility.** Write and modify application source within a repo: implement
+  features and fixes, refactor, run and interpret tests. Owns code, nothing else — it
+  does not open PRs (the orchestrator does) and does not write manifests/config.
 - **MCP tools.**
   - `read_files` — read repo files into scoped context.
-  - `apply_patch` — write/modify source files (idempotent: same patch re-applies cleanly).
-  - `run_tests` — execute the test suite; returns structured pass/fail.
+  - `apply_patch` — write/modify source files on the working branch (idempotent: same
+    patch re-applies cleanly).
+  - `run_tests` — execute the test suite; structured pass/fail.
   - `run_checks` — lint, typecheck, build; structured results.
   - `search_code` — typed code search.
-  - `open_pr` — open a PR (non-idempotent → records deterministic branch/PR identity;
-    check-then-act on resume).
 - **Validation suite.** Tests pass, lint clean, typecheck clean, build succeeds — all
-  deterministic; `done` is the conjunction, `failures` lists the specific failing
-  check, `next_action` follows from them.
-- **Escalation.** Code-generation model class (local coder → larger local coder →
-  cloud reasoning → human).
+  deterministic; `done` is their conjunction, `failures` names the failing check,
+  `next_action` follows.
+- **Escalation.** Code-generation model class.
 
 ## 2. Infra Agent
 
-- **Responsibility.** Manage **existing** infrastructure: mutate existing resources'
-  GitOps config (scale, tune, restart-via-config) and diagnose using Obs signals.
-  Does **not** create new resources, own observability, or touch app code.
+- **Owns artifact class:** in-cluster workload manifests (Deployments, Services, HPAs,
+  Gateways, network/rate-limit policies, etc.) — every change to them: **create,
+  scale, mutate, and delete**.
+- **Responsibility.** Manage running workloads via their GitOps manifests, and
+  diagnose problems by consuming Obs's typed output. Does not own lifecycle/infra
+  artifacts (Provisioning), observability artifacts (Obs), or app code.
 - **MCP tools.**
-  - `edit_gitops_config` — mutate an **existing** resource's manifest in Git (writes
-    to Git; never applies directly). Idempotent: desired-state edits converge.
+  - `write_workload_manifest` — create/edit a workload manifest on the working branch
+    (writes to Git; never applies directly; idempotent desired-state).
+  - `delete_workload_manifest` — remove a workload manifest (high blast radius →
+    human approval).
   - `query_cluster_state` — read live cluster/resource state.
-  - `diagnose` — read Obs signals + cluster state to localise a problem (read-only).
-- **Validation suite.** Edited config is schema/policy-valid; the GitOps operator
-  reconciles it; the queried live state reaches the desired state. Deterministic
-  checks; no inferred success.
-- **Escalation.** Reasoning model class for diagnosis; deterministic for the edit.
+  - `diagnose` — consume Obs's typed signals + cluster state to localise a problem and
+    form a root-cause hypothesis (the inference). Does not re-query raw telemetry —
+    it takes Obs output as input.
+- **Validation suite.** Manifest is schema/policy-valid; the GitOps operator
+  reconciles it; queried live state reaches desired state. Deterministic.
+- **Escalation.** Reasoning model class for diagnosis; deterministic for the write.
 
-## 3. Work Agent
+## 3. Work Agent (deterministic service)
 
-- **Responsibility.** Manage **durable work items**: create/update/transition work
-  items, backlog, status, and dependencies (the `.work/` + issue-tracker domain). Owns
-  work-item state at rest. Does **not** run live workflow execution (that is the
-  orchestrator) or do domain work.
-- **MCP tools.**
-  - `create_work_item` — create a work item (idempotent via client key).
-  - `update_work_item` — update fields/status (idempotent).
-  - `transition_status` — move an item through its lifecycle; rejects illegal
-    transitions deterministically.
-  - `query_work_items` — typed query over the backlog.
-- **Validation suite.** Schema-valid item; legal state transition; no orphaned or
-  cyclic dependencies. Fully deterministic.
-- **Escalation.** Mostly deterministic; light classification (e.g. change-class
-  inference) escalates rarely — router model class.
+- **Owns artifact class:** durable work items (backlog, status, dependencies — the
+  `.work/`/issue-tracker domain). Owns work-item state **at rest**.
+- **Responsibility.** Store and transition work items. Performs no inference, so it
+  runs no PLAN/REFINE loop — the orchestrator calls its typed tools directly. Does not
+  run live workflow execution (orchestrator) or domain work.
+- **Status during execution.** A running item's status is written by the
+  **orchestrator** as the sole writer, by calling `transition_status`; the orchestrator
+  maps its workflow-state enum (planning|running|blocked|awaiting_approval|done|failed)
+  onto the work item's status. The Work agent never independently advances a status
+  mid-flight, so there is no dual writer.
+- **MCP tools.** `create_work_item`, `update_work_item`, `transition_status` (rejects
+  illegal transitions deterministically), `query_work_items`.
+- **Validation suite.** Schema-valid item; legal transition; no orphaned/cyclic deps.
+  Fully deterministic.
+- **Escalation.** None — deterministic service; no model class.
 
 ## 4. Provisioning Agent
 
-- **Responsibility.** Create **new** things by writing declarative config to Git: new
-  repos, tenants, GitOps config for **new** resources, Crossplane claims, bootstrap
-  projects. Never mutates existing resources (that is Infra), never writes app code.
+- **Owns artifact class:** lifecycle / infrastructure artifacts — new repos, tenants,
+  Crossplane infrastructure claims, and project scaffold. Owns these create → mutate →
+  **delete** (e.g. resizing or tearing down a Crossplane claim). Never writes workload
+  manifests (Infra), observability artifacts (Obs), or app code.
 - **MCP tools** (all write to Git, never apply directly; from CLAUDE.md).
-  - `provision_repo` — create a new repo (non-idempotent → records repo identity;
-    check-then-act).
+  - `provision_repo` — create a new repo (records repo identity; check-then-act).
   - `provision_tenant` — create a new tenant's config.
-  - `write_gitops_config` — write GitOps config for a **new** resource.
-  - `write_crossplane_claim` — write a new Crossplane claim.
-  - `bootstrap_lume_project` — scaffold a new Lume-managed project (repo skeleton,
-    config, CLAUDE.md, hedl setup — detailed in WORK-0012/WORK-0013).
-- **Validation suite.** Generated config is schema/policy-valid; the artifact exists
-  in Git; the GitOps operator picks it up. Deterministic.
-- **Escalation.** Reasoning model class for scaffolding decisions; deterministic for
-  the writes.
+  - `write_crossplane_claim` — create/mutate a Crossplane infrastructure claim.
+  - `delete_provisioned_artifact` — remove a repo/tenant/claim (high blast radius →
+    human approval).
+  - `bootstrap_lume_project` — scaffold a new project's container: repo skeleton,
+    config, CLAUDE.md, CI, hedl setup (detail in WORK-0012/0013). The scaffold is
+    **non-application files only**; any starter application source is Coding's first
+    commit.
+- **Validation suite.** Generated artifact is schema/policy-valid; it exists in Git;
+  the operator picks it up. Deterministic.
+- **Escalation.** Reasoning model class for scaffolding; deterministic for the writes.
+
+> Note: `write_gitops_config` from CLAUDE.md's provisional list is **split by artifact
+> class** — workload manifests are Infra's `write_workload_manifest`; new-resource
+> infra claims are Provisioning's `write_crossplane_claim`. (Tracked for the CLAUDE.md
+> reconciliation, WORK-0015.)
 
 ## 5. Obs Agent
 
-- **Responsibility.** Own the **observability plane**: instrument, collect, store, and
-  query metrics/logs/traces; own alerting and dashboards as its declarative-config
-  domain. Produces the signals Infra and the orchestrator consume. Does **not** act on
-  infrastructure (that is Infra) or write app code.
+- **Owns artifact class:** the observability plane and its artifacts — metrics/logs/
+  traces collection and query, plus alert rules and dashboards (by resource kind, e.g.
+  PrometheusRule, ServiceMonitor, dashboards). Produces the signals Infra and the
+  orchestrator consume. Does not act on infrastructure (Infra) or write app code.
 - **MCP tools.**
   - `query_metrics`, `query_logs`, `query_traces` — typed reads over telemetry.
-  - `get_health` — structured health/SLO snapshot for a target.
-  - `define_alert` — write/manage an alert rule or dashboard (Obs's own
-    declarative-config domain in Git; idempotent desired-state).
-- **Validation suite.** Queries return well-typed data; alert/dashboard config is
-  schema-valid; signal freshness within bounds. Deterministic.
-- **Escalation.** Mostly deterministic queries; anomaly summarisation (if any) uses a
-  reasoning model class.
+  - `get_health` — structured health/SLO snapshot for a target (raw/structured signal,
+    not a diagnosis — diagnosis is Infra's `diagnose`).
+  - `write_obs_artifact` — create/edit/delete an alert rule or dashboard (Obs's
+    artifact class in Git; idempotent desired-state).
+- **Validation suite.** Queries return well-typed data; obs artifact is schema-valid;
+  signal freshness within bounds. Deterministic.
+- **Escalation.** Mostly deterministic; anomaly summarisation (if any) uses a reasoning
+  model class.
+- **Auto-remediation is RESERVED.** In Phase 0/1, Obs signals are **advisory to the
+  human** — there is no closed-loop "Obs fires → Infra acts" trigger. A signal becomes
+  action only via a human/operator-initiated intent. The signal→action trigger path is
+  designed only when a use-case needs it (see §7).
 
 ---
 
 ## 6. No-overlap verification
 
-Each agent owns a disjoint domain. The boundaries that were genuine collisions are
-resolved explicitly:
+Artifact class is the single partition axis; each capability owns exactly one class,
+classified by resource kind / reconciling controller.
 
-- **Provisioning vs Infra** — *create vs mutate*: Provisioning writes config for
-  *new* resources; Infra edits *existing* resources' config. Disjoint targets.
-- **Obs vs Infra ("observe")** — *signal vs action*: Obs owns the observability plane
-  and produces signals; Infra consumes them to act. "Observe" is not Infra's.
-- **Work vs orchestrator** — *at-rest vs in-flight*: the Work agent owns durable work
-  items; the orchestrator owns live workflow execution state.
-- **Coding vs Provisioning** — *code vs skeleton*: Provisioning writes the repo/config
-  skeleton; Coding writes and modifies application code.
-- **Obs config vs infra config** — *domain-scoped*: alert/dashboard config is Obs's
-  domain; resource config is Infra (mutate) / Provisioning (create).
+- **Coding** — application source code.
+- **Infra** — in-cluster workload manifests (create/scale/mutate/delete).
+- **Work** — durable work items.
+- **Provisioning** — lifecycle/infra artifacts: repos, tenants, Crossplane claims,
+  project scaffold (create/mutate/delete).
+- **Obs** — observability artifacts: telemetry, alert rules, dashboards.
 
-Domain summary — each owns exactly one column, no cell shared:
+Resolved collisions:
 
-| Agent | Owns | Writes to Git? | Never does |
-|---|---|---|---|
-| Coding | application code + tests | only `open_pr` (branch/PR) | infra, provisioning, work-items |
-| Infra | existing-resource config + diagnosis | mutate existing manifests | create resources, observability, code |
-| Work | durable work items | work-item store | live execution, domain work |
-| Provisioning | new resources/repos/tenants | create new config | mutate existing, app code |
-| Obs | observability plane + alert/dashboard config | obs-domain config only | act on infra, code |
+- **Provisioning vs Infra** — *artifact class, not create-vs-mutate*: Infra owns
+  workload manifests (any change incl. create and delete); Provisioning owns
+  repos/tenants/Crossplane-claims/scaffold. The headline `add rate limiting` change
+  (new policy + gateway edit) is **all workload manifests → Infra**, one capability,
+  one PR.
+- **Obs vs Infra** — *signal vs action*: Obs produces signals and owns obs artifacts;
+  Infra consumes Obs's typed output to act. "Observe" is not Infra's. (This revises
+  CLAUDE.md's "Infra: scale, debug, observe" — tracked in WORK-0015.)
+- **Work vs orchestrator** — *store vs writer*: Work stores work items; the
+  orchestrator is the sole writer of a work item's status during execution.
+- **Coding vs Provisioning** — *source vs scaffold*: scaffold is non-application files;
+  starter source is Coding's first commit.
+- **diagnose vs get_health** — Obs returns signals/health snapshots; Infra's `diagnose`
+  consumes that typed output and adds the cluster-state correlation + root-cause
+  hypothesis. Infra does not re-query raw telemetry.
+- **DELETE** — owned by the artifact's class owner (Infra deletes workload manifests;
+  Provisioning deletes repos/tenants/claims; Obs deletes obs artifacts). High blast
+  radius → human approval.
+- **PR/branch ownership** — the orchestrator owns the per-workflow branch and PR; no
+  capability opens its own, so a multi-class workflow still yields one PR.
 
-No responsibility appears in two rows. The acceptance-criterion overlap check passes.
+No artifact class or responsibility appears under two capabilities. The
+acceptance-criterion overlap check passes.
 
 ---
 
 ## 7. Known open questions / deferred
 
-- **Model assignments (WORK-0010)** — each agent's concrete local/cloud models and
-  pass/latency thresholds come from the local-model evaluation; rows above name only
-  the model *class*.
-- **Validation-suite internals (WORK-0011)** — the deterministic VALIDATE that
-  produces `done/failures/next_action` (incl. class 1 vs 2 separation) is proven by
-  the validation-loop PoC.
-- **Tool result + idempotency contract (this doc + WORK-0007)** — `applied_effects[]`
-  and check-then-act identities are specified here; crash-safety of non-idempotent
-  effects (PR/repo creation) is proven by WORK-0007.
-- **Provisioning scaffold detail (WORK-0012/WORK-0013)** — `bootstrap_lume_project`
-  and the project template are designed in the provisioning-agent and
-  project-template work items.
-- **Identity/permissions per tool (WORK-0004)** — each tool's required trust level and
-  blast radius come from the security/auth requirements.
+- **Model assignments (WORK-0010)** — concrete models and pass/latency thresholds per
+  capability; rows name only the model class.
+- **Validation-suite internals (WORK-0011)** — the deterministic VALIDATE producing
+  `done/failures/next_action` (incl. class 1 vs 2 separation).
+- **Idempotency crash-safety (WORK-0007)** — proof for non-idempotent effects (PR/repo
+  creation) under the store's resume semantics.
+- **Auto-remediation trigger (RESERVED)** — the closed-loop signal→action path (Obs
+  fires → a workflow acts) is designed only when a use-case needs it; Phase 0/1 signals
+  are advisory-to-human.
+- **Provisioning scaffold detail (WORK-0012/0013)** — `bootstrap_lume_project` content
+  and the project template.
+- **Identity/permissions per tool (WORK-0004)** — required trust level and blast radius
+  per tool (e.g. the delete tools above).
+- **CLAUDE.md reconciliation (WORK-0015)** — "observe→Obs", `write_gitops_config` split
+  by artifact class, and Work-as-deterministic-service vs the flat "5 agents" framing.
 
 ---
 
 ## Sign-off
 
-Approval is **recorded by the merge of this document's delivering PR** — the
-operator's review-and-merge is the approval gate (per the `/iterate` flow). There is
-no separate in-file approval step; an unmerged PR means not-yet-approved.
+Approval is **recorded by the merge of this document's delivering PR** — the operator's
+review-and-merge is the approval gate (per the `/iterate` flow). There is no separate
+in-file approval step; an unmerged PR means not-yet-approved.

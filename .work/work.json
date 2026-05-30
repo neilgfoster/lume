@@ -211,12 +211,13 @@
       "workstream": "WS-REQ",
       "change_class": "docs",
       "status": "backlog",
-      "description": "Update CLAUDE.md so its framing matches the approved docs/requirements.md: Lume as an extensible AI platform (capabilities + templates) with the SDLC as the first/bootstrap template, not an IDP-only system. Reconcile three named contradictions: (1) the security-model 'High always requires human approval — no exceptions' line vs the earned-autonomy posture; (2) principle 10 'OSS only — no paid runtime dependencies' vs operator-chosen paid services (Bedrock, Claude Pro) being permitted; (3) the IDP-only vision framing. Raised by adversarial review of WORK-0001.",
+      "description": "Update CLAUDE.md so its framing matches the approved docs/requirements.md and design docs. Reconcile named contradictions: (1) security-model 'High always requires human approval — no exceptions' vs the earned-autonomy posture; (2) principle 10 'OSS only — no paid runtime dependencies' vs operator-opt-in paid services (Bedrock, Claude Pro); (3) the IDP-only vision framing vs platform+capabilities+templates; (4) Infra's 'scale, debug, observe' vs the WORK-0003 decision that 'observe' belongs to Obs (signal vs action); (5) the provisional 'write_gitops_config' tool vs its WORK-0003 split by artifact class (Infra write_workload_manifest / Provisioning write_crossplane_claim); (6) the flat '5 agents' framing vs Work being a deterministic service (no inference). Raised by adversarial review of WORK-0001 and WORK-0003.",
       "acceptance_criteria": [
         "CLAUDE.md vision framing matches docs/requirements.md (platform + capabilities + templates; SDLC is first template)",
         "CLAUDE.md security model reconciled with the earned-autonomy posture (no silent contradiction on high-blast-radius approval)",
-        "CLAUDE.md principle 10 (OSS only) reconciled with operator-opt-in paid services (no paid runtime dependency by default; operator-chosen paid services permitted)",
-        "No requirement from docs/requirements.md is contradicted by CLAUDE.md after the edit",
+        "CLAUDE.md principle 10 (OSS only) reconciled with operator-opt-in paid services",
+        "CLAUDE.md agent descriptions reconciled with docs/agent-boundaries.md (observe is Obs's; write_gitops_config split by artifact class; Work is a deterministic service)",
+        "No requirement from docs/requirements.md or the approved design docs is contradicted by CLAUDE.md after the edit",
         "Neil has reviewed and approved (explicit APPROVE in conversation)"
       ]
     }
