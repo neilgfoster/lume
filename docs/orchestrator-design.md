@@ -104,11 +104,20 @@ Every tool returns a uniform, typed outcome so all clients branch the same way a
 never parse prose:
 
 - `outcome` — enum: `accepted` | `needs_clarification` | `rejected` | `error`.
-- `reason_code` — machine-readable code (e.g. `permission_denied`, `unknown_intent`).
+- `reason_code` — machine-readable code. An **open, additive set** within a major
+  `surface_version`; clients MUST handle unknown codes via a default branch keyed on
+  `outcome`. Build-now codes: `permission_denied`, `unknown_intent`, `needs_approval`,
+  `invalid_context_ref`, `context_in_use`, `not_found`, `idempotency_conflict`,
+  `capability_degraded`, `escalation_exhausted`.
 - `message` — human-readable detail.
 - `clarification[]` — present only for `needs_clarification`: structured prompts.
 - `surface_version` — semver of the MCP surface; additive-only within a major. A
   client reads this to negotiate compatibility.
+
+**Field-presence rule:** the tool-specific output fields below (e.g. `task_id`,
+`plan_ref`, `items[]`, `result`) are populated **only when `outcome=accepted`**.
+Under `needs_clarification` | `rejected` | `error`, only the envelope is populated
+(plus `clarification[]` where stated). This is the contract clients branch on.
 
 ### `lume_task` — submit an intent
 
@@ -117,15 +126,20 @@ never parse prose:
   the research template", "build a capability…") — designed for, not built, until a
   second template exists.
 - **Inputs**: `intent` (natural language); optional `context_refs[]` (each a
-  `context_id` from `lume_context`); optional `idempotency_key` (a client-supplied
-  retry key — a repeated key returns the original `task_id`, never a duplicate
-  workflow); optional `dry_run`. *(RESERVED: `template_hint` — omitted from the
-  build-now contract; there is one template.)*
+  `context_id` from `lume_context`); optional `idempotency_key`; optional `dry_run`.
+  *(RESERVED: `template_hint` — omitted from the build-now contract; there is one
+  template.)* **Idempotency:** keys are scoped **per identity**; a repeated key
+  returns the original `task_id` (never a duplicate workflow); the same key with a
+  different payload returns `error`/`idempotency_conflict`. Key TTL is deferred to
+  WORK-0007.
 - **Outputs**: common envelope, plus `task_id`; `intent_kind` (`work` — RESERVED:
-  `lifecycle`); structured `plan_ref`; `blast_radius` (none|low|medium|high);
-  `pending_approval` (bool, authoritative for whether a gate will fire);
-  `irreversible` (bool, advisory). `dry_run` returns the plan/blast fields **without**
-  persisting a workflow or minting a durable `task_id`.
+  `lifecycle`); `plan_ref` (an opaque id; dereference the steps via
+  `lume_status.steps[]` or `lume_query` scope=`workflow` — the step-plan *schema* is
+  WORK-0003); `blast_radius` (none|low|medium|high); `pending_approval` (bool —
+  *predicts* a gate will fire; the `approval_id` is minted only when the gated step
+  is reached and then appears in `lume_status.pending_approvals[]`, so clients poll
+  `lume_status` to obtain it); `irreversible` (bool, advisory). `dry_run` returns the
+  plan/blast fields **without** persisting a workflow or minting a durable `task_id`.
 
 ### `lume_query` — ask about state, knowledge, or change-set
 
@@ -135,8 +149,9 @@ never parse prose:
   typed, signed record set — signing mechanics per WORK-0004). **RESERVED scopes:**
   `capabilities`, `templates` (discovery needs a registry — not built yet).
 - **Inputs**: `query`; `scope`; list params `limit`, `cursor`, `filter`.
-- **Outputs**: common envelope, plus a paginated list envelope — `items[]`,
-  `next_cursor`, optional `total` — typed to the scope.
+- **Outputs**: common envelope, plus a paginated list envelope — `items[]` (item type
+  determined by the input `scope`), `next_cursor`, optional `total` (present only when
+  the backing store can count cheaply; clients must not require it).
 
 ### `lume_status` — progress of in-flight work
 
@@ -145,7 +160,8 @@ never parse prose:
   id including completed/archived and change-sets. Delivery model is **polling** for
   v1 (streaming RESERVED).
 - **Inputs**: optional `task_id` (all in-flight if omitted); optional `since_token`
-  for cheap re-polls.
+  for cheap re-polls — a client passes the most recent `change_token` (below) back as
+  `since_token` to fetch only what changed since.
 - **Outputs**: common envelope, plus per task — `state` (planning|running|blocked|
   awaiting_approval|done|failed); `steps[]` with per-step `state` and `progress`;
   `current_blast_radius`; `pending_approvals[]` (each an **approval descriptor**, see
@@ -158,8 +174,13 @@ never parse prose:
 - **Approval descriptor** (minted when a gate fires; appears in `lume_status.
   pending_approvals[]`): `{approval_id, task_id, step_id, blast_radius, prompt,
   required_trust}` — this is how a client correlates an approval to its task and step.
+  `required_trust` values are the CLAUDE.md identity levels (`high` | `elevated` |
+  `standard` | `low`); the full identity model is WORK-0004. **Build-now:** trust
+  levels are hardcoded per SDLC capability — no registry needed; registry-sourced
+  trust is RESERVED.
 - **Inputs**: `approval_id`; `decision` (approve | reject); optional `reason`;
-  optional `idempotency_key`.
+  optional `idempotency_key` (a replayed key returns the original decision result,
+  never double-applies).
 - **Outputs**: common envelope, plus `result` (resumed | cancelled); updated task
   `state`; `audit_ref`.
 
@@ -211,9 +232,12 @@ assumed to fit all.
 2. Orchestrator plans (inline) → the step plan is **written to the store**
    (status `running`).
 3. For each step: orchestrator **writes a step-intent record** to the store *before*
-   acting, then invokes the capability with scoped, compressed context → capability
-   returns a **structured result** → orchestrator runs the **deterministic validation
-   suite** → records the step result.
+   acting — including the **deterministic external identifiers** the resume-time
+   check will query by (e.g. the computed branch name, PR head/base) — then invokes
+   the capability with scoped, compressed context → capability returns a **structured
+   result** (validation fields *plus* a typed `applied_effects[]` — each effect's
+   type, external id, and reversibility; defined in WORK-0003) → orchestrator runs the
+   **deterministic validation suite** → records the step result and its effects.
 4. On a gate: status `awaiting_approval`; the workflow is durable, so it waits
    without holding a process.
 5. On completion: final result assembled, status `done`, audit finalised.
@@ -225,8 +249,10 @@ or **check-then-act** (query the external system: does the PR/branch already exi
 for effects that are not naturally idempotent. This is the honest mechanism behind
 "resume from the last step": it relies on write-ahead records in the *store*, not on
 in-process state, and on capability tools being **idempotent or check-then-act
-safe** — a hard requirement recorded for WORK-0003. Proving it for a non-idempotent
-SDLC effect (PR creation) is an explicit goal of WORK-0007.
+safe** — a hard requirement recorded for WORK-0003. Check-then-act only works if the
+write-ahead record captured the deterministic identity to query by (step 3); that
+precondition is carried into WORK-0003/WORK-0007. Proving it for a non-idempotent SDLC
+effect (PR creation) is an explicit goal of WORK-0007.
 
 ---
 
@@ -245,7 +271,9 @@ SDLC effect (PR creation) is an explicit goal of WORK-0007.
 ```
 
 The orchestrator's core is deterministic end-to-end; inference appears only in
-planning (PLAN) and refinement (REFINE).
+planning (PLAN) and refinement (REFINE). The capability's structured result also
+carries `applied_effects[]` (§3) — reported by the capability, never inferred by the
+orchestrator (honouring "no LLM-inferred control flow").
 
 ---
 
@@ -272,11 +300,13 @@ inferred.
 5. **Escalation exhausted** (or cloud unavailable) → **blocked work item, surfaced
    to the human, full history retained** (per CLAUDE.md).
 
-**Classes 1 vs 2 must be deterministically separable.** Schema-validity (class 2) is
-checkable, but "schema-valid yet semantically wrong" (class 1) vs "schema-invalid
-because the model failed" can blur for local models. WORK-0011 (validation-loop PoC)
-must demonstrate VALIDATE can separate them on real local-model output, and define the
-response when both hold.
+**Classes 1 vs 2 must be deterministically separable — and Phase 1 build blocks on
+proving it.** Schema-validity (class 2) is checkable, but "schema-valid yet
+semantically wrong" (class 1) vs "schema-invalid because the model failed" can blur
+for local models. **Until WORK-0011 (validation-loop PoC) proves VALIDATE can separate
+them on real local-model output, Phase 1 treats all output failures as class 1
+(task-hard)**; the class-2 fast-degrade path is enabled only once separation is
+proven. WORK-0011 must also define the response when both hold.
 
 ### Partial workflow failure: halt-and-surface
 
@@ -292,7 +322,8 @@ acceptable for Phase 0/1 because such effects are **visible and non-destructive*
 dangling PR is not data loss or spend) and the operator is in the loop — *not*
 because partial state is rare. The blocked-work-item surface must therefore **list
 the partial effects already applied** (e.g. "branch X pushed, PR #N opened") so the
-operator can act.
+operator can act — sourced from the recorded `applied_effects[]` (§3), not
+reconstructed or inferred by the orchestrator.
 
 **Compensation/rollback** (capabilities define an "undo", orchestrator unwinds) is a
 **RESERVED future option**, triggered when a capability gains a **destructive or
@@ -314,9 +345,12 @@ cannot safely leave dangling.
 - **State store mechanism (WORK-0005)** — event-sourcing vs snapshotting; per-category
   backing semantics; concrete local and enterprise stores; latency of the
   persist-per-step path on the embedded store must not regress the solo-desktop feel.
-- **Capability idempotency / check-then-act (WORK-0003)** — a hard requirement on
-  every capability's MCP tools; the agent-boundary analysis must validate each SDLC
-  capability can meet it.
+- **Capability result contract (WORK-0003)** — defines the typed `applied_effects[]`
+  field and the **idempotency / check-then-act** requirement on every capability's MCP
+  tools (including the deterministic external identity each step must record before
+  acting); the agent-boundary analysis must validate each SDLC capability can meet it.
+- **Context payload constraints (WORK-0005)** — the `lume_context` `scope` value space
+  and add-payload limits (size, duplicates) are defined with the context-store design.
 - **RESERVED generality** — planner-as-capability, the multi-backend store swap,
   template/capability registry, discovery, and lifecycle (`lume_manage`, lifecycle
   intents, `template_hint`): designed-for, built only when a second template exists.
