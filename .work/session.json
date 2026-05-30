@@ -1,6 +1,6 @@
 {
   "date": "2026-05-30",
-  "completed": ["WORK-0001", "WORK-0002", "WORK-0003", "WORK-0004", "WORK-0005"],
+  "completed": ["WORK-0001", "WORK-0002", "WORK-0003", "WORK-0004", "WORK-0005", "WORK-0006"],
   "decisions": [
     "Lume reframed: extensible AI platform (capabilities + templates), not just an IDP. SDLC is the first/bootstrap template.",
     "No permanent tech constraints (K8s included) — opinions become swappable options behind clean contracts. Only principles are non-negotiable.",
@@ -17,9 +17,10 @@
     "Identity: 4 static base levels + SPIFFE/SPIRE workload identity with per-call mutual-TLS verification; earned autonomy = scoped/expiring/audited grants (granting is human-only high-blast).",
     "Adopt the security primitives (SPIRE/OPA/OTel/Sigstore — pending a recommended security-stack spike), build only the AI-native defences + pipeline glue. CLAUDE.md 'no exceptions' + OSS-only reconciliation tracked in WORK-0015.",
     "Data/state: workflow state event-sourced (model) with the simplest build-now realisation (append write-ahead records + replay-on-resume; snapshots/compaction RESERVED scale). Resume is side-effect-free; per-effect check-then-act on the one uncommitted step.",
-    "Context store layered: structured slices build-now; semantic vector store (Chroma/Qdrant candidate) + blob RESERVED/opt-in; compression local-model only; confidentiality label propagates through compression. Audit excluded from the orchestrator-callable store contract (write-only emit, separate trust domain). Local-first; networked store OSS+operator-controlled (required at multi-instance scale, not optional)."
+    "Context store layered: structured slices build-now; semantic vector store (Chroma/Qdrant candidate) + blob RESERVED/opt-in; compression local-model only; confidentiality label propagates through compression. Audit excluded from the orchestrator-callable store contract (write-only emit, separate trust domain). Local-first; networked store OSS+operator-controlled (required at multi-instance scale, not optional).",
+    "CLI is intent-first: lume \"<intent>\" + thin verbs (status/approve/ask/context/undo) over the 5 MCP tools; rich tree RESERVED. Self-modification is two-tier: Tier 1 (general self-improvement via the same SDLC, high-blast, no self-approval) + Tier 2 constitutional protected core (security pipeline, blast/approval logic, audit chain, grant mechanism, the core definition) NEVER grant-relaxable or autonomously self-modifiable; interim = all lume/ + core policy/config changes treated as core-touching until WORK-0014 draws the boundary."
   ],
-  "next_item": "WORK-0006",
+  "next_item": "WORK-0007",
   "blockers": [],
-  "notes": "WORK-0005 complete: docs/data-architecture.md, decisions from interview (hybrid event-sourced + layered context store), hardened through 3 adversarial-review cycles to 0 BLOCKING (simplicity-enforcer dissent on snapshots resolved -> RESERVED; store contract held as approved WORK-0002 seam). On branch docs/work-0005-data-architecture; PR pending. Active empty per /iterate; next /iterate selects WORK-0006 (CLI & self-building requirements) -> completes the WS-REQ workstream. OUTSTANDING FOR NEIL: (1) add a security-stack spike; (2) add a storage-stack spike -- both recommended, raise with the high-level plan WORK-0014. Downstream: WORK-0007 (multi-effect resume), WORK-0010/0011, WORK-0012/0013, WORK-0015 (CLAUDE.md reconciliation, 6 items)."
+  "notes": "WORK-0006 complete: docs/cli-requirements.md, decisions from interview (intent-first CLI + two-tier self-modification/constitutional core), hardened through 2 adversarial-review cycles to 0 BLOCKING. PR also makes a small consistency edit to security-requirements.md (non-grantable core carve-out, §3/§6). On branch docs/work-0006-cli-requirements; PR pending. *** WS-REQ WORKSTREAM COMPLETE (WORK-0001..0006). *** Next /iterate selects WORK-0007 -- the FIRST technology spike (MCP SDK + two-layer pattern, WS-TECH, change_class=spike). Spikes need code/PoC, not interviews -- a different working mode from the 6 requirements docs. OUTSTANDING FOR NEIL: add (1) security-stack spike, (2) storage-stack spike, (3) governance item to draw the protected-core boundary -- all recommended, raise with the high-level plan WORK-0014. Downstream: WORK-0015 (CLAUDE.md + cross-doc reconciliation)."
 }

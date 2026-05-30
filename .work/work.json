@@ -7,23 +7,6 @@
   "active": [],
   "backlog": [
     {
-      "id": "WORK-0006",
-      "title": "Write CLI and self-building requirements",
-      "phase": 0,
-      "workstream": "WS-REQ",
-      "change_class": "docs",
-      "status": "backlog",
-      "description": "Document the lume CLI command surface, approval gate requirements, rollback requirements, and self-modification safety constraints.",
-      "acceptance_criteria": [
-        "docs/cli-requirements.md exists",
-        "Command surface: each command with intent, inputs, outputs, examples",
-        "Approval gate requirements: which actions require human approval and why",
-        "Rollback requirements: what can be rolled back, how, within what window",
-        "Self-modification safety: constraints on Lume modifying its own code or config",
-        "Neil has reviewed and approved (explicit APPROVE in conversation)"
-      ]
-    },
-    {
       "id": "WORK-0007",
       "title": "Spike: MCP SDK + two-layer pattern",
       "phase": 0,
@@ -173,6 +156,24 @@
     }
   ],
   "completed": [
+    {
+      "id": "WORK-0006",
+      "title": "Write CLI and self-building requirements",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "completed",
+      "completed_date": "2026-05-30",
+      "description": "Document the lume CLI command surface, approval gate requirements, rollback requirements, and self-modification safety constraints.",
+      "acceptance_criteria": [
+        "docs/cli-requirements.md exists",
+        "Command surface: each command with intent, inputs, outputs, examples",
+        "Approval gate requirements: which actions require human approval and why",
+        "Rollback requirements: what can be rolled back, how, within what window",
+        "Self-modification safety: constraints on Lume modifying its own code or config",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
+    },
     {
       "id": "WORK-0005",
       "title": "Write data and state architecture",
