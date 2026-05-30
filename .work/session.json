@@ -1,13 +1,18 @@
 {
   "date": "2026-05-30",
-  "completed": ["WORK-0001"],
+  "completed": ["WORK-0001", "WORK-0002"],
   "decisions": [
     "Lume reframed: extensible AI platform (capabilities + templates), not just an IDP. SDLC is the first/bootstrap template.",
     "No permanent tech constraints (K8s included) — opinions become swappable options behind clean contracts. Only principles are non-negotiable.",
     "Earned-autonomy model: high-blast/irreversible actions human-gated by default; guardrails relax as Lume proves reliability.",
-    "CLAUDE.md to be reconciled to the broader platform framing in a later follow-up."
+    "CLAUDE.md to be reconciled to the broader platform framing in a later follow-up (WORK-0015).",
+    "Orchestrator: general capability/template-aware core, SDLC as first instance — but 'design general, build simple' (Phase 0/1 builds simplest SDLC-only realisation; generality RESERVED).",
+    "Decomposition is a planner capability (inline for SDLC build-now; extracted when a 2nd template exists).",
+    "5 intent tools; lume_task carries lifecycle intents (RESERVED), lume_query does structured discovery; lume_manage a recorded trigger.",
+    "Stateless orchestrator over a swappable durable store (embedded local build-now; mechanism deferred to WORK-0005).",
+    "5-class failure model + halt-and-surface on partial failure (compensation RESERVED for destructive/invisible effects)."
   ],
-  "next_item": "WORK-0002",
+  "next_item": "WORK-0003",
   "blockers": [],
-  "notes": "WORK-0001 complete: docs/requirements.md written and explicitly approved by Neil. On branch docs/work-0001-requirements; commit/PR pending operator go-ahead. Next: WORK-0002 orchestrator design doc."
+  "notes": "WORK-0002 complete: docs/orchestrator-design.md, approved by Neil's interview decisions, hardened through 3 adversarial-review cycles (0 BLOCKING). On branch docs/work-0002-orchestrator-design; PR pending. Active set empty per /iterate — next /iterate selects WORK-0003 (agent boundary analysis), which should follow WORK-0002 merging. Downstream obligations recorded for WORK-0003/0005/0007/0011/0015."
 }
