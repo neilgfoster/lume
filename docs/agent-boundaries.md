@@ -33,17 +33,29 @@ kind — because real GitOps repos are templated (Helm, Kustomize) and a wrapper
 single kind. The orchestrator's **planner routes each part of a change to the owning
 capability by purpose**; when one file (e.g. a Helm values file or a bundling
 `HelmRelease`/`Kustomization`/Argo `Application`) spans domains, the planner dispatches
-a per-domain edit to each owner, and the **orchestrator serializes those edits on the
-shared working branch** (it owns the branch/PR). No capability "splits" files alone, and
-no file needs a single kind-based owner.
+a per-domain edit to each owner. No capability "splits" files alone, and no file needs a
+single kind-based owner.
+
+**Serialisation contract** (when several capabilities edit the same file in one
+workflow): the orchestrator dispatches the per-domain edits **sequentially, not
+concurrently**; each capability **reads the current branch head before patching**, so
+edit *N+1* sees edit *N*'s result; after the last edit the orchestrator runs the
+deterministic VALIDATE on the merged (and, for templated repos, re-rendered) file, and a
+failed apply/render is a deterministic validation `failure`, not a silent clobber. The
+proof that this holds for a real multi-capability edit is routed to WORK-0007.
 
 **Tiebreakers for genuine straddles:**
 
 - **Deployment-composition layer** (Helm charts, Kustomize overlays, Flux
   `Kustomization`/`HelmRelease`, Argo `Application`, CI/CD workflow files) → **Infra**:
-  it owns getting workloads running, including the mechanism. Create through delete.
-- **Observability-stack workloads** (e.g. an OTel collector or Prometheus `Deployment`)
-  → **Obs**: it owns its own plane. *All other* workloads → Infra.
+  it owns getting workloads running, including the mechanism. Create through delete —
+  including the *first* CI/deploy workflow (so there is no create-vs-mutate split on CI).
+- **Observability-plane workloads** → **Obs**, by this deterministic test: a workload
+  whose function is to collect/store/serve telemetry or alerts (Prometheus, Grafana, an
+  OTel collector, a logs/metrics agent DaemonSet such as Fluent Bit/Promtail). *Every
+  other* workload → Infra — including an ingress that merely exposes a metrics endpoint.
+  An app's telemetry **sidecar** is not a standalone workload; it lives in its host
+  manifest and is routed per-domain by the planner like any mixed file.
 - **Mixed file** → routed per-domain by the planner (above), never owned whole by one
   capability when its contents genuinely span domains.
 
@@ -151,10 +163,11 @@ Routed here from the orchestrator design — binding on **every** capability's M
   - `delete_provisioned_artifact` — remove a repo/tenant/claim (high blast radius →
     human approval).
   - `bootstrap_lume_project` — scaffold a new project's **container only**: repo
-    skeleton, CLAUDE.md, hedl setup, and the initial CI bootstrap (detail in
-    WORK-0012/0013). It does **not** write starter workload manifests, obs artifacts, or
-    application source — those are written by their class owner (Infra/Obs/Coding) on a
-    follow-up step. Ongoing edits to CI/composition files are Infra's (deployment layer).
+    skeleton, CLAUDE.md, hedl setup (detail in WORK-0012/0013). It does **not** write
+    CI/composition files, starter workload manifests, obs artifacts, or application
+    source — each is written by its class owner (Infra owns CI/composition and workload
+    manifests; Obs; Coding) on a follow-up step. So CI has a single owner (Infra) from
+    its first commit — no create-vs-mutate split.
 - **Validation suite.** Generated artifact is schema/policy-valid; it exists in Git;
   the operator picks it up. Deterministic.
 - **Escalation.** Reasoning model class for scaffolding; deterministic for the writes.
@@ -167,9 +180,10 @@ Routed here from the orchestrator design — binding on **every** capability's M
 ## 5. Obs Agent
 
 - **Owns artifact class:** the observability plane and its artifacts — metrics/logs/
-  traces collection and query, plus alert rules and dashboards (by resource kind, e.g.
-  PrometheusRule, ServiceMonitor, dashboards). Produces the signals Infra and the
-  orchestrator consume. Does not act on infrastructure (Infra) or write app code.
+  traces collection and query, plus alert rules and dashboards (e.g. PrometheusRule,
+  ServiceMonitor, dashboards — resource kind is a routing hint, not the axis). Produces
+  the signals Infra and the orchestrator consume. Does not act on infrastructure (Infra)
+  or write app code.
 - **MCP tools.**
   - `query_metrics`, `query_logs`, `query_traces` — typed reads over telemetry.
   - `get_health` — structured health/SLO snapshot for a target (raw/structured signal,
@@ -189,8 +203,9 @@ Routed here from the orchestrator design — binding on **every** capability's M
 
 ## 6. No-overlap verification
 
-Artifact class is the single partition axis; each capability owns exactly one class,
-classified by resource kind / reconciling controller.
+Artifact class is the single partition axis; each capability owns exactly one domain,
+classified by domain/purpose (see "Routing, not file-classification" above — resource
+kind is at most a routing hint, never the axis).
 
 - **Coding** — application source code.
 - **Infra** — in-cluster workload manifests (create/scale/mutate/delete).
