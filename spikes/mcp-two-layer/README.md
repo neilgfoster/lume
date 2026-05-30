@@ -3,6 +3,11 @@
 Disposable Phase-0 proof of concept. Proves the two-layer MCP architecture and measures
 its latency. Verdict + rationale: `.work/decisions/ADR-001-mcp-two-layer.md`.
 
+**Scope / not production.** This is a pure latency spike: it deliberately omits the
+security pipeline (no identity/blast-radius/audit on tool calls) and input validation
+(no clamp on `steps`). **Do not cargo-cult into Phase 1** — Phase-1 tools must enforce the
+full WORK-0004 security pipeline and bound caller-supplied counts.
+
 ## What it proves
 
 The CLAUDE.md two-layer pattern: an **external client** talks to a **Layer-1 orchestrator

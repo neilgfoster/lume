@@ -37,25 +37,40 @@ dominates any real task. Each agent MCP call is ~3 ms over stdio.
 
 **SDK options evaluated:**
 
-- **Python MCP SDK** (`mcp` 1.27.2, official; `FastMCP` server API) — used here. Mature,
-  ergonomic (decorator tools, typed I/O, structured results), supports **stdio** and
-  **streamable-HTTP** transports. Server-as-client nesting (the orchestrator) is clean via
-  the server lifespan. Best fit for Lume's internal servers (orchestrator + agents are
-  Python-leaning: local models, validation loop).
-- **TypeScript MCP SDK** (`@modelcontextprotocol/sdk`, official) — equally first-class;
-  the better choice for the `lume web` client and Node-based external clients. Not needed
-  for internal Layer-1/Layer-2 servers.
+- **Python MCP SDK** (`mcp` 1.27.2, official, **MIT — OSS, satisfies principle 10**;
+  `FastMCP` server API) — **exercised here**. Mature, ergonomic (decorator tools, typed
+  I/O, structured results), supports **stdio** and **streamable-HTTP** transports.
+  Server-as-client nesting (the orchestrator) is clean via the server lifespan. Good fit
+  for Lume's internal servers (orchestrator + agents are Python-leaning: local models,
+  validation loop).
+- **TypeScript MCP SDK** (`@modelcontextprotocol/sdk`, official) — **assessed on
+  documentation only; not exercised in this spike.** It is the natural choice for the
+  `lume web` client and Node-based external clients; the server-as-client nesting pattern
+  was *not* verified in TS. This is a provisional lean, to be validated when `lume web` is
+  built — not a measured result.
 - **Transport:** **stdio** for local/co-located processes (used in the PoC; ideal for the
   single-desktop profile). **streamable-HTTP** for networked/enterprise deployment —
   RESERVED, to be validated when scale demands it.
 
 ## Decision
 
-**GO on the two-layer MCP pattern.** Adopt the **official Python MCP SDK** for the Layer-1
-orchestrator and Layer-2 agent servers; reserve the TypeScript SDK for web/Node clients.
-Default to **stdio** transport for the local profile; treat **streamable-HTTP** as the
-RESERVED networked-scale transport. The orchestrator must hold **persistent** sessions to
-its agents (PoC pattern), not spawn a process per task.
+**GO on the two-layer MCP pattern** — the layering (orchestrator-MCP coordinating
+agent-MCP) is proven and architecturally sound. Adopt the **official Python MCP SDK** (MIT)
+for the Layer-1 orchestrator and Layer-2 agent servers; the orchestrator must hold
+**persistent** sessions to its agents (PoC pattern), not spawn a process per task.
+
+Two bounds on this GO, kept explicit:
+
+- **The *performance* GO is bounded to the local, co-located stdio profile.** The
+  ~2–3 ms-per-hop figure is a stdio, single-machine result. CLAUDE.md targets Kubernetes
+  scale, where agents may be **networked pods, not stdio child processes** — that hop is
+  unmeasured and could be materially larger. **WORK-0008 (kagent) must resolve the agent
+  transport**; the enterprise-scale performance claim is gated on it. The *pattern* GO
+  stands regardless; only the latency number carries the local-only asterisk.
+- **The Python-for-internal-servers choice is proven; the TS-for-web choice is
+  provisional** (doc-review only — see Context). `lume web` validates the TS SDK later.
+- Transport: **stdio** for the local profile (used here); **streamable-HTTP** RESERVED for
+  networked scale (unmeasured, gated on WORK-0008).
 
 ## Consequences
 
@@ -66,13 +81,19 @@ its agents (PoC pattern), not spawn a process per task.
 - **Server-as-client nesting works**: the orchestrator being both an MCP server and an MCP
   client (via lifespan-managed agent sessions) is a clean, supported pattern — this is how
   Layer 1 coordinates Layer 2.
-- **Confirms a WORK-0005 assumption**: persistent agent sessions (not per-task spawn) are
-  required for steady-state latency; per-task process spawn would dominate.
-- **Open / deferred:** (a) the **streamable-HTTP transport** at networked scale is
-  unmeasured — validate in a later spike before enterprise deployment; (b) latency was
-  measured with a trivial agent tool — real agents add their own work, but that is agent
-  cost, not transport cost; (c) the PoC used a single agent — fan-out to 5+ agents
-  (CLAUDE.md) was not stress-tested, though the constant per-hop cost predicts it scales
-  linearly in hops, not super-linearly.
-- Supersedes nothing. Informs WORK-0008 (kagent — does its runtime expose agents over
-  MCP the same way?) and WORK-0014 (the high-level plan).
+- **Confirms an orchestrator-design (WORK-0002 §3) assumption**: persistent agent sessions
+  (not per-task spawn) are required for steady-state latency; per-task process spawn would
+  dominate.
+- **The PoC deliberately omits the security pipeline** (no identity/blast-radius/audit on
+  the tool calls) and input validation (no clamp on `steps`) — it is a pure latency spike.
+  **This code must not be cargo-culted into Phase 1**: Phase-1 tools must enforce the full
+  WORK-0004 pipeline and bound caller-supplied loop counts.
+- **Open / deferred:** (a) **networked transport** (streamable-HTTP / agents-as-pods) is
+  unmeasured — gated on WORK-0008 before any enterprise-scale latency claim; (b) latency
+  used a trivial agent tool (isolates transport cost — intentional), but **large
+  structured payloads double-marshalled across two layers are unmeasured**; (c) the PoC
+  used a **single agent, called sequentially** — fan-out to 5+ agents (CLAUDE.md) with
+  concurrency/back-pressure was not tested, so "scales linearly in hops" is a
+  **hypothesis**, not a measurement (retest in WORK-0008); (d) TS SDK unexercised (above).
+- Supersedes nothing. Informs WORK-0008 (kagent — agent transport + multi-agent fan-out)
+  and WORK-0014 (the high-level plan).
