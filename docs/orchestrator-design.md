@@ -1,6 +1,6 @@
 # Lume — Orchestrator Design
 
-**Status**: in review
+**Status**: in review — approval is recorded by merge of the delivering PR (see Sign-off)
 **Author**: Neil Foster (interview), synthesised by Claude Code
 **Date**: 2026-05-30
 **Work item**: WORK-0002
@@ -356,8 +356,11 @@ cannot safely leave dangling.
 - **Context payload constraints (WORK-0005)** — the `lume_context` `scope` value space
   and add-payload limits (size, duplicates) are defined with the context-store design.
 - **RESERVED generality** — planner-as-capability, the multi-backend store swap,
-  template/capability registry, discovery, and lifecycle (`lume_manage`, lifecycle
-  intents, `template_hint`): designed-for, built only when a second template exists.
+  template/capability registry, discovery, and lifecycle. Lifecycle is carried on
+  `lume_task` intents today; a dedicated **`lume_manage`** tool is *not* one of the
+  five — it is a **potential sixth tool** introduced (revisiting the 5-tool cap) only
+  if external lifecycle traffic demands it. `template_hint` is likewise reserved. All
+  built only when a second template exists.
 - **Earned-autonomy gate relaxation** — mechanism deferred (requirements §3; WORK-0015).
 - **Identity/permission resolution detail** — owned by WORK-0004.
 
@@ -365,4 +368,6 @@ cannot safely leave dangling.
 
 ## Sign-off
 
-- [ ] **Neil has reviewed and explicitly approved this document.**
+Approval is **recorded by the merge of this document's delivering PR** — the operator's
+review-and-merge is the approval gate (per the `/iterate` flow). There is no separate
+in-file approval step; an unmerged PR means not-yet-approved.

@@ -8,7 +8,7 @@
     "CLAUDE.md to be reconciled to the broader platform framing in a later follow-up (WORK-0015).",
     "Orchestrator: general capability/template-aware core, SDLC as first instance — but 'design general, build simple' (Phase 0/1 builds simplest SDLC-only realisation; generality RESERVED).",
     "Decomposition is a planner capability (inline for SDLC build-now; extracted when a 2nd template exists).",
-    "5 intent tools; lume_task carries lifecycle intents (RESERVED), lume_query does structured discovery; lume_manage a recorded trigger.",
+    "5 intent tools; lume_task carries lifecycle intents (RESERVED), lume_query does structured discovery; lume_manage is NOT one of the five — a potential sixth tool introduced only if lifecycle traffic demands it.",
     "Stateless orchestrator over a swappable durable store (embedded local build-now; mechanism deferred to WORK-0005).",
     "5-class failure model + halt-and-surface on partial failure (compensation RESERVED for destructive/invisible effects)."
   ],
