@@ -44,13 +44,18 @@ never thinks about agents, models, or tools. A richer command tree (e.g.
   - *Example:* `lume ask "what changed in task t_8f3a?"`
 - **`lume context add|update|remove …`** → `lume_context`.
   - *Intent:* provide or manage scoped context.
-  - *Inputs:* operation; a payload or ref; `--scope`.
-  - *Outputs:* `context_id`; a summary of what is now in scope.
+  - *Inputs:* operation; a payload or ref; `--scope` (the value set is defined with the
+    context-store design, WORK-0005); `remove` takes a `context_id`.
+  - *Outputs:* `context_id`; a summary of what is now in scope, **including the
+    confidentiality label assigned at ingestion** (security §1) so the operator sees it.
   - *Example:* `lume context add ./design-notes.md`
-- **`lume undo <task_id>`** → a revert intent (see §3).
+- **`lume undo <task_id>`** → a revert intent (see §3). Not a 6th MCP tool — sugar for a
+  `lume_task` revert intent.
   - *Intent:* roll back what a task changed.
-  - *Inputs:* `task_id` (or a change ref); `--dry-run`.
-  - *Outputs:* a new task that reverts the change; its plan/blast radius.
+  - *Inputs:* `task_id`; `--dry-run`.
+  - *Outputs:* a new task that reverts all Git-expressed effects and **reports the
+    irreversible effects it could not undo** (rather than silently partial-reverting); its
+    plan/blast radius.
   - *Example:* `lume undo t_8f3a`
 
 All commands run under a resolved identity (CLI invocations are typically the `human`
@@ -68,7 +73,11 @@ Which actions require human approval, and why — enforced deterministically (WO
   human-issued and is scoped/expiring/audited.
 - **Issuing or widening a grant** — always human (a high-blast action; security §2).
 - **Constitutional-core changes** — **always human, no exceptions, never grant-relaxable**
-  (see §4). This is the one class earned autonomy can never reach.
+  (see §4). This is the one class earned autonomy can never reach. This carve-out must be
+  **encoded in the approval policy itself** — security §3's general "a grant may
+  pre-authorise high-blast" rule must explicitly except the core-touching class (else the
+  exception is only held across docs, not enforced). Routed to WORK-0004 / the security
+  spike.
 - **Low/medium, in-scope** — proceed under policy; surfaced in `lume status` and audited,
   not gated.
 
@@ -94,9 +103,12 @@ reverting is reverting Git and letting the operators reconcile.
   revert to Git (a normal, audited, blast-classified action) → operators reconcile. Undo
   is itself a task (planned, validated, gated), not a privileged escape hatch.
 - **Window:** anything in Git is revertible **for as long as history is retained**
-  (effectively unbounded). The practical caveat is *stacked* changes: reverting an old
-  change under newer dependent ones may conflict — surfaced as a normal task failure for
-  the operator to resolve, never force-applied.
+  (effectively unbounded). The caveat is *stacked* changes: reverting an old change under
+  newer dependent ones may break them. Because undo is a normal task, it runs the **full
+  pipeline including VALIDATE on the reverted state** — so a revert that applies cleanly
+  textually but breaks a dependent change is caught by validation (a task failure for the
+  operator), not silently shipped. Textual merge conflicts surface the same way; neither
+  is ever force-applied.
 
 ## 4. Self-modification safety
 
@@ -120,35 +132,52 @@ Under earned autonomy, *these* classes can graduate to grant-pre-authorised over
 
 A defined **protected core** is **always human-gated, can never be relaxed by a grant,
 and is never autonomously self-modifiable regardless of Lume's trust level.** Only a
-human can change it — always, forever. The core is:
+human can change it. **Conceptually**, the core comprises: the **security pipeline**
+(`identity → permission → blast-radius → validation → execution → audit`); the
+**blast-radius classification and approval logic**; the **audit chain and its signing**;
+the **earned-autonomy grant mechanism itself**; and **this protected-core definition**
+(so the boundary cannot be autonomously widened). The *precise* file/config/logic
+enumeration is deferred to a governance work item (§5).
 
-- the **security pipeline** (`identity → permission → blast-radius → validation →
-  execution → audit`);
-- the **blast-radius classification and approval logic** (incl. what counts as high/
-  irreversible);
-- the **audit chain and its signing** (the tamper-evidence);
-- the **earned-autonomy grant mechanism itself** (what can be granted, and how);
-- **this protected-core definition** (so the boundary cannot be autonomously widened).
+**Operational meaning of "non-self-modifiable":** a change recognised as core-touching
+requires a **fresh `human`-trust approval bound to that specific change** — no grant, no
+idempotency key, no cached prior approval can satisfy it (this is stronger than an
+ordinary high-blast gate, which a grant may pre-authorise).
+
+**Interim safe default (until the boundary is drawn):** every change to the `lume/`
+orchestration repo (Lume modifying itself) is treated as **core-touching** — non-grantable
+and human-gated. The boundary is deliberately over-approximated until WORK-0014 draws the
+precise one; **no Tier-1 self-modification class may graduate to grant-pre-authorised
+until that boundary exists.**
 
 Why this tier exists: without it, the earned-autonomy model is self-referentially unsafe
 — a sufficiently-trusted Lume could grant itself the right to relax its own guardrails. A
-system that can earn the ability to disable its own safety is not safe. The core sits
-**outside the reach of both grants and self-modification**; a change to it is a
-human-only constitutional act.
+system that can earn the ability to disable its own safety is not safe.
 
-Enforcement is by identity + policy (WORK-0004): the "modify-protected-core" action-class
-is **non-grantable** and requires `human` approval unconditionally. Self-building still
-delivers the vision — Lume freely improves everything *outside* the core under Tier 1.
+**Enforcement** is by identity + policy: the policy must **reject grant issuance** for the
+core-touching class unconditionally (not merely not offer it) and require a fresh human
+approval — the concrete mechanism is specified by the security spike (WORK-0004 §6).
+
+**Reconciliation with the autonomy arc:** this Tier deliberately **bounds** CLAUDE.md's
+Phase-5 "Lume … ships autonomously" — autonomy is unbounded *outside* the core, never
+*over* it. Note that the core's "no exceptions" is a **deliberately permanent** absolute:
+the WORK-0015 reconciliation that demotes the general high-blast "no exceptions" to a
+default **must preserve** this narrower one. Self-building still delivers the vision —
+Lume freely improves everything outside the core under Tier 1.
 
 ---
 
 ## 5. Known open questions / deferred
 
 - **Exact protected-core boundary** — the precise enumeration of files/config/logic that
-  constitute the constitutional core (what is in vs out) needs a careful, reviewed
-  definition before Lume does any autonomous self-modification. Recommend a dedicated
-  governance work item (raise with the plan, WORK-0014). Until defined, **all**
-  self-modification is human-gated.
+  constitute the constitutional core needs a careful, reviewed definition before Lume does
+  any autonomous self-modification. Recommend a dedicated governance work item (raise with
+  the plan, WORK-0014). **Interim (§4):** all `lume/`-repo changes are treated as
+  core-touching (non-grantable + human-gated), and no Tier-1 class graduates to a grant
+  until the boundary is drawn.
+- **Non-grantable enforcement** — the policy mechanism that makes the core-touching class
+  un-grantable (security §3's approval rule must except it) is a named deliverable for
+  WORK-0004 / the security spike.
 - **Enforcement mechanism** — how "non-grantable" and "non-self-modifiable" are
   technically enforced (identity + OPA policy + which paths are protected) → the
   security stack (WORK-0004 / the recommended security spike).
