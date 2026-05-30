@@ -1,33 +1,17 @@
 {
   "meta": {
     "current_phase": 0,
-    "active_item": "WORK-0001",
-    "last_updated": "2026-05-29"
+    "active_item": "WORK-0002",
+    "last_updated": "2026-05-30"
   },
   "active": [
-    {
-      "id": "WORK-0001",
-      "title": "Write core requirements doc",
-      "phase": 0,
-      "workstream": "WS-REQ",
-      "change_class": "docs",
-      "status": "active",
-      "description": "Conduct a structured requirements interview with Neil and synthesise the answers into docs/requirements.md. Covers: who uses Lume and what pain does it solve in 3 months, what Lume must never do, how we know it is working, which existing tools must integrate vs can be replaced, and open questions Neil already knows about.",
-      "acceptance_criteria": [
-        "docs/requirements.md exists and covers: users and pain, must-nots, success metrics, integration constraints, known open questions",
-        "Neil has reviewed and approved the document (explicit APPROVE in conversation)",
-        "No architecture decisions or implementation details — requirements only"
-      ]
-    }
-  ],
-  "backlog": [
     {
       "id": "WORK-0002",
       "title": "Write orchestrator design doc",
       "phase": 0,
       "workstream": "WS-REQ",
       "change_class": "docs",
-      "status": "backlog",
+      "status": "active",
       "description": "Document the Lume Orchestrator's responsibilities, MCP surface (max 5 tools), state model, failure model, and multi-agent workflow coordination approach.",
       "acceptance_criteria": [
         "docs/orchestrator-design.md exists",
@@ -36,7 +20,9 @@
         "Failure model documented: what happens when an agent fails, times out, or returns a bad result",
         "Neil has reviewed and approved (explicit APPROVE in conversation)"
       ]
-    },
+    }
+  ],
+  "backlog": [
     {
       "id": "WORK-0003",
       "title": "Write agent boundary analysis",
@@ -234,8 +220,40 @@
         "Phase 0 findings referenced: each spike conclusion influences the plan",
         "Neil has reviewed and approved (explicit APPROVE in conversation)"
       ]
+    },
+    {
+      "id": "WORK-0015",
+      "title": "Reconcile CLAUDE.md to approved requirements",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "backlog",
+      "description": "Update CLAUDE.md so its framing matches the approved docs/requirements.md: Lume as an extensible AI platform (capabilities + templates) with the SDLC as the first/bootstrap template, not an IDP-only system. Reconcile three named contradictions: (1) the security-model 'High always requires human approval — no exceptions' line vs the earned-autonomy posture; (2) principle 10 'OSS only — no paid runtime dependencies' vs operator-chosen paid services (Bedrock, Claude Pro) being permitted; (3) the IDP-only vision framing. Raised by adversarial review of WORK-0001.",
+      "acceptance_criteria": [
+        "CLAUDE.md vision framing matches docs/requirements.md (platform + capabilities + templates; SDLC is first template)",
+        "CLAUDE.md security model reconciled with the earned-autonomy posture (no silent contradiction on high-blast-radius approval)",
+        "CLAUDE.md principle 10 (OSS only) reconciled with operator-opt-in paid services (no paid runtime dependency by default; operator-chosen paid services permitted)",
+        "No requirement from docs/requirements.md is contradicted by CLAUDE.md after the edit",
+        "Neil has reviewed and approved (explicit APPROVE in conversation)"
+      ]
     }
   ],
-  "completed": [],
+  "completed": [
+    {
+      "id": "WORK-0001",
+      "title": "Write core requirements doc",
+      "phase": 0,
+      "workstream": "WS-REQ",
+      "change_class": "docs",
+      "status": "completed",
+      "completed_date": "2026-05-30",
+      "description": "Conduct a structured requirements interview with Neil and synthesise the answers into docs/requirements.md. Covers: who uses Lume and what pain does it solve in 3 months, what Lume must never do, how we know it is working, which existing tools must integrate vs can be replaced, and open questions Neil already knows about.",
+      "acceptance_criteria": [
+        "docs/requirements.md exists and covers: users and pain, must-nots, success metrics, integration constraints, known open questions",
+        "Neil has reviewed and approved the document (explicit APPROVE in conversation)",
+        "No architecture decisions or implementation details — requirements only"
+      ]
+    }
+  ],
   "archived": []
 }

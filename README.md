@@ -2,6 +2,10 @@
 
 <!-- TODO: vision and goal land in PR#2 (Lume seed). -->
 
+## Requirements
+
+- [Core requirements](docs/requirements.md)
+
 ## Spec templates
 
 Hedl ships spec templates under `docs/spec/`:
