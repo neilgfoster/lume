@@ -9,6 +9,7 @@
 - [Agent boundary analysis](docs/agent-boundaries.md)
 - [Security and auth requirements](docs/security-requirements.md)
 - [Data and state architecture](docs/data-architecture.md)
+- [CLI and self-building requirements](docs/cli-requirements.md)
 
 ## Spec templates
 

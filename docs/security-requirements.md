@@ -208,10 +208,12 @@ capability's effective trust is realised as an audited grant, not a base-level m
   irreversibility flag and external id against the write-ahead record before the scorer
   consumes them — a capability cannot under-report to dodge budget escalation.
 - **Approval authority.** `high`/irreversible → human by default (a matching active grant
-  may pre-authorise a class). `medium` → policy; `low`/`none` → proceed under scope.
-  `lume-agent-local` can never act on `high`. **Cloud-escalation limits** (rate/spend per
-  identity and per deployment, with a circuit breaker) are enforced here as a
-  resource-consumption blast radius.
+  may pre-authorise a class — **except** the **core-touching class** defined in WORK-0006
+  §4, which is **non-grantable**: the policy must reject grant issuance for it
+  unconditionally and require a fresh human approval, regardless of trust). `medium` →
+  policy; `low`/`none` → proceed under scope. `lume-agent-local` can never act on `high`.
+  **Cloud-escalation limits** (rate/spend per identity and per deployment, with a circuit
+  breaker) are enforced here as a resource-consumption blast radius.
 
 ---
 
@@ -303,8 +305,14 @@ dependency, consistent with OSS-only-by-default.
 - **Prompt-injection & semantic-validation efficacy** — adversarial red-team pass,
   alongside the validation-loop spike (WORK-0011).
 - **Multi-tenant isolation** — Phase 2+.
+- **Non-grantable core-touching class** — the security spike must specify how OPA marks
+  the core-touching action-class (WORK-0006 §4) non-grantable, so no grant — and no human
+  *grant* — can pre-authorise a change to the constitutional core.
 
-**Tracking:** CLAUDE.md reconciliation of the "no exceptions" line is WORK-0015.
+**Tracking:** CLAUDE.md reconciliation of the "no exceptions" line is WORK-0015. That
+reconciliation **demotes the general high-blast "no exceptions" to a default but must
+preserve** the *permanent* core-touching "no exceptions" (WORK-0006 §4) — they are
+distinct.
 
 ---
 
