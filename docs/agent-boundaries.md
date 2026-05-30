@@ -7,8 +7,9 @@
 
 ---
 
-This document defines the five internal SDLC capabilities — the **first registered
-capabilities** of the orchestrator (see [orchestrator design](orchestrator-design.md)).
+This document defines the five internal SDLC capabilities — the **first
+capabilities** of the orchestrator (see [orchestrator design](orchestrator-design.md);
+"registered" is RESERVED until a capability registry exists).
 For each: responsibilities, MCP tools (name + purpose), validation suite, and
 escalation chain. It then **explicitly verifies no overlapping responsibilities**.
 
@@ -21,12 +22,30 @@ Per the orchestrator design, these five are the SDLC template's capabilities. Th
 "agent" framing is build-now; the general capability/template model is RESERVED. The
 planner runs inline in the orchestrator (not a sixth capability here).
 
-The partition axis is **artifact class** — each capability owns a disjoint class of
-artifact (or work). Ownership of any Git artifact is decided by its **resource kind /
-reconciling controller**, not its file location; a file mixing kinds is split into
-per-kind artifacts. This axis is robust to GitOps desired-state (it never asks an
-agent to pre-classify a write as "create" vs "mutate") and gives every create, change,
-and **delete** a single owner.
+The partition axis is **artifact class by domain/purpose** — each capability owns a
+disjoint domain. This axis is robust to GitOps desired-state (it never asks an agent to
+pre-classify a write as "create" vs "mutate") and gives every create, change, and
+**delete** a single owner. It clarifies (does not restate) CLAUDE.md and the
+orchestrator design, which name the domains but no formal axis.
+
+**Routing, not file-classification.** Ownership is by *domain*, not by literal resource
+kind — because real GitOps repos are templated (Helm, Kustomize) and a wrapper bears no
+single kind. The orchestrator's **planner routes each part of a change to the owning
+capability by purpose**; when one file (e.g. a Helm values file or a bundling
+`HelmRelease`/`Kustomization`/Argo `Application`) spans domains, the planner dispatches
+a per-domain edit to each owner, and the **orchestrator serializes those edits on the
+shared working branch** (it owns the branch/PR). No capability "splits" files alone, and
+no file needs a single kind-based owner.
+
+**Tiebreakers for genuine straddles:**
+
+- **Deployment-composition layer** (Helm charts, Kustomize overlays, Flux
+  `Kustomization`/`HelmRelease`, Argo `Application`, CI/CD workflow files) → **Infra**:
+  it owns getting workloads running, including the mechanism. Create through delete.
+- **Observability-stack workloads** (e.g. an OTel collector or Prometheus `Deployment`)
+  → **Obs**: it owns its own plane. *All other* workloads → Infra.
+- **Mixed file** → routed per-domain by the planner (above), never owned whole by one
+  capability when its contents genuinely span domains.
 
 **Inference vs deterministic.** Coding, Infra, Provisioning, and Obs are inference
 capabilities (they run the orchestrator's PLAN/ACT/VALIDATE/REFINE/ESCALATE loop). The
@@ -50,7 +69,9 @@ Routed here from the orchestrator design — binding on **every** capability's M
   orchestrator-managed working branch; **the orchestrator opens and updates one PR per
   workflow** (recording the branch/PR identity). No capability opens its own PR — this
   is why a single workflow that touches several artifact classes still lands as one
-  coherent PR.
+  coherent PR. This follows from orchestrator design §3 (the orchestrator records the
+  branch/PR identity); that doc's §1 responsibility list should name PR/branch
+  management explicitly (tracked in WORK-0015's cross-doc reconciliation).
 - **Loop + escalation.** The escalation chain is uniform (orchestrator design §5):
   **2 failures on the local model → larger local model; 4 cumulative local failures →
   one targeted cloud call; cloud fails/unavailable → blocked work item to the human.**
@@ -102,8 +123,10 @@ Routed here from the orchestrator design — binding on **every** capability's M
 - **Owns artifact class:** durable work items (backlog, status, dependencies — the
   `.work/`/issue-tracker domain). Owns work-item state **at rest**.
 - **Responsibility.** Store and transition work items. Performs no inference, so it
-  runs no PLAN/REFINE loop — the orchestrator calls its typed tools directly. Does not
-  run live workflow execution (orchestrator) or domain work.
+  runs **ACT → VALIDATE only** — no PLAN/REFINE and no model escalation; the
+  orchestrator calls its typed tools directly and its failures surface as deterministic
+  rejections (e.g. illegal transition), not model-escalated retries. Does not run live
+  workflow execution (orchestrator) or domain work.
 - **Status during execution.** A running item's status is written by the
   **orchestrator** as the sole writer, by calling `transition_status`; the orchestrator
   maps its workflow-state enum (planning|running|blocked|awaiting_approval|done|failed)
@@ -127,10 +150,11 @@ Routed here from the orchestrator design — binding on **every** capability's M
   - `write_crossplane_claim` — create/mutate a Crossplane infrastructure claim.
   - `delete_provisioned_artifact` — remove a repo/tenant/claim (high blast radius →
     human approval).
-  - `bootstrap_lume_project` — scaffold a new project's container: repo skeleton,
-    config, CLAUDE.md, CI, hedl setup (detail in WORK-0012/0013). The scaffold is
-    **non-application files only**; any starter application source is Coding's first
-    commit.
+  - `bootstrap_lume_project` — scaffold a new project's **container only**: repo
+    skeleton, CLAUDE.md, hedl setup, and the initial CI bootstrap (detail in
+    WORK-0012/0013). It does **not** write starter workload manifests, obs artifacts, or
+    application source — those are written by their class owner (Infra/Obs/Coding) on a
+    follow-up step. Ongoing edits to CI/composition files are Infra's (deployment layer).
 - **Validation suite.** Generated artifact is schema/policy-valid; it exists in Git;
   the operator picks it up. Deterministic.
 - **Escalation.** Reasoning model class for scaffolding; deterministic for the writes.
@@ -197,6 +221,14 @@ Resolved collisions:
   radius → human approval.
 - **PR/branch ownership** — the orchestrator owns the per-workflow branch and PR; no
   capability opens its own, so a multi-class workflow still yields one PR.
+- **Composition/plumbing/CI** — Helm charts, Kustomize overlays, Flux
+  `Kustomization`/`HelmRelease`, Argo `Application`, and CI/CD workflow files are the
+  deployment-composition layer → **Infra** (create through delete).
+- **Observability-stack workloads** — a workload that *is* the observability plane
+  (OTel collector, Prometheus `Deployment`) → **Obs**; every other workload → Infra.
+- **Mixed / templated files** — when one file spans domains, the orchestrator's planner
+  routes a per-domain edit to each owner and serialises them on the shared branch; no
+  capability owns a mixed file whole, and no kind-based single-owner is required.
 
 No artifact class or responsibility appears under two capabilities. The
 acceptance-criterion overlap check passes.
