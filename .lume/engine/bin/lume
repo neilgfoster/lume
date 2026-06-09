@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+"""Executable entry point. Puts the engine package on the path and dispatches.
+
+Run from anywhere inside a project that has a `.lume/` directory:
+    .lume/engine/bin/lume status
+    .lume/engine/bin/lume open "Some title"
+"""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from lume.cli import main  # noqa: E402  (path set up above)
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))
