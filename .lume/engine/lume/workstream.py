@@ -101,6 +101,10 @@ class Workstream:
     def iteration_ids(self) -> list[int]:
         return [int(p.stem) for p in self._iteration_files()]
 
+    def iterations(self) -> list[Iteration]:
+        """Every iteration, oldest first."""
+        return [Iteration.from_text(p.read_text()) for p in self._iteration_files()]
+
     def current_iteration(self) -> Iteration | None:
         files = self._iteration_files()
         if not files:
@@ -153,7 +157,7 @@ class Workstream:
         """
         snap = self._path / "snapshot.md"
         existing = snap.read_text() if snap.is_file() else f"# {self.name} - snapshot\n"
-        iterations = [Iteration.from_text(p.read_text()) for p in self._iteration_files()]
+        iterations = self.iterations()
         snap.write_text(
             build_snapshot(
                 existing,

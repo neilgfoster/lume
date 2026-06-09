@@ -1,0 +1,145 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/001.md",
+      "id": 1,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Map current markdown state and design the JSON state model",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/002.md",
+      "id": 2,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Resolve the forks and plan the slices to JSON-backed state",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/003.md",
+      "id": 3,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "P1: JSON Schemas + vendored validator",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/004.md",
+      "id": 4,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "P2: state.json I/O behind the Repository seam",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/005.md",
+      "id": 5,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "P3: migration converter (markdown -> state.json)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/006.md",
+      "id": 6,
+      "opened": "2026-06-09",
+      "phase": "working",
+      "title": "P4: rewire lifecycle verbs to state.json + regenerate views",
+      "type": "execution",
+      "verdicts": []
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": 3,
+      "sketch": "Schemas + validator: author workstream/iteration/plan_item JSON Schemas (draft-2020-12 subset) as engine data; vendored stdlib validator raising a named boundary error on mismatch; unit tests cover each schema valid + invalid. No wiring yet.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": 4,
+      "sketch": "state.json model behind the Repository seam: a state module that loads+validates and saves+validates a per-workstream state.json (workstream record + iterations + plan items); Repository owns load/save/validate; pure and tested. No verb rewiring yet.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": 5,
+      "sketch": "Migration converter: read each workstream's existing markdown (objective/iteration frontmatter + verdict lines + plan-item lines) and emit state.json; idempotent; round-trips the two closed workstreams; this workstream migrated to JSON (dogfood). Prose artifacts left in place.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": 6,
+      "sketch": "Data-first model bridge (behaviour-preserving, was \"P4a\"): Iteration gains to_entity/from_entity + a canonical verdict parser shared with migrate; accepted_on routes through it; no verb/Repository change; all existing tests stay green. Prepares the flip.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P5",
+      "iter": null,
+      "sketch": "Flip the source of truth (was \"P4b\"): Workstream loads/saves state.json (via Repository) as the truth for status + iterations; open/transition/close/set_status mutate validated state then regenerate views (snapshot.md, iteration frontmatter, objective status); plan.md stays authored + mirrored into state.plan; no machine field read from markdown (grep-verified); tests updated to the state-backed model.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P6",
+      "iter": null,
+      "sketch": "Discovery verbs: `lume entities` lists entity kinds; `lume schema <entity>` prints its JSON Schema; `lume get [-w <slug>] [<entity> [<id>]]` emits current state as JSON. All read-only, machine-parseable, tested.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P7",
+      "iter": null,
+      "sketch": "Retro + close: did JSON-backed state buy back more time than its ceremony? Assess the objective's done-when (state is schema-validated JSON; CLI is sole mutator + exposes discovery/schema verbs; markdown regenerated not authored; this workstream tracked under JSON). Log decisions; lume close.",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
+  "workstream": {
+    "objective_artifact": "objective.md",
+    "slug": "state-as-data",
+    "status": "active",
+    "title": "State is Data"
+  }
+}

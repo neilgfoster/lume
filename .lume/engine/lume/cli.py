@@ -10,13 +10,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from . import migrate as migrate_mod
 from .clock import Clock, SystemClock
 from .errors import GateError, LumeError
 from .iteration import DEFAULT_TYPE, TRANSITIONS
 from .repository import Repository
 from .workstream import CLOSED, Workstream
 
-_VERBS = " ".join(["status", "new", "open", "close", "snapshot", *TRANSITIONS])
+_VERBS = " ".join(["status", "new", "open", "close", "snapshot", "migrate", *TRANSITIONS])
 USAGE = f'lume: usage: lume [-w <slug>] <{_VERBS}>   (new/open/reject take an argument)'
 
 
@@ -109,7 +110,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         return 2
 
     cmd = rest[1] if len(rest) > 1 else "status"
-    if cmd not in ("status", "new", "open", "close", "snapshot", *TRANSITIONS):
+    if cmd not in ("status", "new", "open", "close", "snapshot", "migrate", *TRANSITIONS):
         print(f"lume: unknown command '{cmd}'.\n{USAGE}", file=sys.stderr)
         return 2
 
@@ -136,6 +137,18 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
             return 1
         print(f"created workstream '{ws.name}' (active): {ws.objective_path}")
         print('next: edit its objective.md, then: lume open "<first iteration>".')
+        return 0
+
+    # `migrate` acts on every workstream under .lume/, not a single target.
+    if cmd == "migrate":
+        lume_dir = repo.find_lume_dir()
+        if lume_dir is None:
+            print("lume: no .lume/ found from here.", file=sys.stderr)
+            return 1
+        written = migrate_mod.migrate_all(repo, lume_dir)
+        for slug in written:
+            print(f"migrated: {slug}/state.json")
+        print(f"migrate: wrote {len(written)} state.json file(s).")
         return 0
 
     # `status` with no target is the cross-workstream queue.

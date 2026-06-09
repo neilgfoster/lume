@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from . import state
 from .clock import Clock
 from .errors import GateError, NoLumeDirError, NoWorkstreamError
 from .workstream import ACTIVE, Workstream
@@ -92,6 +93,19 @@ class Repository:
                 f"multiple active workstreams ({names}); pass -w <slug> to pick one."
             )
         return active[0]
+
+    def _state_path(self, slug: str) -> Path:
+        return self._require_lume_dir() / WORKSTREAMS_SUBDIR / slug / state.STATE_FILE
+
+    def load_state(self, slug: str) -> dict:
+        """Read + validate `<slug>/state.json` (the JSON state seam, decision (f))."""
+        return state.load(self._state_path(slug))
+
+    def save_state(self, slug: str, doc: dict) -> None:
+        """Validate then write `<slug>/state.json`, creating the dir if needed."""
+        path = self._state_path(slug)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        state.save(path, doc)
 
     def create_workstream(self, slug: str, title: str) -> Workstream:
         """Create a new active workstream. (Selection is by -w/default, not a cursor.)"""

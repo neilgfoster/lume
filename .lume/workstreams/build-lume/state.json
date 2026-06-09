@@ -1,0 +1,94 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/001.md",
+      "id": 1,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Runnable orientation",
+      "type": "execution",
+      "verdicts": []
+    },
+    {
+      "dod_artifact": "iterations/002.md",
+      "id": 2,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Engine as a tested module under .lume",
+      "type": "execution",
+      "verdicts": []
+    },
+    {
+      "dod_artifact": "iterations/003.md",
+      "id": 3,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Gate-transition commands",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": "Accept does not need a reason, only reject does",
+          "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/004.md",
+      "id": 4,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Derive Done/Now so the snapshot stops being hand-maintained",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/005.md",
+      "id": 5,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Fold snapshot refresh into open and the transition verbs",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/006.md",
+      "id": 6,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Retro: did the loop buy back time, and close build-lume",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "objective_artifact": "objective.md",
+    "slug": "build-lume",
+    "status": "closed",
+    "title": "Build Lume"
+  }
+}

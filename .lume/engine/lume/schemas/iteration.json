@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "iteration",
+  "type": "object",
+  "required": ["id", "type", "phase", "opened", "title", "verdicts", "dod_artifact"],
+  "properties": {
+    "id": {"type": "integer"},
+    "type": {"type": "string", "enum": ["discovery", "planning", "execution", "closeout"]},
+    "phase": {"type": "string", "enum": ["proposed", "approved", "working", "handback", "accepted", "rejected"]},
+    "opened": {"type": "string"},
+    "title": {"type": "string"},
+    "verdicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "verdict"],
+        "properties": {
+          "date": {"type": "string"},
+          "verdict": {"type": "string", "enum": ["accepted", "rejected"]},
+          "reason": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "dod_artifact": {"type": "string"}
+  }
+}

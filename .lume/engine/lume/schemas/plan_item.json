@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "plan_item",
+  "type": "object",
+  "required": ["id", "type", "iter", "tag", "sketch"],
+  "properties": {
+    "id": {"type": "string"},
+    "type": {"type": "string", "enum": ["discovery", "planning", "execution", "closeout"]},
+    "iter": {"type": ["integer", "null"]},
+    "tag": {"type": "string", "enum": ["committed", "optional"]},
+    "sketch": {"type": "string"}
+  }
+}

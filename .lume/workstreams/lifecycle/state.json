@@ -1,0 +1,167 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/001.md",
+      "id": 1,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Active-workstream selection: status field + current pointer",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/002.md",
+      "id": 2,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Discovery: shape of the explicit lifecycle",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/003.md",
+      "id": 3,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Planning: ratify the shape, design the living plan and queue, plan execution",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/004.md",
+      "id": 4,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Queue + multi-workstream rework (plan P1)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/005.md",
+      "id": 5,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Un-hardcode type in lume open (plan P2)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/006.md",
+      "id": 6,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Derive Next + plan position from the living plan (plan P3)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/007.md",
+      "id": 7,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Per-type DoD-skeletons (plan P4)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/008.md",
+      "id": 8,
+      "opened": "2026-06-09",
+      "phase": "accepted",
+      "title": "Close-out / retro (plan P6)",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-09",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": 4,
+      "sketch": "Queue + multi-workstream rework: retire `.lume/current`; in-progress = all `status:active`; commands take `-w <slug>` (default to the sole active, error listing actives when omitted with >1); `lume status` becomes the cross-workstream queue (AWAITING YOU = handback iterations across active; IN PROGRESS = other active; CLOSED listed); `new`/`close` no longer touch a cursor; single-active flows still work via the default; tests green. Reworks 001.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": 5,
+      "sketch": "Un-hardcode `type` in `lume open`: `open` takes a type from the (template-default {discovery,planning,execution,closeout}) vocabulary, default `execution`, validates (rejects unknown), persists `type:<t>`, and surfaces it in status/queue; tests green.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": 6,
+      "sketch": "Derive Next + plan-position from this living plan: engine parses plan.md (this schema), derives the snapshot `## Next` and a \"step N of M -> next: P<k>\" line from the first not-done item (done = linked iteration accepted); `## Next` stops being hand-authored; malformed/empty plan handled gracefully; tests green. (Depends on P1's status surface.)",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": 7,
+      "sketch": "Per-type DoD-skeletons (decision d): opening an iteration of each type pre-loads a type-specific DoD/body skeleton (discovery: questions+artifact; planning: decisions+plan+sketches; execution: today's build template; closeout: retro); skeletons are data; tests green. (Depends on P2.)",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P6",
+      "iter": 8,
+      "sketch": "Close-out / retro: did typed/phased practice + the queue + the derived plan buy back more time than they cost? Assess against the objective's done-when (typed/phased iterations; tooling tracks active vs closed + multiple in-progress; this workstream run through the lifecycle); log decisions; `lume close` the workstream. (Prototype: build-lume's retro.)",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
+  "workstream": {
+    "objective_artifact": "objective.md",
+    "slug": "lifecycle",
+    "status": "closed",
+    "title": "Workstream Lifecycle"
+  }
+}
