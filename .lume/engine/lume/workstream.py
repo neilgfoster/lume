@@ -67,7 +67,7 @@ class Workstream:
         return Iteration.from_text(files[-1].read_text())
 
     def open_iteration(self, title: str) -> Iteration:
-        """Create the next iteration at phase 'proposed'.
+        """Create the next iteration at phase 'proposed', then refresh snapshot.md.
 
         Gate: refuse unless the latest iteration is accepted (none = first open).
         """
@@ -84,6 +84,7 @@ class Workstream:
         )
         self.iterations_dir.mkdir(exist_ok=True)
         (self.iterations_dir / f"{next_id:03d}.md").write_text(iteration.to_text())
+        self.record_snapshot()
         return iteration
 
     def record_snapshot(self) -> Path:
@@ -92,7 +93,7 @@ class Workstream:
         Preserves the hand-authored `## Next` section. Writes only snapshot.md.
         """
         snap = self._path / "snapshot.md"
-        existing = snap.read_text() if snap.is_file() else ""
+        existing = snap.read_text() if snap.is_file() else f"# {self.name} - snapshot\n"
         iterations = [Iteration.from_text(p.read_text()) for p in self._iteration_files()]
         snap.write_text(build_snapshot(existing, iterations, self._clock.today().isoformat()))
         return snap
@@ -102,7 +103,9 @@ class Workstream:
 
         Validates the move against the transition table (refusing if the
         iteration is not in the verb's source phase) and, for accept/reject,
-        appends a dated verdict line. Touches only the current iteration file.
+        appends a dated verdict line. Writes the current iteration file and
+        then refreshes snapshot.md so Done/Now stay current with zero extra
+        steps.
         """
         if verb not in TRANSITIONS:
             raise GateError(f"unknown transition '{verb}'.")
@@ -123,4 +126,5 @@ class Workstream:
                 stamp += f" | {note}"
             iteration.body = iteration.body.rstrip("\n") + "\n" + stamp + "\n"
         (self.iterations_dir / f"{iteration.id:03d}.md").write_text(iteration.to_text())
+        self.record_snapshot()
         return iteration
