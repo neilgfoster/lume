@@ -10,13 +10,25 @@ repo, and the engine can be invoked from any subdirectory of a project.
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from .clock import Clock
-from .errors import NoLumeDirError, NoWorkstreamError
-from .workstream import Workstream
+from .errors import GateError, NoLumeDirError, NoWorkstreamError
+from .workstream import ACTIVE, Workstream
 
 WORKSTREAMS_SUBDIR = "workstreams"
+# A slug names a directory under workstreams/, so keep it path-safe.
+_SLUG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]*$")
+
+_NEW_OBJECTIVE = """\
+---
+status: {status}
+---
+# {title}
+
+(objective: describe the done-when for this workstream)
+"""
 
 
 class Repository:
@@ -31,22 +43,69 @@ class Repository:
                 return candidate
         return None
 
+    def _require_lume_dir(self) -> Path:
+        lume_dir = self.find_lume_dir()
+        if lume_dir is None:
+            raise NoLumeDirError("no .lume/ found from here.")
+        return lume_dir
+
     def _workstream_dirs(self, lume_dir: Path) -> list[Path]:
         root = lume_dir / WORKSTREAMS_SUBDIR
         if not root.is_dir():
             return []
         return sorted(p for p in root.iterdir() if (p / "objective.md").is_file())
 
-    def workstream(self) -> Workstream:
-        """Resolve the single active workstream (v1 assumes one)."""
-        lume_dir = self.find_lume_dir()
-        if lume_dir is None:
-            raise NoLumeDirError("no .lume/ found from here.")
-        dirs = self._workstream_dirs(lume_dir)
-        if not dirs:
+    def workstreams(self, lume_dir: Path) -> list[Workstream]:
+        """Every workstream as a Workstream, sorted by slug."""
+        return [Workstream(p, self._clock) for p in self._workstream_dirs(lume_dir)]
+
+    def active_workstreams(self, lume_dir: Path) -> list[Workstream]:
+        return [ws for ws in self.workstreams(lume_dir) if not ws.is_closed]
+
+    def workstream(self, slug: str | None = None) -> Workstream:
+        """Resolve the workstream a command acts on.
+
+        With `slug`, target it explicitly (the `-w` selector); a closed or
+        unknown slug is a named error. Without `slug`, default to the sole
+        active workstream; zero or several active is a named error that never
+        silently picks one.
+        """
+        lume_dir = self._require_lume_dir()
+        if slug is not None:
+            ws_dir = lume_dir / WORKSTREAMS_SUBDIR / slug
+            if not (ws_dir / "objective.md").is_file():
+                raise NoWorkstreamError(f"no workstream '{slug}' under {lume_dir}.")
+            ws = Workstream(ws_dir, self._clock)
+            if ws.is_closed:
+                raise GateError(
+                    f"workstream '{slug}' is closed; reopen it or target another."
+                )
+            return ws
+        active = self.active_workstreams(lume_dir)
+        if not active:
             raise NoWorkstreamError(
-                f"no workstream under {lume_dir / WORKSTREAMS_SUBDIR} "
-                "(need a subdir with objective.md)."
+                'no active workstream. Create one: lume new <slug> "<title>".'
             )
-        # v1 is single-workstream; if several exist, the first is used.
-        return Workstream(dirs[0], self._clock)
+        if len(active) > 1:
+            names = ", ".join(ws.name for ws in active)
+            raise GateError(
+                f"multiple active workstreams ({names}); pass -w <slug> to pick one."
+            )
+        return active[0]
+
+    def create_workstream(self, slug: str, title: str) -> Workstream:
+        """Create a new active workstream. (Selection is by -w/default, not a cursor.)"""
+        lume_dir = self._require_lume_dir()
+        if not _SLUG_RE.match(slug):
+            raise GateError(
+                f"invalid slug '{slug}': use letters/digits, '-' or '_', "
+                "starting with a letter or digit."
+            )
+        ws_dir = lume_dir / WORKSTREAMS_SUBDIR / slug
+        if ws_dir.exists():
+            raise GateError(f"workstream '{slug}' already exists.")
+        ws_dir.mkdir(parents=True)
+        (ws_dir / "objective.md").write_text(
+            _NEW_OBJECTIVE.format(status=ACTIVE, title=title)
+        )
+        return Workstream(ws_dir, self._clock)

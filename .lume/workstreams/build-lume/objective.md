@@ -1,3 +1,6 @@
+---
+status: closed
+---
 # Build Lume
 
 Lightweight Claude Code framework to run work across short, interrupted

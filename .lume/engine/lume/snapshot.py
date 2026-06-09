@@ -8,8 +8,10 @@ preserved verbatim. It is idempotent: re-running on its own output is a no-op.
 from __future__ import annotations
 
 from .iteration import Iteration
+from .plan import PlanItem
 
 _DEFAULT_TAIL = "## Next\n- (add next steps)\n"
+_SKETCH_MAX = 90
 
 
 def _tail_from(lines: list[str]) -> str:
@@ -20,10 +22,48 @@ def _tail_from(lines: list[str]) -> str:
     return _DEFAULT_TAIL
 
 
-def build_snapshot(existing_text: str, iterations: list[Iteration], today: str) -> str:
+def _derived_next(plan_items: list[PlanItem], accepted_ids: set[int]) -> str:
+    """Render the `## Next` block from the plan: position + the next item + the rest.
+
+    Done = the item's linked iteration is accepted; next = first not-done item.
+    """
+    if not plan_items:
+        return "## Next\n- (plan has no items)\n"
+    total = len(plan_items)
+    not_done = [
+        it for it in plan_items if not (it.iter_id is not None and it.iter_id in accepted_ids)
+    ]
+    if not not_done:
+        return f"## Next\n- plan.md: all {total} items done\n"
+    nxt = not_done[0]
+    step = plan_items.index(nxt) + 1
+    sketch = nxt.sketch
+    if len(sketch) > _SKETCH_MAX:
+        sketch = sketch[:_SKETCH_MAX].rstrip() + "..."
+    lines = [
+        "## Next",
+        f"- plan.md: step {step} of {total}",
+        f"- > {nxt.id} ({nxt.type}): {sketch}",
+    ]
+    rest = not_done[1:]
+    if rest:
+        lines.append("- then: " + ", ".join(f"{it.id} ({it.type})" for it in rest))
+    return "\n".join(lines) + "\n"
+
+
+def build_snapshot(
+    existing_text: str,
+    iterations: list[Iteration],
+    today: str,
+    plan_items: list[PlanItem] | None = None,
+) -> str:
     lines = existing_text.splitlines()
     title = lines[0] if lines and lines[0].startswith("#") else "# snapshot"
-    tail = _tail_from(lines)
+    if plan_items is None:
+        tail = _tail_from(lines)  # no plan.md: preserve hand-authored Next
+    else:
+        accepted_ids = {it.id for it in iterations if it.phase == "accepted"}
+        tail = _derived_next(plan_items, accepted_ids)
     latest = iterations[-1] if iterations else None
 
     if latest is None:

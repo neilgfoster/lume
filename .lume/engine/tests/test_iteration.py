@@ -27,6 +27,31 @@ class IterationTest(unittest.TestCase):
         for section in ("# Iteration 003 - Do a thing", "## DoD", "## Self-review", "## Handback", "## Verdict"):
             self.assertIn(section, it.body)
 
+    def test_new_seeds_per_type_dod_skeleton(self):
+        cases = {
+            "discovery": "Context built",
+            "planning": "Decisions recorded",
+            "closeout": "Retro:",
+        }
+        for type_, marker in cases.items():
+            it = Iteration.new(id=1, title="t", opened="d", type=type_)
+            self.assertEqual(it.type, type_)
+            self.assertIn(marker, it.body)
+            # the shared scaffold is identical across types
+            for section in ("## DoD", "## Self-review", "## Handback", "## Verdict"):
+                self.assertIn(section, it.body)
+
+    def test_execution_keeps_generic_skeleton(self):
+        it = Iteration.new(id=1, title="t", opened="d", type="execution")
+        self.assertIn("- [ ] (propose checkable items)", it.body)
+        # default (no type given) is execution -> same body
+        default = Iteration.new(id=1, title="t", opened="d")
+        self.assertEqual(default.body, it.body)
+
+    def test_unmapped_type_falls_back_to_execution_skeleton(self):
+        it = Iteration.new(id=1, title="t", opened="d", type="weird")
+        self.assertIn("- [ ] (propose checkable items)", it.body)
+
     def test_new_round_trips_through_text(self):
         it = Iteration.new(id=12, title="t", opened="2026-06-09")
         reparsed = Iteration.from_text(it.to_text())
