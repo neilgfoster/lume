@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "State inventory: every piece of state currently carried in markdown is\ncatalogued - frontmatter fields and body conventions across workstream,\niteration, plan, snapshot, decisions - with which module reads/writes each.\n(discovery.md \u00a71)"
+      },
+      {
+        "checked": true,
+        "text": "Entity model drafted: the entities (workstream, iteration, plan item, ...),\ntheir fields and types, and relationships, expressed as a candidate JSON shape.\n(\u00a72)"
+      },
+      {
+        "checked": true,
+        "text": "Validation approach chosen: schema format (e.g. JSON Schema) and how/where\nvalidation runs at the tooling boundary, with the dependency cost named. (\u00a73)"
+      },
+      {
+        "checked": true,
+        "text": "Discovery seam sketched: how an agent enumerates entities and fetches a\nschema through the CLI (verb shapes), enough to plan against. (\u00a74)"
+      },
+      {
+        "checked": true,
+        "text": "Markdown-as-view boundary drawn: which files are derived from state vs still\nhuman-authored, and what regenerates them. (\u00a75)"
+      },
+      {
+        "checked": true,
+        "text": "Artifact produced (discovery.md) capturing findings + open forks for planning.\n(\u00a76 lists six forks)"
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code; migration and verb implementation deferred to\nplanning/execution and listed as such. (\u00a77)"
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "Produced discovery.md (7 sections). Key finding: the authoritative machine state\nis small and already isolated (status, the iteration frontmatter quad, verdict\noutcomes, plan-item lines); everything else is prose artifacts or already-derived\nviews - so \"state is data\" is mostly extraction, not invention. snapshot.md\nalready proves the view-from-state pattern. Drafted a 3-entity JSON model,\nchose JSON-Schema-at-the-boundary validation, sketched `entities`/`schema`/`get`\ndiscovery verbs, and drew the state/artifact/view boundary. Six forks left for\nplanning (granularity, validation dependency, migration, DoD-as-data,\nview regen, contract fit). No engine code touched.",
+  "id": 1,
+  "self_review": "Adversarial pass against the DoD:\n- Inventory is grounded in the actual modules (workstream/iteration/plan/\n  snapshot/frontmatter/repository read this session), not assumed. Caught and\n  recorded that verdict outcomes are state currently encoded as prose, and that\n  snapshot.md is already a derived view - both load-bearing for the design.\n- Entity model is a *candidate*, deliberately leaving granularity (one file vs\n  per-entity) open rather than over-committing in discovery.\n- Honoured the constitution: flagged the dependency cost of validation against\n  the engine's dependency-free ethos rather than assuming a library, and tied\n  the JSON state back to the existing Repository contract (fork f) so this\n  doesn't bypass the documented swap seam.\n- Risk not yet resolved (correctly deferred): whether the migration buys back\n  more time than it costs is a planning judgement, not a discovery output. Forks\n  are explicit so planning has real decisions, not a foregone conclusion."
+}

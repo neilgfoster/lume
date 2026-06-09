@@ -1,4 +1,5 @@
 ---
+slug: lifecycle
 status: closed
 ---
 # Workstream Lifecycle

@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. No Lume framework code at repo root: the old root `lume` script is gone, and all engine code lives under `.lume/`. The entry point is executable and runnable from repo root. (Evidence: `ls` repo root shows no `lume`; show the new entry path running.)"
+      },
+      {
+        "checked": true,
+        "text": "2. The engine is a Python package with separated modules (at minimum: frontmatter parsing, iteration model, workstream model, a persistence/locator class, cli dispatch) - not a single-file script. (Evidence: directory tree.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Behaviour parity with the accepted contract: `status` prints objective + current iteration id/phase + verbatim Done/Now/Next; `open \"<title>\"` creates the next zero-padded iteration at `phase: proposed` and refuses (non-zero, names the blocker) unless the latest iteration is `accepted`. (Evidence: run both against real state.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Dependency injection: the date source (clock) and the filesystem root are injected into the core objects, not hardcoded or read from globals - so logic is testable without the real repo or real wall-clock. (Evidence: show a class signature taking injected deps; a test that injects a fixed clock and asserts the `opened` date.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Automated tests exist and pass via stdlib `python -m unittest` (no pip deps). Coverage includes: frontmatter parse + render round-trip; iteration phase validity/transition rules; the `open` gate (refuse when latest != accepted, allow when accepted, correct id increment); and the no-workstream error path. (Evidence: test run output showing N tests, 0 failures.)"
+      },
+      {
+        "checked": true,
+        "text": "6. No inference/model call anywhere in the engine; dates come only from the injected clock. (Evidence: source / import grep.)"
+      },
+      {
+        "checked": true,
+        "text": "7. Running any command commits nothing and touches only intended files. (Evidence: `git status` after a dry open in a sandbox.)"
+      },
+      {
+        "checked": true,
+        "text": "8. A short `.lume/engine/README.md` (or module docstring) states how to run the CLI and the tests, so the next session re-orients without re-reading source. (Evidence: the file.)"
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "What changed (uncommitted):\n- Removed root `lume`. New package `.lume/engine/lume/` (frontmatter, clock, iteration, workstream, repository, cli) + `bin/lume` executable + `README.md`.\n- Tests: `.lume/engine/tests/` (frontmatter, iteration, workstream-open, repository) - 17 tests, all green via stdlib unittest.\n- Relocated workstream state `.lume/build-lume/` -> `.lume/workstreams/build-lume/`.\n- `snapshot.md` updated.\nRun: `.lume/engine/bin/lume status` (orientation); `cd .lume/engine && python3 -m unittest discover -s tests -t .` (tests).",
+  "id": 2,
+  "self_review": "Adversarial pass against real evidence:\n1. PASS - `ls lume` at repo root: no such file (root script removed via `git rm`). Engine runs at `.lume/engine/bin/lume`; `status` produced output from repo root.\n2. PASS - package `.lume/engine/lume/` split into `frontmatter.py`, `clock.py`, `iteration.py`, `workstream.py`, `repository.py`, `cli.py` + `bin/lume` shim. No single-file script.\n3. PASS - `status` against real state printed objective + `iteration 002: phase ...` + verbatim Done/Now/Next. `open \"blocked\"` against real state (002 not accepted) refused with exit 1 naming the blocker; in a sandbox whose latest was `accepted`, `open \"Second\"` created `002.md` at `phase proposed`. Behaviour matches iterations 001/002a.\n4. PASS - `Repository(start, clock)` and `Workstream(path, clock)` take injected deps; `test_first_open_creates_001_with_injected_date` injects `FixedClock(2026-01-02)` and asserts `opened == 2026-01-02` (no wall-clock). `test_found_from_a_subdirectory` injects a deep start path.\n5. PASS - `python3 -m unittest discover -s tests -t .`: Ran 17 tests, OK (0 failures). Covers frontmatter round-trip, iteration phase rules, the open gate (refuse/allow/increment/touch-only-new), and the no-lume / no-workstream error paths.\n6. PASS - grep for anthropic/openai/requests/urllib/socket/subprocess/http over the package returned only docstring prose (\"performs inference\", \"the models above\"); no such imports. Dates come solely from the injected `Clock`.\n7. PASS - the engine runs no git (no subprocess at all); the sandbox open created exactly the one new file and left `001.md` byte-identical (`test_open_touches_only_the_new_file`).\n8. PASS - `.lume/engine/README.md` documents the CLI commands and the test command.\n\nScope honesty: only the tracking/persistence seam (`repository.py`) was made a real boundary - review and practice seams are deferred to their own iterations with no implementation to wrap yet, per scope.md. DI is constructor injection, not a container. Swept the diff: no unused imports, no duplication (status/open share `Repository`/`Workstream`)."
+}

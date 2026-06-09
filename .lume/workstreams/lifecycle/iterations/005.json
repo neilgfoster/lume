@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. `lume open` accepts a type: `lume open --type <t> \"<title>\"` (alias `-t`) sets the new iteration's `type`, persisted in frontmatter. (Evidence: open with `--type discovery` -> file shows `type: discovery`.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Default `execution`: `lume open \"<title>\"` with no `--type` creates an `execution` iteration (new default, replacing the hardcoded `build`). (Evidence: open with no type -> `type: execution`.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Validation in the domain (not the CLI): an unknown type is refused with a clear error naming the allowed set, exit 1; the vocabulary {discovery, planning, execution, closeout} is a single source in the model, with a comment that P5 makes it per-template; no iteration file is written on a rejected type. (Evidence: `--type bogus` -> error listing allowed types, exit 1, no new file.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Surfaced in status: the type shows in `lume status -w <slug>` (detail iteration line) and in the `lume status` queue lines (awaiting/in-progress). (Evidence: both outputs show the type.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Legacy preserved: existing iterations with `type: build` still parse and display (the `from_text` fallback unchanged); no migration of old files. (Evidence: build-lume / lifecycle 001-005 still render.)"
+      },
+      {
+        "checked": true,
+        "text": "6. Non-negotiables intact: no inference, no commit; `open` still touches only the new iteration file + the auto-refreshed snapshot; gates/transitions unchanged. (Evidence: git scope; grep.)"
+      },
+      {
+        "checked": true,
+        "text": "7. Tests cover: `--type` persists; default `execution`; unknown type rejected (no file written); type surfaced in detail + queue; legacy `build` still parses. Full suite green. (Evidence: count + run.)"
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "What changed (uncommitted):\n- `iteration.py`: added `TYPES` (discovery/planning/execution/closeout) + `DEFAULT_TYPE = \"execution\"` (with a P5 per-template TODO); `Iteration.new` defaults to DEFAULT_TYPE.\n- `workstream.py`: `open_iteration(title, type=DEFAULT_TYPE)` validates the type against TYPES (GateError, no write on a bad type) before the open gate.\n- `cli.py`: `-w` extraction generalised to `_extract_flag`, reused for `--type`/`-t`; `lume open` passes the type (default execution); detail + queue lines surface the type.\n- Tests: 4 new type cases in test_cli.py; queue assertions updated for the type token. 65 total, green.\nNote: this iteration's own frontmatter is the legacy `type: build` (opened before the feature); 006 onward default to `execution`. Per-type DoD skeletons remain P4 - `open` still emits the generic DoD skeleton regardless of type.",
+  "id": 5,
+  "self_review": "Adversarial pass against real evidence:\n1. PASS - `lume open --type <t>`/`-t` sets the new iteration's `type` (CLI `_extract_flag` pulls the flag; `open_iteration(title, type)` passes it to `Iteration.new`). Test `test_open_with_type_persists` (`--type discovery` -> `type: discovery`).\n2. PASS - default is `execution`: `lume open \"<title>\"` with no flag -> `type: execution` (`DEFAULT_TYPE`, replacing the old hardcoded `build`; `Iteration.new` default + `open_iteration` default both = DEFAULT_TYPE). Test `test_open_defaults_to_execution`.\n3. PASS - validation lives in the domain: `Workstream.open_iteration` checks `type in TYPES` and raises GateError *before* the gate check and before any write; the vocabulary `TYPES` is a single constant in `iteration.py` with a P5 per-template TODO. Live: `lume open -t bogus \"x\"` -> \"unknown iteration type 'bogus'. Allowed: discovery, planning, execution, closeout.\", exit 1, no 006 written. Test `test_open_unknown_type_rejected_no_file` asserts exit 1 + no file.\n4. PASS - surfaced in status: detail line is `iteration NNN (<type>): phase ...` and queue lines are `NNN <type> <phase>`. Live: detail showed `005 (build)`, queue showed `lifecycle  005 build working`. Tests `test_type_surfaced_in_detail`, updated `test_status_queue_buckets`.\n5. PASS - legacy preserved: `from_text` still falls back to `build` for files without a type; build-lume and lifecycle 001-005 (all `type: build`) still parse and render (shown live). No old file migrated.\n6. PASS - no inference/network imports (grep clean); no commits; `open` writes only the new iteration file + the auto-refreshed snapshot (unchanged path); gates/transitions untouched. git scope: iteration.py + workstream.py + cli.py (005) + the test files.\n7. PASS - `python3 -m unittest discover`: Ran 65 tests, OK. New type tests in test_cli.py (4) + the updated queue assertion; existing open/iteration tests unaffected (they pass type explicitly or omit it and now default to execution without asserting build).\n\nDiff swept: `_extract_target` was generalised to `_extract_flag(argv, aliases, noun)` and used for both `-w` and `-t` (no duplication, no stale name); no unused imports (DEFAULT_TYPE/TYPES used)."
+}

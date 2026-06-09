@@ -1,0 +1,46 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "A `migrate` module builds a state doc from a Workstream's existing markdown,\nreusing the engine's own parsers (objective frontmatter/status, Iteration\nfrontmatter+title, parse_plan) - no re-parsing logic duplicated. (migrate.py;\nadded Workstream.iterations(), also DRYs record_snapshot.)"
+      },
+      {
+        "checked": true,
+        "text": "Verdict extraction is STRICT: only lines matching the stamp format\n`YYYY-MM-DD | ACCEPTED|REJECTED [| reason]` become verdict entries (lowercased\nverdict, reason or null). Prose mentioning ACCEPTED/REJECTED is NOT captured.\nProven against build-lume 003 (reject->accept) and by stamp-line counts:\nbuild-lume 5/5, lifecycle 8/8, state-as-data 4/4 - no drops, no false hits."
+      },
+      {
+        "checked": true,
+        "text": "Each built doc passes P1/P2 validation (written via Repository.save_state,\nwhich validates) - a malformed migration fails loudly. (It did: caught legacy\n`build`/`review` types; see normalization note below.)"
+      },
+      {
+        "checked": true,
+        "text": "`lume migrate` CLI command migrates every workstream under .lume/ and reports\nwhat it wrote; ran it - wrote 3 state.json files (dogfood)."
+      },
+      {
+        "checked": true,
+        "text": "Idempotent: running migrate twice yields byte-identical state.json (verified\nvia md5sum, relies on P2's deterministic dumps)."
+      },
+      {
+        "checked": true,
+        "text": "Round-trips build-lume (6 iters, closed, 0 plan, 5 verdicts), lifecycle\n(8 iters, closed, 5 plan, 8 verdicts), and THIS one (5 iters, active, 6 plan,\n4 verdicts). Counts + statuses match the markdown; THIS workstream migrated."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: markdown prose artifacts left in place; NO existing mutating verb\nrewired to read state.json yet (that is P4)."
+      },
+      {
+        "checked": true,
+        "text": "Tests for build_doc + verdict parsing + idempotency + legacy-type mapping;\nfull suite green (103)."
+      },
+      {
+        "checked": true,
+        "text": "No dead code / unused imports introduced."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "Added lume/migrate.py (build_doc + strict parse_verdicts + migrate_all) and a\n`lume migrate` CLI command; added Workstream.iterations() (also DRYs\nrecord_snapshot). Ran the dogfood: `lume migrate` wrote state.json for all three\nworkstreams, idempotent on re-run (md5-identical). The boundary validator caught\ntwo legacy iteration types (build, review); normalized them to execution/closeout\nper documented supersessions (logged in decisions.md - flagged for your review).\nVerified migrated counts/statuses against markdown and that verdict stamp counts\nmatch exactly (5/8/4). Markdown left untouched. Full suite 103 OK. Next: P4\nrewires open/transition/close to read+write state.json and regenerate views.",
+  "id": 5,
+  "self_review": "Adversarial pass against the DoD:\n- The validator earned its keep here: the migration FAILED loudly twice on real\n  legacy data (`type: build` x10, `type: review` x1) instead of silently writing\n  invalid state. That is exactly the \"schema-validated at the boundary\" promise\n  paying off on its first contact with messy reality.\n- Resolved the legacy types by faithful normalization (build->execution,\n  review->closeout), each grounded in a documented supersession, not a guess -\n  logged in decisions.md and surfaced here for operator review. The markdown\n  artifacts keep their original frontmatter; only the JSON state is normalized.\n  If the operator wants fidelity over a clean vocabulary, this is the reject point.\n- Strict verdict parsing verified by counting: real stamp lines (date-anchored)\n  exactly equal the verdicts captured (5/8/4) - no prose false-positives, no real\n  stamps dropped. The build-lume/003 reject->accept case is pinned by a test.\n- Reuse over duplication: build_doc calls the engine's existing parsers; added\n  Workstream.iterations() and used it to also DRY record_snapshot's inline\n  comprehension. No second parser to drift.\n- Scope held: no existing mutating verb reads state.json yet; migrate is additive.\n  state-as-data/state.json will go stale as 006+ proceed until P4 wires the verbs -\n  expected per the plan's sequencing, not a defect.\n- No dead code: every import used (PlanItem/Repository/Workstream/Path in hints)."
+}

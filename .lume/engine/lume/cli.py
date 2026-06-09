@@ -7,17 +7,30 @@ workstream. `lume status` with no target is the cross-workstream review queue.
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
 from . import migrate as migrate_mod
 from .clock import Clock, SystemClock
-from .errors import GateError, LumeError
+from .errors import GateError, LumeError, SchemaError
 from .iteration import DEFAULT_TYPE, TRANSITIONS
 from .repository import Repository
+from .validate import entity_kinds, load_schema
 from .workstream import CLOSED, Workstream
 
-_VERBS = " ".join(["status", "new", "open", "close", "snapshot", "migrate", *TRANSITIONS])
+# Entity kind -> state doc key (for `lume get`).
+_ENTITY_KEY = {
+    "workstream": "workstream",
+    "iteration": "iterations",
+    "plan_item": "plan",
+}
+
+_VERBS = " ".join([
+    "status", "new", "open", "close", "snapshot", "migrate",
+    "entities", "schema", "get", "plan",
+    *TRANSITIONS,
+])
 USAGE = f'lume: usage: lume [-w <slug>] <{_VERBS}>   (new/open/reject take an argument)'
 
 
@@ -98,6 +111,10 @@ def _render_queue(workstreams: list[Workstream]) -> None:
             print(f"- {ws.name}")
 
 
+def _json_out(value: object) -> None:
+    print(json.dumps(value, indent=2, sort_keys=True))
+
+
 def main(argv: list[str], start: Path | None = None, clock: Clock | None = None) -> int:
     start = start or Path.cwd()
     clock = clock or SystemClock()
@@ -110,7 +127,11 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         return 2
 
     cmd = rest[1] if len(rest) > 1 else "status"
-    if cmd not in ("status", "new", "open", "close", "snapshot", "migrate", *TRANSITIONS):
+    if cmd not in (
+        "status", "new", "open", "close", "snapshot", "migrate",
+        "entities", "schema", "get", "plan",
+        *TRANSITIONS,
+    ):
         print(f"lume: unknown command '{cmd}'.\n{USAGE}", file=sys.stderr)
         return 2
 
@@ -124,6 +145,9 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         return 2
     if cmd == "new" and (not arg or not (len(rest) > 3 and rest[3].strip())):
         print('lume: usage: lume new <slug> "<title>"', file=sys.stderr)
+        return 2
+    if cmd == "schema" and not arg:
+        print('lume: usage: lume schema <entity>', file=sys.stderr)
         return 2
 
     repo = Repository(start, clock)
@@ -149,6 +173,21 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         for slug in written:
             print(f"migrated: {slug}/state.json")
         print(f"migrate: wrote {len(written)} state.json file(s).")
+        return 0
+
+    # Discovery verbs that need no workstream target.
+    if cmd == "entities":
+        for kind in entity_kinds():
+            print(kind)
+        return 0
+
+    if cmd == "schema":
+        try:
+            schema = load_schema(arg)
+        except SchemaError as exc:
+            print(f"lume: {exc}", file=sys.stderr)
+            return 1
+        _json_out(schema)
         return 0
 
     # `status` with no target is the cross-workstream queue.
@@ -191,6 +230,84 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         print(f"opened iteration {iteration.id:03d}, phase {iteration.phase}: "
               f"{ws.iterations_dir / f'{iteration.id:03d}.md'}")
         print("next: draft its DoD, then have the operator approve before work starts.")
+        return 0
+
+    if cmd == "get":
+        doc = ws.state_doc
+        entity = arg
+        id_arg = rest[3].strip() if len(rest) > 3 else ""
+
+        if not entity:
+            _json_out(doc)
+            return 0
+
+        if entity not in _ENTITY_KEY:
+            kinds = ", ".join(sorted(_ENTITY_KEY))
+            print(f"lume: unknown entity '{entity}'. Known: {kinds}.", file=sys.stderr)
+            return 1
+
+        value = doc[_ENTITY_KEY[entity]]
+
+        if not id_arg:
+            _json_out(value)
+            return 0
+
+        if entity == "workstream":
+            print("lume: 'workstream' is a single entity; no id selector.", file=sys.stderr)
+            return 1
+
+        if entity == "iteration":
+            try:
+                target_id: object = int(id_arg.lstrip("0") or "0")
+            except ValueError:
+                print(f"lume: iteration id must be an integer, got '{id_arg}'.", file=sys.stderr)
+                return 1
+        else:
+            target_id = id_arg
+
+        found = next((e for e in value if e["id"] == target_id), None)
+        if found is None:
+            print(f"lume: {entity} '{id_arg}' not found.", file=sys.stderr)
+            return 1
+        _json_out(found)
+        return 0
+
+    if cmd == "plan":
+        sub = arg  # rest[2]
+        if sub not in ("add", "link"):
+            print('lume: usage: lume plan <add|link> ...', file=sys.stderr)
+            return 2
+
+        if sub == "add":
+            sketch = rest[3].strip() if len(rest) > 3 else ""
+            if not sketch:
+                print('lume: usage: lume plan add [-t type] [-g tag] "<sketch>"',
+                      file=sys.stderr)
+                return 2
+            item = ws.add_plan_item(
+                sketch=sketch,
+                type=opt_type or "execution",
+            )
+            print(f"plan add: {item.id} ({item.type}, {item.tag}): {item.sketch}")
+            return 0
+
+        # sub == "link"
+        plan_id = rest[3].strip() if len(rest) > 3 else ""
+        iter_arg = rest[4].strip() if len(rest) > 4 else ""
+        if not plan_id or not iter_arg:
+            print('lume: usage: lume plan link <plan-id> <iter-id>', file=sys.stderr)
+            return 2
+        try:
+            iter_id = int(iter_arg.lstrip("0") or "0")
+        except ValueError:
+            print(f"lume: iter-id must be an integer, got '{iter_arg}'.", file=sys.stderr)
+            return 2
+        try:
+            item = ws.link_plan_item(plan_id, iter_id)
+        except GateError as exc:
+            print(f"lume: {exc}", file=sys.stderr)
+            return 1
+        print(f"plan link: {item.id} -> iter {item.iter:03d}")
         return 0
 
     # cmd is a transition verb

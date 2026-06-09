@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. `lume snapshot` regenerates snapshot.md's `## Done` and `## Now` sections and the `Updated:` line from the iteration files, and preserves everything from `## Next` onward byte-for-byte. (Evidence: run it; diff shows only Done/Now/Updated changed, Next untouched.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `## Done` lists every accepted iteration in id order as `- NNN <title>`, with `(accepted <date>)` appended when an ACCEPTED verdict line is present (title parsed from the iteration heading; date from the verdict line). (Evidence: generated output.)"
+      },
+      {
+        "checked": true,
+        "text": "3. `## Now` shows the latest iteration as `- NNN <title> - phase <phase>`. (Evidence: output.)"
+      },
+      {
+        "checked": true,
+        "text": "4. The recorder never modifies the `## Next` section; editing Next then running `lume snapshot` leaves Next intact. (Evidence: edit Next, run, diff Next = empty.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Idempotent: running `lume snapshot` twice with no state change produces a byte-identical file the second time. (Evidence: run twice, second diff empty.)"
+      },
+      {
+        "checked": true,
+        "text": "6. `lume status` still reads and prints the regenerated snapshot's Done/Now/Next correctly. (Evidence: status output.)"
+      },
+      {
+        "checked": true,
+        "text": "7. Tests (stdlib unittest) cover: Done generation (order + titles + accepted-date), Now generation, Next preservation, default Next when absent, idempotency, title parsing, and accepted-date extraction. All green. (Evidence: test count, 0 failures.)"
+      },
+      {
+        "checked": true,
+        "text": "8. No inference/model call in the path; the `Updated:` date comes from the injected clock; the recorder writes only snapshot.md. (Evidence: source / git status.)\nDeferred (noted, not built here): auto-running the recorder as part of `handback`/`accept` so Done/Now are always current with zero extra steps. Standalone command first; fold in later if the extra step proves annoying."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "What changed (uncommitted):\n- `iteration.py`: added `Iteration.title` (parsed from heading) and `accepted_on()` (date from the last ACCEPTED verdict line).\n- `snapshot.py` (new): pure `build_snapshot(existing, iterations, today)` - owns title/Updated/Done/Now, preserves `## Next` onward, idempotent.\n- `workstream.py`: `record_snapshot()` reads iterations, calls `build_snapshot`, writes only snapshot.md.\n- `cli.py`: `snapshot` verb.\n- Tests: new `test_snapshot.py`. 36 total, green.\nRun: `.lume/engine/bin/lume snapshot`.",
+  "id": 4,
+  "self_review": "Adversarial pass against real evidence:\n1. PASS - `lume snapshot` on real state regenerated `## Done`, `## Now`, and the `Updated:` line; the `## Next` section (3 bullets) was preserved. git showed only snapshot.md changed.\n2. PASS - Done listed 001/002/003 in id order with parsed titles; 002/003 carried `(accepted 2026-06-09)`. 001 has no date because its old hand-written verdict says \"ACCEPT\", not \"ACCEPTED\" - graceful omission, covered by `test_accepted_without_verdict_line_omits_date`.\n3. PASS - Now showed `- 004 Derive Done/Now... - phase working` (latest iteration, live phase).\n4. PASS - appended a PRESERVE-PROOF line under Next, ran `lume snapshot`; the Next section was byte-identical afterwards.\n5. PASS - ran `lume snapshot` twice; `diff` of the two outputs was empty (idempotent). `test_idempotent` asserts the same on fixtures.\n6. PASS - `lume status` reads the regenerated file and prints Done/Now/Next correctly.\n7. PASS - `python3 -m unittest discover`: Ran 36 tests, OK. New `test_snapshot.py` covers Done order/titles/dates, Now, Next preservation, default Next, idempotency, no-iterations, plus title parsing and accepted-date extraction.\n8. PASS - grep for inference/network/subprocess imports: none; `Updated:` date is from the injected clock; `record_snapshot` writes only snapshot.md.\n\n`build_snapshot` is a pure function (date injected), unit-tested without files; `record_snapshot` is the thin I/O wrapper - same DI pattern as the rest of the engine. Diff swept: no unused imports; `title`/`accepted_on` live on the Iteration model and are reused by the recorder. Note: 004's Now currently shows `working`; after `lume handback` I re-run `lume snapshot` so the file reflects `handback` (this is the deferred auto-fold - candidate 005)."
+}

@@ -1,7 +1,7 @@
 {
   "iterations": [
     {
-      "dod_artifact": "iterations/001.md",
+      "dod_artifact": "iterations/001.json",
       "id": 1,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -10,7 +10,7 @@
       "verdicts": []
     },
     {
-      "dod_artifact": "iterations/002.md",
+      "dod_artifact": "iterations/002.json",
       "id": 2,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -19,7 +19,7 @@
       "verdicts": []
     },
     {
-      "dod_artifact": "iterations/003.md",
+      "dod_artifact": "iterations/003.json",
       "id": 3,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -39,7 +39,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/004.md",
+      "dod_artifact": "iterations/004.json",
       "id": 4,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -54,7 +54,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/005.md",
+      "dod_artifact": "iterations/005.json",
       "id": 5,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -69,7 +69,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/006.md",
+      "dod_artifact": "iterations/006.json",
       "id": 6,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -86,7 +86,7 @@
   ],
   "plan": [],
   "workstream": {
-    "objective_artifact": "objective.md",
+    "objective_artifact": "objective.json",
     "slug": "build-lume",
     "status": "closed",
     "title": "Build Lume"

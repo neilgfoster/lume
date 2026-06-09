@@ -65,7 +65,7 @@ VERDICT_LABELS: dict[str, str] = {"accept": "ACCEPTED", "reject": "REJECTED"}
 # with the right shape of checkable items. These are prompts, not finished DoDs -
 # the iteration still lands at `proposed` and the DoD is made crisp + approved.
 # Data, keyed by type; `execution` keeps the original generic seed unchanged.
-_SKELETONS: dict[str, str] = {
+SKELETONS: dict[str, str] = {
     "discovery": (
         "- [ ] Context built: the key questions for this stage are answered.\n"
         "- [ ] Artifact produced (e.g. discovery.md) capturing findings + open forks.\n"
@@ -85,6 +85,69 @@ _SKELETONS: dict[str, str] = {
         "- [ ] Decisions logged; workstream closed (lume close) and handed off."
     ),
 }
+
+_ITEM_LINE_RE = re.compile(r"^-\s+\[([ x])\]\s+(.*)")
+
+
+def parse_dod_items(skeleton: str) -> list[dict]:
+    """Parse a skeleton string of `- [ ] text` lines into content-doc item dicts."""
+    items = []
+    for line in skeleton.strip().splitlines():
+        m = _ITEM_LINE_RE.match(line)
+        if m:
+            items.append({"text": m.group(2).strip(), "checked": m.group(1) == "x"})
+    return items
+
+
+def render_iter_md(entity: dict, content: dict) -> str:
+    """Generate the NNN.md view from a state entity + iteration_content doc."""
+    meta = {
+        "id": f"{entity['id']:03d}",
+        "type": entity["type"],
+        "phase": entity["phase"],
+        "opened": entity["opened"],
+    }
+    lines: list[str] = [f"# Iteration {entity['id']:03d} - {entity['title']}", ""]
+
+    dod = content.get("dod", {})
+    lines.append("## DoD")
+    preamble = (dod.get("preamble") or "").strip()
+    if preamble:
+        lines.append("")
+        lines.extend(preamble.splitlines())
+    dod_items = dod.get("items", [])
+    lines.append("")
+    for item in dod_items:
+        check = "x" if item.get("checked") else " "
+        text = item["text"]
+        if "\n" in text:
+            first, *rest = text.split("\n")
+            lines.append(f"- [{check}] {first}")
+            for r in rest:
+                if r.strip():
+                    lines.append(f"      {r}")
+        else:
+            lines.append(f"- [{check}] {text}")
+
+    lines += ["", "## Self-review"]
+    sr = content.get("self_review")
+    lines.append(sr if sr else "(filled at hand-back)")
+
+    lines += ["", "## Handback"]
+    hb = content.get("handback")
+    lines.append(hb if hb else "(filled at hand-back)")
+
+    lines += ["", "## Verdict", "(operator: accept / reject + reasons)"]
+    for v in entity.get("verdicts", []):
+        label = v["verdict"].upper()
+        stamp = f"{v['date']} | {label}"
+        if v.get("reason"):
+            stamp += f" | {v['reason']}"
+        lines.append(stamp)
+
+    body = "\n".join(lines) + "\n"
+    return frontmatter.render(meta, body)
+
 
 _BODY_TEMPLATE = """\
 # Iteration {id:03d} - {title}
@@ -153,7 +216,7 @@ class Iteration:
             "opened": self.opened,
             "title": self.title,
             "verdicts": self.verdict_list(),
-            "dod_artifact": f"iterations/{self.id:03d}.md",
+            "dod_artifact": f"iterations/{self.id:03d}.json",
         }
 
     @classmethod
@@ -176,7 +239,7 @@ class Iteration:
 
     @classmethod
     def new(cls, id: int, title: str, opened: str, type: str = DEFAULT_TYPE) -> "Iteration":
-        dod = _SKELETONS.get(type, _SKELETONS[DEFAULT_TYPE])
+        dod = SKELETONS.get(type, SKELETONS[DEFAULT_TYPE])
         return cls(
             id=id,
             type=type,

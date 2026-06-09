@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Each of discovery.md's six forks (a-f) is resolved in decisions.md with a\none-line rationale tied to the constitution (does it buy back time? stays\ndiffable? minimal deps?)."
+      },
+      {
+        "checked": true,
+        "text": "The go/no-go is made explicit: a stated judgement that JSON-backed state\nbuys back more time than its ceremony costs, or the workstream is cut here.\n(decisions.md: GO)"
+      },
+      {
+        "checked": true,
+        "text": "plan.md created in the living-plan schema: ordered P-items (each a binary\nDoD sketch + committed|optional tag) covering schema+validation, the\ndiscovery verbs, rewiring mutating verbs to JSON+view-regen, and migrating\nthis workstream (dogfood), with sequencing rationale. (P1-P6)"
+      },
+      {
+        "checked": true,
+        "text": "The first execution iteration is concrete enough to open next (its slice\nnamed and DoD sketched). (P1: schemas + validator)"
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "Resolved all six discovery forks in decisions.md (GO; one state.json per\nworkstream; vendored stdlib validator; converter over all workstreams; DoD stays\nartifact; auto view-regen; state behind the Repository seam). Built plan.md as a\nliving plan: P1 schemas+validator, P2 state.json I/O behind Repository, P3\nmigration converter (dogfoods this workstream), P4 rewire mutating verbs to\nJSON+view-regen, P5 discovery verbs (entities/schema/get), P6 retro+close - with\ndependency-driven sequencing and three deferred items. Snapshot's Next now\nderives from the plan. First execution slice (P1) is concrete enough to open\nnext. No engine code touched.",
+  "id": 2,
+  "self_review": "Adversarial pass against the DoD:\n- All six forks resolved, each rationale tied to a named constraint (buy-back,\n  diffability, minimal deps, replaceability) rather than preference. Two are\n  deliberate *cuts* (DoD-as-data, standalone render verb) - planning that only\n  adds is a smell; this one trims.\n- The go/no-go is a real judgement, not a rubber stamp: it rests on discovery's\n  finding that state is already isolated + snapshot already derives, so the cost\n  is bounded. If discovery had found state tangled through prose, the honest call\n  would have been no-go.\n- Plan sequencing is dependency-driven (schema -> I/O -> migrate -> rewire ->\n  read verbs -> close), and migration is placed *before* the verb rewire on\n  purpose so P4 runs against real JSON and the dogfood workstream is already\n  converted. P1 is concrete enough to open immediately.\n- Risk: P4 (rewire) is the largest item and where existing tests will churn;\n  flagged so it can be split if it overflows one iteration. P3's converter must\n  be idempotent or re-runs corrupt state - called out in its sketch.\n- Scope held: no engine code; every item is deferred to its execution iteration."
+}

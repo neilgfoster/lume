@@ -1,10 +1,25 @@
 import datetime
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
+from lume import state as state_mod
 from lume.clock import FixedClock
 from lume.workstream import Workstream
+
+
+def _initial_state(slug="demo"):
+    return {
+        "workstream": {
+            "slug": slug,
+            "title": "Demo",
+            "status": "active",
+            "objective_artifact": "objective.json",
+        },
+        "iterations": [],
+        "plan": [],
+    }
 
 
 class AutoSnapshotTest(unittest.TestCase):
@@ -13,13 +28,18 @@ class AutoSnapshotTest(unittest.TestCase):
         self.ws_dir = Path(self._tmp.name) / "demo"
         (self.ws_dir / "iterations").mkdir(parents=True)
         (self.ws_dir / "objective.md").write_text("# Demo\nobjective\n")
+        (self.ws_dir / "objective.json").write_text(json.dumps({
+            "slug": "demo", "title": "Demo", "status": "active", "text": "objective",
+        }, indent=2) + "\n")
+        state_mod.save(self.ws_dir / state_mod.STATE_FILE, _initial_state())
         self.clock = FixedClock(datetime.date(2026, 1, 2))
 
     def tearDown(self):
         self._tmp.cleanup()
 
     def _ws(self):
-        return Workstream(self.ws_dir, self.clock)
+        doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
+        return Workstream(self.ws_dir, self.clock, doc)
 
     def _snapshot(self) -> str:
         return (self.ws_dir / "snapshot.md").read_text()

@@ -15,21 +15,14 @@ from pathlib import Path
 
 from . import state
 from .clock import Clock
-from .errors import GateError, NoLumeDirError, NoWorkstreamError
+from .errors import GateError, LumeError, NoLumeDirError, NoWorkstreamError
 from .workstream import ACTIVE, Workstream
 
 WORKSTREAMS_SUBDIR = "workstreams"
 # A slug names a directory under workstreams/, so keep it path-safe.
 _SLUG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]*$")
 
-_NEW_OBJECTIVE = """\
----
-status: {status}
----
-# {title}
-
-(objective: describe the done-when for this workstream)
-"""
+_OBJECTIVE_PLACEHOLDER = "(objective: describe the done-when for this workstream)"
 
 
 class Repository:
@@ -54,11 +47,21 @@ class Repository:
         root = lume_dir / WORKSTREAMS_SUBDIR
         if not root.is_dir():
             return []
-        return sorted(p for p in root.iterdir() if (p / "objective.md").is_file())
+        return sorted(p for p in root.iterdir() if (p / state.STATE_FILE).is_file())
+
+    def _load_workstream(self, ws_dir: Path) -> Workstream:
+        """Load state.json for ws_dir and return a state-backed Workstream."""
+        state_path = ws_dir / state.STATE_FILE
+        if not state_path.is_file():
+            raise LumeError(
+                f"no state.json for '{ws_dir.name}'; run: lume migrate"
+            )
+        doc = state.load(state_path)
+        return Workstream(ws_dir, self._clock, doc)
 
     def workstreams(self, lume_dir: Path) -> list[Workstream]:
         """Every workstream as a Workstream, sorted by slug."""
-        return [Workstream(p, self._clock) for p in self._workstream_dirs(lume_dir)]
+        return [self._load_workstream(p) for p in self._workstream_dirs(lume_dir)]
 
     def active_workstreams(self, lume_dir: Path) -> list[Workstream]:
         return [ws for ws in self.workstreams(lume_dir) if not ws.is_closed]
@@ -74,9 +77,9 @@ class Repository:
         lume_dir = self._require_lume_dir()
         if slug is not None:
             ws_dir = lume_dir / WORKSTREAMS_SUBDIR / slug
-            if not (ws_dir / "objective.md").is_file():
+            if not (ws_dir / state.STATE_FILE).is_file():
                 raise NoWorkstreamError(f"no workstream '{slug}' under {lume_dir}.")
-            ws = Workstream(ws_dir, self._clock)
+            ws = self._load_workstream(ws_dir)
             if ws.is_closed:
                 raise GateError(
                     f"workstream '{slug}' is closed; reopen it or target another."
@@ -108,7 +111,7 @@ class Repository:
         state.save(path, doc)
 
     def create_workstream(self, slug: str, title: str) -> Workstream:
-        """Create a new active workstream. (Selection is by -w/default, not a cursor.)"""
+        """Create a new active workstream with objective.json, objective.md view, and state.json."""
         lume_dir = self._require_lume_dir()
         if not _SLUG_RE.match(slug):
             raise GateError(
@@ -119,7 +122,24 @@ class Repository:
         if ws_dir.exists():
             raise GateError(f"workstream '{slug}' already exists.")
         ws_dir.mkdir(parents=True)
-        (ws_dir / "objective.md").write_text(
-            _NEW_OBJECTIVE.format(status=ACTIVE, title=title)
-        )
-        return Workstream(ws_dir, self._clock)
+        initial_state: dict = {
+            "workstream": {
+                "slug": slug,
+                "title": title,
+                "status": ACTIVE,
+                "objective_artifact": "objective.json",
+            },
+            "iterations": [],
+            "plan": [],
+        }
+        state.save(ws_dir / state.STATE_FILE, initial_state)
+        ws = Workstream(ws_dir, self._clock, initial_state)
+        obj_doc = {
+            "slug": slug,
+            "title": title,
+            "status": ACTIVE,
+            "text": _OBJECTIVE_PLACEHOLDER,
+        }
+        ws._save_objective(obj_doc)
+        ws._render_objective(obj_doc)
+        return ws

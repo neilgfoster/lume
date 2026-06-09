@@ -1,4 +1,5 @@
 ---
+slug: state-as-data
 status: active
 ---
 # State is Data

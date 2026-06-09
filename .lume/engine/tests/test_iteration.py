@@ -31,7 +31,7 @@ class IterationEntityTest(unittest.TestCase):
             "opened": "2026-06-09",
             "title": "P4: model bridge",
             "verdicts": [{"date": "2026-06-09", "verdict": "accepted", "reason": None}],
-            "dod_artifact": "iterations/006.md",
+            "dod_artifact": "iterations/006.json",
         }
 
     def test_to_entity_from_body(self):
@@ -41,7 +41,7 @@ class IterationEntityTest(unittest.TestCase):
         )
         entity = it.to_entity()
         self.assertEqual(entity["title"], "Title")
-        self.assertEqual(entity["dod_artifact"], "iterations/002.md")
+        self.assertEqual(entity["dod_artifact"], "iterations/002.json")
         self.assertEqual(entity["verdicts"], [{"date": "2026-06-09", "verdict": "accepted", "reason": None}])
 
     def test_from_entity_supports_title_and_accepted_on(self):

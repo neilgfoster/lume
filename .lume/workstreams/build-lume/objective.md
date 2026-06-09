@@ -1,4 +1,5 @@
 ---
+slug: build-lume
 status: closed
 ---
 # Build Lume

@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. `schemas/objective.json` authored. Required fields: `slug` (string),\n`title` (string), `status` (enum active|closed), `text` (string). Optional:\n`done_when` (string). Self-contained: carries all fields needed to regenerate\nobjective.md without consulting state.json.\n(Evidence: `lume schema objective` prints JSON with title \"objective\".)"
+      },
+      {
+        "checked": true,
+        "text": "2. `schemas/iteration_content.json` authored. Required fields: `id`\n(integer), `dod` (object with required `items` array of `{text: string,\nchecked: bool}`, optional `preamble` string). Optional top-level:\n`self_review` (string|null), `handback` (string|null).\n(Evidence: `lume schema iteration_content` prints the schema.)"
+      },
+      {
+        "checked": true,
+        "text": "3. `schemas/decisions.json` authored. Required field: `entries` (array of\nobjects each with `date`, `context`, `decision`, `rationale` \u2014 all strings).\n(Evidence: `lume schema decisions` prints the schema.)"
+      },
+      {
+        "checked": true,
+        "text": "4. `schemas/retro.json` authored. Required fields: `overall_verdict`\n(string), `carry_forwards` (array of strings). Optional: `stage_verdicts`\n(array of `{stage, iterations, cost, saved, net}` strings), `done_when`\n(array of `{clause, verdict, evidence}` strings).\n(Evidence: `lume schema retro` prints the schema.)"
+      },
+      {
+        "checked": true,
+        "text": "5. `lume entities` now lists all seven entity kinds (the three existing plus\nthe four new). Output is sorted. (Evidence: output has 7 lines.)"
+      },
+      {
+        "checked": true,
+        "text": "6. `validate.validate_entity` accepts a valid instance and rejects an\ninvalid one for each new schema via the existing vendored validator.\n(Evidence: unit tests, one valid + one invalid case per entity.)"
+      },
+      {
+        "checked": true,
+        "text": "7. Full suite green; \u2265 8 new tests (valid + invalid for each of the 4\nschemas). No existing tests removed or broken.\n(Evidence: 164 tests, 0 failures.)"
+      }
+    ],
+    "preamble": "Four new JSON Schema files in `lume/schemas/` \u2014 one per structured-data artifact\ntype identified in 009. No migration, no CLI wiring, no rendering. The schemas\nare the contract the subsequent conversion iterations (P9\u2013P12) write against.\n\nNew entity names and their artifact files:\n\n  objective         \u2192 schemas/objective.json       (per-workstream)\n  iteration_content \u2192 schemas/iteration_content.json (per-iteration)\n  decisions         \u2192 schemas/decisions.json        (per-workstream, append-only)\n  retro             \u2192 schemas/retro.json            (per-workstream, closeout)"
+  },
+  "handback": "P8 complete. Four schemas authored, 26 new tests, full suite green (164/164).\n`lume entities` surfaces all seven kinds. Ready for verdict.",
+  "id": 10,
+  "self_review": "Four schema files written, all using the same style as the three existing schemas\n(`$schema`, `title`, flat required + properties). Two existing tests that\nhardcoded the entity count at 3 were updated to assert membership of the core\nthree rather than an exact count \u2014 correct, since the schema set grows. 26 new\ntests (3 EntityKinds + 5 objective + 7 iteration_content + 5 decisions + 6 retro).\n164 total, all green."
+}

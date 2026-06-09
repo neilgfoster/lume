@@ -42,10 +42,11 @@ def _plan_item(**over):
 
 
 class EntityDiscoveryTest(unittest.TestCase):
-    def test_known_kinds_are_the_three_entities(self):
-        self.assertEqual(
-            validate.entity_kinds(), ["iteration", "plan_item", "workstream"]
-        )
+    def test_known_kinds_includes_core_entities(self):
+        kinds = validate.entity_kinds()
+        for name in ("iteration", "plan_item", "workstream"):
+            self.assertIn(name, kinds)
+        self.assertEqual(kinds, sorted(kinds))
 
     def test_load_schema_returns_titled_schema(self):
         self.assertEqual(validate.load_schema("workstream")["title"], "workstream")

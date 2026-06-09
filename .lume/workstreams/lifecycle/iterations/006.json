@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Plan parser (pure): a `parse_plan(text)` returns the ordered items from plan.md's item lines (schema `- P<n> | <type> | iter:<NNN|-> | <tag> | <sketch>`), ignoring non-matching lines; `Workstream.plan_items()` reads plan.md and returns None when absent. (Evidence: unit test parses the real lifecycle plan.md, including ignoring prose/schema lines.)"
+      },
+      {
+        "checked": true,
+        "text": "2. done/next/position derivation: an item is done iff its `iter:` names an accepted iteration (linked-but-in-progress or unopened = not done); next = first not-done item; position = \"step N of M\". (Evidence: tests over done / in-progress / unopened mixes.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Derived `## Next`: when plan.md exists, `lume snapshot` and the auto-refresh generate the `## Next` block from the plan (next item marked, remaining not-done items listed, with a \"step N of M\" line), replacing any hand-authored Next. (Evidence: lifecycle's snapshot Next becomes the derived content.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Backward compatible: with no plan.md, `## Next` is preserved hand-authored exactly as today (build-lume unaffected), and `build_snapshot` stays idempotent. (Evidence: build-lume snapshot unchanged; existing snapshot tests green.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Surfaced in status: `lume status -w <slug>` shows the derived \"step N of M -> next\" via the snapshot Next. (Evidence: detail output.)"
+      },
+      {
+        "checked": true,
+        "text": "6. Malformed/empty plan handled: a plan.md with no parseable items yields a clear \"(plan has no items)\" Next, not a crash. (Evidence: test.)"
+      },
+      {
+        "checked": true,
+        "text": "7. Non-negotiables: no inference/network; no commit; deterministic; `record_snapshot` still writes only snapshot.md; gates/transitions unchanged. (Evidence: scope; grep.)"
+      },
+      {
+        "checked": true,
+        "text": "8. Tests + suite green; self-applied: new parser/derivation tests; full suite green; lifecycle's hand-authored Next is replaced by the derived one as part of this iteration. (Evidence: count + run; lifecycle snapshot.)"
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "What changed (uncommitted):\n- New `plan.py`: pure `parse_plan(text)` + `PlanItem` (with `iter_id`); parses the documented plan.md item schema, ignoring prose/headings/the `<n>` example.\n- `snapshot.py`: `build_snapshot(..., plan_items=None)`. With items, `## Next` is derived (`_derived_next`): \"step N of M\", the next not-done item marked `>` (sketch truncated to ~90 chars), then the remaining not-done ids. Without items (None) it preserves the hand-authored Next as before (idempotent).\n- `workstream.py`: `plan_items()` (None if no plan.md) wired into `record_snapshot`.\n- `cli.py`: the `snapshot` message reports whether Next was derived or preserved.\n- Tests: new `test_plan.py` (parse + derivation). 74 total, green.\n- Self-applied: lifecycle's snapshot Next is now generated from plan.md; the `iter:` links (P1->004, P2->005, P3->006) remain hand-maintained in plan.md (auto-writing them back was explicitly out of scope).",
+  "id": 6,
+  "self_review": "Adversarial pass against real evidence:\n1. PASS - `plan.py` `parse_plan` (pure, one regex) returns ordered items; `Workstream.plan_items()` reads plan.md and returns None when absent. Tests: `test_parses_items_ignores_noise`, `test_schema_example_and_prose_ignored` (the `- P<n> | ...` example and prose are skipped), `test_empty_text`. Live: the real lifecycle plan.md parsed into the derived Next.\n2. PASS - done = the item's `iter:` names an accepted iteration; next = first not-done; position = step N of M. Tests: `test_next_is_first_not_done` (P1/P2 accepted -> P3 next, \"step 3 of 4\"), `test_linked_but_not_accepted_is_not_done` (iter 005 working -> P2 still next), `test_all_done`.\n3. PASS - derived `## Next` when plan.md exists: live lifecycle snapshot shows `plan.md: step 3 of 6` / `> P3 (execution): ...` / `then: P4 (execution), P5 (execution), P6 (closeout)`. The `lume snapshot` message now reads \"Next derived from plan.md\".\n4. PASS - no plan.md -> hand-authored Next preserved, idempotent: `test_no_plan_preserves_handauthored_next`; the existing `test_snapshot` suite (calls `build_snapshot` with no plan_items) stays green; build-lume's snapshot is untouched (closed; no command runs on it; it has no plan.md anyway).\n5. PASS - `lume status -w lifecycle` shows the derived \"step N of M -> next\" via the snapshot Next (shown live).\n6. PASS - a present-but-empty plan yields `## Next\\n- (plan has no items)` (`test_empty_plan_message`); `plan_items()` returns None only when the file is absent, [] when present-but-empty, so the two cases are distinct.\n7. PASS - no inference/network imports (grep clean); no commit; `record_snapshot` still writes only snapshot.md; gates/transitions unchanged. git scope: plan.py (new) + snapshot.py + workstream.py + cli.py + test_plan.py.\n8. PASS - `python3 -m unittest discover`: Ran 74 tests, OK (new `test_plan.py`, 9 cases). Self-applied: lifecycle's `## Next` is now derived from its own plan.md (no longer hand-authored).\n\nDiff swept: no dead code; `PlanItem`/`parse_plan` imports all used; the `lume snapshot` message was corrected from the now-false \"(Next preserved)\" to reflect derived-vs-preserved."
+}

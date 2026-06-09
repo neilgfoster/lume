@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Three JSON Schemas authored as engine data (draft-2020-12 subset) for\n`workstream`, `iteration`, `plan_item`, matching decisions.md's \u00a72 shapes\n(workstream: slug/title/status/objective_artifact; iteration: id/type/phase/\nopened/title/verdicts[]/dod_artifact; plan_item: id/type/iter/tag/sketch).\nEnums (status, phase, type, tag, verdict) are constrained in-schema.\n(lume/schemas/{workstream,iteration,plan_item}.json)"
+      },
+      {
+        "checked": true,
+        "text": "A vendored, stdlib-only validator (no new dependency) that validates a dict\nagainst a schema and raises a single named boundary error (SchemaError in\nerrors.py) with a message naming the entity + the offending field. Covers:\nrequired keys, type checks (string/integer/number/array/object/null/boolean),\nenum membership, and nested array-of-object items. (lume/validate.py)"
+      },
+      {
+        "checked": true,
+        "text": "Schemas are loadable by entity name (the seam a future `lume schema <entity>`\nverb will print): validate.load_schema(entity) + validate.entity_kinds()."
+      },
+      {
+        "checked": true,
+        "text": "Unit tests (stdlib unittest): each schema accepts a valid instance and\nrejects targeted invalid instances per failure mode (missing required, wrong\ntype, bad enum, malformed/indexed verdict item, bool-is-not-int); validator\nerror message asserted to name the field. (tests/test_validate.py, 11 tests)"
+      },
+      {
+        "checked": true,
+        "text": "Scope held: NO wiring into Repository/models/verbs and NO state.json read/\nwrite this iteration (those are P2-P4). Pure schema + validator + tests."
+      },
+      {
+        "checked": true,
+        "text": "Full suite green: `cd .lume/engine && python3 -m unittest discover -s tests -t .`\n-> 88 tests OK."
+      },
+      {
+        "checked": true,
+        "text": "No dead code / unused imports introduced."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "Added lume/schemas/{workstream,iteration,plan_item}.json (JSON-Schema draft-2020-12\nsubset), lume/validate.py (stdlib-only validator + load_schema/entity_kinds seam),\nand SchemaError in errors.py. validate raises one named error on the first failure,\nnaming the entity and dotted/indexed field path. Tests: tests/test_validate.py\n(11) cover valid instances, nullable unions, and each failure mode. Full suite 88\ntests OK. No wiring, no state.json - pure P1 per plan. Next: P2 (state.json I/O\nbehind the Repository seam) reads these schemas to validate on load/save.",
+  "id": 3,
+  "self_review": "Adversarial pass against the DoD:\n- Schemas match decisions.md \u00a72 exactly, including the two nullable unions\n  (plan_item.iter, verdict.reason as [\"...\",\"null\"]) - tested that null is\n  accepted, not just tolerated.\n- Hit the Python bool-is-int trap deliberately: `id: True` must fail an integer\n  field. The validator excludes bool from integer/number and there's a test\n  pinning it - this is the kind of silent-pass bug a naive isinstance check ships.\n- Error messages name entity + dotted/indexed path (verdicts[0].verdict), proven\n  by assertion, so a future boundary failure is debuggable, not opaque.\n- Scope genuinely held: validate.py is imported by nothing yet; no model/verb/\n  Repository change; no state.json written. The validator only loads schema files\n  and checks dicts. P2 will wire it in.\n- Validator is intentionally a subset (type/enum/required/properties/items) - it\n  does NOT implement $ref, allOf, pattern, etc. That is the decision-(b) bet; if\n  a schema later needs them, the swap point is documented in validate.py's\n  docstring. Flagged so this isn't mistaken for a full JSON-Schema validator.\n- Dependency-free confirmed: only stdlib (json, pathlib) imported."
+}

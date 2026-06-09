@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "A `state` module defines the per-workstream state.json shape - top-level\n`{workstream, iterations: [], plan: []}` - with a named constant for the\nfilename (state.STATE_FILE)."
+      },
+      {
+        "checked": true,
+        "text": "`state.load(path)` parses state.json and validates every part via P1\n(workstream + each iteration + each plan item); a missing file, malformed\nJSON, or schema failure each raise a clear named error (SchemaError /\nLumeError) identifying the problem."
+      },
+      {
+        "checked": true,
+        "text": "`state.save(path, doc)` validates every entity BEFORE writing, then writes\ndeterministic diff-friendly JSON (indent=2, stable key order, trailing\nnewline). Invalid input never reaches disk (test asserts file absent)."
+      },
+      {
+        "checked": true,
+        "text": "Round-trip proven: save then load reproduces the document; a second save of\nthe loaded doc is byte-identical (idempotent)."
+      },
+      {
+        "checked": true,
+        "text": "Repository gains `load_state(slug)` / `save_state(slug, doc)` resolving\n`<workstream>/state.json` behind the existing tracking seam."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: NO migration (P3) and NO existing verb/model rewiring (P4); no\nmarkdown files changed. Existing Workstream/Iteration code untouched."
+      },
+      {
+        "checked": true,
+        "text": "Tests: state load/save/round-trip/validation-rejection + Repository\nload_state/save_state, against a temp tree. Full suite green (98)."
+      },
+      {
+        "checked": true,
+        "text": "No dead code / unused imports introduced."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "Added lume/state.py: a per-workstream state.json model ({workstream, iterations,\nplan}) with load (read+validate) and save (validate-then-write) plus a\ndeterministic dumps. Every entity is validated against its P1 schema on both\nload and save; missing file / malformed JSON / missing top-level key / non-array\ncollection / bad entity each raise a named error, and invalid input never reaches\ndisk. Repository gained load_state/save_state behind the existing tracking seam.\nTests: tests/test_state.py (10) cover round-trip, idempotent re-save, every\nrejection path, and the Repository seam against a temp tree. Full suite 98 OK.\nNo verb/model/markdown changed. Next: P3 migrates the existing markdown\nworkstreams into state.json via this seam.",
+  "id": 4,
+  "self_review": "Adversarial pass against the DoD:\n- \"Invalid never reaches disk\" is the load-bearing claim - proven by a test that\n  saves a doc with a bad phase and asserts the file does NOT exist afterward, not\n  just that save raised. Validation runs before the write, so a partial/corrupt\n  file is impossible.\n- Validation is enforced on BOTH load and save. A hand-corrupted state.json (bad\n  enum, missing key, non-array iterations, malformed JSON) fails loudly with a\n  named error at load, never silently downstream - the whole point of the\n  workstream.\n- Determinism: dumps uses sort_keys + indent + trailing newline, so re-saving a\n  loaded doc is byte-identical (tested) - git diffs stay minimal and the file\n  doesn't churn on rewrite.\n- Scope genuinely held: state.py imported only by repository.py's new methods;\n  no existing verb, model, or markdown touched. grep-checked. The mutating verbs\n  still run entirely on markdown - that swap is P4.\n- Seam fit (decision f): the JSON store is reached through Repository, not by\n  callers touching paths, so a future GitHub/Jira backing swaps Repository alone.\n- No dead code: every import in state.py and the new repository.py lines is used."
+}

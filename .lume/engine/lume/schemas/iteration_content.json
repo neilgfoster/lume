@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "iteration_content",
+  "type": "object",
+  "required": ["id", "dod"],
+  "properties": {
+    "id": {"type": "integer"},
+    "dod": {
+      "type": "object",
+      "required": ["items"],
+      "properties": {
+        "preamble": {"type": "string"},
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["text", "checked"],
+            "properties": {
+              "text":    {"type": "string"},
+              "checked": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
+    "self_review": {"type": ["string", "null"]},
+    "handback":    {"type": ["string", "null"]}
+  }
+}

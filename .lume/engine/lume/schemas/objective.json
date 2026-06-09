@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "objective",
+  "type": "object",
+  "required": ["slug", "title", "status", "text"],
+  "properties": {
+    "slug":       {"type": "string"},
+    "title":      {"type": "string"},
+    "status":     {"type": "string", "enum": ["active", "closed"]},
+    "text":       {"type": "string"},
+    "done_when":  {"type": "string"}
+  }
+}
