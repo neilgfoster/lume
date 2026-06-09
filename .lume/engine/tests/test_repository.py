@@ -28,17 +28,17 @@ class RepositoryTest(unittest.TestCase):
         with self.assertRaises(NoWorkstreamError):
             repo.workstream()
 
-    def test_resolves_single_workstream(self):
+    def test_resolves_sole_active_workstream(self):
         ws_dir = self.root / ".lume" / "workstreams" / "demo"
         ws_dir.mkdir(parents=True)
-        (ws_dir / "objective.md").write_text("# Demo\nobjective\n")
+        (ws_dir / "objective.md").write_text("---\nstatus: active\n---\n# Demo\nobjective\n")
         repo = Repository(self.root, self.clock)
         self.assertEqual(repo.workstream().name, "demo")
 
     def test_found_from_a_subdirectory(self):
         ws_dir = self.root / ".lume" / "workstreams" / "demo"
         ws_dir.mkdir(parents=True)
-        (ws_dir / "objective.md").write_text("# Demo\nobjective\n")
+        (ws_dir / "objective.md").write_text("---\nstatus: active\n---\n# Demo\nobjective\n")
         deep = self.root / "a" / "b"
         deep.mkdir(parents=True)
         repo = Repository(deep, self.clock)  # start below the repo root

@@ -8,15 +8,23 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from . import frontmatter
 from .clock import Clock
 from .errors import GateError
 from .iteration import (
+    DEFAULT_TYPE,
     Iteration,
     OPENABLE_AFTER,
     TRANSITIONS,
+    TYPES,
     VERDICT_LABELS,
 )
+from .plan import PlanItem, parse_plan
 from .snapshot import build_snapshot
+
+# Lifecycle state of a whole workstream, held in objective.md frontmatter.
+ACTIVE = "active"
+CLOSED = "closed"
 
 
 class Workstream:
@@ -32,10 +40,43 @@ class Workstream:
     def iterations_dir(self) -> Path:
         return self._path / "iterations"
 
+    @property
+    def objective_path(self) -> Path:
+        return self._path / "objective.md"
+
+    def _objective(self) -> tuple[dict[str, str], str]:
+        """(frontmatter, body) of objective.md. Absent frontmatter -> ({}, text)."""
+        return frontmatter.parse((self._path / "objective.md").read_text())
+
+    @property
+    def status(self) -> str:
+        """`active` or `closed`. Absent/unmigrated frontmatter reads as active."""
+        meta, _ = self._objective()
+        return meta.get("status", ACTIVE)
+
+    @property
+    def is_closed(self) -> bool:
+        return self.status == CLOSED
+
+    def set_status(self, status: str) -> None:
+        """Write `status` into objective.md frontmatter, preserving the body.
+
+        If the file had no frontmatter (an unmigrated workstream), a block is
+        added - this is the migration mechanic.
+        """
+        path = self._path / "objective.md"
+        meta, body = frontmatter.parse(path.read_text())
+        meta["status"] = status
+        path.write_text(frontmatter.render(meta, body))
+
     def objective_line(self) -> str:
-        """First non-empty line of objective.md, stripped of heading marks."""
-        text = (self._path / "objective.md").read_text()
-        for line in text.splitlines():
+        """First non-empty body line of objective.md, stripped of heading marks.
+
+        Frontmatter is skipped so the `status:` line is never mistaken for the
+        objective text.
+        """
+        _, body = self._objective()
+        for line in body.splitlines():
             stripped = line.lstrip("# ").strip()
             if stripped:
                 return stripped
@@ -66,11 +107,17 @@ class Workstream:
             return None
         return Iteration.from_text(files[-1].read_text())
 
-    def open_iteration(self, title: str) -> Iteration:
+    def open_iteration(self, title: str, type: str = DEFAULT_TYPE) -> Iteration:
         """Create the next iteration at phase 'proposed', then refresh snapshot.md.
 
         Gate: refuse unless the latest iteration is accepted (none = first open).
+        The type must be one of TYPES (validated here, in the control path, not
+        in the CLI); nothing is written on a bad type.
         """
+        if type not in TYPES:
+            raise GateError(
+                f"unknown iteration type '{type}'. Allowed: {', '.join(TYPES)}."
+            )
         latest = self.current_iteration()
         if latest is not None and not latest.is_accepted:
             raise GateError(
@@ -80,22 +127,41 @@ class Workstream:
         ids = self.iteration_ids()
         next_id = (max(ids) + 1) if ids else 1
         iteration = Iteration.new(
-            id=next_id, title=title, opened=self._clock.today().isoformat()
+            id=next_id, title=title, opened=self._clock.today().isoformat(), type=type
         )
         self.iterations_dir.mkdir(exist_ok=True)
         (self.iterations_dir / f"{next_id:03d}.md").write_text(iteration.to_text())
         self.record_snapshot()
         return iteration
 
-    def record_snapshot(self) -> Path:
-        """Regenerate the Done/Now blocks of snapshot.md from iteration state.
+    def plan_items(self) -> list[PlanItem] | None:
+        """Parsed plan.md items, or None when the workstream has no plan.md.
 
-        Preserves the hand-authored `## Next` section. Writes only snapshot.md.
+        None (no plan) -> the snapshot preserves a hand-authored `## Next`;
+        a present-but-empty plan -> [] -> a derived "(plan has no items)" Next.
+        """
+        plan = self._path / "plan.md"
+        if not plan.is_file():
+            return None
+        return parse_plan(plan.read_text())
+
+    def record_snapshot(self) -> Path:
+        """Regenerate snapshot.md from iteration state. Writes only snapshot.md.
+
+        With a plan.md, the `## Next` block is derived from it (next item +
+        position); without one, the hand-authored `## Next` is preserved.
         """
         snap = self._path / "snapshot.md"
         existing = snap.read_text() if snap.is_file() else f"# {self.name} - snapshot\n"
         iterations = [Iteration.from_text(p.read_text()) for p in self._iteration_files()]
-        snap.write_text(build_snapshot(existing, iterations, self._clock.today().isoformat()))
+        snap.write_text(
+            build_snapshot(
+                existing,
+                iterations,
+                self._clock.today().isoformat(),
+                plan_items=self.plan_items(),
+            )
+        )
         return snap
 
     def transition(self, verb: str, note: str | None = None) -> Iteration:
