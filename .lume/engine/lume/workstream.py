@@ -10,7 +10,12 @@ from pathlib import Path
 
 from .clock import Clock
 from .errors import GateError
-from .iteration import Iteration, OPENABLE_AFTER
+from .iteration import (
+    Iteration,
+    OPENABLE_AFTER,
+    TRANSITIONS,
+    VERDICT_LABELS,
+)
 
 
 class Workstream:
@@ -78,4 +83,32 @@ class Workstream:
         )
         self.iterations_dir.mkdir(exist_ok=True)
         (self.iterations_dir / f"{next_id:03d}.md").write_text(iteration.to_text())
+        return iteration
+
+    def transition(self, verb: str, note: str | None = None) -> Iteration:
+        """Apply a named phase transition to the current iteration.
+
+        Validates the move against the transition table (refusing if the
+        iteration is not in the verb's source phase) and, for accept/reject,
+        appends a dated verdict line. Touches only the current iteration file.
+        """
+        if verb not in TRANSITIONS:
+            raise GateError(f"unknown transition '{verb}'.")
+        iteration = self.current_iteration()
+        if iteration is None:
+            raise GateError("no iteration to transition.")
+        source, target = TRANSITIONS[verb]
+        if iteration.phase != source:
+            raise GateError(
+                f"cannot {verb} - iteration {iteration.id:03d} is phase "
+                f"'{iteration.phase}', not '{source}'."
+            )
+        iteration.phase = target
+        if verb in VERDICT_LABELS:
+            stamp = f"{self._clock.today().isoformat()} | {VERDICT_LABELS[verb]}"
+            # Only reject records a reason; accept never carries one.
+            if verb == "reject" and note:
+                stamp += f" | {note}"
+            iteration.body = iteration.body.rstrip("\n") + "\n" + stamp + "\n"
+        (self.iterations_dir / f"{iteration.id:03d}.md").write_text(iteration.to_text())
         return iteration

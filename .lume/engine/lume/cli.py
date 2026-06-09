@@ -8,10 +8,12 @@ from pathlib import Path
 
 from .clock import Clock, SystemClock
 from .errors import GateError, LumeError
+from .iteration import TRANSITIONS
 from .repository import Repository
 from .workstream import Workstream
 
-USAGE = 'lume: usage: lume <status|open>   (open: lume open "<title>")'
+_VERBS = " ".join(["status", "open", *TRANSITIONS])
+USAGE = f'lume: usage: lume <{_VERBS}>   (open/reject take an argument)'
 
 
 def _render_status(ws: Workstream) -> None:
@@ -33,16 +35,18 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
     clock = clock or SystemClock()
 
     cmd = argv[1] if len(argv) > 1 else "status"
-    if cmd not in ("status", "open"):
-        print(f"lume: unknown command '{cmd}' (v1 supports: status, open)", file=sys.stderr)
+    if cmd not in ("status", "open", *TRANSITIONS):
+        print(f"lume: unknown command '{cmd}'.\n{USAGE}", file=sys.stderr)
         return 2
 
-    title = ""
-    if cmd == "open":
-        title = argv[2].strip() if len(argv) > 2 else ""
-        if not title:
-            print(USAGE, file=sys.stderr)
-            return 2
+    # Parse per-command arguments before touching the filesystem.
+    arg = argv[2].strip() if len(argv) > 2 else ""
+    if cmd == "open" and not arg:
+        print('lume: usage: lume open "<title>"', file=sys.stderr)
+        return 2
+    if cmd == "reject" and not arg:
+        print('lume: usage: lume reject "<reason>"  (a reason is required)', file=sys.stderr)
+        return 2
 
     repo = Repository(start, clock)
     try:
@@ -55,13 +59,22 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         _render_status(ws)
         return 0
 
-    # cmd == "open"
+    if cmd == "open":
+        try:
+            iteration = ws.open_iteration(arg)
+        except GateError as exc:
+            print(f"lume: {exc}", file=sys.stderr)
+            return 1
+        print(f"opened iteration {iteration.id:03d}, phase {iteration.phase}: "
+              f"{ws.iterations_dir / f'{iteration.id:03d}.md'}")
+        print("next: draft its DoD, then have the operator approve before work starts.")
+        return 0
+
+    # cmd is a transition verb
     try:
-        iteration = ws.open_iteration(title)
+        iteration = ws.transition(cmd, note=arg or None)
     except GateError as exc:
         print(f"lume: {exc}", file=sys.stderr)
         return 1
-    print(f"opened iteration {iteration.id:03d}, phase {iteration.phase}: "
-          f"{ws.iterations_dir / f'{iteration.id:03d}.md'}")
-    print("next: draft its DoD, then have the operator approve before work starts.")
+    print(f"{cmd}: iteration {iteration.id:03d} -> phase {iteration.phase}")
     return 0

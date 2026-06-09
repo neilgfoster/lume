@@ -17,6 +17,20 @@ PHASES: tuple[str, ...] = (
 # Phase that must hold on the latest iteration before a new one may open.
 OPENABLE_AFTER = "accepted"
 
+# The only legal phase moves, keyed by the verb that applies them. A verb maps
+# to a fixed (from-phase -> to-phase) pair, so an arbitrary phase can never be set.
+TRANSITIONS: dict[str, tuple[str, str]] = {
+    "approve": ("proposed", "approved"),
+    "start": ("approved", "working"),
+    "handback": ("working", "handback"),
+    "accept": ("handback", "accepted"),
+    "reject": ("handback", "rejected"),
+    "redo": ("rejected", "working"),
+}
+
+# Verbs that also record a dated note in the iteration's Verdict section.
+VERDICT_LABELS: dict[str, str] = {"accept": "ACCEPTED", "reject": "REJECTED"}
+
 _BODY_TEMPLATE = """\
 # Iteration {id:03d} - {title}
 
