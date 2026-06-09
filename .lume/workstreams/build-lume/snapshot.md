@@ -1,17 +1,17 @@
 # build-lume - snapshot
 
-Updated: 2026-06-09 (iteration 003 handback)
+Updated: 2026-06-09 (iteration 004 accepted)
 
 ## Done
-- Discovery docs written (vision / scope / constraints / questions).
-- File layout agreed: separated files + iterations/ dir, frontmatter carries phase.
-- Iteration 001 ("Runnable orientation") merged (PR #2): `lume status`.
-- Iteration 002 ("Engine as a tested module") merged (PR #3): Python package under .lume/engine/, OO + injected clock/root, state at .lume/workstreams/.
+- 001 Runnable orientation
+- 002 Engine as a tested module under .lume (accepted 2026-06-09)
+- 003 Gate-transition commands (accepted 2026-06-09)
+- 004 Derive Done/Now so the snapshot stops being hand-maintained (accepted 2026-06-09)
 
 ## Now
-- Iteration 003 ("Gate-transition commands") accepted and on a PR, phase: accepted. Verbs approve/start/handback/accept/reject/redo flip phase via a single transition table; reject requires + records a reason, accept stamps a bare ACCEPTED line (no reason). 25 tests green. The whole loop - open, reject, redo, handback, accept - ran via its own verbs with no hand-edited frontmatter.
+- 004 Derive Done/Now so the snapshot stops being hand-maintained - phase accepted
 
 ## Next
-- A handback/snapshot recorder so the Done/Now/Next prose updates are assisted too (phase flips are now automated; snapshot prose is still hand-authored).
-- Then the steps 1-5 loop is fully tooled; revisit which manual steps remain.
+- Candidate 005: fold `lume snapshot` into the `handback`/`accept` verbs so Done/Now refresh with zero extra steps (the deferred item from 004). Only the `## Next` prose stays hand-authored.
+- Then steps 1-5 are fully tooled; step back and review which manual steps actually remain and whether ceremony is buying back time.
 - Layout note: engine code at .lume/engine/, workstream state at .lume/workstreams/<slug>/.

@@ -16,6 +16,7 @@ from .iteration import (
     TRANSITIONS,
     VERDICT_LABELS,
 )
+from .snapshot import build_snapshot
 
 
 class Workstream:
@@ -84,6 +85,17 @@ class Workstream:
         self.iterations_dir.mkdir(exist_ok=True)
         (self.iterations_dir / f"{next_id:03d}.md").write_text(iteration.to_text())
         return iteration
+
+    def record_snapshot(self) -> Path:
+        """Regenerate the Done/Now blocks of snapshot.md from iteration state.
+
+        Preserves the hand-authored `## Next` section. Writes only snapshot.md.
+        """
+        snap = self._path / "snapshot.md"
+        existing = snap.read_text() if snap.is_file() else ""
+        iterations = [Iteration.from_text(p.read_text()) for p in self._iteration_files()]
+        snap.write_text(build_snapshot(existing, iterations, self._clock.today().isoformat()))
+        return snap
 
     def transition(self, verb: str, note: str | None = None) -> Iteration:
         """Apply a named phase transition to the current iteration.

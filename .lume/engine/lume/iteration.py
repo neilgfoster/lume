@@ -61,6 +61,28 @@ class Iteration:
         return self.phase == OPENABLE_AFTER
 
     @property
+    def title(self) -> str:
+        """The iteration title, parsed from the first heading in the body.
+
+        `# Iteration 004 - Some title` -> `Some title`.
+        """
+        for line in self.body.splitlines():
+            if line.startswith("#"):
+                heading = line.lstrip("# ").strip()
+                marker = " - "
+                if heading.lower().startswith("iteration") and marker in heading:
+                    return heading.split(marker, 1)[1].strip()
+                return heading
+        return ""
+
+    def accepted_on(self) -> str | None:
+        """Date from the last ACCEPTED verdict line in the body, if any."""
+        for line in reversed(self.body.splitlines()):
+            if "ACCEPTED" in line and "|" in line:
+                return line.split("|", 1)[0].strip()
+        return None
+
+    @property
     def phase_valid(self) -> bool:
         return self.phase in PHASES
 
