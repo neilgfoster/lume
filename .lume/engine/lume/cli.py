@@ -12,7 +12,7 @@ from .iteration import TRANSITIONS
 from .repository import Repository
 from .workstream import Workstream
 
-_VERBS = " ".join(["status", "open", *TRANSITIONS])
+_VERBS = " ".join(["status", "open", "snapshot", *TRANSITIONS])
 USAGE = f'lume: usage: lume <{_VERBS}>   (open/reject take an argument)'
 
 
@@ -35,7 +35,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
     clock = clock or SystemClock()
 
     cmd = argv[1] if len(argv) > 1 else "status"
-    if cmd not in ("status", "open", *TRANSITIONS):
+    if cmd not in ("status", "open", "snapshot", *TRANSITIONS):
         print(f"lume: unknown command '{cmd}'.\n{USAGE}", file=sys.stderr)
         return 2
 
@@ -57,6 +57,11 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
 
     if cmd == "status":
         _render_status(ws)
+        return 0
+
+    if cmd == "snapshot":
+        path = ws.record_snapshot()
+        print(f"snapshot: regenerated Done/Now in {path} (Next preserved)")
         return 0
 
     if cmd == "open":
