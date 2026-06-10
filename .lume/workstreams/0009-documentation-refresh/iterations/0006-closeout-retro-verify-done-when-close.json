@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Retro: did the work buy back more time than its ceremony cost? (per-step verdict)"
+      },
+      {
+        "checked": true,
+        "text": "Load-bearing assumptions checked against evidence."
+      },
+      {
+        "checked": true,
+        "text": "Objective done-when assessed (met / not)."
+      },
+      {
+        "checked": true,
+        "text": "Decisions logged; workstream closed (lume close) and handed off."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "Closeout complete bar the close. retro.json: net-positive, 7/7 done-when met with evidence, carry-forwards led by 'actually measure whether ceremony buys its cost' (the gap the new docs make visible) and the still-open live-session verification. 313 tests green. On your accept I run `lume close`. Workstream 0009 done.",
+  "id": 6,
+  "self_review": "retro.json written (schema-valid): net-positive, per-stage cost/saved/net, all 7 done-when clauses met with evidence, 4 carry-forwards. Done-when genuinely met: docs reconciled, install findable, vault graph link-checked clean, README leads with why-not and evidences/flags every claim, ADOPTERS + LICENSE present, 313 tests green. Kept honest in the retro itself: the verdict states plainly that this refresh makes lume describe itself honestly but does NOT fix the unmeasured-value problem - it stops hiding it. The chief carry-forward is the measurement workstream the README now openly calls for. Single open DoD item is 'lume close' - deferred to operator accept."
+}

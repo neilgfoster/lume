@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Doc inventory complete: every prose doc listed (README, plugin/README, plugin/src/lume/README, docs/*.md, SKILL.md) and classified keep / update / preserve-as-historical, with a one-line reason each."
+      },
+      {
+        "checked": true,
+        "text": "Reconciliation list: concrete claims in docs that disagree with built reality (e.g. 'v1 spine/first slice' framing, met success criteria, the plugin.json MIT vs missing LICENSE file), each with the evidence that settles it."
+      },
+      {
+        "checked": true,
+        "text": "Link graph mapped: current state (orphan docs, no cross-links) vs desired (one navigable Obsidian graph rooted at README.md), naming which links must exist."
+      },
+      {
+        "checked": true,
+        "text": "Install-for-users gap assessed: what install docs exist today (plugin/README), what a non-author still needs, and where the canonical instructions should live without duplicating out of sync."
+      },
+      {
+        "checked": true,
+        "text": "Adversarial README material drafted: the honest 'why you should NOT use lume' disqualifiers and limitations, each tagged evidenced (cite test/workstream/retro) or NOT-yet-evidenced; plus the evidence-backed claims lume may fairly make."
+      },
+      {
+        "checked": true,
+        "text": "Open forks listed for planning, each with a recommended lean; scope held (no doc rewrites, no engine code)."
+      }
+    ],
+    "preamble": "Discovery for the documentation refresh. Inventory every doc, classify each against built reality, map the current vs desired link graph (Obsidian vault rooted at README), and assemble the raw material the execution needs: the reconciliation list, the install-doc gap, and the honest disqualifiers + evidence-status the adversarial README must carry. No doc rewrites this iteration - findings + forks only."
+  },
+  "handback": "discovery.json written (8 sections). Inventoried + classified every doc (keep/update/historical); listed reality reconciliations (v1-spine framing, met success criteria, MIT-without-LICENSE); mapped current orphan graph vs desired README-rooted vault graph; assessed the install-duplication gap; drafted the honest 'why NOT to use lume' disqualifiers each tagged evidenced [E] or unevidenced [U], plus the [E] claims lume may fairly make. 8 forks for planning, each with a lean. No engine code; no doc rewrites. Next: planning iteration to resolve F1-F8 and slice execution. (Amended pre-accept per operator: added strand 5 - ADOPTERS.md root registry - to the objective; discovery now classifies it as CREATE, ties it to the honesty policy as living evidence for the 'zero external users' claim, and adds fork F8 for its entry shape.)",
+  "id": 1,
+  "self_review": "Inventory covers all 9 markdown files (8 real + the gitignored pytest junk, excluded). Classification is concrete per-doc with reasons. Strongest finding for the adversarial-README strand: lume's two biggest claims (value-buys-back-ceremony, and works-for-others) are BOTH unevidenced - the framework grades its own homework - so the 'why not use it' section has real substance, not performative modesty. Also surfaced a concrete defect: plugin.json declares MIT but there is no LICENSE file. Held to scope: findings + forks only, no rewrites. Forks carry leans; the load-bearing ones (F2 root README is the adversary, F3 relative-markdown links, F7 evidence mechanism) are ready for a planning decision. Not done here (correctly): no doc was edited."
+}

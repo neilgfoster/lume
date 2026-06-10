@@ -14,9 +14,15 @@ Every iteration ends at a gate only a human passes - you accept or reject the
 work. lume makes the loop legible (what's the objective, what phase am I in,
 what's next) so neither you nor the agent loses the thread.
 
+> Deciding whether to adopt lume? Read the honest limitations first — the
+> [project README](../README.md) leads with **why you should not use it** (it's
+> early, has one user, and its core value claim is unmeasured). This page is the
+> guide for once you've decided to use it.
+
 ## Install
 
-lume ships as a Claude Code plugin.
+lume ships as a Claude Code plugin. The canonical install instructions live in
+the [project README](../README.md#install); in short:
 
 ```
 /plugin marketplace add neilgfoster/lume
@@ -25,7 +31,7 @@ lume ships as a Claude Code plugin.
 
 That puts the `lume` command on your PATH and loads the guiding skill that
 teaches the agent how to drive the loop. For local development you can instead
-run Claude Code with `claude --plugin-dir /path/to/lume`.
+run Claude Code with `claude --plugin-dir /path/to/lume/plugin`.
 
 Requirements: `python3` on PATH. lume is **stdlib-only** - no runtime
 dependencies, no daemon, no background process.
@@ -87,12 +93,17 @@ explains one; add `--json` to any verb for machine-readable output.
 
 ## Layout
 
+This is the installed plugin (the `plugin/` directory of the development repo —
+only this ships to adopters):
+
 ```
-bin/lume             # the executable (on PATH when installed as a plugin)
-src/lume/            # the engine (stdlib-only Python package)
-tests/               # the test suite
-skills/lume/         # the guiding skill Claude Code loads
-.claude-plugin/      # plugin.json + marketplace.json
+bin/lume               # the executable (on PATH when installed as a plugin)
+src/lume/              # the engine (stdlib-only Python package)
+skills/lume/           # the guiding skill Claude Code loads
+.claude-plugin/        # plugin.json
+README.md              # this guide
 ```
 
-See `src/lume/README.md` for engine internals.
+See [src/lume/README.md](src/lume/README.md) for engine internals, and the
+[project README](../README.md) for the development repo, honest limitations, and
+[ADOPTERS](../ADOPTERS.md).

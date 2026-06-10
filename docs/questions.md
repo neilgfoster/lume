@@ -1,5 +1,12 @@
 # Lume — Open Questions, Assumptions & Risks
 
+> **Status (2026-06-10).** The assumptions, risks, and open questions below were
+> written 2026-06-09, before the build. They are preserved. A
+> *Reconciliation* section at the end records, for each load-bearing assumption,
+> whether it is now validated / partial / still-open and on what evidence — and
+> the honest headline is that the two biggest assumptions remain **unmeasured**.
+> For current state, see the [README](../README.md).
+
 ## Load-bearing assumptions to validate
 1. **Honest self-review against the DoD works.** The whole loop assumes Claude can adversarially self-judge against a DoD and only hand back work that genuinely meets it. If it self-certifies a soft DoD as "done," the operator returns to junk and wastes scarce time. *Validation: run real iterations and measure reject rate at the human gate; track how often "Claude said done" survives operator review.*
 2. **A DoD can be made crisp enough to self-check in ~15 min of work.** Vague DoDs make both self-review and human review unreliable. *Validation: inspect whether DoDs written in practice are checkable, not aspirational.*
@@ -29,3 +36,17 @@
 - **Why now (explicit):** the trigger to build this *now* vs continue coping is implicit (accumulated context-loss pain); not sharply stated.
 - **Multi-operator specifics (when promoted):** operator identity in the decision log, concurrency when two operators touch one workstream, whether reputation becomes per-operator as well as per-Claude.
 - **Self-improvement mechanism:** what usage signal Lume would capture (friction points, reject reasons, ceremony cost) to later improve itself.
+
+## Reconciliation (2026-06-10)
+Status of each load-bearing assumption after eight closed workstreams (this documentation refresh is the ninth):
+
+1. **Honest self-review works — PARTIAL, not measured.** Iterations do run a self-review-then-handback step, and the operator gate has produced real rejects (e.g. 0008 rejected the flat layout, the un-dogfooded skill, and the ship-everything packaging; 0009 caught nothing yet). But the *reject rate* and "how often 'Claude said done' survived review" are **not tracked as data**. Evidence is anecdotal (the workstream retros), not a metric. **Still open.**
+2. **A DoD can be made crisp enough — PARTIAL.** DoDs in practice are written as binary checkable items (visible in every `iterations/*.json`), which is evidence the *shape* works; whether they are reliably self-checkable in ~15 min is not measured. **Partial.**
+3. **Done/Now/Next re-orients in ~2 min — UNMEASURED.** `lume status` renders the snapshot and is used at the start of sessions, but re-orientation time has never been timed. **Open.**
+4. **Ceremony pays for itself — UNMEASURED (the headline open question).** No measurement of time-saved-vs-spent exists; there is no measurement workstream. This is lume's single biggest unproven claim. **Open.**
+5. **The contract seams are in the right place — PARTIAL.** The tracking seam was pulled on by a second concern (id-keyed store, 0007) and held; review and practice seams have only one implementation each, so they are **not yet falsified or confirmed.** **Partial.**
+
+Which risks materialised: "scope creep / grows into something it wasn't meant to be" was actively resisted (0008 held the line against engine expansion; the closeout caught a ship-boundary defect). "Ceremony exceeds value" cannot be assessed without assumption 4's missing measurement. The honest summary: the *mechanics* work and are tested; the *value proposition* is still unproven. That is the substance behind the README's "why you should not use lume."
+
+---
+Design records: [vision](vision.md) · [scope](scope.md) · [constraints](constraints.md) · current state: [README](../README.md)

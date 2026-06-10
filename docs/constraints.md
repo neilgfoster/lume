@@ -1,5 +1,15 @@
 # Lume — Constraints, Non-negotiables & Decision Log
 
+> **Status (2026-06-10).** The **Constraints** and **Non-negotiables** below are
+> *current* — they still govern lume and have held across all eight closed
+> workstreams (and this ninth in progress)
+> (stdlib-only, deterministic over inference, no auto-commit, ceremony-buys-its-cost).
+> The **Decision log** at the end is a *historical record* dated 2026-06-09,
+> preserved as the original rationale; later per-workstream decisions live in each
+> workstream's `decisions.json`. One constraint to note as evolved: "no server,
+> no database" still holds, and lume now also ships as a Claude Code plugin. For
+> current state, see the [README](../README.md).
+
 ## Constraints
 - **Operator time:** the defining constraint. Time-poor; works in short, interrupted bursts (≈15–25 min dip-in sessions), often days apart, often across several parallel workstreams. Hard time budget not numerically fixed — "lightweight" is measured against this.
 - **Stack:** Claude Code + plain markdown/JSON files + git. No server, no database, no external services in v1. (To be confirmed if any external dependency proves unavoidable — see questions.)
@@ -16,7 +26,7 @@
 - **Human-readable, diffable state.** Files, not opaque stores.
 - **Design for replaceability.** Core components sit behind contracts (tracking, review, practice).
 
-## Decision log
+## Decision log (historical, 2026-06-09)
 | Date | Decision | Rationale |
 |---|---|---|
 | 2026-06-09 | Execution is synchronous (World A); unattended execution is out of scope, possibly a separate project. | Tractable now; unattended autonomous loops are a large, separate technical risk Claude Code doesn't natively support. |
@@ -33,3 +43,6 @@
 | 2026-06-09 | Each contract must be designed against two concrete implementations (its example pair); v1 hardcodes one path expressed as data, doesn't fully abstract until a second implementation pulls on it. | Cheapest insurance against single-implementation contracts that leak. |
 | 2026-06-09 | "Ceremony exceeds value" is the headline risk and a design constraint, not just a worry. | A time-saving framework that spends time will be routed around and abandoned. |
 | 2026-06-09 | Adversarial review of the operator's own decisions is a directional guardrail to prevent scope creep. | Keep Lume true to its intent; stop it growing into something it was never meant to be. |
+
+---
+Design records: [vision](vision.md) · [scope](scope.md) · [questions](questions.md) · current state: [README](../README.md)

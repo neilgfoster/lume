@@ -1,0 +1,131 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-inventory-classify-every-doc-map-link-graph-list-reconciliations-and-the-readme-s-honest-disqualifiers.json",
+      "id": 1,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Inventory + classify every doc; map link graph; list reconciliations and the README's honest disqualifiers",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0002-resolve-doc-refresh-forks-f1-f9-and-slice-execution.json",
+      "id": 2,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Resolve doc-refresh forks (F1-F9) and slice execution",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0003-e1-reconcile-docs-with-reality-banners-assumption-updates.json",
+      "id": 3,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E1: reconcile docs/ with reality - banners + assumption updates",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0004-e2-adversarial-humble-root-readme-why-not-first-evidence-or-flag.json",
+      "id": 4,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E2: adversarial, humble root README - why-not-first, evidence-or-flag",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0005-e3-vault-cross-links-adopters-md-mit-license-plugin-readme-alignment.json",
+      "id": 5,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E3: vault cross-links + ADOPTERS.md + MIT LICENSE + plugin/README alignment",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0006-closeout-retro-verify-done-when-close.json",
+      "id": 6,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Closeout: retro, verify done-when, close",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": 3,
+      "sketch": "E1: reconcile docs/ with reality - banner vision.md + scope.md as historical design records; split constraints.md into current constraints vs historical decision-log; update questions.md assumptions to validated/partial/open each with evidence. DoD: every docs/ file is current or explicitly status-bannered; no claim reads as current that isn't.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": 4,
+      "sketch": "E2: rewrite the root README as the adversarial, humble front door - opens with what lume is and why you should NOT use it; every claim [E]-cited or [U]-flagged; canonical install instructions; the iteration loop; a closing 'Status & evidence' section. DoD: leads with disqualifiers, no unevidenced/unflagged claim, install correct, humble tone.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": 5,
+      "sketch": "E3: vault graph + artifacts - add relative-markdown cross-links across all docs rooted at README (no orphans); create ADOPTERS.md (table seeded with lume + PR process); add MIT LICENSE; align plugin/README tone and link it to the root install. DoD: opening the repo as an Obsidian vault yields one connected graph; ADOPTERS.md + LICENSE exist; plugin.json MIT claim now backed.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": 6,
+      "sketch": "Closeout: retro (did the refresh buy its cost?), verify done-when (docs current/bannered, install findable, vault connected, README leads with why-not + evidence rule, ADOPTERS + LICENSE present), decisions logged, lume close.",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
+  "workstream": {
+    "id": "0009",
+    "objective_artifact": "objective.json",
+    "slug": "documentation-refresh",
+    "status": "closed",
+    "title": "Refresh the documentation to match the now-packaged plugin reality"
+  }
+}

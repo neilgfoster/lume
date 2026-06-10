@@ -1,0 +1,30 @@
+{
+  "overall_verdict": "Net positive, and unusually cheap. A pure-documentation workstream with zero engine risk: every iteration was behaviour-preserving (313 tests green throughout) and the value is real - the docs now tell one coherent, current, and honest story instead of a pre-build plan dressed as current fact. The standout is the adversarial README: leading with 'why you should NOT use lume', tagging every claim [E]/[U], and making the two biggest claims (value buys back its cost; works for anyone but the author) visibly unevidenced. ADOPTERS.md turns the 'zero external users' caveat into a living, falsifiable artifact rather than a line of prose. The honesty policy was applied to the work itself - the smoke-tested install is marked both [E] (mechanical) and [U] (never live), not glossed. Cost was low: no rejects this workstream, four small slices, mostly text. The one caveat: this refresh improves how honestly lume describes itself; it does not change the underlying unmeasured-value problem - it just stops hiding it.",
+  "stage_verdicts": [
+    {"stage": "Discovery (001)", "iterations": "1", "cost": "one iteration, no edits", "saved": "inventoried + classified every doc, found the MIT-without-LICENSE defect, and assembled the honest disqualifiers up front", "net": "high - the 'why not use it' material was the real product of discovery"},
+    {"stage": "Planning (002)", "iterations": "1", "cost": "one iteration", "saved": "8 forks resolved with leans matching the operator's stated requirements; clean 3-slice ordering (reconcile -> README -> graph/artifacts)", "net": "positive - no slice had to be re-cut, no rejects downstream"},
+    {"stage": "E1 reconcile docs/ (003)", "iterations": "1", "cost": "banners + reconciliation sections", "saved": "docs/ no longer read as current claims; the unmeasured assumptions named honestly", "net": "positive"},
+    {"stage": "E2 adversarial README (004)", "iterations": "1", "cost": "one README rewrite", "saved": "the front door now leads with disqualifiers and evidences/flags every claim - the centrepiece deliverable", "net": "high"},
+    {"stage": "E3 graph + artifacts (005)", "iterations": "1", "cost": "LICENSE + ADOPTERS + cross-links + plugin/README fixes", "saved": "MIT claim backed; connected vault graph (link-checked, no orphans/dead links); ADOPTERS as living evidence", "net": "positive"}
+  ],
+  "done_when": [
+    {"clause": "Reader gets an accurate, consistent picture; each docs/ file current or marked historical", "verdict": "met", "evidence": "vision/scope banner'd historical with reconciliations; constraints split current vs historical log; questions reconciled per-assumption"},
+    {"clause": "User-facing install instructions exist, are correct, easy to find", "verdict": "met", "evidence": "canonical install in root README; plugin/README links to it (no drifting duplicate); python3 + lume seed documented"},
+    {"clause": "Repo opens as an Obsidian vault: one cross-linked graph rooted at README, no orphans", "verdict": "met", "evidence": "relative-markdown links throughout; scripted link-check across 8 docs found no dead links and every doc reachable"},
+    {"clause": "README leads with why-not, every claim evidenced or flagged, humble tone", "verdict": "met", "evidence": "'Why you should NOT use lume' is the first section; [E]/[U] tags + closing Status & evidence table; no superlatives"},
+    {"clause": "README set and docs/ mutually consistent", "verdict": "met", "evidence": "no stale .lume/engine or 227-tests refs; layout/status claims align across README, plugin/README, docs/"},
+    {"clause": "No engine code changed; tests stay green", "verdict": "met", "evidence": "313 tests green at every handback; only docs + LICENSE + ADOPTERS touched"},
+    {"clause": "ADOPTERS.md exists, documents how to register, records lume as sole adopter, in the graph, machine-readable", "verdict": "met", "evidence": "fixed-column table + add-via-PR + format comment; linked from README; seeded with the one honest row"}
+  ],
+  "carry_forwards": [
+    "The unmeasured-value problem the README now states honestly is the real next step: a workstream that actually MEASURES whether lume's ceremony buys back its cost (reject rates, re-orientation time, time-saved). The docs now make the gap visible; they do not close it.",
+    "Still no live-Claude-Code-session verification of the plugin install (carried from 0008); the README flags it [U]. A real external adopter would close both this and the 'zero external users' caveat at once.",
+    "A future lume verb could read ADOPTERS.md to look up adopters and gather usage insights (deferred by design this workstream).",
+    "Optional: a CHANGELOG and the non-plugin install path (pyproject/zipapp) remain unbuilt; not required."
+  ],
+  "sections": [
+    {"heading": "What worked", "body": "Treating the README as an adversary forced genuine honesty: the exercise of tagging every claim [E]/[U] surfaced that lume's two headline claims are unevidenced, which is more useful than any feature doc. ADOPTERS.md is a small idea with leverage - it makes a caveat falsifiable. Doing reconciliation (E1) before the README (E2) meant the README could link to already-corrected docs."},
+    {"heading": "What to watch", "body": "A documentation refresh is the easiest place to quietly overclaim - to write the aspirational version. The [E]/[U] rule is the guardrail and should outlive this workstream: any future doc edit that adds an unevidenced claim without a [U] flag is a regression. The honest-but-unflattering framing only stays honest if it is maintained."},
+    {"heading": "Scope discipline", "body": "No engine code, no relitigating settled decisions, no marketing polish - the workstream removed overselling rather than adding it. The deferred items (measurement, live-session check, ADOPTERS-reading verb) were named as carry-forwards, not smuggled in."}
+  ]
+}

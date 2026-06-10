@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "LICENSE file at repo root (MIT, attributed to Neil Foster) matching plugin.json's declared license; the README's MIT claim is now backed."
+      },
+      {
+        "checked": true,
+        "text": "ADOPTERS.md at root: a parseable table (project | adopter | link | since) seeded with the single honest row for lume itself, plus a one-line 'add yourself via PR' instruction; linked from README. No dead README link remains."
+      },
+      {
+        "checked": true,
+        "text": "Vault graph complete: relative-markdown links connect README <-> docs/* <-> plugin docs <-> ADOPTERS/LICENSE into one connected graph rooted at README; every doc reachable; no orphan prose doc and no dead links."
+      },
+      {
+        "checked": true,
+        "text": "plugin/README aligned: tone consistent with the honesty rule, install section points to the canonical root README (no drifting duplicate), and it links back into the graph."
+      },
+      {
+        "checked": true,
+        "text": "Verified: a link-check finds no dead relative links across the doc set; the repo opens as an Obsidian vault with a connected graph; 313 tests still green; no engine code."
+      }
+    ],
+    "preamble": "E3 (plan P3): finish the doc system - create the new artifacts and wire the graph. Add MIT LICENSE (back the manifest claim), create ADOPTERS.md (honest registry), complete the relative-markdown vault graph rooted at README (no orphans, no dead links), and align plugin/README (tone + link to root, point install at the canonical copy). No engine code."
+  },
+  "handback": "E3 done. Added MIT LICENSE (backs plugin.json + README) and ADOPTERS.md (parseable table, lume as sole honest row, PR-to-add). Completed the Obsidian vault graph: relative-markdown cross-links connect README <-> docs/* <-> plugin/README <-> engine README <-> ADOPTERS, rooted at README; scripted link-check finds no dead links and no orphans. Aligned plugin/README (canonical install -> root, graph backlinks, corrected stale layout). 313 tests green; no engine code. Next: P4 closeout - retro + verify done-when + lume close.",
+  "id": 5,
+  "self_review": "Artifacts created and graph wired. LICENSE (MIT, 2026 Neil Foster) now backs plugin.json's declared license and the README's MIT claim - the unevidenced license claim from discovery is resolved. ADOPTERS.md is the honest registry: a fixed-column table (Project|Adopter|Link|Since) seeded with the single lume row, a 'add via PR' line, and a format comment so a later lume verb can parse it; its emptiness is deliberately the evidence for the 'zero external users' caveat. plugin/README aligned: points install at the canonical root README, links back into the graph, and its stale layout block (listed tests/ + marketplace.json as shipped) is corrected to what actually ships. Engine README and all four docs/ now carry cross-link footers. A scripted link-check across 8 docs finds NO dead links and every doc reachable from the README root - one connected vault graph. Honesty held: I did not overclaim the live-session verification anywhere. No engine code; 313 tests green."
+}

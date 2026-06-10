@@ -1,0 +1,52 @@
+{
+  "entries": [
+    {
+      "context": "F1 per-doc disposition + banner",
+      "date": "2026-06-10",
+      "decision": "vision.md + scope.md -> preserve as historical design records with a status banner; constraints.md -> split (constraints current, decision-log historical); questions.md -> update assumptions to validated/partial/open with evidence. Banner: '> Status: historical design record (2026-06-09). For current state see the README.'",
+      "rationale": "Pre-build design intent is worth preserving but must not read as current claims; a one-line banner + a link to current state is the cheapest honest fix."
+    },
+    {
+      "context": "F2 which README is the adversary",
+      "date": "2026-06-10",
+      "decision": "The repo-root README is the adversarial, humble, evidence-ruled front door (and vault root); plugin/README stays install-focused and links to the root for the why/limitations.",
+      "rationale": "Root README is the GitHub face and the vault root note a reader meets first; the in-plugin README serves the already-installing reader."
+    },
+    {
+      "context": "F3 link style",
+      "date": "2026-06-10",
+      "decision": "Relative markdown links across all docs (not [[wikilinks]]).",
+      "rationale": "Relative markdown links render on BOTH GitHub - where adopters first meet the repo - and Obsidian; wikilinks render oddly on GitHub."
+    },
+    {
+      "context": "F4 install canonical location",
+      "date": "2026-06-10",
+      "decision": "Canonical install instructions live in the root README; plugin/README links to them rather than duplicating.",
+      "rationale": "Single source of truth avoids drift; root README is where a deciding user lands."
+    },
+    {
+      "context": "F5 LICENSE",
+      "date": "2026-06-10",
+      "decision": "Add an MIT LICENSE file at root to match plugin.json's declared license.",
+      "rationale": "The manifest already asserts MIT; the unbacked claim is fixed by adding the file, not weakening the manifest."
+    },
+    {
+      "context": "F6 vault config",
+      "date": "2026-06-10",
+      "decision": "Do not commit an .obsidian/ folder; rely on the convention that any folder is a vault.",
+      "rationale": "Committed Obsidian config churns per-machine and adds no value; relative links make the graph navigable without it."
+    },
+    {
+      "context": "F7 evidence mechanism",
+      "date": "2026-06-10",
+      "decision": "Inline [E] (evidenced, with citation) / [U] (not-yet-evidenced) tags in prose, plus a short 'Status & evidence' section at the end of the root README for the load-bearing claims.",
+      "rationale": "Inline tags keep each claim honest at the point of reading; the section collects the load-bearing ones for scrutiny."
+    },
+    {
+      "context": "F8 ADOPTERS.md shape",
+      "date": "2026-06-10",
+      "decision": "A markdown table (project | adopter | link | since) seeded with lume itself as the sole row, plus a one-line 'add yourself via PR' process. No lume verb to read it yet - deferred to a later workstream.",
+      "rationale": "Table is human-readable on GitHub/Obsidian and trivially parseable later; the single honest row IS the evidence for the 'zero external users' claim."
+    }
+  ]
+}
