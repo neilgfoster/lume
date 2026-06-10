@@ -61,7 +61,7 @@ class TransitionTest(unittest.TestCase):
 
     def _ws(self):
         doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
-        return Workstream(self.ws_dir, self.clock, doc)
+        return Workstream.on_filesystem(self.ws_dir, self.clock, doc)
 
     def test_every_legal_transition(self):
         for verb, (src, dst) in TRANSITIONS.items():

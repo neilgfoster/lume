@@ -40,7 +40,7 @@ def _make_ws(tmp: Path, plan_items=None):
 
 def _ws(ws_dir):
     doc = state_mod.load(ws_dir / state_mod.STATE_FILE)
-    return Workstream(ws_dir, _clock(), doc)
+    return Workstream.on_filesystem(ws_dir, _clock(), doc)
 
 
 def _run(root, *args):
@@ -163,6 +163,24 @@ class PlanAddVerbTest(unittest.TestCase):
         code, out, _ = _run(self.root, "plan", "add", "My item")
         self.assertEqual(code, 0)
         self.assertIn("P1", out)
+
+    def test_add_honours_tag_flag(self):
+        code, out, _ = _run(self.root, "plan", "add", "-g", "optional", "Maybe later")
+        self.assertEqual(code, 0)
+        doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
+        self.assertEqual(doc["plan"][0]["tag"], "optional")
+
+    def test_add_invalid_tag_exits_2(self):
+        code, _, err = _run(self.root, "plan", "add", "-g", "bogus", "x")
+        self.assertEqual(code, 2)
+        self.assertIn("committed", err)
+
+    def test_get_plan_alias_resolves(self):
+        _run(self.root, "plan", "add", "An item")
+        code, out, _ = _run(self.root, "get", "plan")
+        self.assertEqual(code, 0)
+        items = json.loads(out)
+        self.assertEqual(items[0]["id"], "P1")
 
 
 # ---------------------------------------------------------------------------

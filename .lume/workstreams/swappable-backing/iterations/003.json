@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. New `lume/store.py` defines the TrackingStore contract (the persistence seam): list_workstreams() -> [slug], has_workstream(slug) -> bool, create_workstream(slug) -> None, read(slug, artifact) -> dict|None, write(slug, artifact, doc) -> None. artifact in {state, objective, decisions, retro, discovery} or 'iteration:NNN'. Docstring names it the Tracking contract (scope.md). (Evidence: store.py present; contract documented.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `FilesystemStore` implements TrackingStore over .lume/workstreams/<slug>/, mapping artifact-id -> file (state->state.json via state.load/save with validation; objective/decisions/retro/discovery -> <name>.json; 'iteration:NNN' -> iterations/NNN.json). read() returns None for a missing artifact. (Evidence: unit tests round-trip each artifact kind + missing-artifact returns None.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Repository takes an injected `store` (default: a FilesystemStore built from find_lume_dir). Its workstream listing, load_state, save_state, and create_workstream delegate to the store - Repository no longer calls state.save / path.write_text / globs for state.json itself. (Evidence: grep shows Repository persistence routes through self._store, not direct path I/O or state.save.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Behaviour-preserving: every existing verb works unchanged on the filesystem; full suite green; no CLI output or on-disk layout change. (Evidence: 238+ tests pass; live `lume status`/`new`/lifecycle unaffected.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Interim coupling explicitly scoped: Workstream still receives its dir and does its own artifact I/O this iteration - that relocation is E2, not E1. A code comment + handback note record the deferral so the half-state is intentional, not a miss. (Evidence: comment at the Workstream construction site; handback note.)"
+      },
+      {
+        "checked": true,
+        "text": "6. >= 4 new tests: FilesystemStore read/write round-trip, has/list/create, missing-artifact -> None, and Repository-delegates-to-store (e.g. an injected fake store observes the calls). No tests removed. (Evidence: test run 0 failures.)"
+      }
+    ],
+    "preamble": "E1 (P1): stand up the Tracking contract as code. Define a TrackingStore protocol + a FilesystemStore implementation that wraps today's path logic and state.py validation, then make Repository delegate ITS OWN persistence (state.json, objective.json, workstream listing, create) to an injected store. Behaviour-preserving and filesystem-default; no second backing and no selection wiring yet (E3). Workstream's own artifact I/O is deliberately left for E2 - this slice stays reviewable by touching only store.py (new) + repository.py + tests."
+  },
+  "handback": "E1 complete. The Tracking contract exists as code and Repository persists through it.\n\n- lume/store.py (new): TrackingStore Protocol + FilesystemStore.\n- repository.py: injected store (default FilesystemStore); listing/load_state/save_state/has/create delegate to it; no direct persistence I/O remains (grep-clean); dropped unused state import.\n- test_store.py (new, 8 tests): FilesystemStore round-trips (state/simple/iteration), missing->None, unknown-id raises, Repository-delegates-to-store via a recording fake, create via real store.\n- 246 tests pass; behaviour-preserving (live status + lifecycle unchanged).\n\nInterim, deferred to E2 (commented in code): Workstream still holds its dir and writes its own artifacts + its own state save; create_workstream's objective write still goes through the model to the fs. E2 relocates all Workstream persistence behind the store, drops the dir Path, and folds in the two CLI fixes. Accept to open E2.",
+  "id": 3,
+  "self_review": "All 6 DoD items complete; 246 tests pass (8 new in test_store.py).\n\nNew lume/store.py defines the TrackingStore Protocol (list_workstreams / has_workstream / create_workstream / read / write) - the Tracking contract named in scope.md - plus FilesystemStore mapping artifact-id -> file (state->state.json via state.py validation; objective/decisions/retro/discovery -> <name>.json; 'iteration:NNN' -> iterations/NNN.json; missing -> None).\n\nRepository now takes an optional injected store (default: FilesystemStore built lazily from the resolved .lume/ via _store(lume_dir)). Its listing, load_state, save_state, has-checks, and create_workstream route through the store; grep confirms ZERO direct persistence I/O in repository.py (no write_text/read_text/state.save/glob/iterdir). The unused `state` import was removed.\n\nBehaviour-preserving: no CLI/output/on-disk-layout change; live `lume status` and the full lifecycle work unchanged on the filesystem.\n\nInterim coupling (DoD #5), deliberately deferred to E2 and marked with code comments at _load_workstream and create_workstream: Workstream still receives its dir Path and writes its own artifacts (objective/iteration/decisions/retro and its own state save via _save_state). That surfaced concretely in testing - create_workstream's objective write still hits the real fs through the model, so the Repository-delegates test uses a fake store only for state save/load, and create is exercised against a real FilesystemStore. E2 moves Workstream's I/O behind the store and removes the dir Path.\n\nScope held: only store.py (new) + repository.py + test_store.py (new) touched."
+}

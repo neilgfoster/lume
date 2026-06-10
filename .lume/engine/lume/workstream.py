@@ -9,9 +9,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import json
-
-from . import state
 from .clock import Clock
 from .errors import GateError
 from .iteration import (
@@ -33,27 +30,31 @@ CLOSED = "closed"
 
 
 class Workstream:
-    def __init__(self, path: Path, clock: Clock, state_doc: dict) -> None:
-        self._path = path
+    def __init__(self, store, slug: str, clock: Clock, state_doc: dict) -> None:
+        self._store = store
+        self._slug = slug
         self._clock = clock
         self._state = state_doc
 
+    @classmethod
+    def on_filesystem(cls, ws_dir: Path, clock: Clock, state_doc: dict) -> "Workstream":
+        """Build a filesystem-backed Workstream from its directory.
+
+        Convenience for callers/tests that hold a workstream dir rather than a
+        store + slug; roots a FilesystemStore at the dir's parent.
+        """
+        from .store import FilesystemStore
+        store = FilesystemStore.from_workstreams_root(ws_dir.parent)
+        return cls(store, ws_dir.name, clock, state_doc)
+
     @property
     def name(self) -> str:
-        return self._path.name
+        return self._slug
 
     @property
     def state_doc(self) -> dict:
         """The in-memory state document. Read-only by convention."""
         return self._state
-
-    @property
-    def iterations_dir(self) -> Path:
-        return self._path / "iterations"
-
-    @property
-    def objective_path(self) -> Path:
-        return self._path / "objective.json"
 
     @property
     def status(self) -> str:
@@ -66,19 +67,14 @@ class Workstream:
 
     def _load_objective(self) -> dict:
         from .validate import validate_entity
-        path = self._path / "objective.json"
-        import json
-        doc = json.loads(path.read_text())
+        doc = self._store.read(self._slug, "objective")
         validate_entity("objective", doc)
         return doc
 
     def _save_objective(self, doc: dict) -> None:
         from .validate import validate_entity
-        import json
         validate_entity("objective", doc)
-        (self._path / "objective.json").write_text(
-            json.dumps(doc, indent=2, sort_keys=True) + "\n"
-        )
+        self._store.write(self._slug, "objective", doc)
 
     def set_status(self, status: str) -> None:
         """Update workstream status in state.json and objective.json (JSON-only)."""
@@ -134,15 +130,13 @@ class Workstream:
         return [PlanItem.from_entity(e) for e in items]
 
     def _save_state(self) -> None:
-        """Validate + save state.json (JSON-only; no derived views)."""
-        state.save(self._path / state.STATE_FILE, self._state)
+        """Validate + persist state through the store (JSON-only; no derived views)."""
+        self._store.write(self._slug, "state", self._state)
 
     def _save_iter_content(self, iter_id: int, content: dict) -> None:
         from .validate import validate_entity
         validate_entity("iteration_content", content)
-        (self.iterations_dir / f"{iter_id:03d}.json").write_text(
-            json.dumps(content, indent=2, sort_keys=True) + "\n"
-        )
+        self._store.write(self._slug, f"iteration:{iter_id:03d}", content)
 
     def add_plan_item(self, sketch: str, type: str = "execution", tag: str = "committed") -> PlanItem:
         """Append a new plan item to state.plan. Returns the new item."""
@@ -198,24 +192,17 @@ class Workstream:
         # State first, then the iteration content doc (JSON-only).
         self._state["iterations"].append(entity)
         self._save_state()
-        self.iterations_dir.mkdir(exist_ok=True)
         self._save_iter_content(next_id, content)
         return iteration
 
     def _save_decisions(self, doc: dict) -> None:
         from .validate import validate_entity
         validate_entity("decisions", doc)
-        (self._path / "decisions.json").write_text(
-            json.dumps(doc, indent=2, sort_keys=True) + "\n"
-        )
+        self._store.write(self._slug, "decisions", doc)
 
     def add_decision(self, decision: str, context: str = "", rationale: str = "") -> dict:
-        """Append a decision entry to decisions.json (JSON-only)."""
-        path = self._path / "decisions.json"
-        if path.is_file():
-            doc = json.loads(path.read_text())
-        else:
-            doc = {"entries": []}
+        """Append a decision entry to the decisions artifact (JSON-only)."""
+        doc = self._store.read(self._slug, "decisions") or {"entries": []}
         entry = {
             "date": self._clock.today().isoformat(),
             "context": context.strip(),
@@ -227,12 +214,14 @@ class Workstream:
         return entry
 
     def save_retro(self, retro: dict) -> None:
-        """Validate + save retro.json (JSON-only)."""
+        """Validate + persist the retro artifact through the store (JSON-only)."""
         from .validate import validate_entity
         validate_entity("retro", retro)
-        (self._path / "retro.json").write_text(
-            json.dumps(retro, indent=2, sort_keys=True) + "\n"
-        )
+        self._store.write(self._slug, "retro", retro)
+
+    def retro_doc(self) -> dict | None:
+        """The retro artifact through the store, or None if not yet written."""
+        return self._store.read(self._slug, "retro")
 
     def transition(self, verb: str, note: str | None = None) -> Iteration:
         """Apply a named phase transition to the current iteration.

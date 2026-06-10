@@ -1,0 +1,152 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/001.json",
+      "id": 1,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Map the Repository seam and choose the second backing",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/002.json",
+      "id": 2,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Resolve the forks and plan the backing-swap slices",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/003.json",
+      "id": 3,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E1: TrackingStore protocol + FilesystemStore; Repository delegates its own I/O",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/004.json",
+      "id": 4,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E2: relocate Workstream persistence behind the store; fix cli leaks + 2 CLI bugs",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/005.json",
+      "id": 5,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E3: SQLiteStore second backing + LUME_BACKING selection; lifecycle exercised against it",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/006.json",
+      "id": 6,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E4: InMemoryStore double + cross-backing contract test matrix",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/007.json",
+      "id": 7,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E5: closeout - retro, naming decision, lume close",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": 3,
+      "sketch": "E1: Define the TrackingStore protocol + FilesystemStore (wraps today's path logic: list/has/create + read/write per artifact). Repository takes an injected store and routes its OWN I/O (state.json, objective.json, .lume/ listing) through it. Behaviour-preserving; fs default; suite green. DONE = grep shows Repository does no direct path read/write; tests pass.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": 4,
+      "sketch": "E2: Relocate Workstream persistence behind the store. Workstream takes (store, slug) instead of a Path; objective/iteration-content/decisions/retro/state reads+writes go through the store. Fix the cli path-printing + the retro verb's direct ws._path read (F7). ALSO fix two CLI bugs found in planning: (a) `lume plan add` ignores the -g/tag flag its usage advertises - wire -g so optional items can be tagged from the CLI; (b) `lume get plan` errors because the entity is 'plan_item' - accept 'plan' as an alias (or document the real name). DONE = no filesystem access outside FilesystemStore (+ migrate.py); plan add -g and get plan both work; suite green.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": 5,
+      "sketch": "E3: Second backing - SQLiteStore implementing TrackingStore ((slug,artifact)->row). Selection via LUME_BACKING env in cli.main (fs default), constructor-injected. Run the full lifecycle (new/open/transitions/decide/retro/close) against SQLite in tests. DONE = replaceability demonstrated; fs behaviour unchanged; suite green.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": 6,
+      "sketch": "E4: In-memory store as a test double + a shared contract test-suite run against all backings (fs, sqlite, memory) to pin the contract. DONE = one parametrized suite green across backings.",
+      "tag": "optional",
+      "type": "execution"
+    },
+    {
+      "id": "P5",
+      "iter": 7,
+      "sketch": "E5: Closeout - retro (did the second backing prove replaceability for the cost?), assess done-when clause by clause, finalize the Repository/TrackingStore naming decision, lume close.",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
+  "workstream": {
+    "objective_artifact": "objective.json",
+    "slug": "swappable-backing",
+    "status": "closed",
+    "title": "Swappable Backing"
+  }
+}

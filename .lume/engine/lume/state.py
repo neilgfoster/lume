@@ -21,8 +21,12 @@ from .errors import LumeError
 STATE_FILE = "state.json"
 
 
-def _validate_doc(doc: object) -> None:
-    """Validate a whole state document: workstream + each iteration + each plan item."""
+def validate_doc(doc: object) -> None:
+    """Validate a whole state document: workstream + each iteration + each plan item.
+
+    Decoupled from path I/O so any backing (filesystem, SQLite, ...) can validate
+    a state document without touching files.
+    """
     if not isinstance(doc, dict):
         raise LumeError(f"state must be an object, got {type(doc).__name__}.")
     for key in ("workstream", "iterations", "plan"):
@@ -54,11 +58,11 @@ def load(path: Path) -> dict:
         doc = json.loads(path.read_text())
     except json.JSONDecodeError as exc:
         raise LumeError(f"malformed state at {path}: {exc}.") from exc
-    _validate_doc(doc)
+    validate_doc(doc)
     return doc
 
 
 def save(path: Path, doc: dict) -> None:
     """Validate every entity, then write. Invalid input never reaches disk."""
-    _validate_doc(doc)
+    validate_doc(doc)
     path.write_text(dumps(doc))

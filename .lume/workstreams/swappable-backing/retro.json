@@ -1,0 +1,61 @@
+{
+  "carry_forwards": [
+    "GitHub Issues backing is the deferred real-service follow-on; it now only needs to implement TrackingStore and join the BACKINGS contract matrix.",
+    "F4 decided: no Repository rename - TrackingStore is the contract, Repository is the resolver/policy layer. Revisit only if a Review/Practice store makes the policy/storage split need renaming.",
+    "Repository still resolves .lume/ from the filesystem (find_lume_dir) even under a non-fs backing; a fully remote backing would need workstream discovery to move behind the contract too.",
+    "The other two scope.md contracts (Review, Practice) remain single-implementation; the same discovery-first 'find where the boundary really is' approach applies when they get a second member."
+  ],
+  "done_when": [
+    {
+      "clause": "A second Tracking backing exists and is exercised by lume's verbs (resolve/list, load+save state, lifecycle transitions)",
+      "evidence": "SQLiteStore (store.py) implements TrackingStore; the full lifecycle (new/open/approve/start/handback/accept + second iteration + decide/retro/close) runs against it in tests AND live via the CLI - the workstream persists entirely in lume.db, no fs files. A third backing (InMemoryStore) also passes the shared contract matrix.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "The backing is selected through a documented contract rather than by editing engine code",
+      "evidence": "LUME_BACKING env (fs default, sqlite) is read once at the cli edge and injected into Repository; no engine code below branches on backing. Unknown value errors clearly.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "lume's existing behaviour on the filesystem backing is unchanged (suite green)",
+      "evidence": "Filesystem is the default; on-disk layout and behaviour identical. 267 tests pass, including the full pre-existing suite; E1-E2 were behaviour-preserving and grep-verified.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "Any contract leaks surfaced are resolved or recorded as decisions",
+      "evidence": "Discovery's leak audit drove E2 (Workstream's direct I/O moved behind the store; cli ws._path leak fixed) and E3 (state.py validation decoupled from path I/O). Migrate.py is recorded (F6) as a deliberate local-only bridge, excluded from the live contract.",
+      "verdict": "MET"
+    }
+  ],
+  "overall_verdict": "Net positive. The Tracking contract is now real: persistence lives behind an injected TrackingStore, lume runs unchanged on the filesystem and equally on SQLite, a backing is chosen by config not code, and a cross-backing matrix enforces the contract. Discovery's reframing (move the boundary below Workstream) was the decisive call - it turned a would-be shallow Repository subclass into a clean seam. The ceremony (a ~40-line protocol + two real implementations + a test double + the matrix) bought back exactly what scope.md's design test asks for: the second member of the example pair expressed cleanly, now proven by lived use rather than design intent. Honest scope: GitHub Issues (the named real-service pair member) is deferred to a future workstream; this one proved replaceability with SQLite, the cheapest backing that breaks every filesystem assumption.",
+  "stage_verdicts": [
+    {
+      "cost": "One analysis iteration, no engine code (plus a one-line skeleton fix).",
+      "iterations": "001",
+      "net": "Positive - highest-leverage stage.",
+      "saved": "Found the load-bearing truth before any code: the Tracking contract was split (Repository) and mislocated (Workstream did its own file I/O, even state.json on the write path). That reframed the work from 'subclass Repository' to 'move the boundary below Workstream' - without it, E1/E2 would have built a backing that intercepted almost nothing.",
+      "stage": "Discovery (001)"
+    },
+    {
+      "cost": "One iteration; 8 decisions + a 5-item plan.",
+      "iterations": "002",
+      "net": "Positive",
+      "saved": "Resolved all seven forks with rationale and sized the work into reviewable slices (E1 protocol, E2 relocation, E3 second backing, E4 matrix, E5 closeout). The TrackingStore interface sketch gave execution a concrete target. Folding the two CLI bugs into E2 kept scope honest.",
+      "stage": "Planning (002)"
+    },
+    {
+      "cost": "Four iterations: protocol+FilesystemStore, the Workstream relocation (the big one), SQLite backing + selection, in-memory double + contract matrix.",
+      "iterations": "003-006",
+      "net": "Positive",
+      "saved": "Each slice stayed behaviour-preserving and grep-verified. The relocation was mechanical once the contract existed; the second backing then dropped in with ~60 lines and no change above the seam. The contract matrix turned 'backing-agnostic' into an enforced check across three backings.",
+      "stage": "Execution (E1-E4, iters 003-006)"
+    },
+    {
+      "cost": "This iteration.",
+      "iterations": "007",
+      "net": "Positive",
+      "saved": "Honest done-when assessment + the naming decision recorded; closes the workstream on its own verbs.",
+      "stage": "Close-out (007)"
+    }
+  ]
+}

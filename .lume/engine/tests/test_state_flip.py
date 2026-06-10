@@ -32,7 +32,7 @@ def _write_objective_json(ws_dir: Path, slug="demo", status="active") -> None:
 
 def _ws(ws_dir: Path, clock: FixedClock) -> Workstream:
     doc = state_mod.load(ws_dir / state_mod.STATE_FILE)
-    return Workstream(ws_dir, clock, doc)
+    return Workstream.on_filesystem(ws_dir, clock, doc)
 
 
 class StateBackedReadTest(unittest.TestCase):

@@ -1,0 +1,46 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Workstream no longer holds a filesystem Path: constructor becomes Workstream(store, slug, clock, state_doc). All its persistence routes through the store - _save_state -> store.write(slug,'state'); _load/_save_objective -> store read/write(slug,'objective'); _save_iter_content -> store.write(slug,'iteration:NNN'); _save_decisions/add_decision -> store read/write(slug,'decisions'); save_retro -> store.write(slug,'retro'). `name` comes from state slug, not a path. (Evidence: grep shows no self._path / read_text / write_text / .json path building in workstream.py.)"
+      },
+      {
+        "checked": true,
+        "text": "2. The Path-typed properties iterations_dir and objective_path are removed from Workstream (they leaked the filesystem). A test-only convenience `Workstream.on_filesystem(ws_dir, clock, state_doc)` (builds a FilesystemStore rooted at ws_dir.parent, slug=ws_dir.name) lets direct-construction tests keep their layout. FilesystemStore gains `from_workstreams_root(root)` to support it. (Evidence: grep finds no iterations_dir/objective_path; on_filesystem used by tests.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Repository constructs Workstream(store, slug, clock, doc) - passing self._store(lume_dir) and the slug - in _load_workstream and create_workstream. create_workstream's objective write now goes through the model/store (no direct fs). (Evidence: repository.py passes store+slug; create writes objective via the store seam.)"
+      },
+      {
+        "checked": true,
+        "text": "4. cli.py stops reaching into model paths: the retro verb reads via a Workstream accessor (e.g. ws.retro_doc()) not ws._path/retro.json; the `new` and `open` messages print a backing-agnostic identifier (slug + artifact id), not a filesystem path. (Evidence: grep shows no ws._path / objective_path / iterations_dir in cli.py.)"
+      },
+      {
+        "checked": true,
+        "text": "5. CLI bug A fixed: `lume plan add` honours -g/--tag (committed|optional), passed through to add_plan_item; invalid tag is a usage error. (Evidence: `lume plan add -g optional \"x\"` yields an optional item; test covers it.)"
+      },
+      {
+        "checked": true,
+        "text": "6. CLI bug B fixed: `lume get plan` works as an alias for the plan_item entity (both names resolve). (Evidence: `lume get plan` prints the plan array; test covers it.)"
+      },
+      {
+        "checked": true,
+        "text": "7. migrate.py updated to the new Workstream signature (builds a FilesystemStore for the local one-shot bridge); migration still produces identical JSON and stays idempotent. (Evidence: `lume migrate` run twice = identical; migrate tests green.)"
+      },
+      {
+        "checked": true,
+        "text": "8. No filesystem access remains outside FilesystemStore and migrate.py: grep across lume/ for read_text/write_text/artifact path-building shows only store.py (and migrate.py, the documented local bridge). (Evidence: grep output in handback.)"
+      },
+      {
+        "checked": true,
+        "text": "9. Behaviour-preserving + full suite green: test fixtures that construct Workstream directly updated to Workstream.on_filesystem (mechanical); no behaviour change on the filesystem backing; live lifecycle unchanged. No tests removed beyond signature updates. (Evidence: test run 0 failures; live `lume status`/`open`/`accept` work.)"
+      }
+    ],
+    "preamble": "E2 (P2): move the persistence boundary BELOW Workstream (the load-bearing F2 work). Workstream stops holding a Path and routes every artifact (state/objective/iteration/decisions/retro) through the injected TrackingStore, addressed by (slug, artifact-id). Remove the Path-typed properties; give tests a Workstream.on_filesystem factory + FilesystemStore.from_workstreams_root so fixtures keep their layout. Fix the cli ws._path/path-printing leak (F7) and the two CLI bugs found in planning (plan add -g; get plan alias). Filesystem stays the default and behaviour is preserved; the only persistence implementation is still FilesystemStore - the second backing is E3."
+  },
+  "handback": "E2 complete - the persistence boundary now sits below Workstream (F2 resolved). 249 tests pass.\n\n- Workstream(store, slug, clock, doc): no Path; all artifacts via the TrackingStore. Removed iterations_dir/objective_path; added Workstream.on_filesystem + FilesystemStore.from_workstreams_root.\n- Repository passes store+slug; create writes objective through the seam.\n- cli.py: retro via ws.retro_doc(); new/open print backing-agnostic ids; no ws._path.\n- CLI bugs fixed: plan add -g/--tag (+ invalid-tag error); get plan alias. Tested + live-verified.\n- migrate.py on the new signature; idempotent. 7 test helpers moved to Workstream.on_filesystem.\n- grep: artifact I/O only in store.py + migrate.py.\n\nResidual flagged for E3: state.py still couples JSON validation with path read/write; a SQLite store wants the validation, not the path I/O - separate them in E3. Accept to open E3 (SQLite backing + LUME_BACKING selection + full lifecycle exercised against it).",
+  "id": 4,
+  "self_review": "All 9 DoD items complete; 249 tests pass (3 new CLI-fix tests in test_plan_flip).\n\nWorkstream now takes (store, slug, clock, state_doc) and holds NO filesystem Path. Every artifact routes through the injected TrackingStore: state/objective/iteration:NNN/decisions/retro via store.read/write(slug, artifact). `name` is the slug. The Path-typed properties (iterations_dir, objective_path) are gone; a Workstream.on_filesystem(ws_dir, ...) factory + FilesystemStore.from_workstreams_root(root) let direct-construction tests keep their layout with a one-line change (Workstream(...) -> Workstream.on_filesystem(...) across 7 helpers).\n\nRepository constructs Workstream(store, slug, clock, doc) and create_workstream's objective write now goes through the model/store. cli.py no longer reaches into ws._path: the retro verb uses ws.retro_doc(); new/open print backing-agnostic identifiers (slug/artifact), not paths. migrate.py uses Workstream.on_filesystem (the local bridge); migration verified idempotent.\n\nTwo CLI bugs fixed + tested + verified live: `plan add -g/--tag` (with invalid-tag usage error) and `get plan` as an alias for plan_item.\n\ngrep: workstream artifact I/O now lives only in store.py and migrate.py (the documented local bridge). One honest residual: state.py still does its own path read/write as the JSON serialization+validation primitive that FilesystemStore delegates to. A non-fs backing (E3) will want state.py's VALIDATION without its path I/O - flagged as E3 prep (separate validate from load/save-path). validate.py reads schema package data, not workstream state, so it is not a backing concern.\n\nBehaviour-preserving: live new/open/approve/start/transition/decide/retro/migrate all work on the filesystem unchanged; on-disk layout identical."
+}

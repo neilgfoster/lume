@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. All seven discovery forks (F1-F7) resolved, each logged via `lume decide` with a one-line rationale. In particular: F1 (real vs proof backing), F2 (where the persistence boundary goes + how much lands in v1 - the load-bearing one), F3 (contract shape: per-artifact vs whole-workstream), F5 (selection mechanism), F4 (rename Repository: decide or explicitly defer). (Evidence: decisions.json has an entry per fork.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Plan recorded as state.plan via `lume plan add`: the execution iterations to reach the objective, each a binary DoD sketch + committed/optional tag, in order. Must cover (a) relocating persistence behind an injected store contract, (b) the second backing implementation, (c) the selection wiring, (d) closeout. (Evidence: `lume get plan` lists the items with tags.)"
+      },
+      {
+        "checked": true,
+        "text": "3. The first execution iteration is concrete enough to open next: its scope is a single reviewable slice (per the constitution's reviewable-iterations principle), with its DoD sketch written. (Evidence: the P-item for it names exact files/seam and a binary done test.)"
+      },
+      {
+        "checked": true,
+        "text": "4. The contract interface is sketched in a decision: the method set the store must expose (derived from the Repository surface + the Workstream writes that move behind it), so execution has a target shape. (Evidence: a decision entry capturing the interface sketch.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Scope held: no engine code this iteration; output is decisions.json + state.plan only. (Evidence: git diff shows no lume/*.py change; only workstream JSON.)"
+      }
+    ],
+    "preamble": "Planning for swappable-backing. Resolve the seven forks discovery surfaced - above all F2 (move the persistence boundary below Workstream, behind an injected store; how much lands in v1) - logging each as a decision. Then lay out the execution iterations as a living plan: relocate persistence behind a store contract, add the second (proof-first) backing, wire selection, close out. Recommend keeping each slice independently reviewable. No engine code - decisions + plan only."
+  },
+  "handback": "Planning complete. 8 decisions logged, plan P1-P5 recorded, no engine code, 238 tests green.\n\nResolved the load-bearing F2: move ALL persistence below an injected TrackingStore; Repository becomes the resolver/policy layer (no Repository rename - the contract is the new store). Proof-first second backing (SQLite + in-memory), GitHub deferred. Selection via LUME_BACKING (fs default).\n\nPlan (each a reviewable slice): E1 TrackingStore protocol + FilesystemStore + Repository delegates its own I/O (committed); E2 relocate Workstream persistence + fix cli ws._path/path leaks (committed); E3 SQLiteStore + selection wiring + full lifecycle test against it (committed); E4 in-memory double + cross-backing contract suite (optional); E5 closeout. E1 is ready to open.\n\nFYI two CLI bugs found while planning (out of scope for no-code planning): `plan add` ignores the -g tag flag it advertises; `lume get plan` errors because the entity is 'plan_item'. Candidates to fold into E2 or a tidy. Accept to open E1.",
+  "id": 2,
+  "self_review": "All 5 DoD items complete. 8 decisions logged (7 forks F1-F7 + the TrackingStore interface sketch); plan recorded as P1-P5 (P4 optional); no engine code this iteration (clean engine diff); 238 tests green.\n\nFork resolutions: F1 proof-first (SQLite + in-memory, defer GitHub); F2 (load-bearing) move ALL persistence below an injected store, staged across reviewable iterations; F3 per-artifact key/value keyed by (slug, artifact-id); F4 NO Repository rename - introduce a new TrackingStore contract and demote Repository to the resolver/policy layer that uses it; F5 constructor injection + LUME_BACKING env (fs default); F6 migrate.py stays a local-only bridge; F7 fix the cli path-printing + retro-verb ws._path leak in the relocation iteration.\n\nInterface (decision): TrackingStore = list_workstreams / has_workstream / create_workstream / read(slug, artifact) / write(slug, artifact, doc), artifact in {state,objective,decisions,retro,discovery} or 'iteration:NNN'; validation stays in state.py/validate.\n\nPlan shape keeps each slice reviewable: E1 protocol + FilesystemStore + Repository delegates its own I/O; E2 relocate Workstream persistence + fix cli leaks; E3 SQLite second backing + selection wiring + lifecycle exercised against it; E4 (optional) in-memory double + shared contract matrix; E5 closeout. E1 is concrete enough to open next.\n\nTwo CLI gaps surfaced while planning (NOT fixed here - no engine code in planning): (a) `lume plan add` ignores -g/tag despite its usage string advertising [-g tag], so optional items can't be tagged from the CLI (I set P4's tag in state.json directly); (b) `lume get plan` fails - the entity is named 'plan_item', so `get plan` errors. Flagged for a tidy iteration or fold into E2."
+}

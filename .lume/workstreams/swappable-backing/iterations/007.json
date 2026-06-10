@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Per-stage verdict captured in retro.json stage_verdicts: discovery (001), planning (002), execution (E1-E4 / iters 003-006), closeout (007) - did each buy back more than its ceremony cost? (Evidence: retro.json validates; stage_verdicts present.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Objective done-when assessed clause by clause in retro.json done_when (second backing exercised by the verbs; selected via a documented contract not engine edits; fs behaviour unchanged; leaks resolved or recorded), each MET/NOT with evidence. (Evidence: retro.json done_when table.)"
+      },
+      {
+        "checked": true,
+        "text": "3. The F4 naming question finalized as a decision via `lume decide`: confirm the outcome reached in execution (no Repository rename; the contract is TrackingStore, Repository is the resolver/policy layer) or revise it. (Evidence: a closeout decision entry.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Overall verdict + carry-forwards in retro.json (incl. GitHub backing as the deferred real-service follow-on, and any remaining seam coupling). retro authored via `lume retro`. (Evidence: retro.json present and consistent.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Workstream closed: closeout iteration accepted, then `lume close`; objective.json status flips to closed. Full suite green. (Evidence: `lume status` shows swappable-backing closed; tests pass.)"
+      }
+    ],
+    "preamble": "Close-out for swappable-backing. Assess whether building the TrackingStore contract + a real second backing (SQLite) + the contract matrix bought back more than its ceremony cost, judge the objective's done-when clause by clause, finalize the F4 naming decision, and close the workstream on its own verbs. Authored as data (retro.json) via the P12 tooling."
+  },
+  "handback": "E5 closeout complete. swappable-backing is ready to close.\n\n- retro.json authored (4 stage verdicts, 4 done-when clauses all MET, overall verdict, 4 carry-forwards) via lume retro.\n- F4 naming decision finalized via lume decide (no Repository rename; TrackingStore is the contract).\n- 267 tests pass.\n\nAll 5 plan items done (E1-E4 + this closeout). The Tracking contract is real and proven by lived use across fs + sqlite + in-memory. Accept, then lume close.",
+  "id": 7,
+  "self_review": "All 5 DoD items complete; 267 tests pass.\n\nPer-stage verdict + done-when authored in retro.json (via lume retro). All four done-when clauses MET: second backing (SQLite) exercised by the verbs in tests + live CLI; selection via LUME_BACKING (config, not code); fs behaviour unchanged; leaks resolved (E2/E3) or recorded (migrate.py = local bridge, F6). F4 finalized via lume decide: no Repository rename - TrackingStore is the contract, Repository the resolver/policy layer.\n\nOverall: net positive. Discovery's reframing (move the boundary below Workstream) was the decisive call. Carry-forwards recorded incl. GitHub backing as the deferred real-service follow-on and the find_lume_dir-still-on-fs caveat.\n\nClosing in the right order this time: handback -> accept -> lume close."
+}

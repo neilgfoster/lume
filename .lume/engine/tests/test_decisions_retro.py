@@ -36,7 +36,7 @@ def _make_ws_dir(tmp: str) -> Path:
 
 
 def _ws(ws_dir: Path, clock: FixedClock) -> Workstream:
-    return Workstream(ws_dir, clock, state_mod.load(ws_dir / state_mod.STATE_FILE))
+    return Workstream.on_filesystem(ws_dir, clock, state_mod.load(ws_dir / state_mod.STATE_FILE))
 
 
 class DecideTest(unittest.TestCase):
