@@ -1,0 +1,27 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-map-claude-plugin-structure-audit-current-layout-against-it.json",
+      "id": 1,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Map Claude plugin structure; audit current layout against it",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0008",
+    "objective_artifact": "objective.json",
+    "slug": "package-as-claude-plugin",
+    "status": "active",
+    "title": "Package lume as an installable Claude plugin"
+  }
+}
