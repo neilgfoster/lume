@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. A `discovery` JSON schema (schemas/discovery.json): {title?, sections: [{heading, body}]}; entity_kinds() now returns 8 kinds, sorted. (Evidence: validate_entity passes a valid doc and rejects a missing-section doc; entity_kinds test updated.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `lume/discovery.py` with parse_discovery_md(text) -> doc: first `# ` line is the title; each `## ` section becomes {heading, body} verbatim (nested `###` kept in body). (Evidence: round-trip-ish parse test on a known markdown sample.)"
+      },
+      {
+        "checked": true,
+        "text": "3. migrate.py: migrate_discovery(ws_dir, doc) parses discovery.md -> discovery.json (validated); wired into migrate_all; no-op when absent. (Evidence: migrate produces valid discovery.json for the two workstreams that have discovery.md.)"
+      },
+      {
+        "checked": true,
+        "text": "4. `lume reopen <slug>` verb: reopens a closed workstream (sets status active in state.json + objective.json); errors if unknown or already active. Repository.reopen_workstream bypasses the closed gate. (Evidence: reopen a closed ws -> status active; reopening an active ws errors; tests cover both.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Both discovery.md migrated to discovery.json, then deleted. No .md files remain anywhere under .lume/workstreams. (Evidence: find -name '*.md' under workstreams returns nothing.)"
+      },
+      {
+        "checked": true,
+        "text": "6. Full suite green; >= 4 new tests (discovery schema valid/invalid, parse_discovery_md, migrate_discovery, reopen verb). No tests removed. (Evidence: test run 0 failures.)"
+      }
+    ],
+    "preamble": "The last authored markdown is discovery.md. Add a discovery schema + parser, migrate the two existing discovery.md into discovery.json, and delete them - leaving zero .md under .lume/workstreams. Also add the `lume reopen <slug>` verb to close the lifecycle gap found this session (closing a workstream gates out transitions and there was no reopen).\n\nChanges: schemas/discovery.json, lume/discovery.py, migrate.py, repository.py, cli.py, tests."
+  },
+  "handback": "Ready for review. P14: the last markdown is gone - the workstream tree is 100% JSON.\n\n- schemas/discovery.json (new entity; 8 kinds now).\n- lume/discovery.py: parse_discovery_md (migration inverse).\n- migrate.py: migrate_discovery + migrate_all now handles flipped (state.json-only) workstreams, not just legacy-markdown ones.\n- repository.py: reopen_workstream; cli.py: `lume reopen <slug>` verb.\n- Both discovery.md migrated to discovery.json and deleted; 0 .md under .lume/workstreams.\n- 240 tests pass (13 new).\n\nVerify: `find .lume/workstreams -name '*.md'` -> empty; `lume reopen state-as-data` -> 'already active'; `lume status` still derives Done/Now/Next with no files.\n\nAfter accept, state-as-data can be re-closed (its P7 retro already stands). The render_* dead utilities remain - say the word and I'll delete them + their tests in a final sweep.",
+  "id": 17,
+  "self_review": "All 6 DoD items complete; 240 tests passing (13 new in test_discovery_reopen.py).\n\ndiscovery schema added (schemas/discovery.json: {title?, sections:[{heading,body}]}); entity_kinds() now returns 8, and the count test was updated. lume/discovery.py provides parse_discovery_md: the leading `# ` line is the title, each `## ` section becomes a {heading, body} pair, nested `###` content stays verbatim in the body.\n\nmigrate_discovery wired into migrate_all. I also had to fix migrate_all: it previously gated entirely on objective.md existing, so after P13 deleted the markdown it would have skipped every workstream. It now loads the doc from state.json when the legacy markdown is gone, so the artifact migrators (discovery) still run on flipped workstreams. Verified idempotent (two migrate runs -> identical discovery.json).\n\nBoth live discovery.md migrated to discovery.json and deleted. `find -name '*.md'` under .lume/workstreams now returns ZERO - the workstream tree is fully JSON.\n\n`lume reopen <slug>` added (Repository.reopen_workstream bypasses the closed gate, flips status to active in state.json + objective.json). Verified live: errors on already-active and unknown slugs, reopens a closed workstream. This closes the lifecycle gap from earlier this session where I had to flip status through the engine by hand.\n\nNote: the pure render_* utilities flagged in 016 are still present (unused, tested); left for a separate cleanup call as agreed."
+}

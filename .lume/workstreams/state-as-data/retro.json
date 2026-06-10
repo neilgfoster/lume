@@ -1,0 +1,61 @@
+{
+  "carry_forwards": [
+    "The retro schema needed an optional `sections` array to migrate real freeform retros losslessly (logged at 014); future schemas authored before migrating real data should expect a similar prose-overflow need.",
+    "DoD checkboxes remain artifact-not-data (decision d); revisit only if a gate ever needs machine-checkable DoD completion.",
+    "The Repository seam is designed for a swappable backing (GitHub/Jira) but only the filesystem backing exists; the replaceability claim is unproven by use.",
+    "Discovery verbs (entities/schema/get) make cold-start orientation possible; the next consumer is an agent driving lume purely through those verbs."
+  ],
+  "done_when": [
+    {
+      "clause": "Workstream/iteration state stored as schema-validated JSON",
+      "evidence": "state.json, objective.json, iterations/NNN.json, decisions.json, retro.json all validate against schemas in lume/schemas/ via validate_entity at every load and save. Invalid state is rejected at the Repository/Workstream boundary (SchemaError).",
+      "verdict": "MET"
+    },
+    {
+      "clause": "CLI is the sole mutator and exposes verbs to discover entities and fetch their schema",
+      "evidence": "Mutators (new/open/transition/plan/decide/retro/close) write only via state + validated JSON; discovery verbs `lume entities`, `lume schema <entity>`, `lume get` are read-only and machine-parseable (P6). An agent can orient cold.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "Human-readable markdown is regenerated from state rather than authored",
+      "evidence": "snapshot.md, plan.md, objective.md, iterations/NNN.md, decisions.md, retro.md are all derived views regenerated on mutation. grep confirms the engine reads no machine field from any .md; the only .md reads are in migrate.py, the explicit legacy bridge.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "This workstream itself is tracked under the new JSON state to prove it",
+      "evidence": "state-as-data ran all 15 iterations on state.json; its decisions and this retro are authored as decisions.json/retro.json. Dogfooded end to end, including this close-out.",
+      "verdict": "MET"
+    }
+  ],
+  "overall_verdict": "Net positive. Storing state as schema-validated JSON bought back more than its ceremony cost: the source of truth is now queryable and deterministically mutable, markdown stopped being a thing to hand-maintain, and an agent can discover entities and their schemas cold. The ceremony (schemas + a ~40-line vendored validator + the migration converter) was paid once and stayed small, exactly as decision GO predicted. Every flip was behaviour-preserving and grep-verified, and the repeating _load/_save/_render + render/parse pattern made each later artifact conversion cheaper. All four done-when clauses are MET. Honest caveat: the multi-workstream and future-backing-swap (GitHub/Jira via the Repository seam) claims are proven by tests and design, not yet by lived use.",
+  "stage_verdicts": [
+    {
+      "cost": "One analysis iteration, no code.",
+      "iterations": "001",
+      "net": "Positive",
+      "saved": "Mapped exactly what machine state lived in markdown (status, the iteration quad, verdict outcomes, plan-item lines) and confirmed snapshot.md already proved view-from-state. Bounded the extraction and surfaced the six forks before any schema was written.",
+      "stage": "Discovery (001)"
+    },
+    {
+      "cost": "Two planning iterations + standing up plan.md/decisions.md; 009 re-planned the full-content artifacts.",
+      "iterations": "002, 009",
+      "net": "Positive - highest-leverage stage.",
+      "saved": "Resolved all six forks with logged rationale (GO, one-state.json-per-workstream, vendored validator, one-shot migration, checkboxes-as-artifact, auto-regen, Repository seam). Every execution slice opened with a ready DoD. The P4 split (P4a/P4b) was absorbed mid-stream as a logged plan change, not a derail.",
+      "stage": "Planning (002, 009)"
+    },
+    {
+      "cost": "Eleven execution iterations: schemas+validator, state.json I/O, migration, the model bridge + source-of-truth flip, discovery verbs, then the content artifacts (new schemas, plan, objective, iterations, decisions+retro).",
+      "iterations": "003-008, 010-014",
+      "net": "Positive",
+      "saved": "Each flip was behaviour-preserving and grep-verified (no machine field read from markdown). The triple pattern (_load/_save/_render + render/parse) repeated cleanly from objective to iterations to decisions/retro, so each later slice was cheaper than the last. Migration round-tripped all three workstreams as free validation.",
+      "stage": "Execution (P1-P12, iters 003-008 + 010-014)"
+    },
+    {
+      "cost": "This iteration.",
+      "iterations": "015",
+      "net": "Positive",
+      "saved": "Forces the honest done-when assessment and authors the retro on the very tooling the workstream built - the final dogfood.",
+      "stage": "Close-out (015)"
+    }
+  ]
+}

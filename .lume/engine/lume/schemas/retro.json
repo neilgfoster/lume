@@ -34,6 +34,17 @@
     "carry_forwards": {
       "type": "array",
       "items": {"type": "string"}
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["heading", "body"],
+        "properties": {
+          "heading": {"type": "string"},
+          "body":    {"type": "string"}
+        }
+      }
     }
   }
 }

@@ -27,8 +27,8 @@ _ENTITY_KEY = {
 }
 
 _VERBS = " ".join([
-    "status", "new", "open", "close", "snapshot", "migrate",
-    "entities", "schema", "get", "plan",
+    "status", "new", "open", "close", "reopen", "snapshot", "migrate",
+    "entities", "schema", "get", "plan", "decide", "retro",
     *TRANSITIONS,
 ])
 USAGE = f'lume: usage: lume [-w <slug>] <{_VERBS}>   (new/open/reject take an argument)'
@@ -122,14 +122,15 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
     try:
         target, rest = _extract_flag(argv, ("-w", "--workstream"), "a workstream slug")
         opt_type, rest = _extract_flag(rest, ("-t", "--type"), "a type")
+        opt_context, rest = _extract_flag(rest, ("-c", "--context"), "a context")
     except ValueError as exc:
         print(f"lume: {exc}\n{USAGE}", file=sys.stderr)
         return 2
 
     cmd = rest[1] if len(rest) > 1 else "status"
     if cmd not in (
-        "status", "new", "open", "close", "snapshot", "migrate",
-        "entities", "schema", "get", "plan",
+        "status", "new", "open", "close", "reopen", "snapshot", "migrate",
+        "entities", "schema", "get", "plan", "decide", "retro",
         *TRANSITIONS,
     ):
         print(f"lume: unknown command '{cmd}'.\n{USAGE}", file=sys.stderr)
@@ -149,6 +150,13 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
     if cmd == "schema" and not arg:
         print('lume: usage: lume schema <entity>', file=sys.stderr)
         return 2
+    if cmd == "decide" and not arg:
+        print('lume: usage: lume decide [-c <context>] "<decision>" ["<rationale>"]',
+              file=sys.stderr)
+        return 2
+    if cmd == "reopen" and not arg:
+        print('lume: usage: lume reopen <slug>', file=sys.stderr)
+        return 2
 
     repo = Repository(start, clock)
 
@@ -160,7 +168,18 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
             print(f"lume: {exc}", file=sys.stderr)
             return 1
         print(f"created workstream '{ws.name}' (active): {ws.objective_path}")
-        print('next: edit its objective.md, then: lume open "<first iteration>".')
+        print('next: edit its objective.json, then: lume open "<first iteration>".')
+        return 0
+
+    # `reopen` targets a specific (closed) workstream by slug, bypassing the
+    # closed-workstream gate in the normal resolver.
+    if cmd == "reopen":
+        try:
+            ws = repo.reopen_workstream(arg)
+        except LumeError as exc:
+            print(f"lume: {exc}", file=sys.stderr)
+            return 1
+        print(f"reopened workstream '{ws.name}' (active).")
         return 0
 
     # `migrate` acts on every workstream under .lume/, not a single target.
@@ -216,9 +235,8 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         return 0
 
     if cmd == "snapshot":
-        path = ws.record_snapshot()
-        note = "Next derived from plan.md" if ws.plan_items() is not None else "Next preserved"
-        print(f"snapshot: regenerated Done/Now in {path} ({note})")
+        # JSON-only: derive the snapshot from state and print it; nothing persisted.
+        print(ws.derive_snapshot().rstrip())
         return 0
 
     if cmd == "open":
@@ -228,7 +246,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
             print(f"lume: {exc}", file=sys.stderr)
             return 1
         print(f"opened iteration {iteration.id:03d}, phase {iteration.phase}: "
-              f"{ws.iterations_dir / f'{iteration.id:03d}.md'}")
+              f"{ws.iterations_dir / f'{iteration.id:03d}.json'}")
         print("next: draft its DoD, then have the operator approve before work starts.")
         return 0
 
@@ -308,6 +326,27 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
             print(f"lume: {exc}", file=sys.stderr)
             return 1
         print(f"plan link: {item.id} -> iter {item.iter:03d}")
+        return 0
+
+    if cmd == "decide":
+        rationale = rest[3].strip() if len(rest) > 3 else ""
+        entry = ws.add_decision(arg, context=opt_context or "", rationale=rationale)
+        print(f"decide: logged {entry['date']} | {entry['decision']}")
+        return 0
+
+    if cmd == "retro":
+        path = ws._path / "retro.json"
+        existed = path.is_file()
+        if existed:
+            retro = json.loads(path.read_text())
+        else:
+            retro = {"overall_verdict": "(draft: fill in the verdict)", "carry_forwards": []}
+        try:
+            ws.save_retro(retro)
+        except SchemaError as exc:
+            print(f"lume: {exc}", file=sys.stderr)
+            return 1
+        print(f"retro: {'updated' if existed else 'created'} retro.json")
         return 0
 
     # cmd is a transition verb

@@ -97,6 +97,22 @@ class Repository:
             )
         return active[0]
 
+    def reopen_workstream(self, slug: str) -> Workstream:
+        """Reopen a closed workstream: flip status back to active in state + objective.
+
+        Bypasses the closed-workstream gate in `workstream()`. Unknown slug or an
+        already-active workstream is a named error.
+        """
+        lume_dir = self._require_lume_dir()
+        ws_dir = lume_dir / WORKSTREAMS_SUBDIR / slug
+        if not (ws_dir / state.STATE_FILE).is_file():
+            raise NoWorkstreamError(f"no workstream '{slug}' under {lume_dir}.")
+        ws = self._load_workstream(ws_dir)
+        if not ws.is_closed:
+            raise GateError(f"workstream '{slug}' is already active.")
+        ws.set_status(ACTIVE)
+        return ws
+
     def _state_path(self, slug: str) -> Path:
         return self._require_lume_dir() / WORKSTREAMS_SUBDIR / slug / state.STATE_FILE
 
@@ -111,7 +127,7 @@ class Repository:
         state.save(path, doc)
 
     def create_workstream(self, slug: str, title: str) -> Workstream:
-        """Create a new active workstream with objective.json, objective.md view, and state.json."""
+        """Create a new active workstream with objective.json and state.json (JSON-only)."""
         lume_dir = self._require_lume_dir()
         if not _SLUG_RE.match(slug):
             raise GateError(
@@ -141,5 +157,4 @@ class Repository:
             "text": _OBJECTIVE_PLACEHOLDER,
         }
         ws._save_objective(obj_doc)
-        ws._render_objective(obj_doc)
         return ws

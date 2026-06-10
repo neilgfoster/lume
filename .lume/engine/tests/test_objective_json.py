@@ -52,21 +52,19 @@ class CreateWorkstreamObjectiveTest(unittest.TestCase):
         self.assertEqual(doc["title"], "Beta Run")
         self.assertEqual(doc["status"], "active")
 
-    def test_create_also_writes_objective_md_view(self):
+    def test_create_writes_no_objective_md(self):
+        """JSON-only: lume new produces no objective.md view."""
         _repo(self.root).create_workstream("gamma", "Gamma Plan")
-        md = (self.root / ".lume" / "workstreams" / "gamma" / "objective.md").read_text()
-        self.assertIn("Gamma Plan", md)
-        self.assertIn("status: active", md)
+        self.assertFalse(
+            (self.root / ".lume" / "workstreams" / "gamma" / "objective.md").exists()
+        )
 
-    def test_objective_md_is_regenerated_not_authored(self):
-        """Corrupting objective.md and re-reading does not affect the canonical data."""
+    def test_canonical_data_comes_from_state_not_markdown(self):
         ws = _repo(self.root).create_workstream("delta", "Delta Goal")
         ws_dir = self.root / ".lume" / "workstreams" / "delta"
-        # Corrupt the view file.
-        (ws_dir / "objective.md").write_text("---\nstatus: closed\n---\n# CORRUPTED\n")
-        # The canonical title still comes from state (via objective_line).
+        # The canonical title comes from state (via objective_line).
         self.assertEqual(ws.objective_line(), "Delta Goal")
-        # The canonical status still comes from state.json.
+        # The canonical status comes from state.json.
         doc = state_mod.load(ws_dir / state_mod.STATE_FILE)
         self.assertEqual(doc["workstream"]["status"], "active")
 
@@ -89,12 +87,11 @@ class SetStatusObjectiveTest(unittest.TestCase):
         obj = json.loads((ws_dir / "objective.json").read_text())
         self.assertEqual(obj["status"], "closed")
 
-    def test_set_status_regenerates_objective_md(self):
+    def test_set_status_writes_no_objective_md(self):
         ws = _repo(self.root).create_workstream("ws", "My WS")
         ws.set_status("closed")
         ws_dir = self.root / ".lume" / "workstreams" / "ws"
-        md = (ws_dir / "objective.md").read_text()
-        self.assertIn("status: closed", md)
+        self.assertFalse((ws_dir / "objective.md").exists())
 
     def test_set_status_objective_json_remains_valid(self):
         ws = _repo(self.root).create_workstream("ws", "My WS")
@@ -146,14 +143,15 @@ class MigrateObjectiveTest(unittest.TestCase):
         second = (self.ws_dir / "objective.json").read_text()
         self.assertEqual(first, second)
 
-    def test_migrate_renders_objective_md_as_view(self):
+    def test_migrate_does_not_render_objective_md(self):
+        """JSON-only: migrate reads the legacy objective.md but writes no view back."""
         repo = _repo(self.root)
+        before = (self.ws_dir / "objective.md").read_text()
         migrate.migrate_all(repo, self.root / ".lume")
-        md = (self.ws_dir / "objective.md").read_text()
-        # The rendered view should contain slug/status frontmatter from objective.json.
-        self.assertIn("slug: legacy", md)
-        self.assertIn("status: active", md)
-        self.assertIn("Legacy Work", md)
+        # The legacy input is left untouched (read-only source); no view regenerated.
+        self.assertEqual((self.ws_dir / "objective.md").read_text(), before)
+        doc = json.loads((self.ws_dir / "objective.json").read_text())
+        self.assertEqual(doc["title"], "Legacy Work")
 
 
 if __name__ == "__main__":

@@ -83,11 +83,11 @@ class TransitionTest(unittest.TestCase):
         with self.assertRaises(GateError):
             self._ws().transition("teleport")
 
-    def test_non_verdict_transition_updates_phase_in_view(self):
+    def test_non_verdict_transition_updates_phase_in_state(self):
         _write_iteration(self.ws_dir, 1, "proposed")
         self._ws().transition("approve")
-        text = (self.ws_dir / "iterations" / "001.md").read_text()
-        self.assertIn("phase: approved", text)
+        doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
+        self.assertEqual(doc["iterations"][0]["phase"], "approved")
 
     def test_non_verdict_transition_preserves_content_json(self):
         _write_iteration(self.ws_dir, 1, "proposed")
@@ -100,16 +100,17 @@ class TransitionTest(unittest.TestCase):
         _write_iteration(self.ws_dir, 1, "handback")
         # A note is passed but accept must never record a reason.
         self._ws().transition("accept", note="ignored")
-        text = (self.ws_dir / "iterations" / "001.md").read_text()
-        self.assertIn("2026-01-02 | ACCEPTED", text)
-        self.assertNotIn("ignored", text)
-        self.assertNotIn("ACCEPTED |", text)  # no trailing reason segment
+        verdicts = state_mod.load(self.ws_dir / state_mod.STATE_FILE)["iterations"][0]["verdicts"]
+        self.assertEqual(verdicts[-1]["date"], "2026-01-02")
+        self.assertEqual(verdicts[-1]["verdict"], "accepted")
+        self.assertIsNone(verdicts[-1]["reason"])
 
     def test_reject_appends_reason(self):
         _write_iteration(self.ws_dir, 1, "handback")
         self._ws().transition("reject", note="DoD too vague")
-        text = (self.ws_dir / "iterations" / "001.md").read_text()
-        self.assertIn("2026-01-02 | REJECTED | DoD too vague", text)
+        verdicts = state_mod.load(self.ws_dir / state_mod.STATE_FILE)["iterations"][0]["verdicts"]
+        self.assertEqual(verdicts[-1]["verdict"], "rejected")
+        self.assertEqual(verdicts[-1]["reason"], "DoD too vague")
 
     def test_full_loop_open_to_accepted(self):
         ws = self._ws()

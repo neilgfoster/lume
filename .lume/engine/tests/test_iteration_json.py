@@ -62,15 +62,15 @@ class OpenIterationJsonTest(unittest.TestCase):
         doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
         self.assertEqual(doc["iterations"][0]["dod_artifact"], "iterations/001.json")
 
-    def test_open_also_creates_nnn_md_view(self):
+    def test_open_writes_no_nnn_md_view(self):
         _ws(self.ws_dir, self.clock).open_iteration("First")
-        self.assertTrue((self.ws_dir / "iterations" / "001.md").is_file())
+        self.assertFalse((self.ws_dir / "iterations" / "001.md").exists())
 
-    def test_nnn_md_view_contains_dod_skeleton(self):
+    def test_nnn_json_contains_dod_skeleton(self):
         _ws(self.ws_dir, self.clock).open_iteration("First")
-        md = (self.ws_dir / "iterations" / "001.md").read_text()
-        self.assertIn("## DoD", md)
-        self.assertIn("propose checkable items", md)
+        doc = json.loads((self.ws_dir / "iterations" / "001.json").read_text())
+        texts = [i["text"] for i in doc["dod"]["items"]]
+        self.assertTrue(any("propose checkable items" in t for t in texts))
 
     def test_nnn_json_seeded_with_type_skeleton_items(self):
         _ws(self.ws_dir, self.clock).open_iteration("Disc", type="discovery")
@@ -87,8 +87,8 @@ class OpenIterationJsonTest(unittest.TestCase):
         self.assertIsNone(doc["handback"])
 
 
-class TransitionRendersFromJsonTest(unittest.TestCase):
-    """transition() regenerates NNN.md from NNN.json — no frontmatter.parse."""
+class TransitionStateOnlyTest(unittest.TestCase):
+    """transition() mutates state.json only — no NNN.md view, NNN.json untouched."""
 
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
@@ -98,11 +98,14 @@ class TransitionRendersFromJsonTest(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def test_transition_updates_phase_in_nnn_md(self):
+    def _state(self):
+        return state_mod.load(self.ws_dir / state_mod.STATE_FILE)
+
+    def test_transition_updates_phase_in_state(self):
         _ws(self.ws_dir, self.clock).open_iteration("Task")
         _ws(self.ws_dir, self.clock).transition("approve")
-        text = (self.ws_dir / "iterations" / "001.md").read_text()
-        self.assertIn("phase: approved", text)
+        self.assertEqual(self._state()["iterations"][0]["phase"], "approved")
+        self.assertFalse((self.ws_dir / "iterations" / "001.md").exists())
 
     def test_transition_does_not_modify_nnn_json(self):
         _ws(self.ws_dir, self.clock).open_iteration("Task")
@@ -111,21 +114,21 @@ class TransitionRendersFromJsonTest(unittest.TestCase):
         after = (self.ws_dir / "iterations" / "001.json").read_text()
         self.assertEqual(before, after)
 
-    def test_accept_verdict_rendered_into_nnn_md_view(self):
+    def test_accept_verdict_written_to_state(self):
         _ws(self.ws_dir, self.clock).open_iteration("Task")
         for verb in ("approve", "start", "handback"):
             _ws(self.ws_dir, self.clock).transition(verb)
         _ws(self.ws_dir, self.clock).transition("accept")
-        text = (self.ws_dir / "iterations" / "001.md").read_text()
-        self.assertIn("2026-06-09 | ACCEPTED", text)
+        v = self._state()["iterations"][0]["verdicts"][-1]
+        self.assertEqual((v["date"], v["verdict"]), ("2026-06-09", "accepted"))
 
-    def test_reject_verdict_with_reason_rendered_in_view(self):
+    def test_reject_verdict_with_reason_written_to_state(self):
         _ws(self.ws_dir, self.clock).open_iteration("Task")
         for verb in ("approve", "start", "handback"):
             _ws(self.ws_dir, self.clock).transition(verb)
         _ws(self.ws_dir, self.clock).transition("reject", note="DoD unclear")
-        text = (self.ws_dir / "iterations" / "001.md").read_text()
-        self.assertIn("2026-06-09 | REJECTED | DoD unclear", text)
+        v = self._state()["iterations"][0]["verdicts"][-1]
+        self.assertEqual((v["verdict"], v["reason"]), ("rejected", "DoD unclear"))
 
 
 class MigrateIterationsTest(unittest.TestCase):

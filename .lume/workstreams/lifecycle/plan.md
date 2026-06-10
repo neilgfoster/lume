@@ -1,9 +1,0 @@
-# lifecycle - plan (derived)
-
-## Items
-
-- P1 | execution | iter:004 | committed | Queue + multi-workstream rework: retire `.lume/current`; in-progress = all `status:active`; commands take `-w <slug>` (default to the sole active, error listing actives when omitted with >1); `lume status` becomes the cross-workstream queue (AWAITING YOU = handback iterations across active; IN PROGRESS = other active; CLOSED listed); `new`/`close` no longer touch a cursor; single-active flows still work via the default; tests green. Reworks 001.
-- P2 | execution | iter:005 | committed | Un-hardcode `type` in `lume open`: `open` takes a type from the (template-default {discovery,planning,execution,closeout}) vocabulary, default `execution`, validates (rejects unknown), persists `type:<t>`, and surfaces it in status/queue; tests green.
-- P3 | execution | iter:006 | committed | Derive Next + plan-position from this living plan: engine parses plan.md (this schema), derives the snapshot `## Next` and a "step N of M -> next: P<k>" line from the first not-done item (done = linked iteration accepted); `## Next` stops being hand-authored; malformed/empty plan handled gracefully; tests green. (Depends on P1's status surface.)
-- P4 | execution | iter:007 | committed | Per-type DoD-skeletons (decision d): opening an iteration of each type pre-loads a type-specific DoD/body skeleton (discovery: questions+artifact; planning: decisions+plan+sketches; execution: today's build template; closeout: retro); skeletons are data; tests green. (Depends on P2.)
-- P6 | closeout | iter:008 | committed | Close-out / retro: did typed/phased practice + the queue + the derived plan buy back more time than they cost? Assess against the objective's done-when (typed/phased iterations; tooling tracks active vs closed + multiple in-progress; this workstream run through the lifecycle); log decisions; `lume close` the workstream. (Prototype: build-lume's retro.)

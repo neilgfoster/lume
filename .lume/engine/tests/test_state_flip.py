@@ -92,13 +92,12 @@ class StateBackedReadTest(unittest.TestCase):
 
 
 class MutationWritesStateFirstTest(unittest.TestCase):
-    """Mutations update state.json before writing markdown views."""
+    """Mutations update state.json + JSON artifacts only (no markdown views)."""
 
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.ws_dir = Path(self._tmp.name) / "demo"
         (self.ws_dir / "iterations").mkdir(parents=True)
-        (self.ws_dir / "objective.md").write_text("---\nstatus: active\n---\n# Demo\nobj\n")
         _write_objective_json(self.ws_dir)
         state_mod.save(self.ws_dir / state_mod.STATE_FILE, _initial_doc())
         self.clock = FixedClock(datetime.date(2026, 6, 9))
@@ -115,8 +114,9 @@ class MutationWritesStateFirstTest(unittest.TestCase):
         self.assertEqual(len(doc["iterations"]), 1)
         self.assertEqual(doc["iterations"][0]["phase"], "proposed")
         self.assertEqual(doc["iterations"][0]["title"], "New task")
-        # Markdown artifact also created.
-        self.assertTrue((self.ws_dir / "iterations" / "001.md").is_file())
+        # JSON-only: the iteration content doc is created, no markdown view.
+        self.assertTrue((self.ws_dir / "iterations" / "001.json").is_file())
+        self.assertFalse((self.ws_dir / "iterations" / "001.md").exists())
 
     def test_transition_updates_state_json(self):
         _ws(self.ws_dir, self.clock).open_iteration("Task")
@@ -136,16 +136,17 @@ class MutationWritesStateFirstTest(unittest.TestCase):
         self.assertEqual(verdicts[0]["verdict"], "accepted")
         self.assertEqual(verdicts[0]["date"], "2026-06-09")
 
-    def test_set_status_updates_state_and_regenerates_objective_md(self):
+    def test_set_status_updates_state_and_objective_json_only(self):
         _ws(self.ws_dir, self.clock).set_status("closed")
         doc = self._load_state()
         self.assertEqual(doc["workstream"]["status"], "closed")
-        # View regenerated.
-        obj = (self.ws_dir / "objective.md").read_text()
-        self.assertIn("status: closed", obj)
+        # JSON-only: objective.json updated, no objective.md view.
+        obj = json.loads((self.ws_dir / "objective.json").read_text())
+        self.assertEqual(obj["status"], "closed")
+        self.assertFalse((self.ws_dir / "objective.md").exists())
 
-    def test_plan_md_regenerated_from_state_on_mutation(self):
-        """state.plan is the source; plan.md is regenerated as a view on mutation."""
+    def test_plan_is_state_only_no_plan_md_on_mutation(self):
+        """state.plan is the sole source; no plan.md view is written on mutation."""
         doc = self._load_state()
         doc["plan"] = [
             {"id": "P1", "type": "execution", "iter": None,
@@ -153,10 +154,8 @@ class MutationWritesStateFirstTest(unittest.TestCase):
         ]
         state_mod.save(self.ws_dir / state_mod.STATE_FILE, doc)
         _ws(self.ws_dir, self.clock).open_iteration("Task")
-        plan_text = (self.ws_dir / "plan.md").read_text()
-        self.assertIn("P1", plan_text)
-        self.assertIn("first item", plan_text)
-        # state.plan is unchanged (not re-read from plan.md)
+        self.assertFalse((self.ws_dir / "plan.md").exists())
+        # state.plan is unchanged.
         updated = self._load_state()
         self.assertEqual(updated["plan"][0]["id"], "P1")
 

@@ -129,7 +129,8 @@ class CliTest(unittest.TestCase):
         code, out, _ = self._run("new", "fresh", "A title")
         self.assertEqual(code, 0)
         self.assertIn("created workstream 'fresh'", out)
-        self.assertTrue((self.lume / "workstreams" / "fresh" / "objective.md").is_file())
+        self.assertTrue((self.lume / "workstreams" / "fresh" / "objective.json").is_file())
+        self.assertFalse((self.lume / "workstreams" / "fresh" / "objective.md").exists())
         self.assertFalse((self.lume / "current").exists())
 
     # --- single-active flows still work with no -w --------------------------
@@ -143,10 +144,12 @@ class CliTest(unittest.TestCase):
 
     # --- iteration type on open (plan P2) -----------------------------------
     def _iter_type(self, slug, n):
-        text = (self.lume / "workstreams" / slug / "iterations" / f"{n:03d}.md").read_text()
-        for line in text.splitlines():
-            if line.startswith("type:"):
-                return line.split(":", 1)[1].strip()
+        import json
+        from lume import state as state_mod
+        doc = state_mod.load(self.lume / "workstreams" / slug / state_mod.STATE_FILE)
+        for e in doc["iterations"]:
+            if e["id"] == n:
+                return e["type"]
         return None
 
     def test_open_with_type_persists(self):

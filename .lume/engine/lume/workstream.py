@@ -23,9 +23,8 @@ from .iteration import (
     TYPES,
     VERDICT_LABELS,
     parse_dod_items,
-    render_iter_md,
 )
-from .plan import PlanItem, render_plan
+from .plan import PlanItem
 from .snapshot import build_snapshot
 
 # Lifecycle state of a whole workstream, held in state.json (view: objective.md).
@@ -81,44 +80,34 @@ class Workstream:
             json.dumps(doc, indent=2, sort_keys=True) + "\n"
         )
 
-    def _render_objective(self, doc: dict) -> None:
-        """Regenerate objective.md as a derived view from an objective doc."""
-        lines = [
-            f"---",
-            f"slug: {doc['slug']}",
-            f"status: {doc['status']}",
-            f"---",
-            f"# {doc['title']}",
-            f"",
-            doc.get("text", ""),
-        ]
-        if doc.get("done_when"):
-            lines += ["", f"Done-when: {doc['done_when']}"]
-        (self._path / "objective.md").write_text("\n".join(lines).rstrip() + "\n")
-
     def set_status(self, status: str) -> None:
-        """Update workstream status in state.json and objective.json, regenerate view."""
+        """Update workstream status in state.json and objective.json (JSON-only)."""
         self._state["workstream"]["status"] = status
         self._save_state()
         obj = self._load_objective()
         obj["status"] = status
         self._save_objective(obj)
-        self._render_objective(obj)
 
     def objective_line(self) -> str:
         """Workstream title from state — no disk read required."""
         return self._state["workstream"].get("title", "(empty objective)")
 
+    def derive_snapshot(self) -> str:
+        """The Done/Now/Next snapshot derived from state in-memory (never persisted)."""
+        return build_snapshot(
+            f"# {self.name} - snapshot\n",
+            self.iterations(),
+            self._clock.today().isoformat(),
+            plan_items=self.plan_items(),
+        )
+
     def snapshot_done_now_next(self) -> str:
-        """Verbatim slice of snapshot.md from the first `## Done` to EOF."""
-        snap = self._path / "snapshot.md"
-        if not snap.is_file():
-            return "(no snapshot)"
-        lines = snap.read_text().splitlines()
+        """Slice of the derived snapshot from the first `## Done` to EOF."""
+        lines = self.derive_snapshot().splitlines()
         for i, line in enumerate(lines):
             if line.strip().lower().startswith("## done"):
                 return "\n".join(lines[i:]).rstrip()
-        return snap.read_text().rstrip()
+        return self.derive_snapshot().rstrip()
 
     def iteration_ids(self) -> list[int]:
         return [e["id"] for e in self._state["iterations"]]
@@ -144,38 +133,15 @@ class Workstream:
             return None
         return [PlanItem.from_entity(e) for e in items]
 
-    def _render_plan(self) -> None:
-        """Regenerate plan.md as a derived view from state.plan.
-
-        No-op when there are no plan items — avoids creating a plan.md where
-        none existed before.
-        """
-        items = self.plan_items()
-        if items is None:
-            return
-        (self._path / "plan.md").write_text(render_plan(items, self.name))
-
     def _save_state(self) -> None:
-        """Validate + save state.json, then regenerate plan.md view."""
+        """Validate + save state.json (JSON-only; no derived views)."""
         state.save(self._path / state.STATE_FILE, self._state)
-        self._render_plan()
-
-    def _load_iter_content(self, iter_id: int) -> dict:
-        from .validate import validate_entity
-        doc = json.loads((self.iterations_dir / f"{iter_id:03d}.json").read_text())
-        validate_entity("iteration_content", doc)
-        return doc
 
     def _save_iter_content(self, iter_id: int, content: dict) -> None:
         from .validate import validate_entity
         validate_entity("iteration_content", content)
         (self.iterations_dir / f"{iter_id:03d}.json").write_text(
             json.dumps(content, indent=2, sort_keys=True) + "\n"
-        )
-
-    def _render_iter(self, entity: dict, content: dict) -> None:
-        (self.iterations_dir / f"{entity['id']:03d}.md").write_text(
-            render_iter_md(entity, content)
         )
 
     def add_plan_item(self, sketch: str, type: str = "execution", tag: str = "committed") -> PlanItem:
@@ -200,21 +166,6 @@ class Workstream:
                 return PlanItem.from_entity(entity)
         raise GateError(f"plan item '{plan_id}' not found.")
 
-    def record_snapshot(self) -> Path:
-        """Regenerate snapshot.md and plan.md derived views from state."""
-        snap = self._path / "snapshot.md"
-        existing = snap.read_text() if snap.is_file() else f"# {self.name} - snapshot\n"
-        iterations = self.iterations()
-        snap.write_text(
-            build_snapshot(
-                existing,
-                iterations,
-                self._clock.today().isoformat(),
-                plan_items=self.plan_items(),
-            )
-        )
-        self._render_plan()
-        return snap
 
     def open_iteration(self, title: str, type: str = DEFAULT_TYPE) -> Iteration:
         """Create the next iteration at phase 'proposed', then refresh snapshot.md.
@@ -244,21 +195,50 @@ class Workstream:
             "self_review": None,
             "handback": None,
         }
-        # State first.
+        # State first, then the iteration content doc (JSON-only).
         self._state["iterations"].append(entity)
         self._save_state()
-        # Views second.
         self.iterations_dir.mkdir(exist_ok=True)
         self._save_iter_content(next_id, content)
-        self._render_iter(entity, content)
-        self.record_snapshot()
         return iteration
+
+    def _save_decisions(self, doc: dict) -> None:
+        from .validate import validate_entity
+        validate_entity("decisions", doc)
+        (self._path / "decisions.json").write_text(
+            json.dumps(doc, indent=2, sort_keys=True) + "\n"
+        )
+
+    def add_decision(self, decision: str, context: str = "", rationale: str = "") -> dict:
+        """Append a decision entry to decisions.json (JSON-only)."""
+        path = self._path / "decisions.json"
+        if path.is_file():
+            doc = json.loads(path.read_text())
+        else:
+            doc = {"entries": []}
+        entry = {
+            "date": self._clock.today().isoformat(),
+            "context": context.strip(),
+            "decision": decision.strip(),
+            "rationale": rationale.strip(),
+        }
+        doc["entries"].append(entry)
+        self._save_decisions(doc)
+        return entry
+
+    def save_retro(self, retro: dict) -> None:
+        """Validate + save retro.json (JSON-only)."""
+        from .validate import validate_entity
+        validate_entity("retro", retro)
+        (self._path / "retro.json").write_text(
+            json.dumps(retro, indent=2, sort_keys=True) + "\n"
+        )
 
     def transition(self, verb: str, note: str | None = None) -> Iteration:
         """Apply a named phase transition to the current iteration.
 
-        Validates the move against the transition table. State is updated first;
-        markdown views (NNN.md frontmatter + body, snapshot.md) follow.
+        Validates the move against the transition table. State is the only
+        artifact mutated (JSON-only; no derived markdown views).
         """
         if verb not in TRANSITIONS:
             raise GateError(f"unknown transition '{verb}'.")
@@ -281,10 +261,5 @@ class Workstream:
                 "reason": note.strip() if verb == "reject" and note and note.strip() else None,
             }
             entity["verdicts"].append(stamp)
-        # State first.
         self._save_state()
-        # Regenerate NNN.md view from NNN.json content + updated state entity.
-        content = self._load_iter_content(iteration.id)
-        self._render_iter(entity, content)
-        self.record_snapshot()
         return Iteration.from_entity(entity)

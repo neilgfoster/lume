@@ -184,10 +184,91 @@
       "dod_artifact": "iterations/013.json",
       "id": 13,
       "opened": "2026-06-09",
-      "phase": "handback",
+      "phase": "accepted",
       "title": "P11: Convert iterations \u2014 iterations/NNN.json as source",
       "type": "execution",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/014.json",
+      "id": 14,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "P12: Convert decisions + retro to JSON source",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/015.json",
+      "id": 15,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "P7: Retro + close - did state-as-data buy back its ceremony?",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/016.json",
+      "id": 16,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "P13: JSON-only \u2014 stop generating .md views, derive status in-memory",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/017.json",
+      "id": 17,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "P14: discovery.json + lume reopen; delete last markdown",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/018.json",
+      "id": 18,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "P15: Delete dead render_* utilities",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -263,23 +344,44 @@
     },
     {
       "id": "P12",
-      "iter": null,
+      "iter": 14,
       "sketch": "Convert decisions + retro: `lume decide` appends to decisions.json; `lume retro` creates/updates retro.json; both regenerate .md views; existing workstreams migrated.",
       "tag": "committed",
       "type": "execution"
     },
     {
       "id": "P7",
-      "iter": null,
+      "iter": 15,
       "sketch": "Retro + close: did JSON-backed state buy back more time than its ceremony? Assess the objective's done-when (state is schema-validated JSON; CLI is sole mutator + exposes discovery/schema verbs; markdown regenerated not authored; this workstream tracked under JSON). Log decisions; lume close.",
       "tag": "committed",
       "type": "closeout"
+    },
+    {
+      "id": "P13",
+      "iter": 16,
+      "sketch": "P13: JSON-only \u2014 remove all .md view generation from the engine (objective/plan/iteration/snapshot/decisions/retro + lume new); derive status Done/Now/Next in-memory from state instead of reading snapshot.md; no verb writes any .md. Delete existing generated .md across all workstreams. Update tests.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P14",
+      "iter": 17,
+      "sketch": "P14: Authored prose to JSON \u2014 add a discovery schema; migrate discovery.md -> discovery.json; add a lume reopen verb (gap: closing gates out transitions, no reopen exists). Delete discovery.md. No .md remains required.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P15",
+      "iter": 18,
+      "sketch": "P15: Delete unused render_* view utilities (render_plan, render_iter_md, render_decisions_md, render_retro_md) + their tests; JSON-only leaves no rendering dead code",
+      "tag": "committed",
+      "type": "execution"
     }
   ],
   "workstream": {
     "objective_artifact": "objective.json",
     "slug": "state-as-data",
-    "status": "active",
+    "status": "closed",
     "title": "State is Data"
   }
 }

@@ -10,7 +10,7 @@ from pathlib import Path
 from lume import state as state_mod
 from lume.cli import main
 from lume.clock import FixedClock
-from lume.plan import PlanItem, parse_plan, render_plan
+from lume.plan import PlanItem, parse_plan
 from lume.workstream import Workstream
 
 
@@ -73,28 +73,21 @@ class FromEntityTest(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# render_plan
+# parse_plan (migration reader for legacy plan.md)
 # ---------------------------------------------------------------------------
 
-class RenderPlanTest(unittest.TestCase):
-    def test_renders_items_parseable_by_parse_plan(self):
-        items = [
-            PlanItem("P1", "execution", 3, "committed", "First slice"),
-            PlanItem("P2", "closeout", None, "optional", "Retro"),
-        ]
-        text = render_plan(items, "my-ws")
-        parsed = parse_plan(text)
+class ParsePlanTest(unittest.TestCase):
+    _LEGACY = (
+        "# ws - plan (derived)\n\n## Items\n\n"
+        "- P1 | execution | iter:003 | committed | First slice\n"
+        "- P2 | closeout | iter:- | optional | Retro\n"
+    )
+
+    def test_parses_legacy_plan_md(self):
+        parsed = parse_plan(self._LEGACY)
         self.assertEqual([p.id for p in parsed], ["P1", "P2"])
         self.assertEqual(parsed[0].iter, 3)
         self.assertIsNone(parsed[1].iter)
-
-    def test_iter_formatted_as_three_digits(self):
-        items = [PlanItem("P1", "execution", 4, "committed", "s")]
-        self.assertIn("iter:004", render_plan(items, "ws"))
-
-    def test_unlinked_iter_renders_as_dash(self):
-        items = [PlanItem("P1", "execution", None, "committed", "s")]
-        self.assertIn("iter:-", render_plan(items, "ws"))
 
 
 # ---------------------------------------------------------------------------
@@ -158,11 +151,9 @@ class PlanAddVerbTest(unittest.TestCase):
         doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
         self.assertEqual([p["id"] for p in doc["plan"]], ["P1", "P2"])
 
-    def test_add_regenerates_plan_md(self):
+    def test_add_writes_no_plan_md(self):
         _run(self.root, "plan", "add", "First item")
-        plan_text = (self.ws_dir / "plan.md").read_text()
-        self.assertIn("P1", plan_text)
-        self.assertIn("First item", plan_text)
+        self.assertFalse((self.ws_dir / "plan.md").exists())
 
     def test_add_missing_sketch_exits_2(self):
         code, _, err = _run(self.root, "plan", "add")
@@ -200,10 +191,9 @@ class PlanLinkVerbTest(unittest.TestCase):
         doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
         self.assertEqual(doc["plan"][0]["iter"], 3)
 
-    def test_link_regenerates_plan_md(self):
+    def test_link_writes_no_plan_md(self):
         _run(self.root, "plan", "link", "P1", "3")
-        plan_text = (self.ws_dir / "plan.md").read_text()
-        self.assertIn("iter:003", plan_text)
+        self.assertFalse((self.ws_dir / "plan.md").exists())
 
     def test_link_not_found_exits_1(self):
         code, _, err = _run(self.root, "plan", "link", "P99", "1")

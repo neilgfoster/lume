@@ -64,7 +64,7 @@ class OpenIterationTest(unittest.TestCase):
         self.assertEqual(it.phase, "proposed")
         self.assertEqual(it.opened, "2026-01-02")  # from FixedClock, not wall-clock
         self.assertTrue((self.ws_dir / "iterations" / "001.json").is_file())
-        self.assertTrue((self.ws_dir / "iterations" / "001.md").is_file())
+        self.assertFalse((self.ws_dir / "iterations" / "001.md").exists())
 
     def test_open_increments_from_highest(self):
         _write_iteration(self.ws_dir, 1, "accepted")

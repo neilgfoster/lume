@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Per-stage verdict: each plan stage (discovery 001, planning 002+009, execution P1-P12) assessed for cost vs time bought back, captured in retro.json stage_verdicts. (Evidence: retro.json validates; retro.md shows the table.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Objective done-when assessed clause by clause (schema-validated JSON state; CLI sole mutator + discovery/schema verbs; markdown regenerated not authored; this workstream tracked under JSON), captured in retro.json done_when with MET/NOT verdicts + evidence. (Evidence: retro.md done-when table.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Overall verdict + carry-forwards recorded in retro.json; retro.md regenerated as a view via `lume retro` (dogfood). (Evidence: retro.json + retro.md present and consistent.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Closeout decisions logged via `lume decide`. (Evidence: decisions.json shows the closeout entries.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Workstream closed via `lume close`; objective.json status flips to closed, objective.md regenerated. Full suite green. (Evidence: `lume status` shows state-as-data closed; tests pass.)"
+      }
+    ],
+    "preamble": "Close-out for state-as-data. Assess whether storing workstream state as schema-validated JSON (with markdown as a derived view, the CLI as sole mutator, and discovery/schema verbs) bought back more than its ceremony cost. Author the retro as data (retro.json via the P12 tooling) and close the workstream on its own verbs - the final dogfood."
+  },
+  "handback": "Close-out complete. state-as-data is CLOSED.\n\n- retro.json authored (4 stage verdicts, 4 done-when clauses all MET, overall verdict, 4 carry-forwards); retro.md regenerated via `lume retro`.\n- 2 close-out decisions logged via `lume decide` (decisions.json).\n- `lume close` flipped objective.json + objective.md to status=closed.\n- 227 tests green.\n\nAll 12 plan items (P1-P12) done. The workstream proved itself: state is schema-validated JSON, the CLI is the sole mutator with discovery/schema verbs, markdown is a regenerated view, and state-as-data ran its own 15 iterations - including this retro - under that JSON. Accept to finalise.",
+  "id": 15,
+  "self_review": "All 5 DoD items complete; 227 tests passing.\n\nPer-stage verdict (retro.json stage_verdicts): discovery (001), planning (002/009), execution (P1-P12 across 003-008 + 010-014), close-out (015) - all net positive. The standout: the repeating _load/_save/_render + render/parse pattern made each later artifact conversion cheaper than the last, and every flip was grep-verified to read no machine field from markdown.\n\nObjective done-when assessed clause by clause (retro.json done_when), all four MET: (1) state stored as schema-validated JSON; (2) CLI sole mutator + discovery/schema verbs; (3) markdown regenerated not authored; (4) this workstream tracked under JSON. Evidence cited per clause, including the grep-clean of .md machine reads (only migrate.py reads .md).\n\nRetro authored as data and rendered via `lume retro` - dogfooded the P12 verb. Two close-out decisions logged via `lume decide` - dogfooded that verb too. Workstream closed via `lume close`; objective.json + objective.md flipped to closed.\n\nHonest caveat carried forward: multi-workstream and swappable-backing (GitHub/Jira via the Repository seam) are proven by tests/design, not lived use."
+}

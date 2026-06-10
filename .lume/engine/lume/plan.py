@@ -1,8 +1,8 @@
-"""Plan item model, parser, and renderer.
+"""Plan item model and parser.
 
 `parse_plan` is kept for the migrate path (reads legacy plan.md files).
 The engine no longer calls it during normal operation — state.json is the source.
-`render_plan` produces the derived plan.md view from state entities.
+JSON-only: there is no plan.md view, so no renderer.
 """
 from __future__ import annotations
 
@@ -46,21 +46,6 @@ class PlanItem:
             tag=entity["tag"],
             sketch=entity["sketch"],
         )
-
-
-def render_plan(items: list[PlanItem], title: str) -> str:
-    """Produce a derived plan.md from a list of PlanItems."""
-    lines = [f"# {title} - plan (derived)", ""]
-    lines.append("## Items")
-    lines.append("")
-    for item in items:
-        iter_str = f"{item.iter:03d}" if item.iter is not None else "-"
-        lines.append(
-            f"- {item.id} | {item.type} | iter:{iter_str}"
-            f" | {item.tag} | {item.sketch}"
-        )
-    lines.append("")
-    return "\n".join(lines)
 
 
 def parse_plan(text: str) -> list[PlanItem]:

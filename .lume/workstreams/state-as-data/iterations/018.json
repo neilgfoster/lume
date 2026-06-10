@@ -1,0 +1,22 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. The four unused renderers deleted: render_plan (plan.py), render_iter_md (iteration.py), render_decisions_md (decisions.py), render_retro_md (retro.py). Module docstrings updated to drop view-render claims. parse_* functions retained (migration still uses them). (Evidence: grep finds no `def render_*_md`/`def render_plan`.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Tests that exercised the deleted renderers reworked: RenderPlanTest removed; the decisions/retro round-trip tests rewritten to parse a literal markdown sample (parse_* only), not render+parse. No render_* import remains in tests. (Evidence: grep finds no render_* references in tests/.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Full suite green; no unused imports left behind. (Evidence: test run 0 failures.)"
+      }
+    ],
+    "preamble": "Final dead-code sweep for the JSON-only model: with no .md generated, the pure view renderers are unreachable. Delete render_plan / render_iter_md / render_decisions_md / render_retro_md and rework the tests that used them to parse literal markdown samples instead. The parse_* migration inverses stay."
+  },
+  "handback": "Ready for review. P15: dead-code sweep complete - no rendering code remains.\n\n- Deleted render_plan / render_iter_md / render_decisions_md / render_retro_md (+ orphaned _HEADER); docstrings updated.\n- Tests converted to parse literal markdown (RenderPlanTest -> ParsePlanTest; decisions/retro round-trips -> parse-only). No render_* refs anywhere.\n- 238 tests pass; ast import check clean.\n\nThe engine is now purely JSON: state + JSON artifacts in, parse_* only for one-shot legacy migration. After accept, state-as-data is ready to re-close (handback -> accept -> close).",
+  "id": 18,
+  "self_review": "All 3 DoD items complete; 238 tests passing.\n\nDeleted render_plan (plan.py), render_iter_md (iteration.py), render_decisions_md (decisions.py), render_retro_md (retro.py) plus the now-orphaned _HEADER constant in decisions.py. Module docstrings updated to describe parse-only/migration intent. frontmatter and _BODY_TEMPLATE in iteration.py stay (still used by from_text/to_text and Iteration.new on the migration path).\n\nTests reworked: RenderPlanTest replaced by ParsePlanTest (parses a literal legacy plan.md); the decisions/retro round-trip tests rewritten to parse literal markdown samples instead of render+parse. All render_* imports removed from tests. grep confirms zero render_* references across lume/ and tests/. No unused imports left (ast check clean).\n\nNet test count 240 -> 238 (3 render assertions dropped, 1 parse test added, 2 round-trips became 2 parse tests). The engine now contains no markdown-generation code at all - only the parse_* migration readers for legacy .md remain."
+}

@@ -194,7 +194,6 @@ def migrate_iterations(ws_dir: Path, doc: dict) -> None:
                        "self_review": None, "handback": None}
 
         ws._save_iter_content(n, content)
-        ws._render_iter(entity, content)
         changed = True
 
     if changed:
@@ -202,7 +201,7 @@ def migrate_iterations(ws_dir: Path, doc: dict) -> None:
 
 
 def migrate_objective(ws_dir: Path, doc: dict) -> None:
-    """Write objective.json + regenerate objective.md view for ws_dir.
+    """Write objective.json for ws_dir (JSON-only).
 
     Idempotent: skips if objective.json already exists with matching status.
     Uses the prose from the existing objective.md as the `text` field.
@@ -224,11 +223,61 @@ def migrate_objective(ws_dir: Path, doc: dict) -> None:
         "status": ws_meta["status"],
         "text": text,
     }
-    # Use Workstream helpers for validation + rendering (no clock needed here).
+    # Use Workstream helpers for validation (no clock needed here).
     from .clock import SystemClock
     ws = Workstream(ws_dir, SystemClock(), doc)
     ws._save_objective(obj_doc)
-    ws._render_objective(obj_doc)
+
+
+def migrate_decisions(ws_dir: Path, doc: dict) -> None:
+    """Parse decisions.md into decisions.json (JSON-only).
+
+    No-op when there is no decisions.md.
+    """
+    from .clock import SystemClock
+    from .decisions import parse_decisions_md
+
+    md_path = ws_dir / "decisions.md"
+    if not md_path.is_file():
+        return
+    entries = parse_decisions_md(md_path.read_text())
+    ws = Workstream(ws_dir, SystemClock(), doc)
+    ws._save_decisions({"entries": entries})
+
+
+def migrate_retro(ws_dir: Path, doc: dict) -> None:
+    """Parse retro.md into retro.json (best-effort, JSON-only).
+
+    No-op when there is no retro.md.
+    """
+    from .clock import SystemClock
+    from .retro import parse_retro_md
+
+    md_path = ws_dir / "retro.md"
+    if not md_path.is_file():
+        return
+    retro = parse_retro_md(md_path.read_text())
+    ws = Workstream(ws_dir, SystemClock(), doc)
+    ws.save_retro(retro)
+
+
+def migrate_discovery(ws_dir: Path, doc: dict) -> None:
+    """Parse discovery.md into discovery.json (JSON-only).
+
+    No-op when there is no discovery.md.
+    """
+    import json as _json
+    from .discovery import parse_discovery_md
+    from .validate import validate_entity
+
+    md_path = ws_dir / "discovery.md"
+    if not md_path.is_file():
+        return
+    disc = parse_discovery_md(md_path.read_text())
+    validate_entity("discovery", disc)
+    (ws_dir / "discovery.json").write_text(
+        _json.dumps(disc, indent=2, sort_keys=True) + "\n"
+    )
 
 
 def migrate_all(repo: Repository, lume_dir: Path) -> list[str]:
@@ -245,11 +294,20 @@ def migrate_all(repo: Repository, lume_dir: Path) -> list[str]:
         p for p in ws_root.iterdir()
         if (p / "objective.md").is_file() or (p / "state.json").is_file()
     ):
-        doc = build_doc_from_markdown(ws_dir) if (ws_dir / "objective.md").is_file() else None
-        if doc is None:
+        if (ws_dir / "objective.md").is_file():
+            # Legacy markdown source: build state.json + JSON artifacts from it.
+            doc = build_doc_from_markdown(ws_dir)
+            repo.save_state(ws_dir.name, doc)
+            migrate_objective(ws_dir, doc)
+            migrate_iterations(ws_dir, doc)
+        elif (ws_dir / state_mod.STATE_FILE).is_file():
+            # Already flipped to JSON: state.json is the source; only any
+            # remaining authored .md (discovery) still needs converting.
+            doc = repo.load_state(ws_dir.name)
+        else:
             continue
-        repo.save_state(ws_dir.name, doc)
-        migrate_objective(ws_dir, doc)
-        migrate_iterations(ws_dir, doc)
+        migrate_decisions(ws_dir, doc)
+        migrate_retro(ws_dir, doc)
+        migrate_discovery(ws_dir, doc)
         written.append(ws_dir.name)
     return written

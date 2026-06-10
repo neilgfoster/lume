@@ -1,0 +1,64 @@
+{
+  "entries": [
+    {
+      "context": "(003 planning)",
+      "date": "2026-06-09",
+      "decision": "(a) Representation = B: per-iteration `type`, not a workstream-level phase machine",
+      "rationale": "Smallest kill of the `type: build` hardcode; no second state machine; the workstream \"phase\" is derived from the active iteration, not stored (echoes 004 deriving Done/Now). Revisit A only if a named puller needs stored workstream phase the snapshot can't give. (from discovery.md \u00a72)"
+    },
+    {
+      "context": "(003 planning)",
+      "date": "2026-06-09",
+      "decision": "(b) The iteration `type` vocabulary is a property of the practice template, not a fixed engine enum",
+      "rationale": "Default (delivery-style) set = {discovery, planning, execution, closeout}; a template may declare its own (e.g. research adds research, dispose). Hardcoding exactly four would leak when the second template arrives (discovery.md \u00a74 leak)."
+    },
+    {
+      "context": "(003 planning)",
+      "date": "2026-06-09",
+      "decision": "(c) Stage ordering = convention carried by the consent gate, NOT a separate phase gate",
+      "rationale": "The open/accept consent gate already controls progression (\"no crossing a boundary without consent\"); a second ordering gate is ceremony the constitution would question. The living plan expresses intended order; consent enforces it; stages may recur (discovery spike mid-execution) without phase thrash."
+    },
+    {
+      "context": "(003 planning)",
+      "date": "2026-06-09",
+      "decision": "(d) Per-type DoD-skeletons = yes, as data, in a dedicated later slice (P4)",
+      "rationale": "Each type pre-loads a default DoD/body skeleton on open - this is what makes typed iterations buy back DoD-drafting time. Independent of un-hardcoding type, so a separate iteration. Committed, not first."
+    },
+    {
+      "context": "(003 planning)",
+      "date": "2026-06-09",
+      "decision": "(e) Plan-tracking = living plan.md; engine derives snapshot Next + \"step N of M\" from it; each plan item links to its iteration; plan changes = edit plan.md + a logged why here",
+      "rationale": "The Next-analogue of 004's derive-Done/Now. Direct evidence it is needed: hand-authored `## Next` drifted and was re-fixed after every accept this session. Snapshot `## Next` becomes a derived view once P3 ships."
+    },
+    {
+      "context": "(003 planning)",
+      "date": "2026-06-09",
+      "decision": "(f) Multi-workstream = queue + explicit/default target; retire `.lume/current`",
+      "rationale": "In-progress = all `status: active`; commands target a named workstream (proposed `-w <slug>`), defaulting when exactly one is active and erroring (listing actives) when omitted with >1; `lume status` becomes the cross-workstream review queue. Fits the parallel-workstreams + flat-queue vision; removes the global mutable cursor and its cross-session stomp."
+    },
+    {
+      "context": "(008 close-out)",
+      "date": "2026-06-09",
+      "decision": "lifecycle CLOSED - objective met",
+      "rationale": "Typed/phased iterations run (006-008 typed; workstream ran discovery->planning->execution->closeout); tooling tracks active/closed + >1 workstream via the queue + `-w` (the objective's \"current\" evolved into the queue, decision f); the workstream was run through the lifecycle end to end. See retro.md. Net positive (clearest win: derived Next ended the hand-maintained-Next drift)."
+    },
+    {
+      "context": "(008 close-out)",
+      "date": "2026-06-09",
+      "decision": "Carry-forward to a future workstream",
+      "rationale": "P5 contract proof (templates-as-data + two live templates); `lume use` to switch among multiple active workstreams; auto-writeback of plan `iter:` links; queue only lived-tested with one active workstream; multi-day-gap re-orientation still unproven; review contract seam unbuilt; queue surfaces only `handback`, not `accepted`-ready-to-open."
+    },
+    {
+      "context": "(after 007)",
+      "date": "2026-06-09",
+      "decision": "Plan change: P5 (templates + live contract proof) CUT, moved to Deferred",
+      "rationale": "Operator call at the plan's designated optional point. The objective's done-when is met by P1-P4 + P6; P5 is the largest item and the constitution favours the cut; the contract design test already passed on paper (discovery.md \u00a74). Revisit only when a second real practice template is needed. (Logged per decision e: plan changes carry their why.)"
+    },
+    {
+      "context": "(003 planning)",
+      "date": "2026-06-09",
+      "decision": "SUPERSEDES 001: the single `.lume/current` pointer is retired by (f)",
+      "rationale": "001 shipped single-current as a one-workstream-era convenience. It does not fit the original multi-parallel-workstream goal (vision.md). The `status: active|closed` field and `lume new`/`close` from 001 are kept; only the current-cursor selection is replaced (by the queue + `-w` target). Honest reversal, logged."
+    }
+  ]
+}

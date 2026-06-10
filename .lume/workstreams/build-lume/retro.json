@@ -1,0 +1,55 @@
+{
+  "carry_forwards": [
+    "**Discovery** - build context.",
+    "**Planning** - plan the phases required to achieve the objective.",
+    "**Execution** - iterations run to completion.",
+    "**Close-out** - a final wrap iteration (this retro is the prototype)."
+  ],
+  "overall_verdict": "**Net positive, with two honest caveats.** The loop buys back time (operator-confirmed),\ncaught two bad iterations it was designed to catch, and drove its own residual ceremony\ncost to near zero. Unvalidated: (a) re-orientation across a real multi-day gap; (b) two\nof the three contract seams. Neither is a reason to stop; both are things the next\nworkstream and ordinary future use will test.",
+  "sections": [
+    {
+      "body": "**Net positive.** The operator's lived experience across 001-005 is that the loop\nsaved more than it cost. This is the data point that matters most for the\nconstitutional question, and it is not my inference - it is the operator's call,\ncaptured at this iteration.",
+      "heading": "Operator verdict (the load-bearing input)"
+    },
+    {
+      "body": "1. **Honest self-review against the DoD works** - **HELD (with a caveat).** Self-review\n   never falsely passed a DoD item; every handback's claims checked out at the human\n   gate. The two rejects (002, 003) were *not* Claude self-certifying soft DoDs - they\n   were requirements the DoD never encoded (002: engineering structure/location/tests;\n   003: accept-needs-no-reason). So self-review is honest *within the DoD's scope*. The\n   lever is DoD completeness, not self-review dishonesty.\n2. **A DoD can be crisp enough to self-check** - **HELD.** Every DoD from 001 on was\n   binary and evidence-backed; nothing aspirational survived. Refinement: crisp is\n   necessary but not sufficient - see the rejects. A DoD must also be *complete*\n   (encode what would make the work rejectable). New practice: when proposing a DoD,\n   ask \"what could get this rejected that the DoD doesn't capture?\"\n3. **Done/Now/Next re-orients in ~2 min after a multi-day gap** - **UNPROVEN.** Every\n   iteration this session was same-day; no real multi-day gap elapsed, so the headline\n   re-orientation claim was never actually tested. The snapshot was useful as a running\n   summary, but the gap-recovery case is still open. Honest gap to validate later.\n4. **Ceremony pays for itself** - **HELD** (operator verdict: net positive), with the\n   caveat that it's one operator, one workstream, six iterations - a strong signal, not\n   a measurement.\n5. **The contract seams are in the right place** - **PARTIALLY UNPROVEN.** Only the\n   persistence/tracking seam (`repository.py`) was built. The review and practice seams\n   were never implemented, so the \"express both members of the example pair\" design test\n   was not run for them. The next workstream exercises the practice seam directly.",
+      "heading": "Load-bearing assumptions (questions.md) vs evidence"
+    },
+    {
+      "body": "**build-lume is CLOSED.** Objective \"Done-when: Lume's own linear loop (scope.md 1-5)\nruns on a single flat workstream, and is used to advance build Lume itself\" is **MET**:\nsteps 1-5 are deterministic tooling and ran build-lume through iteration 005 - including\na full reject -> redo -> accept cycle (003) - entirely on Lume's own verbs.",
+      "heading": "Close-out"
+    }
+  ],
+  "stage_verdicts": [
+    {
+      "cost": "One small file.",
+      "net": "**Positive** (barely exercised - one workstream).",
+      "saved": "Anchors every iteration to a stable \"why\"; the snapshot derives Done from it.",
+      "stage": "1. Create workstream (objective)"
+    },
+    {
+      "cost": "Writing + reading a DoD each iteration.",
+      "net": "**Positive** - the highest-value gate.",
+      "saved": "The workhorse. Caught both bad iterations (002, 003) before they shipped; kept scope tight; made self-review checkable.",
+      "stage": "2. Propose + approve DoD"
+    },
+    {
+      "cost": "Claude's time, not the operator's.",
+      "net": "**Positive**.",
+      "saved": "Handbacks arrived evidence-backed (each DoD item + proof), so operator review was fast.",
+      "stage": "3. Work + adversarial self-review"
+    },
+    {
+      "cost": "Writing the handback + snapshot.",
+      "net": "**Positive** - cost actively driven down.",
+      "saved": "Operator rebuilds context from a tight summary; no surprise commits. Auto-snapshot (004/005) removed the snapshot cost entirely.",
+      "stage": "4. Handback + Done/Now/Next, no auto-commit"
+    },
+    {
+      "cost": "One command.",
+      "net": "**Positive**.",
+      "saved": "The consent gate; the two rejects landed here. Cheapest step, high leverage.",
+      "stage": "5. Accept / reject"
+    }
+  ]
+}

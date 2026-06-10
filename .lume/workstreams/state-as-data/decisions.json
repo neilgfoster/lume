@@ -1,0 +1,82 @@
+{
+  "entries": [
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-09",
+      "decision": "GO / no-go = GO",
+      "rationale": "Discovery showed the machine state is small and already isolated (status, the iteration quad, verdict outcomes, plan-item lines) and snapshot.md already proves view-from-state. Extraction cost is bounded; the payoff - deterministic agent interaction, schema-validated state, cold-start discovery - directly serves the orientation-first vision and the deterministic-over-inference non-negotiable. Added ceremony (3 schemas + a small validator + 3 read verbs) is one-time and small. Net positive against \"ceremony must buy back its cost\"."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-09",
+      "decision": "(a) Granularity = one state.json per workstream",
+      "rationale": "The workstream is the unit of work, diff, and review; one validated object per workstream keeps a transition atomic (it writes the iteration field + recomputes derived in one file) and diffs cleanly at the boundary the operator reviews. Per-iteration JSON fragments an atomic transition; a repo-wide store loses per-workstream diffability. Prose stays in per-iteration markdown artifacts that state points at."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-09",
+      "decision": "(b) Validation = vendored stdlib validator, schemas authored as JSON Schema",
+      "rationale": "The engine is deliberately dependency-free (frontmatter.py reimplements YAML); the shapes are flat enums/strings/ints/arrays, a ~40-line validator covers them. Adding `jsonschema` for three flat schemas fails the minimal/buy-back test. Schemas are written as a JSON-Schema (draft 2020-12) subset so a real validator can drop in later if shapes grow (revisit (b) then)."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-09",
+      "decision": "(c) Migration = one-shot converter over ALL workstreams",
+      "rationale": "A converter that reads existing markdown (frontmatter + verdict lines + plan-item lines) and emits state.json. Run on all three (2 closed + this one): the converter cost is paid once, the closed workstreams are free round-trip validation, and the queue keeps working uniformly. The dogfooding done-when requires this workstream migrated; doing all is marginal extra."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-09",
+      "decision": "(d) DoD checkboxes = artifact, not data (v1)",
+      "rationale": "DoD items are inference-authored prose; no gate branches on their checked state today. Parsing them into schema'd data adds cost for marginal value - fails buy-back. Revisit only if a gate ever needs machine-checkable DoD completion."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-09",
+      "decision": "(e) View regen = automatic on every mutation (same path a render verb would call)",
+      "rationale": "Zero-extra-step continuity is core: the snapshot must stay current at every boundary (this is what record_snapshot does now). On-demand-only regen would let views drift - the exact failure the snapshot exists to prevent. Auto-regen is cheap. A standalone `lume render` verb is optional/deferred, not needed for the value."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-09",
+      "decision": "(f) Contract fit = JSON state lives behind the existing Repository seam",
+      "rationale": "Repository becomes the loader/validator/persister of state.json and the view regenerator; models operate on validated data, not file parsing. Honours the design-for-replaceability non-negotiable - a future GitHub/Jira backing swaps Repository without touching models or verbs."
+    },
+    {
+      "context": "(006 P4)",
+      "date": "2026-06-09",
+      "decision": "Plan change: P4 split into P4a (data-first model bridge, behaviour-preserving) + P4b (flip source of truth to state.json)",
+      "rationale": "On starting P4, the monolith touched Iteration/Workstream/Repository/cli/snapshot + ~8 test files in one diff - too large to review safely in one short iteration, against the constitution's reviewable-iterations principle. The single-source-of-truth constraint makes the FLIP atomic, but the model prep is separable and behaviour-preserving. P4a adds Iteration.to_entity/from_entity + a canonical verdict parser (DRYs migrate) with no behaviour change; P4b consumes it to make state.json the truth with markdown as a regenerated view. Operator approved the split before any code was written. (Logged per decision e.) Note: the plan parser only matches numeric P<n> ids, so in plan.md the split is P4 (model bridge) + P5 (flip); the old P5/P6 became P6/P7. Caught because \"P4a\"/\"P4b\" were silently dropped from the parsed plan."
+    },
+    {
+      "context": "(005 P3)",
+      "date": "2026-06-09",
+      "decision": "Migration normalises legacy iteration types: build -> execution, review -> closeout",
+      "rationale": "P1's schema enforces the {discovery,planning,execution,closeout} vocabulary, but pre-typed iterations carry build (10) and review (1). build was the original hardcoded type the lifecycle workstream retired in favour of execution (its 005 note); build-lume's review/006 is literally \"Retro ... and close build-lume\" = closeout. Mapping them on migration is faithful to those documented supersessions, keeps the vocabulary clean (rather than polluting the enum with dead values), and the markdown artifact still carries the original frontmatter. Surfaced for operator review at 005 handback."
+    },
+    {
+      "context": "(014 P12)",
+      "date": "2026-06-10",
+      "decision": "Widen the retro schema with an optional `sections` array (heading+body)",
+      "rationale": "The P8 retro schema was authored before migrating real retros; build-lume/lifecycle retros carry freeform sections (operator verdict, load-bearing assumptions vs evidence) the four structured fields cannot hold. Regenerating retro.md as a pure view would have silently dropped them. The sections array makes migration lossless and retro.md a faithful round-trip view, honouring decision (e) view-regen without data loss."
+    },
+    {
+      "context": "(015 P7)",
+      "date": "2026-06-10",
+      "decision": "state-as-data done-when MET on all four clauses; close the workstream",
+      "rationale": "Schema-validated JSON state, CLI as sole mutator with discovery/schema verbs, markdown regenerated as views, and this workstream itself tracked under JSON - all verified (grep-clean of machine reads from .md; 227 tests green). Ceremony stayed small and was paid once, per the GO decision. Net positive."
+    },
+    {
+      "context": "(015 P7)",
+      "date": "2026-06-10",
+      "decision": "Carry forward: Repository swappable-backing and multi-workstream claims are proven by tests/design, not lived use",
+      "rationale": "Honest close-out caveat - only the filesystem backing and a single live active workstream were ever exercised. Not a reason to keep state-as-data open; flagged for future use to validate."
+    },
+    {
+      "context": "(016 P13)",
+      "date": "2026-06-10",
+      "decision": "Scope extended after close: drop markdown entirely \u2014 JSON is the sole artifact, no derived .md views",
+      "rationale": "Operator reopened the workstream: the .md views are no longer required now all state is JSON. This supersedes the original done-when clause 'human-readable markdown is regenerated from state' \u2014 markdown was an intermediate concession to readability; with discovery verbs (get/schema/status) and in-memory derivation, the .md files are redundant surface area to keep in sync. Removing them eliminates the last drift risk and the regeneration cost. Objective done-when amended accordingly."
+    }
+  ]
+}

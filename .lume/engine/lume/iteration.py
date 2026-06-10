@@ -99,56 +99,6 @@ def parse_dod_items(skeleton: str) -> list[dict]:
     return items
 
 
-def render_iter_md(entity: dict, content: dict) -> str:
-    """Generate the NNN.md view from a state entity + iteration_content doc."""
-    meta = {
-        "id": f"{entity['id']:03d}",
-        "type": entity["type"],
-        "phase": entity["phase"],
-        "opened": entity["opened"],
-    }
-    lines: list[str] = [f"# Iteration {entity['id']:03d} - {entity['title']}", ""]
-
-    dod = content.get("dod", {})
-    lines.append("## DoD")
-    preamble = (dod.get("preamble") or "").strip()
-    if preamble:
-        lines.append("")
-        lines.extend(preamble.splitlines())
-    dod_items = dod.get("items", [])
-    lines.append("")
-    for item in dod_items:
-        check = "x" if item.get("checked") else " "
-        text = item["text"]
-        if "\n" in text:
-            first, *rest = text.split("\n")
-            lines.append(f"- [{check}] {first}")
-            for r in rest:
-                if r.strip():
-                    lines.append(f"      {r}")
-        else:
-            lines.append(f"- [{check}] {text}")
-
-    lines += ["", "## Self-review"]
-    sr = content.get("self_review")
-    lines.append(sr if sr else "(filled at hand-back)")
-
-    lines += ["", "## Handback"]
-    hb = content.get("handback")
-    lines.append(hb if hb else "(filled at hand-back)")
-
-    lines += ["", "## Verdict", "(operator: accept / reject + reasons)"]
-    for v in entity.get("verdicts", []):
-        label = v["verdict"].upper()
-        stamp = f"{v['date']} | {label}"
-        if v.get("reason"):
-            stamp += f" | {v['reason']}"
-        lines.append(stamp)
-
-    body = "\n".join(lines) + "\n"
-    return frontmatter.render(meta, body)
-
-
 _BODY_TEMPLATE = """\
 # Iteration {id:03d} - {title}
 
