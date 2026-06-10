@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Opens with a one-paragraph 'what lume is', then a prominent 'Why you should NOT use it' section placed BEFORE any benefits - the honest disqualifiers from discovery (zero external users, value unmeasured, synchronous/solo-only, scaffolding meant to shrink, built for one working style, v0.1.0)."
+      },
+      {
+        "checked": true,
+        "text": "Every factual claim is either [E] evidenced with a concrete citation (a test count, a closed workstream, a retro, the smoke test) or [U] flagged as not-yet-evidenced; no unmarked claims."
+      },
+      {
+        "checked": true,
+        "text": "Canonical install instructions live here (marketplace add + /plugin install, python3 requirement, first command lume seed), correct and matching plugin/README; the live-session caveat stated where a user decides to install."
+      },
+      {
+        "checked": true,
+        "text": "A closing 'Status & evidence' section lists the load-bearing claims with their [E]/[U] standing."
+      },
+      {
+        "checked": true,
+        "text": "Tone is humble throughout - no marketing, no unearned superlatives; benefits stated plainly and only where evidenced."
+      },
+      {
+        "checked": true,
+        "text": "Keeps the accurate dev/layout + test content; links to docs/ and plugin docs (graph completed in E3). No engine code; 313 tests still green."
+      }
+    ],
+    "preamble": "E2 (plan P2): rewrite the repo-root README as lume's adversarial, humble front door and vault root. It must lead with what lume is and why you should NOT use it, evidence or flag every claim, carry the canonical install, and read with humility - no grand claims. Keep the dev/layout content (it is accurate). No ADOPTERS/LICENSE/full link graph yet (E3); no engine code."
+  },
+  "handback": "E2 done. Root README is now the adversarial, humble front door: opens with what lume is, then 'Why you should NOT use it' (6 disqualifiers, each [E]/[U] tagged) BEFORE benefits; an [E]-only 'honest claims' section; canonical install with the live-session caveat; the loop; dev/layout; design-record links; and a 'Status & evidence' table. Every claim evidenced or flagged. ADOPTERS.md link is intentionally dead until E3. 313 tests green. Next: P3/E3 - vault cross-links + ADOPTERS.md + MIT LICENSE + plugin/README alignment.",
+  "id": 4,
+  "self_review": "Root README rewritten as lume's adversary. 'Why you should NOT use it' is the first section after the one-paragraph what-it-is, before any benefit - six honest disqualifiers, each tagged [E] or [U]. The unmeasured value claim, the grades-its-own-homework problem, zero external users, and the never-run-live install are all stated plainly with citations to docs/questions.md and the 0008 retro. A separate 'What lume can honestly claim' section lists only [E] facts. Canonical install lives here with the live-session caveat at the decision point; a closing 'Status & evidence' table makes every load-bearing claim's standing scannable. Tone is humble - no superlatives. Honesty check applied to myself: I did NOT mark the smoke-tested install as fully [E] - it is [E] for the mechanical test AND [U] for live use, stated both ways. Known interim state: the ADOPTERS.md link is dead until E3 creates the file (deferred by plan, not an oversight). plugin/README tone-alignment + the full vault link graph + LICENSE are E3. No engine code; 313 tests green."
+}

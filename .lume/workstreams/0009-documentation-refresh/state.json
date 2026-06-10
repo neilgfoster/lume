@@ -44,6 +44,21 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0004-e2-adversarial-humble-root-readme-why-not-first-evidence-or-flag.json",
+      "id": 4,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E2: adversarial, humble root README - why-not-first, evidence-or-flag",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -56,7 +71,7 @@
     },
     {
       "id": "P2",
-      "iter": null,
+      "iter": 4,
       "sketch": "E2: rewrite the root README as the adversarial, humble front door - opens with what lume is and why you should NOT use it; every claim [E]-cited or [U]-flagged; canonical install instructions; the iteration loop; a closing 'Status & evidence' section. DoD: leads with disqualifiers, no unevidenced/unflagged claim, install correct, humble tone.",
       "tag": "committed",
       "type": "execution"
