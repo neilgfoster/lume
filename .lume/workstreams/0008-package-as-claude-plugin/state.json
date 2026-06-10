@@ -79,6 +79,26 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0006-closeout-retro-assumption-check-done-when-close.json",
+      "id": 6,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Closeout: retro, assumption check, done-when, close",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": "lume's own .lume/workstreams must NOT ship to a plugin adopter. 'Accept as inert' is rejected - find the real exclusion mechanism (or restructure) so installing lume does not drag lume's dev history into the user's plugin cache.",
+          "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -105,7 +125,7 @@
     },
     {
       "id": "P4",
-      "iter": null,
+      "iter": 6,
       "sketch": "Closeout: retro (did packaging buy back its ceremony?), assumptions checked vs evidence (esp. .lume-not-shipped mechanism + behaviour-preservation), objective done-when assessed, decisions logged, lume close.",
       "tag": "committed",
       "type": "closeout"
@@ -115,7 +135,7 @@
     "id": "0008",
     "objective_artifact": "objective.json",
     "slug": "package-as-claude-plugin",
-    "status": "active",
+    "status": "closed",
     "title": "Package lume as an installable Claude plugin"
   }
 }

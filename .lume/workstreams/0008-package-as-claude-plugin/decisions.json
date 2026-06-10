@@ -47,6 +47,12 @@
       "date": "2026-06-10",
       "decision": "lume seed creates .lume/ (workstreams/) when none exists, so seed is genuinely the new operator's first step.",
       "rationale": "Discovery/planning missed that every verb requires a pre-existing .lume/; done-when demands seed work on a fresh repo. seed is the designated bootstrap verb, so creating the state dir there (vs a separate init or a manual mkdir) keeps onboarding to one command. Minimal, onboarding-scoped engine change - not the kind of expansion scope warned against."
+    },
+    {
+      "context": "F9 plugin packaging boundary (revises F3)",
+      "date": "2026-06-10",
+      "decision": "Shipped plugin content lives in ./plugin/ (bin, src/lume, skills, .claude-plugin/plugin.json, front-door README); marketplace source is './plugin'. Dev-only files (.lume/, tests/, conftest, docs) stay at the repo root and are excluded from installs.",
+      "rationale": "Operator requirement: lume's own .lume/workstreams must not ship to an adopter, and Claude Code has NO file-level exclude (no .claudeignore / ignore field / .gitignore respect) - the source tree is copied wholesale. The documented pattern for a repo that holds more than the plugin is a subdir source (relative path / git-subdir). Refines F3: F3's intent was 'do not bury the engine under the .lume state dir', which a clean ./plugin root still honours; the plugin root simply is not the repo root. Verified: only plugin/ is the plugin; 313 tests green via conftest->plugin/src."
     }
   ]
 }

@@ -1,98 +1,48 @@
-# lume
+# lume (development repo)
 
-A deterministic, operator-driven iteration loop for getting real work done with
-an AI agent - and keeping it honest. lume tracks **workstreams** (goals), breaks
-them into **gated iterations**, and keeps every bit of state as inspectable JSON.
+A deterministic, operator-driven iteration loop, packaged as a Claude Code
+plugin. **The machine does not act without the operator.**
 
-No LLM runs inside lume itself. It reads, validates, and writes on-disk state;
-the thinking and the work happen in the iteration, never in the mechanism. Its
-defining rule:
+> Using lume? The installable plugin and its full docs live in
+> [`plugin/`](plugin/README.md). Install with:
+> ```
+> /plugin marketplace add neilgfoster/lume
+> /plugin install lume@lume
+> ```
 
-> **The machine does not act without the operator.**
-
-Every iteration ends at a gate only a human passes - you accept or reject the
-work. lume makes the loop legible (what's the objective, what phase am I in,
-what's next) so neither you nor the agent loses the thread.
-
-## Install
-
-lume ships as a Claude Code plugin.
+This repository is where lume is developed (and where it dogfoods itself). It is
+laid out so that only the plugin ships to adopters:
 
 ```
-/plugin marketplace add neilgfoster/lume
-/plugin install lume@lume
+plugin/                  # the installable plugin (this is what gets installed)
+  .claude-plugin/plugin.json
+  bin/lume               # entry point (on PATH when installed)
+  src/lume/              # the engine (stdlib-only Python package)
+  skills/lume/           # the guiding skill
+  README.md              # front-door docs for adopters
+.claude-plugin/
+  marketplace.json       # marketplace entry; source -> ./plugin
+tests/                   # the test suite + conftest.py (dev only, not shipped)
+docs/                    # design notes (dev only)
+.lume/                   # lume's OWN workstream state (dev only, not shipped)
 ```
 
-That puts the `lume` command on your PATH and loads the guiding skill that
-teaches the agent how to drive the loop. For local development you can instead
-run Claude Code with `claude --plugin-dir /path/to/lume`.
+The marketplace points its plugin `source` at `./plugin`, so installing lume
+brings only `plugin/` - `.lume/`, `tests/`, and `docs/` stay out of an adopter's
+plugin cache.
 
-Requirements: `python3` on PATH. lume is **stdlib-only** - no runtime
-dependencies, no daemon, no background process.
-
-## First step
-
-From the root of the repo you want to work in:
+## Develop / test
 
 ```
-lume seed            # bootstrap: creates ./.lume/ and a seed workstream
+python3 -m pytest                                                 # conftest puts plugin/src on the path
+PYTHONPATH=plugin/src python3 -m unittest discover -s tests -t .   # stdlib runner
 ```
 
-`lume seed --new` captures a fresh project's why / scope / constraints /
-done-when; `lume seed --existing` maps an existing repo. Seed is the only verb
-that creates `.lume/` - every other verb expects it to exist.
-
-## The iteration loop
+Drive lume in this repo via the bundled entry point:
 
 ```
-lume status                 # orient: objective, current phase, Done / Now / Next
-lume open "<title>"         # open the next iteration (refused unless the last is accepted)
-   ... draft a crisp, binary Definition of Done ...
-lume approve                # operator: the DoD is good, begin
-lume start                  # work begins
-   ... do the work, write an honest self-review ...
-lume handback               # hand the work back for review
-lume accept                 # operator: done   (or: lume reject "<reason>" -> lume redo)
+plugin/bin/lume status
 ```
 
-An iteration moves through fixed phases - `proposed -> approved -> working ->
-handback -> accepted` (or `rejected -> redo`) - and each move is a specific verb,
-so an arbitrary phase can never be set. Lead a new area of work with a
-`discovery` then a `planning` iteration (`lume open "<title>" -t discovery`)
-before execution.
-
-State lives in `.lume/` in your repo (workstreams, iterations, decisions, plans)
-as JSON you can read and diff. It is your data, separate from the plugin.
-
-## Commands
-
-lume is self-describing - `lume verbs` lists them all and `lume verbs <name>`
-explains one; add `--json` to any verb for machine-readable output.
-
-| verb | what it does |
-| --- | --- |
-| `status` | review queue (no `-w`), or one workstream's detail (`-w`) |
-| `seed` | bootstrap `.lume/` + the seed workstream (your first step) |
-| `new` | create a new workstream |
-| `open` | open the next iteration |
-| `approve` / `start` / `handback` / `accept` / `reject` / `redo` | move an iteration through its phases |
-| `plan` | add or link a plan item |
-| `decide` | log a decision |
-| `retro` | create or refresh the retro artifact |
-| `snapshot` | print the derived Done / Now / Next snapshot |
-| `get` / `schema` / `entities` | inspect state and its schemas as JSON |
-| `close` / `reopen` | close or reopen a workstream |
-| `migrate` | migrate legacy markdown workstreams to JSON |
-| `verbs` | list every verb, or describe one |
-
-## Layout
-
-```
-bin/lume             # the executable (on PATH when installed as a plugin)
-src/lume/            # the engine (stdlib-only Python package)
-tests/               # the test suite
-skills/lume/         # the guiding skill Claude Code loads
-.claude-plugin/      # plugin.json + marketplace.json
-```
-
-See `src/lume/README.md` for engine internals.
+See [`plugin/README.md`](plugin/README.md) for the user-facing guide and
+`plugin/src/lume/README.md` for engine internals.

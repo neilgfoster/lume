@@ -14,7 +14,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-LUME = REPO_ROOT / "bin" / "lume"
+LUME = REPO_ROOT / "plugin" / "bin" / "lume"
 
 
 class SmokeInstallTest(unittest.TestCase):

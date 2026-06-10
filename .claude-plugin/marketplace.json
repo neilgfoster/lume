@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "lume",
-      "source": "./",
+      "source": "./plugin",
       "description": "A deterministic, operator-driven iteration loop: workstreams, gated iterations, and JSON state you can inspect."
     }
   ]
