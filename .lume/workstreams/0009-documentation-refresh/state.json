@@ -74,6 +74,21 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0006-closeout-retro-verify-done-when-close.json",
+      "id": 6,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Closeout: retro, verify done-when, close",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -100,7 +115,7 @@
     },
     {
       "id": "P4",
-      "iter": null,
+      "iter": 6,
       "sketch": "Closeout: retro (did the refresh buy its cost?), verify done-when (docs current/bannered, install findable, vault connected, README leads with why-not + evidence rule, ADOPTERS + LICENSE present), decisions logged, lume close.",
       "tag": "committed",
       "type": "closeout"
@@ -110,7 +125,7 @@
     "id": "0009",
     "objective_artifact": "objective.json",
     "slug": "documentation-refresh",
-    "status": "active",
+    "status": "closed",
     "title": "Refresh the documentation to match the now-packaged plugin reality"
   }
 }
