@@ -41,6 +41,12 @@
       "date": "2026-06-10",
       "decision": "Three execution slices: (E1) move engine to root + plugin skeleton; (E2) skill/command wrappers over verbs; (E3) root README + install path + clean-repo smoke test.",
       "rationale": "F3 (the move) gates everything and carries the largest blast radius, so it lands first and stays behaviour-preserving; wrappers then docs build on a resolving package."
+    },
+    {
+      "context": "F8 fresh-repo bootstrap",
+      "date": "2026-06-10",
+      "decision": "lume seed creates .lume/ (workstreams/) when none exists, so seed is genuinely the new operator's first step.",
+      "rationale": "Discovery/planning missed that every verb requires a pre-existing .lume/; done-when demands seed work on a fresh repo. seed is the designated bootstrap verb, so creating the state dir there (vs a separate init or a manual mkdir) keeps onboarding to one command. Minimal, onboarding-scoped engine change - not the kind of expansion scope warned against."
     }
   ]
 }

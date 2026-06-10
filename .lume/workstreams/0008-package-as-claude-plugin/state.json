@@ -64,6 +64,21 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0005-e3-bootstrap-on-seed-front-door-readme-marketplace-dogfooding-smoke-test.json",
+      "id": 5,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E3: bootstrap-on-seed + front-door README + marketplace + dogfooding + smoke test",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -83,7 +98,7 @@
     },
     {
       "id": "P3",
-      "iter": null,
+      "iter": 5,
       "sketch": "E3: root README (what/why/install/iteration-loop/first-command, command list derived from verb catalog) + documented install path (marketplace add + /plugin install; --plugin-dir for dev) + clean-repo install smoke test proving 'lume seed' then a first iteration works on a fresh repo that is not this one. DoD: a stranger can follow the README to their first iteration; smoke test passes.",
       "tag": "committed",
       "type": "execution"

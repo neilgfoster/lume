@@ -50,6 +50,21 @@ class Repository:
             raise NoLumeDirError("no .lume/ found from here.")
         return lume_dir
 
+    def ensure_lume_dir(self) -> Path:
+        """The operator's .lume/ dir, creating it at the start path if absent.
+
+        Bootstrap path for `lume seed`: a fresh repo has no .lume/, so seed is
+        the one verb that may create it (every other verb requires it to exist).
+        """
+        lume_dir = self.find_lume_dir()
+        if lume_dir is None:
+            lume_dir = self._start / ".lume"
+            try:
+                (lume_dir / WORKSTREAMS_SUBDIR).mkdir(parents=True, exist_ok=True)
+            except OSError as exc:
+                raise LumeError(f"cannot create .lume/ at {lume_dir}: {exc}") from exc
+        return lume_dir
+
     def _load_workstream(self, lume_dir: Path, id: str) -> Workstream:
         """Load a workstream by its store id and return a store-backed Workstream."""
         store = self._store(lume_dir)

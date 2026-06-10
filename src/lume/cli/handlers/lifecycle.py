@@ -62,10 +62,8 @@ def handle_seed(ctx: Context) -> int:
         ctx.fail("usage", "usage: lume seed [--new | --existing]")
         return 2
 
-    lume_dir = ctx.repo.find_lume_dir()
-    if lume_dir is None:
-        ctx.fail("no_lume_dir", "no .lume/ found from here.")
-        return 1
+    # seed is the bootstrap verb: create .lume/ if this is a fresh repo.
+    lume_dir = ctx.repo.ensure_lume_dir()
 
     if ctx.opt_new:
         mode = "new"
