@@ -1,5 +1,11 @@
 # Lume — Vision
 
+> **Status: historical design record (2026-06-09).** This captures the original
+> intent, written before lume was built. It is preserved as-is, not maintained.
+> The vision still holds, but some "future" outcomes here are now met (see
+> *Success*, below) and some non-goals remain deferred. For current state, see
+> the [README](../README.md).
+
 ## One-sentence version
 Lume is a lightweight framework for Claude Code that lets a time-poor operator run real work across many short, interrupted sessions — sometimes days apart — without losing the thread.
 
@@ -42,6 +48,15 @@ Lume is scaffolding, not a destination. Its job is to make the author effective 
 - **Leading signal:** Lume is used to build Lume, and helps rather than hinders — the author keeps choosing to use it on its own development.
 - **Lagging outcome:** Lume is good enough to point at another repo.
 - The first slice is dogfooding: Lume development is just another workstream, run through Lume.
+
+> **Reconciliation (2026-06-10).** Both signals are now *mechanically* met:
+> lume was built across eight closed workstreams run through lume itself — a
+> ninth (this documentation refresh) in progress — (leading signal),
+> and 0008 packaged it as an installable Claude Code plugin that can be pointed
+> at another repo (lagging outcome). Caveat, stated honestly: the install is
+> proven only by an automated smoke test, **not yet in a live Claude Code
+> session**, and there are **no external users** — the author is still the only
+> adopter. "Helps rather than hinders" remains **unmeasured**.
 
 ## Non-goals (v1)
 - Unattended / background autonomous execution.

@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "vision.md + scope.md carry the agreed status banner (historical design record, 2026-06-09, pointer to README) at the top; their content is preserved, not rewritten; the 'Success' criteria now-met are noted as met (with the live-session caveat)."
+      },
+      {
+        "checked": true,
+        "text": "constraints.md split: the non-negotiables/constraints that still hold are presented as current; the dated decision log is clearly marked historical."
+      },
+      {
+        "checked": true,
+        "text": "questions.md: each load-bearing assumption and risk reconciled to validated / partial / still-open, each with its evidence (test, closed workstream, or retro) or an explicit 'still unmeasured' - the ceremony-pays and works-for-others ones honestly left open."
+      },
+      {
+        "checked": true,
+        "text": "No claim in docs/ reads as a current statement when it is historical; no settled decision relitigated; intent preserved."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no README rewrite, no ADOPTERS/LICENSE/links (E2/E3), no engine code; 313 tests still green."
+      }
+    ],
+    "preamble": "E1 (plan P1): reconcile the docs/ design set with built reality. Preserve intent, do not relitigate. vision.md + scope.md get a historical banner; constraints.md splits into still-true constraints vs a historical decision log; questions.md updates each assumption/risk to validated/partial/open with evidence. No README work (E2), no new artifacts (E3), no engine code."
+  },
+  "handback": "E1 done. docs/ reconciled with reality: vision.md + scope.md historical banners (+ scope plan-vs-shipped table, + vision success reconciliation with caveats); constraints.md split current vs historical decision log; questions.md per-assumption reconciliation (the two value-claims left honestly unmeasured). Intent preserved, nothing relitigated. 313 tests green; docs free of stale .lume/engine / 227-tests refs. Next: P2/E2 - the adversarial, humble root README.",
+  "id": 3,
+  "self_review": "docs/ reconciled, intent preserved, nothing relitigated. vision.md + scope.md banner'd as historical; vision's met success criteria annotated WITH the honest caveats (mechanical-only, no external users, helps-vs-hinders unmeasured); scope gained a plan-vs-shipped reconciliation (what shipped, what's still deferred on purpose). constraints.md splits current constraints/non-negotiables from the historical 2026-06-09 decision log. questions.md gained a per-assumption reconciliation - the headline kept honest: assumptions 1,3,4 (self-review survival, 2-min re-orient, ceremony-pays) are UNMEASURED; this is the substance the README's why-not section will draw on. Workstream count stated precisely (8 closed + this 9th). No README/ADOPTERS/LICENSE/link work (E2/E3); no engine code; 313 green. The banners add ../README.md links that the E3 vault graph will build on."
+}

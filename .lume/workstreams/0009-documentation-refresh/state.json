@@ -29,12 +29,27 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0003-e1-reconcile-docs-with-reality-banners-assumption-updates.json",
+      "id": 3,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E1: reconcile docs/ with reality - banners + assumption updates",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
     {
       "id": "P1",
-      "iter": null,
+      "iter": 3,
       "sketch": "E1: reconcile docs/ with reality - banner vision.md + scope.md as historical design records; split constraints.md into current constraints vs historical decision-log; update questions.md assumptions to validated/partial/open each with evidence. DoD: every docs/ file is current or explicitly status-bannered; no claim reads as current that isn't.",
       "tag": "committed",
       "type": "execution"

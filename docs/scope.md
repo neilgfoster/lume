@@ -1,5 +1,12 @@
 # Lume — Scope
 
+> **Status: historical design record (2026-06-09).** This is the original v1
+> scope plan, written before the build. It is preserved as-is, not maintained.
+> Much of the "v1 spine" and priority sequence has since shipped; some deferred
+> items are still deferred. A quick reconciliation against what was actually
+> built is at the end of this file. For current state, see the
+> [README](../README.md).
+
 ## v1 spine (the smallest thing that delivers value)
 The first slice is whatever Lume needs to **manage its own construction as a single workstream**. If Lume can't help build Lume, it has failed its own test.
 
@@ -49,3 +56,15 @@ Stand up steps 1–5 as a runnable loop, and use it immediately to run "build Lu
 
 ## Where we cut first under pressure
 Decomposition (nesting) goes first. The linear single-workstream loop is the irreducible core.
+
+## Reconciliation: plan vs what shipped (2026-06-10)
+Against the priority sequence above:
+1. **Linear loop + file-based embedded state — shipped** (workstreams 0001–0003): the loop runs, state is schema-validated JSON, markdown is a derived view.
+2. **The three contract seams — partially shipped.** Tracking/persistence is behind a `TrackingStore` seam with a filesystem implementation (0004 swappable-backing, 0007 id-keyed store); review and workstream-practice contracts are *designed*, not built out (single reviewer, the discovery→planning→execution→closeout lifecycle is the one practice).
+3. **Decomposition / nesting — not built** (still the first thing cut).
+4. **Flat cross-forest review queue — partial:** `lume status` with no `-w` renders an "awaiting review / in progress" queue across workstreams; nesting-aware collapsing is not built.
+5. **Detached / invisible mode — not built.** State is still embedded in the target repo's `.lume/`.
+6. **Templates + multi-agent panels — not built.**
+7. **Multi-operator / reputation / self-improvement — not built** (directional).
+
+Not in the original sequence but shipped: **packaging as an installable Claude Code plugin** (0008), and an agent-friendly CLI with a self-describing verb catalog (0005–0006). What's deferred above is deferred on purpose, not forgotten.
