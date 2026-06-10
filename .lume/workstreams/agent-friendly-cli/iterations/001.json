@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. MCP's agent-interface structure distilled (grounded in the actual MCP spec/docs, not memory): how it exposes capabilities - tool discovery (tools/list), per-operation typed input schemas, self-describing names/descriptions, structured results, structured errors, capability negotiation. Captured in discovery.json with a source reference. (Evidence: an MCP-structure section citing the spec.)"
+      },
+      {
+        "checked": true,
+        "text": "2. A concrete, lume-specific PRINCIPLES checklist derived from #1 - each principle phrased as a testable property of an agent-friendly CLI (e.g. 'every verb is discoverable', 'every verb/entity has a fetchable schema', 'machine-readable output is available and consistent', 'errors are structured and parseable', 'verb/flag grammar is uniform and predictable'). (Evidence: the checklist in discovery.json.)"
+      },
+      {
+        "checked": true,
+        "text": "3. The current lume CLI audited against each principle: where it already complies (entities/schema/get, exit codes) and where it gaps (e.g. mixed human-vs-JSON output, plain-string stderr errors, no machine-readable verb listing/usage, grammar inconsistencies). Each item references concrete cli.py behaviour. (Evidence: a per-principle compliance table with file/verb refs.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Each gap classified: adopt (worth the cost) / reject (fails dependency-free, determinism, or buy-back) / defer - with a one-line rationale. No principle adopted merely because MCP has it. (Evidence: every gap carries a verdict + rationale.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Open forks listed for planning (e.g. a global --json vs per-verb output, structured-error shape, a 'verbs'/'help --json' discovery surface, how far to standardise grammar without breaking current callers/tests). (Evidence: forks section in discovery.json.)"
+      },
+      {
+        "checked": true,
+        "text": "6. Scope held: no engine code this iteration; artifact is discovery.json only; what is deferred to planning/execution is explicit. (Evidence: git shows only workstream JSON added.)"
+      }
+    ],
+    "preamble": "Discovery for agent-friendly-cli. Study how MCP structures an agent-friendly interface (grounded in the real spec, not memory), distil the transferable principles into a lume-specific testable checklist, and audit the current lume CLI against it - classifying each gap as adopt/reject/defer against the non-negotiables (dependency-free, deterministic, reuse-first, buy-back). MCP is the teacher, not a dependency: nothing here proposes adopting MCP or a protocol server. No engine code - produce discovery.json and the forks for planning."
+  },
+  "handback": "Discovery complete - discovery.json (7 sections), schema-valid, MCP-spec-grounded, 267 tests green, no engine code.\n\nHeadline: lume is already partly MCP-shaped (entity discovery + schema + get + two-tier exit codes). The real agent-friendliness gaps are P1 (no machine-readable verb listing - tools/list analogue), P5 (mutating/status verbs emit human prose, no structured/--json output) and P6 (error bodies are plain strings, no code). Recommended v1: adopt verb-discovery + structured output + structured errors; reject the protocol machinery (JSON-RPC, content blocks, etc.) as dependency-laden; defer per-verb input schemas (P2) and grammar cleanup (P4).\n\n6 forks for planning (F1 verb-discovery shape, F2 --json mechanism + back-compat, F3 error shape, F4 input schemas, F5 grammar cleanups, F6 the v1 cut). Accept to move to planning.",
+  "id": 1,
+  "self_review": "All 6 DoD items complete; discovery.json validates (7 sections); no engine code (267 tests still green); grounded in the MCP spec (concepts/tools, rev 2025-06-18), fetched - not memory.\n\nMCP's transferable structure distilled to: discovery (tools/list), self-description (name/title/description/inputSchema/outputSchema), uniform invocation (tools/call name+args), structured results (structuredContent + text fallback), two-tier errors (protocol vs isError). Protocol machinery (JSON-RPC, capability negotiation, content blocks, resources) explicitly rejected as dependency-laden and CLI-irrelevant - the value is the principles, not the protocol.\n\nSeven testable principles (P1-P7). lume audit: P3 (entity schema discovery) already compliant and P6/exit-codes a real strength; the meaningful gaps are P1 (no machine-readable VERB listing - only a human usage string), P5 (mutating/status verbs print prose, no --json) and P6's error BODIES (plain strings, no code). Recommended v1 core: P1 verb discovery + P5 structured output + P6 structured errors; P2 (per-verb input schema) and P4 (grammar cleanup) deferred. Every gap carries an adopt/reject/defer verdict + rationale against the non-negotiables.\n\nScope held: discovery.json only; six forks (F1-F6) left for planning to ratify the cut."
+}

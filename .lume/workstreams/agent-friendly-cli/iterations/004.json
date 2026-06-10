@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Every mutating verb emits a structured JSON result object under --json (human output unchanged otherwise): new, open, approve/start/handback/accept/reject/redo, close, reopen, decide, plan add, plan link, migrate. (Evidence: a test per family asserts parseable JSON under --json.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Result objects are consistently shaped and carry a stable `result` discriminator (the verb) plus the salient fields, e.g. transitions -> {result, workstream, iteration, phase}; open -> {result:'open', workstream, iteration, phase, type}; new/reopen/close -> {result, workstream, status}; decide -> {result:'decide', date, decision}; plan add/link -> {result, id, ...}; migrate already returns {migrated,count}. (Evidence: tests assert the key fields.)"
+      },
+      {
+        "checked": true,
+        "text": "3. A small `_ok(json_mode, human_str, data)` emitter centralises success output (print data as JSON under --json, else the human string), mirroring _fail for errors. Success sites route through it. (Evidence: grep shows mutating verbs emit via _ok, not bare prints.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Back-compat: with --json absent, every verb's stdout is byte-for-byte unchanged; the pre-existing suite passes untouched. (Evidence: full suite green with no edits to existing assertions.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Full suite green; >= 5 new tests covering the verb families; no new dependency; no LLM. Scope: cli.py + tests only. (Evidence: test run 0 failures; diff confined.)"
+      }
+    ],
+    "preamble": "E2 (P2): finish P5 - structured --json output for the MUTATING verbs (the ones E1 deferred). Add an _ok success emitter mirroring E1's _fail, give each verb a consistent result object with a `result` discriminator, and keep human output byte-for-byte unchanged when --json is absent. After this, an agent can drive lume end-to-end - read AND write - entirely in JSON. cli.py + tests only; dependency-free; deterministic."
+  },
+  "handback": "E2 complete - mutating verbs now emit structured --json results. 282 tests pass.\n\n- _ok success emitter mirrors _fail; every mutating verb (new/open/transitions/close/reopen/decide/plan add+link/retro) emits a result object with a `result` discriminator under --json.\n- Human output byte-for-byte unchanged without --json; pre-existing suite untouched.\n- 6 new tests; diff: cli.py + test_json_output.py. Live-verified each result parses.\n\nP5 (structured output) is now complete across read + write. Remaining: E3 ('lume verbs' discovery surface, P1), E4 optional (input schema/grammar), E5 closeout. Accept to open E3.",
+  "id": 4,
+  "self_review": "All 5 DoD items complete; 282 tests pass (6 new); diff confined to cli.py + test_json_output.py.\n\nAdded _ok(json_mode, data, *human_lines) mirroring E1's _fail: under --json it emits the JSON result object, else the human lines. Every mutating verb now routes its success through _ok with a consistent shape carrying a `result` discriminator: new/reopen/close -> {result, workstream, status}; open -> {result:'open', workstream, iteration, phase, type}; transitions -> {result:<verb>, workstream, iteration, phase}; decide -> {result:'decide', date, decision}; plan_add -> {result, id, type, tag, sketch}; plan_link -> {result, id, iter}; retro -> {result, status}; migrate -> {migrated, count} (from E1). Bare prints remaining in cli.py are only the human renderers (_render_queue, migrate human branch) used when --json is absent.\n\nBack-compat: the full pre-existing suite passes untouched; without --json stdout is byte-for-byte unchanged (test asserts the human 'created workstream...' string still leads). Dependency-free, no LLM.\n\nWith E1+E2, an agent can now drive lume end-to-end - read AND write - entirely in JSON: discover (entities/schema/get/status --json), mutate (every verb --json), and parse structured errors."
+}

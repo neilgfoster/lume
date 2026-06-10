@@ -1,0 +1,61 @@
+{
+  "carry_forwards": [
+    "Grammar standardisation (principle P4) was deferred to documentation only; if an agent ever trips on the positional-shape inconsistencies (new/reject/decide/plan sub-verbs), revisit with test-guarded, caller-safe cleanups.",
+    "A GitHub-issues TrackingStore (from swappable-backing) would join the contract matrix; unrelated to this workstream but the next obvious backing follow-on.",
+    "The catalog `inputs` are a hand-authored schema; if verb arg parsing grows, consider deriving inputs from the parser (or vice versa) so the two cannot drift - today a test pins flag consistency only.",
+    "Process lesson (logged): avoid backticks in `lume decide` arguments - they trigger shell command substitution."
+  ],
+  "done_when": [
+    {
+      "clause": "MCP's agent-interface principles distilled into a concrete, lume-specific checklist",
+      "evidence": "discovery.json: 7 testable principles (P1-P7) derived from the MCP spec (tools/list, inputSchema, structured results, two-tier errors), each phrased as a property of an agent-friendly CLI.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "The current CLI assessed against the checklist",
+      "evidence": "discovery.json audit: per-principle compliance table with cli.py references; gaps classified adopt/reject/defer against the non-negotiables.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "The gaps that matter are closed in the CLI (verb/flag grammar, machine-readable output + errors, discovery/schema coverage)",
+      "evidence": "E1-E4 shipped: `lume verbs` catalog with per-verb input schema (P1+P2); opt-in --json structured output across every read and mutating verb (P5); structured {error:{code,message}} with stable codes (P6); entity schema discovery already existed (P3). Grammar documented (P4) without breaking changes.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "No new dependency and no LLM in the path",
+      "evidence": "Everything is stdlib (json + argv parsing); deterministic; the MCP protocol/JSON-RPC/SDK were explicitly rejected. 291 tests pass; default (no --json) output is byte-for-byte unchanged.",
+      "verdict": "MET"
+    }
+  ],
+  "overall_verdict": "Net positive. MCP was used as a teacher, not a dependency: its interface principles (discoverability, self-description, structured I/O, structured errors) were distilled and the high-value subset applied to the lume CLI, leaving lume stdlib-only and deterministic. An agent can now self-orient end to end - `lume verbs` to enumerate commands, `verbs <name>`/`schema` to learn args and data shapes, --json to drive every verb and parse every error - without scraping prose. The opt-in --json contract made a cross-cutting change land with zero back-compat breakage (the full prior suite stayed green untouched). The deliberate rejection of the protocol machinery is the point: the value was the principles. Deferred by design: grammar standardisation (P4) was documented, not churned.",
+  "stage_verdicts": [
+    {
+      "cost": "One analysis iteration, no engine code; one web fetch of the MCP spec.",
+      "iterations": "001",
+      "net": "Positive - highest-leverage stage.",
+      "saved": "Grounded the work in the real MCP spec (not memory), distilled it to 7 testable principles, and audited the CLI against them - finding lume already half-compliant (entities/schema/get + two-tier exit codes) and naming the three gaps worth closing (verb discovery, structured output, structured errors). Rejected the protocol machinery up front, keeping the workstream dependency-free.",
+      "stage": "Discovery (001)"
+    },
+    {
+      "cost": "One iteration; 6 decisions + a 5-item plan.",
+      "iterations": "002",
+      "net": "Positive",
+      "saved": "Resolved the load-bearing F2 (opt-in --json, human default unchanged) which made every later slice back-compat-safe, and sized the v1 cut (adopt P1/P5/P6, defer P2/P4). A backtick-in-decide mishap was caught and repaired - a process lesson logged.",
+      "stage": "Planning (002)"
+    },
+    {
+      "cost": "Four iterations: --json plumbing + structured errors + read verbs; structured results for mutating verbs; the verbs catalog; per-verb input schema + grammar docs.",
+      "iterations": "003-006",
+      "net": "Positive",
+      "saved": "The opt-in --json contract meant the entire pre-existing suite stayed green untouched at every step - zero back-compat breakage across a cross-cutting change. The _fail/_ok emitter pair centralised output; the catalog became the single source of truth for verbs (killing a duplicated list). Each slice was small and independently reviewable.",
+      "stage": "Execution (E1-E4, iters 003-006)"
+    },
+    {
+      "cost": "This iteration.",
+      "iterations": "007",
+      "net": "Positive",
+      "saved": "Honest done-when assessment + carry-forwards; closes on the engine's own verbs.",
+      "stage": "Close-out (007)"
+    }
+  ]
+}

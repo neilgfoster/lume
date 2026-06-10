@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Per-stage verdict in retro.json stage_verdicts: discovery (001), planning (002), execution (E1-E4 / iters 003-006), closeout (007) - did each buy back its ceremony cost? (Evidence: retro.json validates; stage_verdicts present.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Objective done-when assessed clause by clause in retro.json done_when (MCP principles distilled into a checklist; CLI assessed; gaps that matter closed - verb discovery, structured --json output, structured errors; no new dependency; no LLM), each MET/NOT with evidence. (Evidence: retro.json done_when.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Overall verdict + carry-forwards in retro.json (incl. deferred grammar standardisation P4 and any agent-ergonomics follow-ons). retro authored via `lume retro`. (Evidence: retro.json present + consistent.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Workstream closed: closeout iteration accepted, then `lume close`; objective.json status flips to closed. Full suite green. (Evidence: `lume status` shows agent-friendly-cli closed; tests pass.)"
+      }
+    ],
+    "preamble": "Close-out for agent-friendly-cli. Assess whether distilling MCP's principles and applying the adopted subset (verb discovery, --json structured output, structured errors, per-verb input schema) to the CLI bought back its cost; judge the objective's done-when clause by clause; record carry-forwards (notably the deferred grammar cleanup); and close on the engine's own verbs. Authored as data (retro.json)."
+  },
+  "handback": "E5 closeout complete. agent-friendly-cli ready to close.\n\n- retro.json authored (4 stage verdicts, 4 done-when clauses all MET, overall verdict, 4 carry-forwards) via lume retro.\n- 291 tests pass.\n\nAll adopted MCP-informed principles shipped: verb discovery, --json structured output across read + write, structured errors, per-verb input schema; grammar documented; protocol machinery rejected (stdlib-only, deterministic). Accept, then lume close.",
+  "id": 7,
+  "self_review": "All 4 DoD items complete; 291 tests pass; retro.json authored via lume retro.\n\nPer-stage verdict + done-when in retro.json - all four done-when clauses MET: MCP principles distilled to a checklist (discovery.json), CLI audited, the gaps that matter closed (P1 verb discovery, P2 input schema, P5 --json output, P6 structured errors; P3 pre-existing; P4 documented), with no new dependency and no LLM. Overall: net positive - MCP as teacher not dependency; an agent can self-orient end to end via stdlib-only verbs.\n\nCarry-forwards recorded: deferred grammar standardisation (P4); a GitHub TrackingStore as the next backing follow-on; hand-authored catalog inputs could later derive from the parser; and the backtick-in-decide process lesson.\n\nClosing in order: handback -> accept -> lume close."
+}

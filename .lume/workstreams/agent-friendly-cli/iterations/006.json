@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Each catalog entry gains a structured `inputs` list (the MCP inputSchema analogue): per argument {name, kind: 'positional'|'flag', flag (e.g. '-t/--type' for flags), required: bool, description}. Covers the global flags an agent needs too (--json, -w/--workstream where applicable). (Evidence: every _CATALOG entry has an `inputs` list.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `lume verbs --json` carries `inputs` per verb; `lume verbs <name>` shows a single verb (human: name + summary + arg lines; --json: that one catalog entry). Unknown <name> -> structured not_found error. (Evidence: tests for the array form, single-verb form, and unknown-name error.)"
+      },
+      {
+        "checked": true,
+        "text": "3. The `inputs` data is consistent with actual parsing: a test cross-checks that every flag an entry declares is one the CLI actually accepts (-w/-t/-c/-g/--json), and that declared positionals match the verb's usage. (Evidence: a consistency test passes.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Grammar documented: a concise grammar section (verb-first; global [--json] [-w <slug>]; positionals then flags; exit codes 0/1/2; --json result + error shapes) added to the cli.py module docstring as the human reference. (Evidence: the docstring documents the grammar.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Back-compat + full suite green; >= 3 new tests; no new dependency; no LLM; no breaking changes to existing verb grammar (principle P4 = document, don't churn). Scope: cli.py + tests. (Evidence: test run 0 failures; existing tests untouched.)"
+      }
+    ],
+    "preamble": "E4 (P4, optional): complete principle P2 by giving each verb a structured `inputs` schema in the catalog (the MCP inputSchema analogue) so an agent can learn a verb's arguments as data, not prose; add `lume verbs <name>` to fetch one verb; and document the CLI grammar in the module docstring (principle P4 - document, no breaking changes). cli.py + tests only; dependency-free; deterministic."
+  },
+  "handback": "E4 complete (optional) - per-verb input schema + documented grammar. 291 tests pass.\n\n- Catalog entries gain `inputs` (structured arg schema); `lume verbs <name>` describes one verb (human + --json); unknown -> not_found.\n- Tests pin inputs well-formedness + that declared flags are real (no drift from parsing).\n- Grammar section added to the cli.py module docstring; no grammar changes (P4 = document).\n- Back-compat held; dependency-free; diff cli.py + test_verbs.py.\n\nAll adopted principles now shipped (P1 verbs, P2 input schema, P3 entity schema, P5 --json, P6 structured errors; P4 documented). Only E5 closeout remains: retro + done-when + lume close. Accept to open E5.",
+  "id": 6,
+  "self_review": "All 5 DoD items complete; 291 tests pass (5 new); diff = cli.py + test_verbs.py.\n\nEach catalog entry now carries a structured `inputs` list (the inputSchema analogue): per arg {name, kind: positional|flag, [flag], required, description}, built via _pos + shared flag constants (_F_JSON/_F_W/_F_TYPE/_F_CONTEXT/_F_TAG) and a _verb() helper that appends -w for workstream-scoped verbs and --json for all. Transitions inherit it (reject carries a required 'reason').\n\n`lume verbs <name>` added: human shows summary + usage + per-input lines; --json emits that one entry; unknown name -> structured not_found (exit 1). `lume verbs`/`--json` unchanged (the E3 test updated to expect the new 'inputs' key).\n\nConsistency pinned by tests: every entry has well-formed inputs, and every declared flag is one the parser actually accepts (-w/-t/-c/-g/--json) - the schema can't drift from real parsing.\n\nGrammar documented in the cli.py module docstring (verb-first; global/value flags; discovery verbs; --json result/error shapes; exit codes 0/1/2). Principle P4 honoured as DOCUMENT - no verb grammar changed, existing tests untouched. Dependency-free, no LLM."
+}

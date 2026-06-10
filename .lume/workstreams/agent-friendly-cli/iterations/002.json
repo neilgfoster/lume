@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Forks F1-F6 resolved, each logged via `lume decide` with a one-line rationale. In particular: F2 (the --json mechanism + back-compat with current human stdout - the load-bearing one), F1 (verb-discovery shape), F3 (structured-error shape), and the F6 v1 cut (which principles land vs defer). (Evidence: decisions.json has an entry per fork.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Plan recorded as state.plan via `lume plan add` (with -g tags): the execution iterations to close the adopted gaps - at minimum (a) verb-discovery surface (P1), (b) structured machine-readable output (P5), (c) structured errors (P6), (d) closeout. P2/P4 captured as optional or explicitly deferred. (Evidence: `lume get plan` lists items with tags.)"
+      },
+      {
+        "checked": true,
+        "text": "3. The first execution iteration is concrete enough to open next: a single reviewable slice with its DoD sketch, naming the exact cli.py surface it touches and a binary done test. (Evidence: the P-item names files/verbs + a binary check.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Back-compat decision is explicit: how structured output is introduced without breaking the current human stdout that tests and the operator rely on (e.g. --json opt-in, human default). Recorded as a decision. (Evidence: a decision entry pinning the compatibility rule.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Scope held: no engine code this iteration; output is decisions.json + state.plan only. (Evidence: git diff shows no lume/*.py change.)"
+      }
+    ],
+    "preamble": "Planning for agent-friendly-cli. Resolve the six discovery forks - above all F2 (how structured/--json output is introduced without breaking the human stdout tests + the operator depend on) - logging each as a decision. Lay out the execution iterations for the recommended v1 core (verb discovery P1, structured output P5, structured errors P6), with P2/P4 deferred or optional, each a reviewable slice. No engine code - decisions + plan only."
+  },
+  "handback": "Planning complete. 6 decisions, plan P1-P5, no engine code, 267 tests green.\n\nv1 cut (F6): adopt verb-discovery (P1), structured --json output (P5), structured errors (P6); defer per-verb input schema and grammar cleanup. Back-compat (F2): --json is opt-in, human output unchanged by default - so nothing existing breaks.\n\nPlan (reviewable slices): E1 --json flag + structured errors + read-verb output (committed); E2 structured results for mutating verbs (committed); E3 'lume verbs' catalog (committed); E4 per-verb input schema + grammar docs (optional); E5 closeout. E1 ready to open.\n\nAccept to open E1.",
+  "id": 2,
+  "self_review": "All 5 DoD items complete. 6 fork decisions logged (F1-F6); plan P1-P5 recorded (P4 optional); no engine code (clean engine diff); 267 tests green.\n\nFork resolutions: F2 (load-bearing) structured output via an OPT-IN global --json flag, human text unchanged by default - the back-compat rule (DoD #4); F1 a 'lume verbs' discovery verb (tools/list analogue) joining entities/schema/get; F3 under --json errors emit {error:{code,message}} on stderr with stable string codes, exit codes unchanged; F4 (per-verb input schema) deferred; F5 (grammar) narrowed to documentation only, no breaking changes; F6 v1 cut = adopt P1+P5+P6, defer P2+P4.\n\nPlan keeps slices reviewable: E1 --json plumbing + structured errors + read-verb output; E2 structured results for the mutating verbs; E3 the 'lume verbs' catalog; E4 (optional) per-verb input schema + grammar docs; E5 closeout. E1 is concrete enough to open next (names the cli.py surface + a byte-identical-default binary check).\n\nOne process nit: a backtick in the F1 decision text triggered shell substitution on first write (logged it without 'lume verbs'); caught and repaired in decisions.json. Lesson: avoid backticks in decide arguments."
+}
