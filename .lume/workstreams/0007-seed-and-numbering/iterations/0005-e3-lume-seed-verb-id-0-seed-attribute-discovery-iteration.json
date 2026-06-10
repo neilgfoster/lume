@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. `lume seed [--new|--existing]` verb implemented: creates id-0000 seed workstream via `create_workstream(slug='seed', seed=True)`, opens a discovery iteration with mode-specific DoD. (Evidence: test_seed.py 14 tests green.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Seed workstream carries portable `seed: True` attribute in state.json workstream section, and `workstream.json` schema updated with optional boolean `seed` field. (Evidence: test_seed_stamps_seed_true_in_state green; schema file updated.)"
+      },
+      {
+        "checked": true,
+        "text": "3. `--new` mode: discovery iteration opens with why/scope/constraints/done-when DoD skeleton. `--existing` mode: opens with languages/layout/seams/open-questions skeleton. (Evidence: test_seed_opens_discovery_iteration, test_seed_existing_mode_uses_repo_map_skeleton green.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Auto-detection by repo emptiness: source files outside .lume/ present -> existing; only .lume/ present -> new. (Evidence: test_seed_auto_detects_new, test_seed_auto_detects_existing green.)"
+      },
+      {
+        "checked": true,
+        "text": "5. `--new` and `--existing` parsed as global bool flags in app.py; threaded through Context.opt_new / Context.opt_existing; catalog entry for 'seed' declares both. Catalog conformance test passes. (Evidence: test_declared_flags_are_real green.)"
+      },
+      {
+        "checked": true,
+        "text": "6. 311 tests green (was 297; +14 new seed tests in test_seed.py). Suite is the done-test."
+      }
+    ],
+    "preamble": "E3: lume seed verb. lume seed [--new|--existing] creates the seed workstream (fs id 0000 via seed=True + a seed attribute in the workstream record) and opens a discovery iteration with a mode-specific DoD skeleton (new: why/scope/constraints/done-when; existing: languages/layout/seams/open-questions); detection defaults by repo emptiness. DONE = lume seed creates id-0000 seed + discovery iteration; new/existing modes covered; suite green."
+  },
+  "handback": "E3 complete. 311 tests green (was 297; +14). All four E3 outcomes delivered:\n\n- lume seed creates id-0000 workstream: FilesystemStore._next_id(seed=True) returns '0000', folder named 0000-seed.\n- Portable seed attribute: state.json workstream section carries 'seed: true'; workstream.json schema adds optional boolean 'seed' field.\n- Mode-specific skeletons: --new opens with why/scope/constraints/done-when DoD; --existing opens with languages/layout/seams/open-questions DoD.\n- Auto-detection: detect_mode(project_root) returns 'existing' if any file/dir outside .lume/ exists, else 'new'.\n- Flags wired: --new/--existing parsed globally in app.py, threaded via Context.opt_new/opt_existing; catalog entry for 'seed' declares both.\n\nReady to open E4: retro + close.",
+  "id": 5,
+  "self_review": "All 6 DoD items checked.\n\nImplementation is clean: open_iteration gains a skeleton= override that only kicks in when passed explicitly; all existing callers pass None implicitly so existing behaviour is unchanged. Repository.create_workstream gains seed=False; the seed flag stamps 'seed: True' in the workstream section and threads to store.create_workstream(seed=True) which already returned '0000' from E1.\n\nFlag parsing: --new/--existing added to the global flag parser in app.py alongside --json. Context gains opt_new/opt_existing fields with False defaults (no existing tests touched). test_declared_flags_are_real updated to include both flags.\n\nTest count: 311 (+14: 5 detection/skeleton unit tests + 9 verb integration tests). No existing tests broken."
+}

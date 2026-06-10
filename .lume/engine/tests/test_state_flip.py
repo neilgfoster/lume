@@ -11,6 +11,10 @@ from lume.iteration import Iteration
 from lume.workstream import Workstream
 
 
+def _iter_file(ws_dir: Path, n: int) -> Path:
+    return next(ws_dir.glob(f"iterations/{n:04d}-*.json"))
+
+
 def _initial_doc(slug="demo", status="active"):
     return {
         "workstream": {
@@ -115,7 +119,7 @@ class MutationWritesStateFirstTest(unittest.TestCase):
         self.assertEqual(doc["iterations"][0]["phase"], "proposed")
         self.assertEqual(doc["iterations"][0]["title"], "New task")
         # JSON-only: the iteration content doc is created, no markdown view.
-        self.assertTrue((self.ws_dir / "iterations" / "001.json").is_file())
+        self.assertTrue(_iter_file(self.ws_dir, 1).is_file())
         self.assertFalse((self.ws_dir / "iterations" / "001.md").exists())
 
     def test_transition_updates_state_json(self):

@@ -25,10 +25,12 @@ from .lifecycle import (
     handle_new,
     handle_open,
     handle_reopen,
+    handle_seed,
     handle_transition,
 )
 
 HANDLERS = {
+    "seed": handle_seed,
     "new": handle_new,
     "reopen": handle_reopen,
     "migrate": handle_migrate,

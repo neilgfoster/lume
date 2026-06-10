@@ -145,7 +145,7 @@ class Repository:
         """Validate + persist a workstream's state through the Tracking contract (by id)."""
         self._store(self._require_lume_dir()).write(id, "state", doc)
 
-    def create_workstream(self, slug: str, title: str) -> Workstream:
+    def create_workstream(self, slug: str, title: str, seed: bool = False) -> Workstream:
         """Create a new active workstream with objective.json and state.json (JSON-only)."""
         lume_dir = self._require_lume_dir()
         if not _SLUG_RE.match(slug):
@@ -156,15 +156,18 @@ class Repository:
         store = self._store(lume_dir)
         if self._slug_to_id(lume_dir, slug) is not None:
             raise GateError(f"workstream '{slug}' already exists.")
-        id = store.create_workstream(slug)
+        id = store.create_workstream(slug, seed=seed)
+        ws_section: dict = {
+            "id": id,
+            "slug": slug,
+            "title": title,
+            "status": ACTIVE,
+            "objective_artifact": "objective.json",
+        }
+        if seed:
+            ws_section["seed"] = True
         initial_state: dict = {
-            "workstream": {
-                "id": id,
-                "slug": slug,
-                "title": title,
-                "status": ACTIVE,
-                "objective_artifact": "objective.json",
-            },
+            "workstream": ws_section,
             "iterations": [],
             "plan": [],
         }

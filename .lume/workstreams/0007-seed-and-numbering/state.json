@@ -1,7 +1,7 @@
 {
   "iterations": [
     {
-      "dod_artifact": "iterations/001.json",
+      "dod_artifact": "iterations/0001-map-state-cli-for-numbering-seed-and-design-both.json",
       "id": 1,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/002.json",
+      "dod_artifact": "iterations/0002-resolve-the-forks-and-plan-the-id-numbering-seed-slices.json",
       "id": 2,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/003.json",
+      "dod_artifact": "iterations/0003-e1-id-keyed-trackingstore-nnnn-slug-folders-migration.json",
       "id": 3,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -46,13 +46,64 @@
       ]
     },
     {
-      "dod_artifact": "iterations/004.json",
+      "dod_artifact": "iterations/0004-e2-w-by-id-or-slug-id-ordered-listings-id-in-output.json",
       "id": 4,
       "opened": "2026-06-10",
-      "phase": "handback",
+      "phase": "accepted",
       "title": "E2: -w by id or slug + id-ordered listings + id in output",
       "type": "execution",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0005-e3-lume-seed-verb-id-0-seed-attribute-discovery-iteration.json",
+      "id": 5,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E3: lume seed verb (id 0 + seed attribute + discovery iteration)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0006-e4-iteration-file-naming-nnnn-slug.json",
+      "id": 6,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E4: iteration file naming - NNNN-slug",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0007-e5-retro-and-close.json",
+      "id": 7,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E5: retro and close",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -89,7 +140,7 @@
     "id": "0007",
     "objective_artifact": "objective.json",
     "slug": "seed-and-numbering",
-    "status": "active",
+    "status": "closed",
     "title": "Seed Workstream & Workstream Numbering"
   }
 }

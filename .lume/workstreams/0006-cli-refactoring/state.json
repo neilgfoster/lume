@@ -1,7 +1,7 @@
 {
   "iterations": [
     {
-      "dod_artifact": "iterations/001.json",
+      "dod_artifact": "iterations/0001-map-cli-py-s-responsibilities-and-design-the-target-structure.json",
       "id": 1,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/002.json",
+      "dod_artifact": "iterations/0002-resolve-the-forks-and-plan-the-refactor-slices.json",
       "id": 2,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/003.json",
+      "dod_artifact": "iterations/0003-e1-stand-up-lume-cli-package-move-cohesive-helpers-into-submodules.json",
       "id": 3,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/004.json",
+      "dod_artifact": "iterations/0004-e2-context-per-verb-handler-registry-thin-main.json",
       "id": 4,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/005.json",
+      "dod_artifact": "iterations/0005-e3-closeout-retro-done-when-lume-close.json",
       "id": 5,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/006.json",
+      "dod_artifact": "iterations/0006-p4-split-handlers-py-into-a-handlers-package-by-verb-group.json",
       "id": 6,
       "opened": "2026-06-10",
       "phase": "accepted",

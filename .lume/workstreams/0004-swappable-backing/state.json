@@ -1,7 +1,7 @@
 {
   "iterations": [
     {
-      "dod_artifact": "iterations/001.json",
+      "dod_artifact": "iterations/0001-map-the-repository-seam-and-choose-the-second-backing.json",
       "id": 1,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/002.json",
+      "dod_artifact": "iterations/0002-resolve-the-forks-and-plan-the-backing-swap-slices.json",
       "id": 2,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/003.json",
+      "dod_artifact": "iterations/0003-e1-trackingstore-protocol-filesystemstore-repository-delegates-its-own-i-o.json",
       "id": 3,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/004.json",
+      "dod_artifact": "iterations/0004-e2-relocate-workstream-persistence-behind-the-store-fix-cli-leaks-2-cli-bugs.json",
       "id": 4,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/005.json",
+      "dod_artifact": "iterations/0005-e3-sqlitestore-second-backing-lume-backing-selection-lifecycle-exercised-against-it.json",
       "id": 5,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/006.json",
+      "dod_artifact": "iterations/0006-e4-inmemorystore-double-cross-backing-contract-test-matrix.json",
       "id": 6,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -91,7 +91,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/007.json",
+      "dod_artifact": "iterations/0007-e5-closeout-retro-naming-decision-lume-close.json",
       "id": 7,
       "opened": "2026-06-10",
       "phase": "accepted",

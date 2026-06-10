@@ -58,6 +58,12 @@ _CATALOG: list[dict] = [
     _verb("decide", "Log a decision.", "[-c <context>] \"<decision>\" [\"<rationale>\"]",
           [_pos("decision", True, "The decision."), _pos("rationale", False, "Why."), _F_CONTEXT], True),
     _verb("retro", "Create or refresh the retro artifact.", "", [], True),
+    _verb("seed", "Bootstrap the seed workstream with a mode-specific discovery iteration.",
+          "[--new | --existing]",
+          [{"name": "new", "kind": "flag", "flag": "--new", "required": False,
+            "description": "Treat the project as new (why/scope/constraints DoD)."},
+           {"name": "existing", "kind": "flag", "flag": "--existing", "required": False,
+            "description": "Treat the project as existing (repo map DoD)."}], False),
     *(
         _verb(v, f"Transition the current iteration: {src} -> {dst}.",
               "\"<reason>\"" if v == "reject" else "",

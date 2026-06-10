@@ -194,7 +194,7 @@ def migrate_iterations(ws_dir: Path, doc: dict) -> None:
             content = {"id": n, "dod": {"preamble": "", "items": []},
                        "self_review": None, "handback": None}
 
-        ws._save_iter_content(n, content)
+        ws._save_iter_content(entity, content)
         changed = True
 
     if changed:

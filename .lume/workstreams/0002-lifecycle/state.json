@@ -1,7 +1,7 @@
 {
   "iterations": [
     {
-      "dod_artifact": "iterations/001.json",
+      "dod_artifact": "iterations/0001-active-workstream-selection-status-field-current-pointer.json",
       "id": 1,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/002.json",
+      "dod_artifact": "iterations/0002-discovery-shape-of-the-explicit-lifecycle.json",
       "id": 2,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/003.json",
+      "dod_artifact": "iterations/0003-planning-ratify-the-shape-design-the-living-plan-and-queue-plan-execution.json",
       "id": 3,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/004.json",
+      "dod_artifact": "iterations/0004-queue-multi-workstream-rework-plan-p1.json",
       "id": 4,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/005.json",
+      "dod_artifact": "iterations/0005-un-hardcode-type-in-lume-open-plan-p2.json",
       "id": 5,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/006.json",
+      "dod_artifact": "iterations/0006-derive-next-plan-position-from-the-living-plan-plan-p3.json",
       "id": 6,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -91,7 +91,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/007.json",
+      "dod_artifact": "iterations/0007-per-type-dod-skeletons-plan-p4.json",
       "id": 7,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -106,7 +106,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/008.json",
+      "dod_artifact": "iterations/0008-close-out-retro-plan-p6.json",
       "id": 8,
       "opened": "2026-06-09",
       "phase": "accepted",

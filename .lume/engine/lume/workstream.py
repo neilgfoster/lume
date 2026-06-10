@@ -141,10 +141,12 @@ class Workstream:
         """Validate + persist state through the store (JSON-only; no derived views)."""
         self._store.write(self._id, "state", self._state)
 
-    def _save_iter_content(self, iter_id: int, content: dict) -> None:
+    def _save_iter_content(self, entity: dict, content: dict) -> None:
+        from pathlib import PurePosixPath
         from .validate import validate_entity
         validate_entity("iteration_content", content)
-        self._store.write(self._id, f"iteration:{iter_id:03d}", content)
+        stem = PurePosixPath(entity["dod_artifact"]).stem
+        self._store.write(self._id, f"iteration:{stem}", content)
 
     def add_plan_item(self, sketch: str, type: str = "execution", tag: str = "committed") -> PlanItem:
         """Append a new plan item to state.plan. Returns the new item."""
@@ -169,7 +171,7 @@ class Workstream:
         raise GateError(f"plan item '{plan_id}' not found.")
 
 
-    def open_iteration(self, title: str, type: str = DEFAULT_TYPE) -> Iteration:
+    def open_iteration(self, title: str, type: str = DEFAULT_TYPE, skeleton: str | None = None) -> Iteration:
         """Create the next iteration at phase 'proposed', then refresh snapshot.md.
 
         Gate: refuse unless the latest iteration is accepted (none = first open).
@@ -193,14 +195,14 @@ class Workstream:
         entity = iteration.to_entity()
         content = {
             "id": next_id,
-            "dod": {"preamble": "", "items": parse_dod_items(SKELETONS.get(type, SKELETONS[DEFAULT_TYPE]))},
+            "dod": {"preamble": "", "items": parse_dod_items(skeleton or SKELETONS.get(type, SKELETONS[DEFAULT_TYPE]))},
             "self_review": None,
             "handback": None,
         }
         # State first, then the iteration content doc (JSON-only).
         self._state["iterations"].append(entity)
         self._save_state()
-        self._save_iter_content(next_id, content)
+        self._save_iter_content(entity, content)
         return iteration
 
     def _save_decisions(self, doc: dict) -> None:

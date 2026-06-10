@@ -50,6 +50,8 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         opt_type, rest = _extract_flag(rest, ("-t", "--type"), "a type")
         opt_context, rest = _extract_flag(rest, ("-c", "--context"), "a context")
         opt_tag, rest = _extract_flag(rest, ("-g", "--tag"), "a tag")
+        opt_new, rest = _extract_bool_flag(rest, "--new")
+        opt_existing, rest = _extract_bool_flag(rest, "--existing")
     except ValueError as exc:
         _fail(json_mode, "usage", str(exc))
         if not json_mode:
@@ -88,6 +90,8 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         opt_type=opt_type,
         opt_context=opt_context,
         opt_tag=opt_tag,
+        opt_new=opt_new,
+        opt_existing=opt_existing,
     )
 
     handler = HANDLERS.get(cmd, handle_transition)

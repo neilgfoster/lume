@@ -55,6 +55,37 @@ def handle_open(ctx: Context) -> int:
     return 0
 
 
+def handle_seed(ctx: Context) -> int:
+    from ...seed import detect_mode, skeleton_for_mode
+
+    if ctx.opt_new and ctx.opt_existing:
+        ctx.fail("usage", "usage: lume seed [--new | --existing]")
+        return 2
+
+    lume_dir = ctx.repo.find_lume_dir()
+    if lume_dir is None:
+        ctx.fail("no_lume_dir", "no .lume/ found from here.")
+        return 1
+
+    if ctx.opt_new:
+        mode = "new"
+    elif ctx.opt_existing:
+        mode = "existing"
+    else:
+        mode = detect_mode(lume_dir.parent)
+
+    ws = ctx.repo.create_workstream("seed", "Seed", seed=True)
+    title = "Seed: why, scope, constraints" if mode == "new" else "Seed: repo map"
+    iteration = ws.open_iteration(title, type="discovery", skeleton=skeleton_for_mode(mode))
+    ctx.ok(
+        {"result": "seed", "id": ws.id, "workstream": ws.name, "mode": mode,
+         "iteration": iteration.id},
+        f"seeded '{ws.name}' [{ws.id}] ({mode}) with discovery iteration {iteration.id:03d}.",
+        f"next: fill in the DoD, then: lume approve -w {ws.id}",
+    )
+    return 0
+
+
 def handle_migrate(ctx: Context) -> int:
     lume_dir = ctx.repo.find_lume_dir()
     if lume_dir is None:

@@ -31,7 +31,7 @@ class IterationEntityTest(unittest.TestCase):
             "opened": "2026-06-09",
             "title": "P4: model bridge",
             "verdicts": [{"date": "2026-06-09", "verdict": "accepted", "reason": None}],
-            "dod_artifact": "iterations/006.json",
+            "dod_artifact": "iterations/0006-p4-model-bridge.json",
         }
 
     def test_to_entity_from_body(self):
@@ -41,7 +41,8 @@ class IterationEntityTest(unittest.TestCase):
         )
         entity = it.to_entity()
         self.assertEqual(entity["title"], "Title")
-        self.assertEqual(entity["dod_artifact"], "iterations/002.json")
+        self.assertTrue(entity["dod_artifact"].startswith("iterations/0002-"))
+        self.assertTrue(entity["dod_artifact"].endswith(".json"))
         self.assertEqual(entity["verdicts"], [{"date": "2026-06-09", "verdict": "accepted", "reason": None}])
 
     def test_from_entity_supports_title_and_accepted_on(self):
@@ -81,7 +82,7 @@ class IterationTest(unittest.TestCase):
         it = Iteration.new(id=3, title="Do a thing", opened="2026-06-09")
         self.assertEqual(it.id, 3)
         self.assertEqual(it.phase, "proposed")
-        for section in ("# Iteration 003 - Do a thing", "## DoD", "## Self-review", "## Handback", "## Verdict"):
+        for section in ("# Iteration 0003 - Do a thing", "## DoD", "## Self-review", "## Handback", "## Verdict"):
             self.assertIn(section, it.body)
 
     def test_new_seeds_per_type_dod_skeleton(self):

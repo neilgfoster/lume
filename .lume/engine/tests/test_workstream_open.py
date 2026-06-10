@@ -11,6 +11,10 @@ from lume.iteration import Iteration
 from lume.workstream import Workstream
 
 
+def _iter_file(ws_dir: Path, n: int) -> Path:
+    return next(ws_dir.glob(f"iterations/{n:04d}-*.json"))
+
+
 def _state_doc(iterations=None, slug="demo", status="active"):
     return {
         "workstream": {
@@ -63,7 +67,7 @@ class OpenIterationTest(unittest.TestCase):
         self.assertEqual(it.id, 1)
         self.assertEqual(it.phase, "proposed")
         self.assertEqual(it.opened, "2026-01-02")  # from FixedClock, not wall-clock
-        self.assertTrue((self.ws_dir / "iterations" / "001.json").is_file())
+        self.assertTrue(_iter_file(self.ws_dir, 1).is_file())
         self.assertFalse((self.ws_dir / "iterations" / "001.md").exists())
 
     def test_open_increments_from_highest(self):
@@ -71,7 +75,7 @@ class OpenIterationTest(unittest.TestCase):
         _write_iteration(self.ws_dir, 2, "accepted")
         it = self._ws().open_iteration("Third")
         self.assertEqual(it.id, 3)
-        self.assertTrue((self.ws_dir / "iterations" / "003.json").is_file())
+        self.assertTrue(_iter_file(self.ws_dir, 3).is_file())
 
     def test_gate_refuses_when_latest_not_accepted(self):
         _write_iteration(self.ws_dir, 1, "handback")

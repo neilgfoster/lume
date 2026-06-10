@@ -87,6 +87,13 @@ SKELETONS: dict[str, str] = {
 }
 
 _ITEM_LINE_RE = re.compile(r"^-\s+\[([ x])\]\s+(.*)")
+_NON_SLUG_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _slugify(title: str) -> str:
+    """'E1: id-keyed TrackingStore' -> 'e1-id-keyed-trackingstore'."""
+    lower = title.lower()
+    return _NON_SLUG_RE.sub("-", lower).strip("-")
 
 
 def parse_dod_items(skeleton: str) -> list[dict]:
@@ -100,7 +107,7 @@ def parse_dod_items(skeleton: str) -> list[dict]:
 
 
 _BODY_TEMPLATE = """\
-# Iteration {id:03d} - {title}
+# Iteration {id:04d} - {title}
 
 ## DoD
 {dod}
@@ -166,14 +173,14 @@ class Iteration:
             "opened": self.opened,
             "title": self.title,
             "verdicts": self.verdict_list(),
-            "dod_artifact": f"iterations/{self.id:03d}.json",
+            "dod_artifact": f"iterations/{self.id:04d}-{_slugify(self.title)}.json",
         }
 
     @classmethod
     def from_entity(cls, entity: dict) -> "Iteration":
         """Rebuild an Iteration from a state entity. Body holds only the title heading
         (the prose lives in the artifact); verdicts come from the entity, not the body."""
-        body = f"# Iteration {entity['id']:03d} - {entity['title']}\n"
+        body = f"# Iteration {entity['id']:04d} - {entity['title']}\n"
         return cls(
             id=entity["id"],
             type=entity["type"],

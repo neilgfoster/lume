@@ -5,6 +5,7 @@
   "required": ["slug", "title", "status", "objective_artifact"],
   "properties": {
     "id": {"type": "string"},
+    "seed": {"type": "boolean"},
     "slug": {"type": "string"},
     "title": {"type": "string"},
     "status": {"type": "string", "enum": ["active", "closed"]},
