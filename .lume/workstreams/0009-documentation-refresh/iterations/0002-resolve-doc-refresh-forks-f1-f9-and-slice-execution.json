@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Decisions recorded: each open fork resolved with a one-line rationale."
+      },
+      {
+        "checked": true,
+        "text": "Plan: the iterations to reach the objective, each a binary DoD sketch + committed/optional tag."
+      },
+      {
+        "checked": true,
+        "text": "The first execution iteration is concrete enough to open next."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "decisions.json: 8 entries (F1-F8). plan: P1 E1 reconcile docs/ (banners + assumption updates), P2 E2 adversarial+humble root README (why-not-first, evidence-or-flag, install, Status section), P3 E3 vault cross-links + ADOPTERS.md + MIT LICENSE + plugin/README alignment, P4 closeout. All committed. Next: open P1 (E1).",
+  "id": 2,
+  "self_review": "All 8 forks (F1-F8) resolved with rationale; F9 (phasing) is the plan itself. Decisions follow discovery's leans and the operator's stated requirements (adversarial root README, Obsidian vault, install, ADOPTERS, honesty rule) - none needed re-opening. Plan is 3 execution slices + closeout: E1 reconcile docs/, E2 the adversarial README, E3 vault graph + ADOPTERS + LICENSE. P1 (E1) is concrete enough to open next. Ordering rationale: reconcile the existing docs first (E1) so the README (E2) can link to corrected docs, then wire the graph + new artifacts (E3). No engine code; no doc edits this iteration. One thing deliberately deferred (not dropped): any lume verb that READS ADOPTERS.md is a later workstream per the objective's 'eventually'."
+}
