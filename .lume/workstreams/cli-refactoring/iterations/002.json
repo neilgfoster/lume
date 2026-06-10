@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Forks F1-F6 resolved, each logged via lume decide with a rationale: F1 approach (registry vs split vs both), F2 layout (cli/ package vs single file) - the load-bearing one given import back-compat, F3 ctx shape, F4 arg-validation placement, F5 phasing, F6 characterization test. (Evidence: decisions.json has an entry per fork.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Import back-compat decision pinned: tests + bin import `from lume.cli import main` and test_verbs imports `_CATALOG`/`_VERB_NAMES` from lume.cli; the chosen layout MUST preserve these public names (a package re-exports them). Recorded as a decision. (Evidence: a decision naming the public surface to preserve.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Plan recorded as state.plan via lume plan add (with tags): the behaviour-preserving slices to reach the target structure (e.g. extract cohesive helpers into modules; introduce ctx + per-verb handler registry + thin main; closeout), each a binary DoD sketch. (Evidence: lume get plan lists items with tags.)"
+      },
+      {
+        "checked": true,
+        "text": "4. The first execution slice is concrete enough to open next: names the exact files/symbols it moves and its binary done test (suite green, no assertion edits, public imports intact). (Evidence: the P-item is specific.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Scope held: no engine code this iteration; output is decisions.json + state.plan only. (Evidence: git diff shows no lume/*.py change.)"
+      }
+    ],
+    "preamble": "Planning for cli-refactoring. Resolve the six discovery forks - above all F2 (package vs single file, constrained by import back-compat: lume.cli.main + _CATALOG/_VERB_NAMES must stay importable). Lay out behaviour-preserving slices toward the recommended per-verb handler registry + thin main(), each independently reviewable and guarded by the existing suite (green, no assertion edits). No engine code - decisions + plan only."
+  },
+  "handback": "Planning complete. 7 decisions, plan P1-P3, no engine code, 291 tests green.\n\nApproach: per-verb handler registry in a new lume/cli/ package (concern submodules), with __init__ re-exporting main/_CATALOG/_VERB_NAMES so all existing imports keep working (load-bearing back-compat). Behaviour-preserving throughout; the existing suite is the net.\n\nPlan: E1 package + move the cohesive helpers (logic unchanged); E2 Context + handler registry + thin main (if-chain gone), splittable by verb group; E3 closeout. E1 ready to open. Accept to open E1.",
+  "id": 2,
+  "self_review": "All 5 DoD items complete. 7 decisions logged (F1-F6 + the back-compat surface); plan P1-P3 recorded; no engine code (clean diff); 291 tests green.\n\nResolutions: F1 per-verb handler registry; F2 a lume/cli/ package with concern submodules (catalog, io, flags, handlers, thin app/main); back-compat (load-bearing) - __init__ must re-export main + _CATALOG + _VERB_NAMES since tests/bin import them (verified the surface via grep); F3 a Context dataclass + handler(ctx)->int emitting through io; F4 arg-validation moves into each handler; F5 two behaviour-preserving slices (E1 package+helpers move, E2 registry+thin main) with E2 splittable; F6 no new test - the existing suite already pins the contract.\n\nPlan: E1 (package + move cohesive helpers, logic unchanged), E2 (Context + registry + convert verbs, kill the if-chain), E3 closeout. E1 is concrete: it names the exact symbols per submodule and the binary done (suite green, no assertion edits, public names importable)."
+}

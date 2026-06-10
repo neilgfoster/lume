@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. lume/cli.py is replaced by a lume/cli/ package. Submodules: catalog.py (_pos, flag constants, _verb, _CATALOG, _VERB_NAMES, _VERBS, USAGE), io.py (_ERR_CODES, _code_for, _fail, _ok, _json_out, _render_detail, _render_queue, _iteration_summary, _detail_data, _queue_data), flags.py (_extract_flag, _extract_bool_flag), app.py (main + _ENTITY_KEY). (Evidence: the package + submodules exist; cli.py is gone.)"
+      },
+      {
+        "checked": true,
+        "text": "2. main()'s LOGIC is unchanged - only its references move to imports from the submodules. No control flow, message, or output change. (Evidence: a reading of app.main shows the same dispatch; behaviour tests unchanged.)"
+      },
+      {
+        "checked": true,
+        "text": "3. cli/__init__.py re-exports the public surface: main, _CATALOG, _VERB_NAMES (and keeps `from lume import cli` working). (Evidence: `python -c 'from lume.cli import main, _CATALOG, _VERB_NAMES'` succeeds; bin/lume runs.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Full suite passes with NO edits to existing test assertions (only the refactor moved code). Behaviour byte-for-byte identical (human + --json + errors + exit codes). (Evidence: test run 0 failures; a couple of live spot-checks match prior output.)"
+      },
+      {
+        "checked": true,
+        "text": "5. No new dependency; deterministic; no logic in __init__ beyond re-exports. Each submodule is focused and importable on its own. (Evidence: imports resolve; no circular-import error.)"
+      }
+    ],
+    "preamble": "E1 (P1): convert lume/cli.py into a lume/cli/ package, moving the already-cohesive helpers into concern submodules (catalog / io / flags) and main() into app.py, with __init__ re-exporting the public names (main, _CATALOG, _VERB_NAMES) so every existing import keeps working. Pure relocation - main()'s logic is untouched; the registry refactor is E2. Guarded by the existing suite: green with no assertion edits."
+  },
+  "handback": "E1 complete - cli.py is now a lume/cli/ package, behaviour byte-identical. 291 tests pass, no assertion edits.\n\n- catalog.py (verb catalog + USAGE), flags.py (argv parsing), io.py (emitters + human/JSON renderers), app.py (main + _ENTITY_KEY), __init__.py re-exports main/_CATALOG/_VERB_NAMES.\n- main() logic is verbatim - only references moved to imports. Imports + bin/lume verified; live output matches.\n\nPure relocation - main() is still a 379-line if-chain; E2 introduces the Context + per-verb handler registry to thin it and co-locate each verb. Accept to open E2.",
+  "id": 3,
+  "self_review": "All 5 DoD items complete; 291 tests pass with NO assertion edits; behaviour byte-identical.\n\nlume/cli.py (591 lines) is now a lume/cli/ package: catalog.py (70 - the verb catalog + USAGE), flags.py (35 - argv parsing), io.py (140 - _code_for/_fail/_ok/_json_out + human renderers + json builders), app.py (379 - main + _ENTITY_KEY), __init__.py (17 - re-exports). main()'s logic is verbatim from the old file; only its helper references became imports from the submodules.\n\nBack-compat held: __init__ re-exports main, _CATALOG, _VERB_NAMES; verified `from lume.cli import main, _CATALOG, _VERB_NAMES`, `from lume import cli`, and bin/lume all work; no circular import. Live spot-checks match prior output (human queue, verbs --json = 20, structured not_found error + exit 1).\n\nThis is pure relocation - main() is still a 379-line if-chain; the Context + handler registry that thins it is E2. The win so far: concerns are now navigable by file (catalog / flags / io / dispatch) instead of one 591-line module. Dependency-free; deterministic; no logic in __init__."
+}
