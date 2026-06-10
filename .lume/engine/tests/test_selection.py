@@ -1,8 +1,10 @@
 import datetime
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
+from lume import state as state_mod
 from lume.clock import FixedClock
 from lume.errors import GateError, NoWorkstreamError
 from lume.repository import Repository
@@ -28,6 +30,20 @@ class SelectionTest(unittest.TestCase):
         (d / "objective.md").write_text(
             f"---\nstatus: {status}\n---\n# {slug.title()}\nthe objective text\n"
         )
+        (d / "objective.json").write_text(json.dumps({
+            "slug": slug, "title": slug.title(),
+            "status": status, "text": "the objective text",
+        }, indent=2) + "\n")
+        state_mod.save(d / state_mod.STATE_FILE, {
+            "workstream": {
+                "slug": slug,
+                "title": slug.title(),
+                "status": status,
+                "objective_artifact": "objective.json",
+            },
+            "iterations": [],
+            "plan": [],
+        })
         return d
 
     # --- target by -w slug --------------------------------------------------
@@ -101,7 +117,7 @@ class SelectionTest(unittest.TestCase):
     def test_close_flips_status_and_then_refuses_target(self):
         d = self._make_ws("apex")
         self._repo().workstream("apex").set_status("closed")
-        self.assertIn("status: closed", (d / "objective.md").read_text().splitlines())
+        self.assertEqual(json.loads((d / "objective.json").read_text())["status"], "closed")
         with self.assertRaises(GateError):
             self._repo().workstream("apex")
 

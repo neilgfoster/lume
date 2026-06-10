@@ -1,9 +1,32 @@
 """The Iteration model: frontmatter-backed unit of the loop, with phase rules."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from . import frontmatter
+
+# A verdict stamp line, exactly as a transition writes it:
+#   2026-06-09 | ACCEPTED
+#   2026-06-09 | REJECTED | some reason
+# Anchored to a leading ISO date so prose mentioning ACCEPTED/REJECTED (a DoD
+# line, a self-review note) never matches. This is the one canonical parser;
+# migrate re-uses it.
+_VERDICT_RE = re.compile(
+    r"^(\d{4}-\d{2}-\d{2})\s*\|\s*(ACCEPTED|REJECTED)(?:\s*\|\s*(.*))?$"
+)
+
+
+def parse_verdicts(body: str) -> list[dict]:
+    """Extract verdict stamps from an iteration body, oldest first."""
+    verdicts = []
+    for line in body.splitlines():
+        m = _VERDICT_RE.match(line.strip())
+        if not m:
+            continue
+        reason = m.group(3).strip() if m.group(3) and m.group(3).strip() else None
+        verdicts.append({"date": m.group(1), "verdict": m.group(2).lower(), "reason": reason})
+    return verdicts
 
 PHASES: tuple[str, ...] = (
     "proposed",
@@ -42,7 +65,7 @@ VERDICT_LABELS: dict[str, str] = {"accept": "ACCEPTED", "reject": "REJECTED"}
 # with the right shape of checkable items. These are prompts, not finished DoDs -
 # the iteration still lands at `proposed` and the DoD is made crisp + approved.
 # Data, keyed by type; `execution` keeps the original generic seed unchanged.
-_SKELETONS: dict[str, str] = {
+SKELETONS: dict[str, str] = {
     "discovery": (
         "- [ ] Context built: the key questions for this stage are answered.\n"
         "- [ ] Artifact produced (e.g. discovery.md) capturing findings + open forks.\n"
@@ -62,6 +85,19 @@ _SKELETONS: dict[str, str] = {
         "- [ ] Decisions logged; workstream closed (lume close) and handed off."
     ),
 }
+
+_ITEM_LINE_RE = re.compile(r"^-\s+\[([ x])\]\s+(.*)")
+
+
+def parse_dod_items(skeleton: str) -> list[dict]:
+    """Parse a skeleton string of `- [ ] text` lines into content-doc item dicts."""
+    items = []
+    for line in skeleton.strip().splitlines():
+        m = _ITEM_LINE_RE.match(line)
+        if m:
+            items.append({"text": m.group(2).strip(), "checked": m.group(1) == "x"})
+    return items
+
 
 _BODY_TEMPLATE = """\
 # Iteration {id:03d} - {title}
@@ -87,6 +123,9 @@ class Iteration:
     phase: str
     opened: str
     body: str = ""
+    # Verdicts as data. None -> derive from the body (preserving the markdown
+    # path); a list -> the authoritative verdicts (used when built from state).
+    verdicts: list | None = None
 
     @property
     def is_accepted(self) -> bool:
@@ -107,12 +146,42 @@ class Iteration:
                 return heading
         return ""
 
+    def verdict_list(self) -> list[dict]:
+        """The verdicts as data: the `verdicts` field if set, else parsed from the body."""
+        return self.verdicts if self.verdicts is not None else parse_verdicts(self.body)
+
     def accepted_on(self) -> str | None:
-        """Date from the last ACCEPTED verdict line in the body, if any."""
-        for line in reversed(self.body.splitlines()):
-            if "ACCEPTED" in line and "|" in line:
-                return line.split("|", 1)[0].strip()
+        """Date from the last ACCEPTED verdict, if any."""
+        for verdict in reversed(self.verdict_list()):
+            if verdict["verdict"] == "accepted":
+                return verdict["date"]
         return None
+
+    def to_entity(self) -> dict:
+        """This iteration as a P1 `iteration` state entity (prose stays in the artifact)."""
+        return {
+            "id": self.id,
+            "type": self.type,
+            "phase": self.phase,
+            "opened": self.opened,
+            "title": self.title,
+            "verdicts": self.verdict_list(),
+            "dod_artifact": f"iterations/{self.id:03d}.json",
+        }
+
+    @classmethod
+    def from_entity(cls, entity: dict) -> "Iteration":
+        """Rebuild an Iteration from a state entity. Body holds only the title heading
+        (the prose lives in the artifact); verdicts come from the entity, not the body."""
+        body = f"# Iteration {entity['id']:03d} - {entity['title']}\n"
+        return cls(
+            id=entity["id"],
+            type=entity["type"],
+            phase=entity["phase"],
+            opened=entity["opened"],
+            body=body,
+            verdicts=list(entity["verdicts"]),
+        )
 
     @property
     def phase_valid(self) -> bool:
@@ -120,7 +189,7 @@ class Iteration:
 
     @classmethod
     def new(cls, id: int, title: str, opened: str, type: str = DEFAULT_TYPE) -> "Iteration":
-        dod = _SKELETONS.get(type, _SKELETONS[DEFAULT_TYPE])
+        dod = SKELETONS.get(type, SKELETONS[DEFAULT_TYPE])
         return cls(
             id=id,
             type=type,

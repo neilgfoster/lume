@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. A retro document (`.lume/workstreams/build-lume/retro.md`) exists and, for each of the 5 loop steps (scope.md 1-5), states what it costs the operator and what it saves, with a per-step net verdict. (Evidence: doc; 5 steps covered.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Each of the 5 load-bearing assumptions in questions.md is assessed against concrete evidence from iterations 001-005, with a verdict (held / unproven / failed) and the iteration(s) cited. (Evidence: 5 assumptions addressed with references.)"
+      },
+      {
+        "checked": true,
+        "text": "3. The constitutional question - \"is ceremony buying back more time than it costs?\" - has an explicit overall verdict (yes / no / mixed) with reasoning, and incorporates the operator's own lived verdict (captured this iteration), not just my inference. (Evidence: the statement + the operator input it cites.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Concrete keep / cut / change decisions are appended to decisions.md, covering whatever the retro flagged (at minimum: a decision on each step or assumption rated negatively, or an explicit \"nothing to cut\"). (Evidence: new decisions.md entries.)"
+      },
+      {
+        "checked": true,
+        "text": "5. A close decision for build-lume is recorded: whether the objective's \"Done-when\" is met, with rationale; objective.md is annotated as closed. (Evidence: the recorded closure + annotation.)"
+      },
+      {
+        "checked": true,
+        "text": "6. The handoff is captured: what the next Lume workstream is and why, written where the next session will see it (snapshot `## Next` and/or the retro). (Evidence: the note.)"
+      },
+      {
+        "checked": true,
+        "text": "7. This is a review iteration: no engine code or test changes. `git diff` touches only docs / workstream-state files (no `.lume/engine/lume/**` or `tests/**`). (Evidence: git diff --stat.)\nNote: `lume open` hardcodes `type: build`; this iteration's `type: review` was set by hand. A typed `lume open` is a practice-contract gap - candidate backlog for the next workstream."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "What changed (uncommitted, no code):\n- `retro.md` (new): per-step verdict, 5-assumption assessment, overall verdict, close-out, handoff.\n- `decisions.md`: six retro/closure/handoff entries.\n- `objective.md`: annotated CLOSED (done-when met).\n- `snapshot.md` `## Next`: closure + next-workstream handoff (Done/Now auto-refreshed on transitions).\n- `iterations/006.md`: this review iteration (type: review).\nOn accept: build-lume is closed; the next session starts a new workstream for the lifecycle/practice refinement.",
+  "id": 6,
+  "self_review": "Adversarial pass against real evidence:\n1. PASS - `retro.md` has a per-step table covering all 5 loop steps with cost/save/net.\n2. PASS - all 5 questions.md assumptions assessed with verdicts and iteration citations; two are honestly marked UNPROVEN (re-orientation across a real gap; review+practice seams) rather than rated as held without evidence.\n3. PASS - explicit overall verdict (\"net positive, with two caveats\") that cites the operator's own lived verdict captured this iteration, not just my inference.\n4. PASS - decisions.md gained six entries: keep-all-steps, the DoD-completeness change, the unproven-items flag, the close decision, and the next-workstream decision.\n5. PASS - objective.md annotated CLOSED with rationale; close decision also in decisions.md and retro.md.\n6. PASS - handoff captured in snapshot `## Next` and retro.md: the next workstream refines the process into discovery -> planning -> execution -> close-out (practice contract).\n7. PASS - git status shows only workstream-state/docs files changed; no `.lume/engine/lume/**` or `tests/**`. Review iteration, no code.\n\nHonesty notes (not DoD misses): the retro deliberately marks two assumptions UNPROVEN. The headline \"net positive\" rests on one operator's verdict over six same-day iterations - a strong signal, stated as such, not a measurement. Key finding worth carrying forward: both rejects were DoD-completeness gaps, not self-review dishonesty, which reframes the main risk from \"Claude self-certifies\" toward \"the DoD didn't encode what mattered\". This iteration used `type: review` (set by hand, since `lume open` hardcodes build) - the practice-contract gap the next workstream addresses."
+}

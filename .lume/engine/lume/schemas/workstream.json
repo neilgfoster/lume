@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "workstream",
+  "type": "object",
+  "required": ["slug", "title", "status", "objective_artifact"],
+  "properties": {
+    "slug": {"type": "string"},
+    "title": {"type": "string"},
+    "status": {"type": "string", "enum": ["active", "closed"]},
+    "objective_artifact": {"type": "string"}
+  }
+}

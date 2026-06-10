@@ -15,3 +15,7 @@ class NoWorkstreamError(LumeError):
 
 class GateError(LumeError):
     """A control-flow gate refused a transition (e.g. opening over an open iteration)."""
+
+
+class SchemaError(LumeError):
+    """State failed schema validation at the persistence boundary (names the field)."""

@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. `lume entities`: prints the entity kind names from `validate.entity_kinds()`\nto stdout, one per line. Exit 0. No workstream target required.\n(Evidence: test asserts all three names in output; exit code 0.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `lume schema <entity>`: prints the JSON Schema for `entity` as\npretty-printed JSON (indent=2, sorted keys) to stdout. Exit 0. Unknown\nentity exits 1 with a named error to stderr (entity name + known set listed).\nNo workstream target required. (Evidence: known entity outputs valid JSON\nwith \"title\"; unknown entity exits 1 with stderr mentioning known set.)"
+      },
+      {
+        "checked": true,
+        "text": "3. `lume get [-w <slug>]` (no entity): emits the full state document as\nformatted JSON (`state.dumps()`). Resolves workstream via `-w`/default-active.\nExit 0. (Evidence: output is valid JSON containing \"workstream\", \"iterations\",\n\"plan\" keys.)"
+      },
+      {
+        "checked": true,
+        "text": "4. `lume get [-w <slug>] <entity>` (entity, no id): emits the corresponding\ntop-level value \u2014 the workstream entity for `workstream`, the full iterations\narray for `iteration`, the full plan array for `plan_item`. Unknown entity\nexits 1 to stderr. (Evidence: workstream emits a dict; iteration emits an\narray; unknown exits 1.)"
+      },
+      {
+        "checked": true,
+        "text": "5. `lume get [-w <slug>] <entity> <id>` (entity + id): finds the matching\nelement by `id` field and emits it as formatted JSON. Iteration id matched\nas integer (leading zeros stripped: \"007\" \u2192 7). Plan_item id matched as\nstring (\"P1\"). `workstream` with an id exits 1 (usage error). Not-found\nexits 1 with a named error. (Evidence: `get iteration 007` emits the entity;\n`get plan_item P1` emits the item; not-found exits 1.)"
+      },
+      {
+        "checked": true,
+        "text": "6. All three verbs are read-only: no `state.save()`, no markdown write, no\nmutation method called. (Evidence: implementation has no save/write calls in\nthe new verb paths.)"
+      },
+      {
+        "checked": true,
+        "text": "7. Full suite green; \u2265 6 new tests covering entities output, schema known +\nunknown (exit codes), get full state, get entity (workstream + array kinds),\nget entity+id (found + not-found), workstream-with-id exits 1. No tests\nremoved. (Evidence: 138 tests, 0 failures.)"
+      }
+    ],
+    "preamble": "Three new read-only verbs. None mutate state.json or any markdown file. No\nworkstream target needed for `entities` or `schema`; `get` resolves the workstream\nvia the normal `-w`/default-active path.\n\nEntity-to-state-key mapping (entity_kinds \u2192 state doc field):\n  `workstream` \u2192 state[\"workstream\"]  (singular object; no id selector)\n  `iteration`  \u2192 state[\"iterations\"] (array; id = integer, e.g. 007 or 7)\n  `plan_item`  \u2192 state[\"plan\"]        (array; id = string, e.g. P1)"
+  },
+  "handback": "P6 complete. All DoD items satisfied. Full suite green (138/138). No markdown\nwritten, no state mutated by any discovery verb. Ready for verdict.",
+  "id": 8,
+  "self_review": "All three verbs implemented and wired in `cli.py`. The `entities`/`schema` branch\nruns before workstream resolution so no target is needed. `get` resolves the\nworkstream normally then reads `ws.state_doc` without calling any mutating method.\nIteration id normalisation (`\"007\"` \u2192 `7` via `lstrip(\"0\") or \"0\"`) handles both\npadded and bare forms. 20 new tests (3 entities, 5 schema, 12 get); 138 total, all\ngreen."
+}

@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. No engine verb writes any .md file. All view-render calls removed from workstream.py (_render_objective, _render_plan, _render_iter, the snapshot.md write in record_snapshot, the .md writes in _save_decisions and save_retro) and from repository.create_workstream. (Evidence: grep shows no `.md` `write_text` in lume/*.py outside migrate.py legacy-read paths.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `lume status` (detail + queue) derives Done/Now/Next from state.json in-memory via build_snapshot, not by reading snapshot.md. snapshot_done_now_next() no longer reads a file. (Evidence: status works in a workstream dir with no snapshot.md.)"
+      },
+      {
+        "checked": true,
+        "text": "3. `lume snapshot` repurposed: prints the derived snapshot text to stdout instead of writing snapshot.md (or is removed). open/transition no longer call record_snapshot to refresh a file. (Evidence: `lume snapshot` writes no file; test asserts no snapshot.md created.)"
+      },
+      {
+        "checked": true,
+        "text": "4. CLI hints/messages no longer reference .md artifacts: `lume new` points at objective.json; retro/snapshot messages drop the .md wording. (Evidence: grep of cli.py user-facing strings.)"
+      },
+      {
+        "checked": true,
+        "text": "5. All generated .md deleted across the three workstreams: objective.md, plan.md, snapshot.md, iterations/NNN.md, decisions.md, retro.md. (discovery.md deferred to P14.) (Evidence: find shows none of those filenames remain.)"
+      },
+      {
+        "checked": true,
+        "text": "6. Full suite green; tests that asserted .md content reworked to assert JSON state or in-memory derivation; no test left asserting a generated .md file exists. (Evidence: test run 0 failures; brief note of which tests changed.)"
+      }
+    ],
+    "preamble": "Scope change (logged as a decision + objective amendment): JSON is now the sole artifact. The engine stops generating every derived .md view and the existing generated .md files are deleted. Human/agent reads go through `lume get`/`status`/`schema` and in-memory derivation, not files on disk. build_snapshot stays as a pure deriver for `lume status`; it is just never persisted. Authored prose (discovery.md) is handled in P14.\n\nChanges confined to workstream.py, repository.py, cli.py, and tests (+ migrate.py if render calls are referenced)."
+  },
+  "handback": "Ready for review. P13: JSON-only \u2014 the engine generates no markdown and the generated .md files are deleted.\n\nworkstream.py: removed _render_objective/_render_plan/_render_iter + record_snapshot's file write; added derive_snapshot(); set_status/_save_state/open/transition/_save_decisions/save_retro are JSON-only; snapshot_done_now_next derives in-memory.\nrepository.py: create_workstream writes objective.json only.\ncli.py: `lume snapshot` prints derived text (no file); new/open/retro messages drop .md wording.\nmigrate.py: dropped the render calls (legacy .md still read-only on the import path).\n44 generated .md deleted; discovery.md (x2) deferred to P14.\n~28 tests reworked; 227 pass.\n\nObjective amended (logged via lume decide): the 'markdown regenerated from state' done-when clause is superseded by 'JSON is the sole artifact, no markdown views'.\n\nDECISION for operator: I kept the pure render_* functions (plan/iter/decisions/retro) as tested-but-unused utilities to bound scope. Reject if you'd rather I delete them + their tests now for zero dead code; otherwise P14 can sweep them. P14 (discovery.md -> discovery.json + `lume reopen`) is the remaining markdown.",
+  "id": 16,
+  "self_review": "All 6 DoD items complete; 227 tests passing.\n\nEngine view generation fully removed: set_status, _save_state, open_iteration, transition, _save_decisions, save_retro, and repository.create_workstream no longer write any .md. _render_objective/_render_plan/_render_iter and the snapshot.md write in record_snapshot were deleted; record_snapshot is replaced by derive_snapshot() which builds the Done/Now/Next text in-memory and is never persisted. snapshot_done_now_next() and `lume status` now derive from state; `lume snapshot` prints the derived text to stdout. grep confirms no .md write_text in lume/*.py.\n\n44 generated .md files deleted across the three workstreams (objective/plan/snapshot/NNN/decisions/retro). The two discovery.md remain, deferred to P14. Live `lume status` and `lume snapshot` verified working with no .md on disk.\n\nTests: ~28 .md-asserting tests reworked to assert JSON state or in-memory derivation (test_auto_snapshot rewritten around derive_snapshot; objective/plan/decisions/retro/iteration tests now assert the .md is absent; transition/verdict tests assert state.json verdicts; cli _iter_type reads state.json). No tests dropped except obsolete view-fold behaviour.\n\nKnown dead code flagged for operator: the pure renderers render_plan, render_iter_md, render_decisions_md, render_retro_md are no longer called by the engine but remain with their unit tests (zero I/O, inverse of the parse_* migration fns). I kept them to bound this iteration's blast radius; removing them (and their tests) is a clean follow-up if you want zero dead code. Migration's .md readers also become inert now the .md are gone."
+}

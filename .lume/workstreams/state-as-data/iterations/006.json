@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "A canonical strict verdict parser lives in iteration.py (the stamp regex\nmoved here from migrate); migrate re-uses it (no duplicated regex). The\nstrict format `YYYY-MM-DD | ACCEPTED|REJECTED [| reason]` is unchanged."
+      },
+      {
+        "checked": true,
+        "text": "`Iteration` carries verdicts as data: a `verdicts` field (default None ->\nparse from body via verdict_list(), preserving today's behaviour) and\n`accepted_on()` routes through it rather than ad-hoc body scanning."
+      },
+      {
+        "checked": true,
+        "text": "`Iteration.to_entity()` returns the P1 iteration entity dict; `from_entity(d)`\nrebuilds an Iteration such that title + accepted_on work. Round-trip\nto_entity(from_entity(d)) == d is tested."
+      },
+      {
+        "checked": true,
+        "text": "`migrate._iteration_entity` reimplemented on top of `to_entity()` (keeping\nonly the legacy-type normalisation); the parallel construction + duplicate\nregex are gone."
+      },
+      {
+        "checked": true,
+        "text": "Behaviour preserved: NO verb/Workstream/Repository/snapshot change. All\npre-existing tests pass unchanged; `lume migrate` byte-identical for the two\nCLOSED workstreams (state-as-data legitimately changed - 005 accepted, 006\nadded, plan edited)."
+      },
+      {
+        "checked": true,
+        "text": "New tests (6) cover the verdict parser, verdicts field/accepted_on, and the\nto_entity/from_entity round-trip. Full suite green (109)."
+      },
+      {
+        "checked": true,
+        "text": "No dead code / unused imports; no duplicated parsing left behind."
+      },
+      {
+        "checked": true,
+        "text": "BONUS (caught in verification): renumbered plan P4a/P4b -> P4/P5 because the\nplan parser only matches numeric P<n> and was silently dropping the lettered\nids. Logged in decisions.md."
+      }
+    ],
+    "preamble": "Rescoped to P4a after the approved plan split (decisions.md, 006): this slice is\nthe behaviour-preserving data-first bridge; P4b does the source-of-truth flip."
+  },
+  "handback": "Rescoped 006 to P4a after the approved split (P4 monolith -> P4 model bridge + P5\nflip; logged). Moved the canonical strict verdict parser into iteration.py; added\nan Iteration `verdicts` field + `verdict_list()`, routed `accepted_on()` through\nit, and added `to_entity()`/`from_entity()` with a tested round-trip. Reimplemented\n`migrate._iteration_entity` on top of `to_entity()`, deleting the duplicate regex\nand parallel construction. Behaviour preserved: 103 prior tests pass unchanged + 6\nnew (109 total); closed-workstream migration byte-identical. During verification\ncaught and fixed the plan parser silently dropping lettered ids (P4a/P4b -> P4/P5).\nNo verb/Repository/snapshot change. Next: P5 flips Workstream to read/write\nstate.json and regenerate views, consuming from_entity.",
+  "id": 6,
+  "self_review": "Adversarial pass against the (rescoped P4a) DoD:\n- Behaviour-preservation is the core claim and it is verified the strict way: all\n  103 pre-existing tests pass UNCHANGED (I added 6, didn't edit old ones), and the\n  two closed workstreams migrate byte-identically. The refactor is provably inert.\n- The verdicts-field design preserves the markdown path (field defaults None ->\n  parse body) while enabling the state path (field set -> authoritative). A test\n  pins that the field wins over the body when both exist - the behaviour P5 needs.\n- DRY achieved without a dangling re-export trap: the one regex lives in\n  iteration.py; migrate re-exports parse_verdicts only because a P3 test asserts\n  migrate.parse_verdicts - load-bearing, marked noqa, not accidental.\n- Caught a real silent bug during verification, not by luck but by checking the\n  derived output: \"P4a\"/\"P4b\" plan ids were dropped by the P<n>-only parser. Fixed\n  by renumbering to P4/P5 and logged. This is exactly the class of failure the\n  workstream exists to kill (state that looks fine but is silently malformed) -\n  here it bit the plan's own format, and validation/derivation surfaced it.\n- Scope honestly held: zero behaviour change to verbs/Workstream/Repository. The\n  flip is entirely P5. from_entity is added but not yet consumed by any verb."
+}

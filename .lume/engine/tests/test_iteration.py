@@ -1,6 +1,63 @@
 import unittest
 
-from lume.iteration import Iteration
+from lume.iteration import Iteration, parse_verdicts
+
+
+class VerdictParserTest(unittest.TestCase):
+    def test_strict_stamp_lines_only(self):
+        body = (
+            "## DoD\n- [x] reject appends `YYYY-MM-DD | REJECTED | reason`\n"
+            "- Attempt 1 REJECTED then redone (prose, not a stamp)\n"
+            "## Verdict\n2026-06-09 | REJECTED | too vague\n2026-06-10 | ACCEPTED\n"
+        )
+        self.assertEqual(
+            parse_verdicts(body),
+            [
+                {"date": "2026-06-09", "verdict": "rejected", "reason": "too vague"},
+                {"date": "2026-06-10", "verdict": "accepted", "reason": None},
+            ],
+        )
+
+    def test_no_stamps_is_empty(self):
+        self.assertEqual(parse_verdicts("# Iteration 001 - x\n\n## Verdict\n"), [])
+
+
+class IterationEntityTest(unittest.TestCase):
+    def _entity(self):
+        return {
+            "id": 6,
+            "type": "execution",
+            "phase": "working",
+            "opened": "2026-06-09",
+            "title": "P4: model bridge",
+            "verdicts": [{"date": "2026-06-09", "verdict": "accepted", "reason": None}],
+            "dod_artifact": "iterations/006.json",
+        }
+
+    def test_to_entity_from_body(self):
+        it = Iteration.from_text(
+            "---\nid: 2\ntype: execution\nphase: accepted\nopened: 2026-06-09\n---\n"
+            "# Iteration 002 - Title\n\n2026-06-09 | ACCEPTED\n"
+        )
+        entity = it.to_entity()
+        self.assertEqual(entity["title"], "Title")
+        self.assertEqual(entity["dod_artifact"], "iterations/002.json")
+        self.assertEqual(entity["verdicts"], [{"date": "2026-06-09", "verdict": "accepted", "reason": None}])
+
+    def test_from_entity_supports_title_and_accepted_on(self):
+        it = Iteration.from_entity(self._entity())
+        self.assertEqual(it.title, "P4: model bridge")
+        self.assertEqual(it.accepted_on(), "2026-06-09")
+
+    def test_round_trip_entity(self):
+        entity = self._entity()
+        self.assertEqual(Iteration.from_entity(entity).to_entity(), entity)
+
+    def test_accepted_on_prefers_field_over_body(self):
+        # verdicts field set -> body is not consulted.
+        it = Iteration(1, "execution", "accepted", "2026-06-09", body="# x\n",
+                       verdicts=[{"date": "2026-07-01", "verdict": "accepted", "reason": None}])
+        self.assertEqual(it.accepted_on(), "2026-07-01")
 
 
 class IterationTest(unittest.TestCase):

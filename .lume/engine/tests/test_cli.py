@@ -1,10 +1,12 @@
 import datetime
 import io
+import json
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
+from lume import state as state_mod
 from lume.cli import main
 from lume.clock import FixedClock
 
@@ -32,14 +34,45 @@ class CliTest(unittest.TestCase):
         (d / "objective.md").write_text(
             f"---\nstatus: {status}\n---\n# {slug.title()}\nobjective\n"
         )
+        (d / "objective.json").write_text(json.dumps({
+            "slug": slug, "title": slug.title(), "status": status, "text": "objective",
+        }, indent=2) + "\n")
+        state_mod.save(d / state_mod.STATE_FILE, {
+            "workstream": {
+                "slug": slug,
+                "title": slug.title(),
+                "status": status,
+                "objective_artifact": "objective.json",
+            },
+            "iterations": [],
+            "plan": [],
+        })
 
     def _iter(self, slug, n, phase):
         d = self.lume / "workstreams" / slug / "iterations"
         d.mkdir(parents=True, exist_ok=True)
         (d / f"{n:03d}.md").write_text(
-            f"---\nid: {n:03d}\ntype: build\nphase: {phase}\nopened: 2026-01-02\n---\n"
+            f"---\nid: {n:03d}\ntype: execution\nphase: {phase}\nopened: 2026-01-02\n---\n"
             f"# Iteration {n:03d} - t\n"
         )
+        (d / f"{n:03d}.json").write_text(json.dumps(
+            {"id": n, "dod": {"preamble": "", "items": []}, "self_review": None, "handback": None},
+            indent=2,
+        ) + "\n")
+        state_path = self.lume / "workstreams" / slug / state_mod.STATE_FILE
+        doc = state_mod.load(state_path)
+        doc["iterations"] = [e for e in doc["iterations"] if e["id"] != n]
+        doc["iterations"].append({
+            "id": n,
+            "type": "execution",
+            "phase": phase,
+            "opened": "2026-01-02",
+            "title": "t",
+            "verdicts": [],
+            "dod_artifact": f"iterations/{n:03d}.json",
+        })
+        doc["iterations"].sort(key=lambda e: e["id"])
+        state_mod.save(state_path, doc)
 
     # --- -w targeting -------------------------------------------------------
     def test_w_flag_targets_anywhere(self):
@@ -76,9 +109,9 @@ class CliTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("# lume - review queue", out)
         self.assertIn("## Awaiting you", out)
-        self.assertIn("awaitw  001 build handback", out)
+        self.assertIn("awaitw  001 execution handback", out)
         self.assertIn("## In progress", out)
-        self.assertIn("workw  001 build working", out)
+        self.assertIn("workw  001 execution working", out)
         self.assertIn("emptyw  (no iterations)", out)
         self.assertIn("## Closed", out)
         self.assertIn("donew", out)
@@ -96,7 +129,8 @@ class CliTest(unittest.TestCase):
         code, out, _ = self._run("new", "fresh", "A title")
         self.assertEqual(code, 0)
         self.assertIn("created workstream 'fresh'", out)
-        self.assertTrue((self.lume / "workstreams" / "fresh" / "objective.md").is_file())
+        self.assertTrue((self.lume / "workstreams" / "fresh" / "objective.json").is_file())
+        self.assertFalse((self.lume / "workstreams" / "fresh" / "objective.md").exists())
         self.assertFalse((self.lume / "current").exists())
 
     # --- single-active flows still work with no -w --------------------------
@@ -110,10 +144,12 @@ class CliTest(unittest.TestCase):
 
     # --- iteration type on open (plan P2) -----------------------------------
     def _iter_type(self, slug, n):
-        text = (self.lume / "workstreams" / slug / "iterations" / f"{n:03d}.md").read_text()
-        for line in text.splitlines():
-            if line.startswith("type:"):
-                return line.split(":", 1)[1].strip()
+        import json
+        from lume import state as state_mod
+        doc = state_mod.load(self.lume / "workstreams" / slug / state_mod.STATE_FILE)
+        for e in doc["iterations"]:
+            if e["id"] == n:
+                return e["type"]
         return None
 
     def test_open_with_type_persists(self):

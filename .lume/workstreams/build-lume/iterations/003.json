@@ -1,0 +1,46 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. A single transition table (source of truth) maps named verbs to fixed (from-phase -> to-phase) pairs: approve (proposed->approved), start (approved->working), handback (working->handback), accept (handback->accepted), reject (handback->rejected), redo (rejected->working). (Evidence: table in source.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `lume <verb>` applies the transition to the current iteration: writes the new phase to its frontmatter. Non-verdict verbs (approve/start/handback/redo) preserve the body byte-for-byte; accept/reject change the body only by appending exactly one verdict line (see item 9). (Evidence: run a verb; show phase changed and body otherwise intact via diff.)"
+      },
+      {
+        "checked": true,
+        "text": "3. A verb refuses (exits non-zero, names the current phase and the required source phase) when the current iteration is not in the verb's from-phase. (Evidence: e.g. `accept` while phase=proposed -> error, exit 1, phase unchanged.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Illegal target phases are structurally impossible: verbs only ever move along table pairs; there is no command to set an arbitrary phase. (Evidence: source + a test asserting unknown verbs are rejected.)"
+      },
+      {
+        "checked": true,
+        "text": "5. After a successful transition the command prints the new phase, and `lume status` reflects it immediately (read from the same file, not cached). (Evidence: transition output + status output.)"
+      },
+      {
+        "checked": true,
+        "text": "6. The full loop runs end to end in a sandbox with no hand-editing of frontmatter: open -> approve -> start -> handback -> accept lands at `accepted`, after which `open` is permitted again. (Evidence: scripted run showing each phase.)"
+      },
+      {
+        "checked": true,
+        "text": "7. Tests (stdlib unittest) cover every legal transition, rejection of every illegal transition from a wrong phase, body-preservation across a transition, unknown-verb handling, and the end-to-end happy path. All green. (Evidence: test count, 0 failures.)"
+      },
+      {
+        "checked": true,
+        "text": "8. No inference/model call in the path; transitions commit nothing and touch only the current iteration file. (Evidence: source / git status.)"
+      },
+      {
+        "checked": true,
+        "text": "9. `reject` requires a reason and refuses (non-zero) without one, appending `YYYY-MM-DD | REJECTED | <reason>` to the Verdict section. `accept` takes no reason (any extra arg is ignored) and appends only a bare `YYYY-MM-DD | ACCEPTED` stamp. Date from the injected clock. (Evidence: reject with/without reason; accept ignores a stray reason and stamps bare.)"
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "What changed (uncommitted):\n- `iteration.py`: added `TRANSITIONS` table + `VERDICT_LABELS`.\n- `workstream.py`: added `transition(verb, note)` - validates against the table, appends dated verdict line for accept/reject, writes only the current file.\n- `cli.py`: dispatch for the six transition verbs; `reject` requires a reason, `accept` takes none; usage lists all verbs.\n- `frontmatter.py`: parse/render reworked to be an exact inverse (enables byte-for-byte phase edits).\n- Tests: new `test_transitions.py` (8 cases); `test_frontmatter.py` tightened. 25 total, green.\nRun: `.lume/engine/bin/lume approve|start|handback|accept|reject \"<reason>\"`.",
+  "id": 3,
+  "self_review": "Adversarial pass against real evidence:\n1. PASS - `TRANSITIONS` in `iteration.py` is the single table: approve/start/handback/accept/reject/redo each map to a fixed (from, to) pair.\n2. PASS - `test_non_verdict_transition_preserves_body_byte_for_byte`: after `approve`, the file equals the original with only `phase: proposed`->`approved` changed. frontmatter parse/render were reworked to be an exact inverse (body verbatim incl. trailing newline) so this holds.\n3. PASS - CLI `accept` while phase=proposed printed \"cannot accept - iteration 002 is phase 'proposed', not 'handback'\", exit 1, phase unchanged. Unit `test_illegal_transition_from_wrong_phase_refused` asserts disk phase unchanged.\n4. PASS - verbs only move along table pairs; there is no set-arbitrary-phase command. `teleport` -> exit 2; `test_unknown_verb_refused` covers the engine guard.\n5. PASS - each CLI transition printed `<verb>: iteration NNN -> phase <new>`; `lume status` then showed the new phase (re-read from file).\n6. PASS - sandbox e2e with zero hand-editing: open -> approve -> start -> handback -> accept landed at `accepted`; `open \"Next\"` was then permitted (created 002).\n7. PASS - `python3 -m unittest discover`: Ran 25 tests, OK. Covers every legal transition (subTest per verb), illegal-from-wrong-phase, body preservation, unknown verb, accept/reject verdict lines, and the full open->accepted loop.\n8. PASS - grep for anthropic/openai/requests/urllib/socket/subprocess/http import lines: none. Engine runs no git; `transition` writes only the current iteration file.\n9. PASS - `reject \"DoD too vague\"` appends `2026-01-02 | REJECTED | DoD too vague`; `reject` with no reason -> usage, exit 2. `accept \"this should be ignored\"` appended only `2026-06-09 | ACCEPTED` (no reason segment); `test_accept_appends_bare_stamp_with_no_reason` asserts the passed note never appears. This matches the operator correction that accept needs no reason.\n\nThis iteration was opened by the shipped `lume open`, rejected and reopened via `lume reject`/`lume redo`, and handed back via `lume handback` - the loop, including the reject->redo path, now runs entirely on its own tooling. Diff swept: no unused imports; `transition` reuses the shared models; the frontmatter rework also tightened 002's round-trip tests to assert exactness rather than tolerate newline loss."
+}

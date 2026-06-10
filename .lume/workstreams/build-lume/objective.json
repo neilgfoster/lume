@@ -1,0 +1,6 @@
+{
+  "slug": "build-lume",
+  "status": "closed",
+  "text": "Lightweight Claude Code framework to run work across short, interrupted\nsessions without losing the thread.\n\nDone-when: Lume's own linear loop (scope.md steps 1-5) runs on a single\nflat workstream, and is used to advance \"build Lume\" itself.\n\nStatus: CLOSED 2026-06-09 (iteration 006 retro). Done-when met - the loop\nis deterministic tooling and ran this workstream through 005, including a\nfull reject -> redo -> accept on its own verbs. See retro.md. Next:\nrefine the workstream process into an explicit lifecycle (discovery ->\nplanning -> execution -> close-out) in a new workstream.",
+  "title": "Build Lume"
+}

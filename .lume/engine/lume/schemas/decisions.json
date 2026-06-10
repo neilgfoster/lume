@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "decisions",
+  "type": "object",
+  "required": ["entries"],
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "context", "decision", "rationale"],
+        "properties": {
+          "date":      {"type": "string"},
+          "context":   {"type": "string"},
+          "decision":  {"type": "string"},
+          "rationale": {"type": "string"}
+        }
+      }
+    }
+  }
+}
