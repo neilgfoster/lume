@@ -17,8 +17,8 @@ def handle_new(ctx: Context) -> int:
         ctx.fail("usage", 'usage: lume new <slug> "<title>"')
         return 2
     ws = ctx.repo.create_workstream(ctx.arg, ctx.rest[3].strip())
-    ctx.ok({"result": "new", "workstream": ws.name, "status": "active"},
-           f"created workstream '{ws.name}' (active): {ws.name}/objective.json",
+    ctx.ok({"result": "new", "id": ws.id, "workstream": ws.name, "status": "active"},
+           f"created workstream '{ws.name}' [{ws.id}] (active): {ws.name}/objective.json",
            'next: edit its objective.json, then: lume open "<first iteration>".')
     return 0
 
@@ -28,7 +28,7 @@ def handle_reopen(ctx: Context) -> int:
         ctx.fail("usage", "usage: lume reopen <slug>")
         return 2
     ws = ctx.repo.reopen_workstream(ctx.arg)
-    ctx.ok({"result": "reopen", "workstream": ws.name, "status": "active"},
+    ctx.ok({"result": "reopen", "id": ws.id, "workstream": ws.name, "status": "active"},
            f"reopened workstream '{ws.name}' (active).")
     return 0
 
@@ -36,7 +36,7 @@ def handle_reopen(ctx: Context) -> int:
 def handle_close(ctx: Context) -> int:
     ws = ctx.require_ws()
     ws.set_status(CLOSED)
-    ctx.ok({"result": "close", "workstream": ws.name, "status": "closed"},
+    ctx.ok({"result": "close", "id": ws.id, "workstream": ws.name, "status": "closed"},
            f"closed workstream '{ws.name}'.")
     return 0
 

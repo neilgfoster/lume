@@ -55,12 +55,15 @@ class JsonOutputTest(unittest.TestCase):
         self.assertEqual(obj["name"], "demo")
         self.assertEqual(obj["status"], "active")
         self.assertEqual(obj["current_iteration"]["phase"], "proposed")
+        self.assertIn("id", obj)
 
     def test_status_queue_json_object(self):
         _, out, _ = self._run("--json", "status")  # no -w => queue
         obj = json.loads(out)
         self.assertEqual(set(obj), {"awaiting", "in_progress", "closed"})
-        self.assertEqual(obj["in_progress"][0]["workstream"], "demo")
+        entry = obj["in_progress"][0]
+        self.assertEqual(entry["workstream"], "demo")
+        self.assertIn("id", entry)
 
     def test_snapshot_json_object(self):
         _, out, _ = self._run("--json", "-w", "demo", "snapshot")
@@ -115,7 +118,10 @@ class JsonMutatingVerbsTest(unittest.TestCase):
         code, out = self._run("--json", "new", "demo", "Demo")
         self.assertEqual(code, 0)
         obj = json.loads(out)
-        self.assertEqual(obj, {"result": "new", "workstream": "demo", "status": "active"})
+        self.assertEqual(obj["result"], "new")
+        self.assertEqual(obj["workstream"], "demo")
+        self.assertEqual(obj["status"], "active")
+        self.assertIn("id", obj)
 
     def test_open_and_transition_results(self):
         self._run("--json", "new", "demo", "Demo")
@@ -144,8 +150,11 @@ class JsonMutatingVerbsTest(unittest.TestCase):
     def test_close_result(self):
         self._run("--json", "new", "demo", "Demo")
         _, out = self._run("--json", "-w", "demo", "close")
-        self.assertEqual(json.loads(out),
-                         {"result": "close", "workstream": "demo", "status": "closed"})
+        obj = json.loads(out)
+        self.assertEqual(obj["result"], "close")
+        self.assertEqual(obj["workstream"], "demo")
+        self.assertEqual(obj["status"], "closed")
+        self.assertIn("id", obj)
 
     def test_human_output_unchanged_without_flag(self):
         code, out = self._run("new", "demo", "Demo")

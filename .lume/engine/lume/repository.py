@@ -79,23 +79,31 @@ class Repository:
     def active_workstreams(self, lume_dir: Path) -> list[Workstream]:
         return [ws for ws in self.workstreams(lume_dir) if not ws.is_closed]
 
-    def workstream(self, slug: str | None = None) -> Workstream:
+    def workstream(self, slug_or_id: str | None = None) -> Workstream:
         """Resolve the workstream a command acts on.
 
-        With `slug`, target it explicitly (the `-w` selector); a closed or
-        unknown slug is a named error. Without `slug`, default to the sole
-        active workstream; zero or several active is a named error that never
-        silently picks one.
+        With `slug_or_id`, target it explicitly (the `-w` selector). Accepts
+        a store id (e.g. "0007") or a slug label (e.g. "seed-and-numbering");
+        id is tried first. A closed or unresolvable value is a named error.
+        Without `slug_or_id`, default to the sole active workstream; zero or
+        several active is a named error that never silently picks one.
         """
         lume_dir = self._require_lume_dir()
-        if slug is not None:
-            id = self._slug_to_id(lume_dir, slug)
-            if id is None:
-                raise NoWorkstreamError(f"no workstream '{slug}' under {lume_dir}.")
+        if slug_or_id is not None:
+            store = self._store(lume_dir)
+            # Try as id first, then fall back to slug scan.
+            if store.has_workstream(slug_or_id):
+                id = slug_or_id
+            else:
+                id = self._slug_to_id(lume_dir, slug_or_id)
+                if id is None:
+                    raise NoWorkstreamError(
+                        f"no workstream '{slug_or_id}' under {lume_dir}."
+                    )
             ws = self._load_workstream(lume_dir, id)
             if ws.is_closed:
                 raise GateError(
-                    f"workstream '{slug}' is closed; reopen it or target another."
+                    f"workstream '{slug_or_id}' is closed; reopen it or target another."
                 )
             return ws
         active = self.active_workstreams(lume_dir)

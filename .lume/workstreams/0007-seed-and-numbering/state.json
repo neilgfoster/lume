@@ -34,8 +34,23 @@
       "dod_artifact": "iterations/003.json",
       "id": 3,
       "opened": "2026-06-10",
-      "phase": "handback",
+      "phase": "accepted",
       "title": "E1: id-keyed TrackingStore + NNNN-slug folders + migration",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/004.json",
+      "id": 4,
+      "opened": "2026-06-10",
+      "phase": "handback",
+      "title": "E2: -w by id or slug + id-ordered listings + id in output",
       "type": "execution",
       "verdicts": []
     }
@@ -50,7 +65,7 @@
     },
     {
       "id": "P2",
-      "iter": null,
+      "iter": 4,
       "sketch": "E2: resolution + ordering. -w accepts an id OR a slug-label (unique scan; ambiguous/missing = named error); status queue + detail and other listings ordered by id; id surfaced in output (human + --json). DONE = -w by id and by slug both resolve; listings ordered by id; tests cover both; suite green.",
       "tag": "committed",
       "type": "execution"

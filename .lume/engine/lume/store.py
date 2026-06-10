@@ -187,8 +187,12 @@ class SQLiteStore:
         return [str(r[0]) for r in rows]
 
     def has_workstream(self, id: str) -> bool:
+        try:
+            numeric_id = int(id)
+        except ValueError:
+            return False
         row = self._conn.execute(
-            "SELECT 1 FROM workstreams WHERE id = ?", (int(id),)
+            "SELECT 1 FROM workstreams WHERE id = ?", (numeric_id,)
         ).fetchone()
         return row is not None
 
@@ -201,9 +205,13 @@ class SQLiteStore:
         return str(row[0])
 
     def read(self, id: str, artifact: str) -> dict | None:
+        try:
+            numeric_id = int(id)
+        except ValueError:
+            return None
         row = self._conn.execute(
             "SELECT doc FROM artifacts WHERE ws_id = ? AND artifact = ?",
-            (int(id), artifact)
+            (numeric_id, artifact)
         ).fetchone()
         if row is None:
             return None

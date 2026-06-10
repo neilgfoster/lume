@@ -63,7 +63,8 @@ def _render_detail(ws: Workstream) -> None:
         iteration_line = (
             f"iteration {current.id:03d} ({current.type}): phase {current.phase}{warn}"
         )
-    print(f"# {ws.name}")
+    id_suffix = f"  [{ws.id}]" if ws.id != ws.name else ""
+    print(f"# {ws.name}{id_suffix}")
     print(f"objective: {ws.objective_line()}")
     print(iteration_line)
     print()
@@ -86,9 +87,12 @@ def _render_queue(workstreams: list[Workstream]) -> None:
     print("# lume - review queue")
     print()
     print("## Awaiting you")
+    def _ws_label(ws: Workstream) -> str:
+        return f"{ws.name} [{ws.id}]" if ws.id != ws.name else ws.name
+
     if awaiting:
         for ws, it in awaiting:
-            print(f"- {ws.name}  {it.id:03d} {it.type} handback")
+            print(f"- {_ws_label(ws)}  {it.id:03d} {it.type} handback")
     else:
         print("- (nothing awaiting review)")
     print()
@@ -98,14 +102,14 @@ def _render_queue(workstreams: list[Workstream]) -> None:
             where = (
                 f"{it.id:03d} {it.type} {it.phase}" if it is not None else "(no iterations)"
             )
-            print(f"- {ws.name}  {where}")
+            print(f"- {_ws_label(ws)}  {where}")
     else:
         print("- (none)")
     if closed:
         print()
         print("## Closed")
         for ws in closed:
-            print(f"- {ws.name}")
+            print(f"- {_ws_label(ws)}")
 
 
 def _iteration_summary(it) -> dict | None:
@@ -117,6 +121,7 @@ def _iteration_summary(it) -> dict | None:
 def _detail_data(ws: Workstream) -> dict:
     """Single-workstream status as a structured object (the --json form of _render_detail)."""
     return {
+        "id": ws.id,
         "name": ws.name,
         "status": ws.status,
         "objective": ws.objective_line(),
@@ -129,10 +134,10 @@ def _queue_data(workstreams: list[Workstream]) -> dict:
     awaiting, in_progress, closed = [], [], []
     for ws in workstreams:
         if ws.is_closed:
-            closed.append(ws.name)
+            closed.append({"id": ws.id, "workstream": ws.name})
             continue
         it = ws.current_iteration()
-        entry = {"workstream": ws.name, "iteration": _iteration_summary(it)}
+        entry = {"id": ws.id, "workstream": ws.name, "iteration": _iteration_summary(it)}
         if it is not None and it.phase == "handback":
             awaiting.append(entry)
         else:
