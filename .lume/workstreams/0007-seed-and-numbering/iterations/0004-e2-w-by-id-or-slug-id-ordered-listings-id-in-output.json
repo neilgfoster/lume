@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. -w accepts id (e.g. '0007') OR slug (e.g. 'seed-and-numbering'). Id-first resolution: Repository.workstream(slug_or_id) tries has_workstream(value) first; falls back to _slug_to_id scan. Unknown value raises NoWorkstreamError. (Evidence: test_selection.py::test_target_by_id, test_target_unknown_id_errors green.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Listings ordered by id. workstreams(lume_dir) iterates list_workstreams() which returns sorted ids. FilesystemStore sorts NNNN strings giving creation-sequence order. Queue and detail render in that order. (Evidence: lume status shows 0001-build-lume through 0007-seed-and-numbering in id order.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Id surfaced in human output. _render_detail: '# name  [id]' when id != name. _render_queue: 'name [id]' label for each row when id != name. (Evidence: lume status shows 'seed-and-numbering [0007]'; lume status -w 0007 shows '# seed-and-numbering  [0007]'.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Id surfaced in --json output. _detail_data adds 'id' field. _queue_data adds 'id' to each entry (awaiting, in_progress, closed). Mutation verbs new/close/reopen add 'id' to their result dict. (Evidence: test_json_output.py all green; test_status_detail_json_object, test_status_queue_json_object, test_new_result, test_close_result all check 'id' present.)"
+      },
+      {
+        "checked": true,
+        "text": "5. SQLiteStore guards against non-numeric id strings in has_workstream, read, write (ValueError -> False/None instead of crash). Required because the id-first resolution path passes slug strings to has_workstream before falling through to slug scan. (Evidence: 297 tests green; no ValueError crash on -w <slug> with SQLite backing.)"
+      },
+      {
+        "checked": true,
+        "text": "6. 297 tests green (was 294; +3 new id-resolution tests in test_selection.py). Suite is the done-test."
+      }
+    ],
+    "preamble": "E2: -w resolution by id or slug, id surfaced in all output (human + --json), listings ordered by id. CLI behaviour fully preserved: -w <slug> still resolves. Suite must be green."
+  },
+  "handback": "E2 complete. 297 tests green (was 294). All three E2 outcomes delivered:\n\n- -w by id: Repository.workstream() tries has_workstream(value) first (id-first), then _slug_to_id scan (slug fallback). lume status -w 0007 works; unknown id raises NoWorkstreamError.\n- Listings ordered by id: FilesystemStore.list_workstreams() returns sorted NNNN strings -> creation-sequence order. Queue/detail render follows id order.\n- Id in output: human renders show 'name [id]' suffix (only when id != name); --json adds 'id' field to detail, queue, and mutation verb results. SQLiteStore hardened against non-numeric id strings in has/read/write.\n\nReady to open E3: lume seed verb.",
+  "id": 4,
+  "self_review": "All 6 DoD items checked.\n\nId-first resolution is clean: has_workstream() for all three backings now returns False gracefully for non-numeric slugs (SQLite guard added). The FilesystemStore dual-mode fallback already handled this correctly.\n\nOutput format: id shown in brackets when id != name (suppresses redundant 'apex [apex]' for plain-slug test fixtures). Queue and detail both updated. JSON output gains 'id' on all relevant shapes.\n\nTest count: 297 (+3: test_target_by_id, test_target_by_id_takes_precedence_over_slug, test_target_unknown_id_errors). Existing tests with exact-equality checks updated where needed (test_new_result, test_close_result).\n\nE3 is next: lume seed verb."
+}

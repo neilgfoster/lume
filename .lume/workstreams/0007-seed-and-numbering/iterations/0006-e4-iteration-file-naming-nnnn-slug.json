@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Iteration files on disk named NNNN-slug.json: _slugify(title) added to iteration.py (lowercase, non-alphanum runs -> hyphens). Iteration.to_entity() sets dod_artifact = 'iterations/{id:04d}-{slug}.json'. E.g. 'First' -> '0001-first.json'. (Evidence: test_iteration_json.py all green; lume status shows 0001-map-state-cli-for-numbering-seed-and-design-both.json etc.)"
+      },
+      {
+        "checked": true,
+        "text": "2. workstream.py _save_iter_content(entity, content): derives artifact key from entity['dod_artifact'] stem ('iteration:0001-first'). store.py _path maps 'iteration:NNNN-slug' to iterations/NNNN-slug.json unchanged (already passed stem through). migrate.py passes entity directly (it already sets dod_artifact explicitly). (Evidence: test_migrate.py all green; no store.py changes needed.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Body heading and from_entity heading updated to 4-digit: '# Iteration 0001 - ...'. (Evidence: test_new_produces_proposed_with_skeleton green.)"
+      },
+      {
+        "checked": true,
+        "text": "4. All 55 existing iteration files renamed via git mv to NNNN-slug.json; state.json dod_artifact fields updated for all 7 workstreams. (Evidence: ls shows NNNN-slug.json names; lume status runs clean.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Test fixtures updated: _iter_file(ws_dir, n) glob helper added to test_iteration_json.py, test_workstream_open.py, test_state_flip.py, test_seed.py. dod_artifact equality checks updated in test_iteration.py. test_transitions.py required no changes (writes files directly, transition never touches content). (Evidence: 311 tests green.)"
+      },
+      {
+        "checked": true,
+        "text": "6. 311 tests green (count unchanged; no regressions). Suite is the done-test."
+      }
+    ],
+    "preamble": "E4: iteration file naming NNNN-slug.json. Iteration artifact files on disk follow the same NNNN-slug convention as workstream folders. dod_artifact field drives the mapping; store is unchanged. DONE = new iterations land as NNNN-slug.json; existing files renamed; suite green."
+  },
+  "handback": "E4 complete. 311 tests green (unchanged count, no regressions). All DoD items delivered:\n\n- _slugify added to iteration.py; to_entity() sets dod_artifact to NNNN-slug.json format.\n- _save_iter_content takes entity dict, derives artifact key from dod_artifact stem. No store changes.\n- migrate.py: pass entity (already has dod_artifact set) instead of n int.\n- 55 existing files renamed via git mv; all state.json dod_artifact fields updated.\n- Test suite updated: _iter_file glob helper; dod_artifact fixture updated; 311 green.\n\nReady for E5: retro + close.",
+  "id": 6,
+  "self_review": "All 6 DoD items checked.\n\nThe pivot was using dod_artifact as the canonical key rather than a separate slug field. The existing field already encoded the intent; changing its value from NNN.json to NNNN-slug.json cascades through the system with no new abstractions.\n\nBackward compat: migrate.py explicitly sets dod_artifact to NNN.json for legacy content, so legacy test fixtures and migrate tests are unaffected. test_transitions.py writes files directly and transition never reads content - no changes needed.\n\nSlug length: some slugs are long but filesystem limits are 255 bytes; all slugs well within that. The slugify regex is simple and deterministic."
+}

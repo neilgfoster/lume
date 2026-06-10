@@ -1,0 +1,146 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-map-state-cli-for-numbering-seed-and-design-both.json",
+      "id": 1,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Map state/CLI for numbering + seed, and design both",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0002-resolve-the-forks-and-plan-the-id-numbering-seed-slices.json",
+      "id": 2,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Resolve the forks and plan the id/numbering/seed slices",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0003-e1-id-keyed-trackingstore-nnnn-slug-folders-migration.json",
+      "id": 3,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E1: id-keyed TrackingStore + NNNN-slug folders + migration",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0004-e2-w-by-id-or-slug-id-ordered-listings-id-in-output.json",
+      "id": 4,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E2: -w by id or slug + id-ordered listings + id in output",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0005-e3-lume-seed-verb-id-0-seed-attribute-discovery-iteration.json",
+      "id": 5,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E3: lume seed verb (id 0 + seed attribute + discovery iteration)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0006-e4-iteration-file-naming-nnnn-slug.json",
+      "id": 6,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E4: iteration file naming - NNNN-slug",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0007-e5-retro-and-close.json",
+      "id": 7,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E5: retro and close",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": 3,
+      "sketch": "E1: reshape TrackingStore to id-keyed + store-minted ids. create_workstream(slug, seed=False)->id; has/read/write(id,...); list()->[id]; id is an opaque str. FilesystemStore mints zero-padded sequential ids + names folders NNNN-slug (seed=0000 via seed flag); SQLite/in-memory mint their own id sequences. workstream schema gains id (slug kept as label). Repository threads the store id. Update store + contract-matrix tests. Migrate the 6 existing: assign ids 1-7 by creation order + git mv rename folders to NNNN-slug (handle the active workstream). DONE = contract matrix green for all backings; live .lume renamed sequentially; CLI behaviour-preserving; suite green. (Splittable if the diff is too large.)",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": 4,
+      "sketch": "E2: resolution + ordering. -w accepts an id OR a slug-label (unique scan; ambiguous/missing = named error); status queue + detail and other listings ordered by id; id surfaced in output (human + --json). DONE = -w by id and by slug both resolve; listings ordered by id; tests cover both; suite green.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "E3: seed verb. lume seed [--new|--existing] creates the seed workstream (fs id 0 via seed=True + a seed attribute in the workstream record) and opens a discovery iteration with a mode-specific DoD skeleton (new: why/scope/constraints; existing: repo map); detection defaults by repo emptiness. DONE = lume seed creates id-0 seed + discovery iteration; new/existing modes covered; suite green.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": null,
+      "sketch": "E4: closeout - retro (did id-as-key + numbering + seed buy back their cost? contract evolution clean?), assess done-when clause by clause, lume close.",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
+  "workstream": {
+    "id": "0007",
+    "objective_artifact": "objective.json",
+    "slug": "seed-and-numbering",
+    "status": "closed",
+    "title": "Seed Workstream & Workstream Numbering"
+  }
+}

@@ -1,11 +1,15 @@
 """The Tracking contract (scope.md): persistence of workstream/PM state.
 
 A `TrackingStore` is the seam behind which a workstream's artifacts live. It is
-a key/value of JSON documents addressed by (slug, artifact), plus workstream
+a key/value of JSON documents addressed by (id, artifact), plus workstream
 listing/creation. The engine's models and verbs talk to this contract, never to
 files directly - so a second backing (SQLite, GitHub Issues, ...) swaps in
 without touching anything above it. `Repository` is the policy/resolution layer
 that *uses* a store; `FilesystemStore` is its v1 implementation.
+
+Workstream ids are opaque strings, minted by the store on `create_workstream`.
+FilesystemStore uses zero-padded sequential numbers ("0001", "0002", ...) with
+folders named NNNN-slug on disk. SQLite and InMemory use their own sequences.
 
 Artifact ids (the second key):
     "state" | "objective" | "decisions" | "retro" | "discovery"
@@ -34,31 +38,83 @@ _SIMPLE_ARTIFACTS = ("objective", "decisions", "retro", "discovery")
 
 class TrackingStore(Protocol):
     def list_workstreams(self) -> list[str]: ...
-    def has_workstream(self, slug: str) -> bool: ...
-    def create_workstream(self, slug: str) -> None: ...
-    def read(self, slug: str, artifact: str) -> dict | None: ...
-    def write(self, slug: str, artifact: str, doc: dict) -> None: ...
+    def has_workstream(self, id: str) -> bool: ...
+    def create_workstream(self, slug: str, seed: bool = False) -> str: ...
+    def read(self, id: str, artifact: str) -> dict | None: ...
+    def write(self, id: str, artifact: str, doc: dict) -> None: ...
+
+
+def _folder_id(name: str) -> str:
+    """Extract the store id from a folder name.
+
+    NNNN-slug -> "NNNN"; plain slug -> slug itself (legacy/test format).
+    """
+    parts = name.split("-", 1)
+    if len(parts) == 2 and parts[0].isdigit():
+        return parts[0]
+    return name
+
+
+def _folder_slug(name: str) -> str:
+    """Extract the slug label from a folder name.
+
+    NNNN-slug -> "slug"; plain slug -> slug itself.
+    """
+    parts = name.split("-", 1)
+    if len(parts) == 2 and parts[0].isdigit():
+        return parts[1]
+    return name
 
 
 class FilesystemStore:
-    """TrackingStore backed by .lume/workstreams/<slug>/ JSON files."""
+    """TrackingStore backed by .lume/workstreams/NNNN-<slug>/ JSON files.
+
+    IDs are zero-padded sequential numbers ("0001", "0002", ...). The seed
+    workstream (E3) uses "0000". Legacy plain-slug folders are also supported
+    for migration compatibility; their id equals the folder name.
+    """
 
     def __init__(self, lume_dir: Path) -> None:
         self._root = lume_dir / WORKSTREAMS_SUBDIR
 
     @classmethod
     def from_workstreams_root(cls, root: Path) -> "FilesystemStore":
-        """Build a store whose workstreams root is `root` directly (the dir that
-        holds <slug>/ subdirs). Used where the caller has that dir, not the .lume/."""
+        """Build a store whose workstreams root is `root` directly."""
         store = cls.__new__(cls)
         store._root = root
         return store
 
-    def _dir(self, slug: str) -> Path:
-        return self._root / slug
+    def _next_id(self, seed: bool = False) -> str:
+        if seed:
+            return "0000"
+        if not self._root.is_dir():
+            return "0001"
+        max_num = 0
+        for p in self._root.iterdir():
+            parts = p.name.split("-", 1)
+            if len(parts) == 2 and parts[0].isdigit():
+                max_num = max(max_num, int(parts[0]))
+        return str(max_num + 1).zfill(4)
 
-    def _path(self, slug: str, artifact: str) -> Path:
-        ws = self._dir(slug)
+    def _dir_for_id(self, id: str) -> Path:
+        """Resolve the workstream directory for `id`.
+
+        Tries NNNN-slug prefix match first, then falls back to a literal
+        folder name equal to `id` (supports plain-slug legacy/test dirs).
+        """
+        if self._root.is_dir():
+            for p in self._root.iterdir():
+                parts = p.name.split("-", 1)
+                if len(parts) == 2 and parts[0] == id:
+                    return p
+            # Legacy fallback: folder name equals id
+            candidate = self._root / id
+            if candidate.is_dir():
+                return candidate
+        return self._root / id  # non-existent path; will fail on access
+
+    def _path(self, id: str, artifact: str) -> Path:
+        ws = self._dir_for_id(id)
         if artifact == "state":
             return ws / state_mod.STATE_FILE
         if artifact.startswith("iteration:"):
@@ -70,27 +126,32 @@ class FilesystemStore:
     def list_workstreams(self) -> list[str]:
         if not self._root.is_dir():
             return []
-        return sorted(
-            p.name for p in self._root.iterdir()
-            if (p / state_mod.STATE_FILE).is_file()
-        )
+        result = []
+        for p in self._root.iterdir():
+            if not (p / state_mod.STATE_FILE).is_file():
+                continue
+            result.append(_folder_id(p.name))
+        return sorted(result)
 
-    def has_workstream(self, slug: str) -> bool:
-        return (self._dir(slug) / state_mod.STATE_FILE).is_file()
+    def has_workstream(self, id: str) -> bool:
+        return (self._dir_for_id(id) / state_mod.STATE_FILE).is_file()
 
-    def create_workstream(self, slug: str) -> None:
-        self._dir(slug).mkdir(parents=True, exist_ok=True)
+    def create_workstream(self, slug: str, seed: bool = False) -> str:
+        id = self._next_id(seed=seed)
+        folder = self._root / f"{id}-{slug}"
+        folder.mkdir(parents=True, exist_ok=True)
+        return id
 
-    def read(self, slug: str, artifact: str) -> dict | None:
-        path = self._path(slug, artifact)
+    def read(self, id: str, artifact: str) -> dict | None:
+        path = self._path(id, artifact)
         if not path.is_file():
             return None
         if artifact == "state":
             return state_mod.load(path)
         return json.loads(path.read_text())
 
-    def write(self, slug: str, artifact: str, doc: dict) -> None:
-        path = self._path(slug, artifact)
+    def write(self, id: str, artifact: str, doc: dict) -> None:
+        path = self._path(id, artifact)
         path.parent.mkdir(parents=True, exist_ok=True)
         if artifact == "state":
             state_mod.save(path, doc)
@@ -100,39 +161,57 @@ class FilesystemStore:
 
 class SQLiteStore:
     """TrackingStore backed by a single SQLite db - a non-filesystem proof that
-    the contract is backing-agnostic. Artifacts are rows keyed by (slug, artifact);
+    the contract is backing-agnostic. Workstream ids are auto-assigned row ids
+    (returned as strings). Artifacts are rows keyed by (ws_id, artifact);
     docs are stored as JSON text. The 'state' artifact is validated via
     state.validate_doc on read and write (no path I/O involved)."""
 
     def __init__(self, db_path: Path | str) -> None:
-        # check_same_thread=False keeps it usable from tests; the CLI is single-threaded.
         self._conn = sqlite3.connect(str(db_path), check_same_thread=False)
         self._conn.execute(
+            "CREATE TABLE IF NOT EXISTS workstreams ("
+            " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            " slug TEXT NOT NULL UNIQUE)"
+        )
+        self._conn.execute(
             "CREATE TABLE IF NOT EXISTS artifacts ("
-            " slug TEXT NOT NULL, artifact TEXT NOT NULL, doc TEXT NOT NULL,"
-            " PRIMARY KEY (slug, artifact))"
+            " ws_id INTEGER NOT NULL, artifact TEXT NOT NULL, doc TEXT NOT NULL,"
+            " PRIMARY KEY (ws_id, artifact))"
         )
         self._conn.commit()
 
     def list_workstreams(self) -> list[str]:
         rows = self._conn.execute(
-            "SELECT slug FROM artifacts WHERE artifact = 'state' ORDER BY slug"
+            "SELECT id FROM workstreams ORDER BY id"
         ).fetchall()
-        return [r[0] for r in rows]
+        return [str(r[0]) for r in rows]
 
-    def has_workstream(self, slug: str) -> bool:
+    def has_workstream(self, id: str) -> bool:
+        try:
+            numeric_id = int(id)
+        except ValueError:
+            return False
         row = self._conn.execute(
-            "SELECT 1 FROM artifacts WHERE slug = ? AND artifact = 'state'", (slug,)
+            "SELECT 1 FROM workstreams WHERE id = ?", (numeric_id,)
         ).fetchone()
         return row is not None
 
-    def create_workstream(self, slug: str) -> None:
-        # Rows appear on write; nothing to pre-create for a row store.
-        pass
-
-    def read(self, slug: str, artifact: str) -> dict | None:
+    def create_workstream(self, slug: str, seed: bool = False) -> str:
+        self._conn.execute("INSERT INTO workstreams (slug) VALUES (?)", (slug,))
+        self._conn.commit()
         row = self._conn.execute(
-            "SELECT doc FROM artifacts WHERE slug = ? AND artifact = ?", (slug, artifact)
+            "SELECT id FROM workstreams WHERE slug = ?", (slug,)
+        ).fetchone()
+        return str(row[0])
+
+    def read(self, id: str, artifact: str) -> dict | None:
+        try:
+            numeric_id = int(id)
+        except ValueError:
+            return None
+        row = self._conn.execute(
+            "SELECT doc FROM artifacts WHERE ws_id = ? AND artifact = ?",
+            (numeric_id, artifact)
         ).fetchone()
         if row is None:
             return None
@@ -141,13 +220,13 @@ class SQLiteStore:
             state_mod.validate_doc(doc)
         return doc
 
-    def write(self, slug: str, artifact: str, doc: dict) -> None:
+    def write(self, id: str, artifact: str, doc: dict) -> None:
         if artifact == "state":
             state_mod.validate_doc(doc)
         self._conn.execute(
-            "INSERT INTO artifacts (slug, artifact, doc) VALUES (?, ?, ?) "
-            "ON CONFLICT(slug, artifact) DO UPDATE SET doc = excluded.doc",
-            (slug, artifact, json.dumps(doc, indent=2, sort_keys=True)),
+            "INSERT INTO artifacts (ws_id, artifact, doc) VALUES (?, ?, ?) "
+            "ON CONFLICT(ws_id, artifact) DO UPDATE SET doc = excluded.doc",
+            (int(id), artifact, json.dumps(doc, indent=2, sort_keys=True)),
         )
         self._conn.commit()
 
@@ -159,25 +238,27 @@ class InMemoryStore:
 
     def __init__(self) -> None:
         self._docs: dict[tuple[str, str], dict] = {}
+        self._counter: int = 0
 
     def list_workstreams(self) -> list[str]:
-        return sorted({slug for (slug, artifact) in self._docs if artifact == "state"})
+        return sorted({id for (id, artifact) in self._docs if artifact == "state"})
 
-    def has_workstream(self, slug: str) -> bool:
-        return (slug, "state") in self._docs
+    def has_workstream(self, id: str) -> bool:
+        return (id, "state") in self._docs
 
-    def create_workstream(self, slug: str) -> None:
-        pass
+    def create_workstream(self, slug: str, seed: bool = False) -> str:
+        self._counter += 1
+        return str(self._counter).zfill(4)
 
-    def read(self, slug: str, artifact: str) -> dict | None:
-        doc = self._docs.get((slug, artifact))
+    def read(self, id: str, artifact: str) -> dict | None:
+        doc = self._docs.get((id, artifact))
         if doc is None:
             return None
         if artifact == "state":
             state_mod.validate_doc(doc)
         return copy.deepcopy(doc)
 
-    def write(self, slug: str, artifact: str, doc: dict) -> None:
+    def write(self, id: str, artifact: str, doc: dict) -> None:
         if artifact == "state":
             state_mod.validate_doc(doc)
-        self._docs[(slug, artifact)] = copy.deepcopy(doc)
+        self._docs[(id, artifact)] = copy.deepcopy(doc)

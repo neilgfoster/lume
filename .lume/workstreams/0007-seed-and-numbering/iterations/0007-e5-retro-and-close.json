@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Retro: ceremony bought its cost. 6 accepted iterations, 0 rejected, delivered in one session. Store contract evolution was the highest-risk slice; held clean because the opaque-string id decision was made and respected throughout. Carry-forwards captured (InMemoryStore seed flag gap, SQLite seed id, migrate legacy NNN.json). retro.json written."
+      },
+      {
+        "checked": true,
+        "text": "Load-bearing assumptions checked: (1) opaque string ids are backend-agnostic - confirmed, SQLite and FS produce different id formats, both valid. (2) slug remains a valid -w handle after renaming - confirmed, slug scan still resolves. (3) dual-mode FilesystemStore supports both NNNN-slug and plain-slug test dirs - confirmed, all 311 tests pass. (4) migrate.py coexists with new artifact key format - confirmed, migrate overrides dod_artifact explicitly."
+      },
+      {
+        "checked": true,
+        "text": "Objective done-when assessed: MET. (1) Every workstream carries a stable sequential number (0001-0007) in validated state, existing workstreams migrated, listings ordered by id. (2) -w accepts number or slug. (3) lume seed verb exists, creates id-0000, opens mode-specific discovery iteration, auto-detects new vs existing. (4) NNNN-slug naming applied to both workstream folders and iteration files. All concrete shapes resolved in planning and delivered."
+      },
+      {
+        "checked": true,
+        "text": "Decisions logged (10 entries in decisions.json covering F1-F10). Workstream closed: lume close -w seed-and-numbering."
+      }
+    ],
+    "preamble": "E5 closeout: retro (did the work buy back its cost?), done-when assessed, decisions verified, workstream closed."
+  },
+  "handback": "E5 complete. Retro verdict: bought its cost. Done-when: MET on all clauses. 311 tests green throughout. Workstream closed.",
+  "id": 7,
+  "self_review": "All 4 closeout items checked. The workstream delivered cleanly - no rejected iterations, no mid-execution pivots. The one unplanned addition (E4 iteration naming) was absorbed without disrupting the original plan items. Carry-forwards name three genuine gaps that are documented but not blocking."
+}

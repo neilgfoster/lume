@@ -1,4 +1,4 @@
-"""P11: iterations/NNN.json as canonical source; NNN.md is a derived view."""
+"""P11: iterations/NNNN-slug.json as canonical source; NNN.md is a derived view."""
 import datetime
 import json
 import tempfile
@@ -9,6 +9,11 @@ from lume import migrate, state as state_mod
 from lume.clock import FixedClock
 from lume.validate import validate_entity
 from lume.workstream import Workstream
+
+
+def _iter_file(ws_dir: Path, n: int) -> Path:
+    """Return the NNNN-slug.json path for iteration n (glob; must exist)."""
+    return next(ws_dir.glob(f"iterations/{n:04d}-*.json"))
 
 
 def _initial_doc():
@@ -48,41 +53,43 @@ class OpenIterationJsonTest(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def test_open_creates_nnn_json(self):
+    def test_open_creates_nnnn_slug_json(self):
         _ws(self.ws_dir, self.clock).open_iteration("First")
-        self.assertTrue((self.ws_dir / "iterations" / "001.json").is_file())
+        self.assertTrue(_iter_file(self.ws_dir, 1).is_file())
 
-    def test_open_nnn_json_validates(self):
+    def test_open_nnnn_slug_json_validates(self):
         _ws(self.ws_dir, self.clock).open_iteration("First")
-        doc = json.loads((self.ws_dir / "iterations" / "001.json").read_text())
+        doc = json.loads(_iter_file(self.ws_dir, 1).read_text())
         validate_entity("iteration_content", doc)
 
-    def test_dod_artifact_points_to_json(self):
+    def test_dod_artifact_points_to_nnnn_slug_json(self):
         _ws(self.ws_dir, self.clock).open_iteration("First")
         doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
-        self.assertEqual(doc["iterations"][0]["dod_artifact"], "iterations/001.json")
+        dod_artifact = doc["iterations"][0]["dod_artifact"]
+        self.assertTrue(dod_artifact.startswith("iterations/0001-"))
+        self.assertTrue(dod_artifact.endswith(".json"))
 
     def test_open_writes_no_nnn_md_view(self):
         _ws(self.ws_dir, self.clock).open_iteration("First")
         self.assertFalse((self.ws_dir / "iterations" / "001.md").exists())
 
-    def test_nnn_json_contains_dod_skeleton(self):
+    def test_nnnn_slug_json_contains_dod_skeleton(self):
         _ws(self.ws_dir, self.clock).open_iteration("First")
-        doc = json.loads((self.ws_dir / "iterations" / "001.json").read_text())
+        doc = json.loads(_iter_file(self.ws_dir, 1).read_text())
         texts = [i["text"] for i in doc["dod"]["items"]]
         self.assertTrue(any("propose checkable items" in t for t in texts))
 
-    def test_nnn_json_seeded_with_type_skeleton_items(self):
+    def test_nnnn_slug_json_seeded_with_type_skeleton_items(self):
         _ws(self.ws_dir, self.clock).open_iteration("Disc", type="discovery")
-        doc = json.loads((self.ws_dir / "iterations" / "001.json").read_text())
+        doc = json.loads(_iter_file(self.ws_dir, 1).read_text())
         items = doc["dod"]["items"]
         self.assertTrue(len(items) > 0)
         texts = [i["text"] for i in items]
         self.assertTrue(any("Context built" in t for t in texts))
 
-    def test_nnn_json_has_null_review_and_handback(self):
+    def test_nnnn_slug_json_has_null_review_and_handback(self):
         _ws(self.ws_dir, self.clock).open_iteration("First")
-        doc = json.loads((self.ws_dir / "iterations" / "001.json").read_text())
+        doc = json.loads(_iter_file(self.ws_dir, 1).read_text())
         self.assertIsNone(doc["self_review"])
         self.assertIsNone(doc["handback"])
 
@@ -107,12 +114,12 @@ class TransitionStateOnlyTest(unittest.TestCase):
         self.assertEqual(self._state()["iterations"][0]["phase"], "approved")
         self.assertFalse((self.ws_dir / "iterations" / "001.md").exists())
 
-    def test_transition_does_not_modify_nnn_json(self):
+    def test_transition_does_not_modify_nnnn_slug_json(self):
         _ws(self.ws_dir, self.clock).open_iteration("Task")
-        before = (self.ws_dir / "iterations" / "001.json").read_text()
+        f = _iter_file(self.ws_dir, 1)
+        before = f.read_text()
         _ws(self.ws_dir, self.clock).transition("approve")
-        after = (self.ws_dir / "iterations" / "001.json").read_text()
-        self.assertEqual(before, after)
+        self.assertEqual(f.read_text(), before)
 
     def test_accept_verdict_written_to_state(self):
         _ws(self.ws_dir, self.clock).open_iteration("Task")

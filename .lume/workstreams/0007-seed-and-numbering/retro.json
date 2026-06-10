@@ -1,0 +1,9 @@
+{
+  "carry_forwards": [
+    "The _slugify + NNNN-slug convention is now used for both workstreams and iterations. Consider applying the same pattern to other artifact files (decisions, retro, objective) in a future workstream if retrieval-by-name becomes useful.",
+    "InMemoryStore uses a plain counter for ids (0001, 0002...) but does not support seed=True returning 0000. If seed workstreams are ever tested against the in-memory backing, the InMemoryStore will need a seed flag path analogous to FilesystemStore.",
+    "The SQLiteStore id type is numeric (AUTOINCREMENT); the seed=True flag is ignored and it returns '1' for the first workstream. This means SQLite and filesystem produce different ids for the seed workstream. Not a bug (ids are opaque), but worth noting if SQLite ever needs to honour the seed reservation.",
+    "lume migrate still produces NNN.json (3-digit) filenames for legacy markdown migrations. A future pass could normalise these to NNNN-slug.json once all legacy content is migrated."
+  ],
+  "overall_verdict": "Bought back its cost. The workstream delivered four non-trivial engine changes (id-keyed contract, -w resolution, seed verb, NNNN-slug iteration naming) across 6 accepted iterations. Each iteration had a clean done-test (suite green), zero rejected iterations, and the full sequence landed in a single session. The store contract evolution (slug-keyed -> id-keyed) was the highest-risk slice; it went cleanly because the decision to make ids opaque strings was made in planning and held throughout execution. Ceremony cost: ~7 iterations at roughly 30min each = ~3.5hr. Payback: the numbered/ordered corpus, the seed bootstrap, and the consistent NNNN-slug naming are permanent scaffolding for every workstream that follows. The ceremony bought its cost."
+}

@@ -1,7 +1,7 @@
 {
   "iterations": [
     {
-      "dod_artifact": "iterations/001.json",
+      "dod_artifact": "iterations/0001-map-current-markdown-state-and-design-the-json-state-model.json",
       "id": 1,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/002.json",
+      "dod_artifact": "iterations/0002-resolve-the-forks-and-plan-the-slices-to-json-backed-state.json",
       "id": 2,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/003.json",
+      "dod_artifact": "iterations/0003-p1-json-schemas-vendored-validator.json",
       "id": 3,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/004.json",
+      "dod_artifact": "iterations/0004-p2-state-json-i-o-behind-the-repository-seam.json",
       "id": 4,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/005.json",
+      "dod_artifact": "iterations/0005-p3-migration-converter-markdown-state-json.json",
       "id": 5,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/006.json",
+      "dod_artifact": "iterations/0006-p4-rewire-lifecycle-verbs-to-state-json-regenerate-views.json",
       "id": 6,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -91,7 +91,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/007.json",
+      "dod_artifact": "iterations/0007-p5-flip-the-source-of-truth.json",
       "id": 7,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -106,7 +106,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/008.json",
+      "dod_artifact": "iterations/0008-p6-discovery-verbs.json",
       "id": 8,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -121,7 +121,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/009.json",
+      "dod_artifact": "iterations/0009-design-the-full-content-json-schema-for-all-workstream-artifacts.json",
       "id": 9,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -136,7 +136,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/010.json",
+      "dod_artifact": "iterations/0010-p8-new-artifact-schemas.json",
       "id": 10,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -151,7 +151,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/011.json",
+      "dod_artifact": "iterations/0011-p9-flip-plan-state-json-as-sole-source.json",
       "id": 11,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -166,7 +166,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/012.json",
+      "dod_artifact": "iterations/0012-p10-convert-objective-objective-json-as-source.json",
       "id": 12,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -181,7 +181,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/013.json",
+      "dod_artifact": "iterations/0013-p11-convert-iterations-iterations-nnn-json-as-source.json",
       "id": 13,
       "opened": "2026-06-09",
       "phase": "accepted",
@@ -196,7 +196,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/014.json",
+      "dod_artifact": "iterations/0014-p12-convert-decisions-retro-to-json-source.json",
       "id": 14,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -211,7 +211,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/015.json",
+      "dod_artifact": "iterations/0015-p7-retro-close-did-state-as-data-buy-back-its-ceremony.json",
       "id": 15,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -226,7 +226,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/016.json",
+      "dod_artifact": "iterations/0016-p13-json-only-stop-generating-md-views-derive-status-in-memory.json",
       "id": 16,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -241,7 +241,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/017.json",
+      "dod_artifact": "iterations/0017-p14-discovery-json-lume-reopen-delete-last-markdown.json",
       "id": 17,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -256,7 +256,7 @@
       ]
     },
     {
-      "dod_artifact": "iterations/018.json",
+      "dod_artifact": "iterations/0018-p15-delete-dead-render-utilities.json",
       "id": 18,
       "opened": "2026-06-10",
       "phase": "accepted",
@@ -379,6 +379,7 @@
     }
   ],
   "workstream": {
+    "id": "0003",
     "objective_artifact": "objective.json",
     "slug": "state-as-data",
     "status": "closed",

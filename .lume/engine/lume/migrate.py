@@ -19,6 +19,7 @@ from . import state as state_mod
 from .iteration import Iteration, parse_verdicts  # noqa: F401  (re-exported for callers)
 from .repository import Repository
 from .plan import PlanItem, parse_plan
+from .store import _folder_id, _folder_slug
 from .workstream import Workstream
 
 # Legacy iteration types -> their current vocabulary equivalent. `build` was the
@@ -72,7 +73,7 @@ def build_doc_from_markdown(ws_dir: Path) -> dict:
 
     return {
         "workstream": {
-            "slug": ws_dir.name,
+            "slug": _folder_slug(ws_dir.name),
             "title": title,
             "status": status,
             "objective_artifact": "objective.json",
@@ -193,7 +194,7 @@ def migrate_iterations(ws_dir: Path, doc: dict) -> None:
             content = {"id": n, "dod": {"preamble": "", "items": []},
                        "self_review": None, "handback": None}
 
-        ws._save_iter_content(n, content)
+        ws._save_iter_content(entity, content)
         changed = True
 
     if changed:
@@ -294,20 +295,22 @@ def migrate_all(repo: Repository, lume_dir: Path) -> list[str]:
         p for p in ws_root.iterdir()
         if (p / "objective.md").is_file() or (p / "state.json").is_file()
     ):
+        ws_id = _folder_id(ws_dir.name)
+        ws_slug = _folder_slug(ws_dir.name)
         if (ws_dir / "objective.md").is_file():
             # Legacy markdown source: build state.json + JSON artifacts from it.
             doc = build_doc_from_markdown(ws_dir)
-            repo.save_state(ws_dir.name, doc)
+            repo.save_state(ws_id, doc)
             migrate_objective(ws_dir, doc)
             migrate_iterations(ws_dir, doc)
         elif (ws_dir / state_mod.STATE_FILE).is_file():
             # Already flipped to JSON: state.json is the source; only any
             # remaining authored .md (discovery) still needs converting.
-            doc = repo.load_state(ws_dir.name)
+            doc = repo.load_state(ws_id)
         else:
             continue
         migrate_decisions(ws_dir, doc)
         migrate_retro(ws_dir, doc)
         migrate_discovery(ws_dir, doc)
-        written.append(ws_dir.name)
+        written.append(ws_slug)
     return written

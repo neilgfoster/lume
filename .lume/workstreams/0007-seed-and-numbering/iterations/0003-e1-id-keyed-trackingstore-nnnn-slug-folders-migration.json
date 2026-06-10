@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. TrackingStore contract reshaped: create_workstream(slug, seed=False)->str (store-minted id); has_workstream(id); read(id, artifact); write(id, artifact, doc); list_workstreams()->[id]. All three backings (FilesystemStore, SQLiteStore, InMemoryStore) implement the new protocol. (Evidence: test_store_contract.py green across all three backings.)"
+      },
+      {
+        "checked": true,
+        "text": "2. FilesystemStore uses NNNN-slug folder naming. create_workstream mints the next zero-padded sequential id by scanning existing folder prefixes; seed=True reserved for '0000' (E3). Dual-mode: NNNN-slug folders use numeric prefix as id; plain-slug legacy folders use folder name as id (backward compat for tests and migration). (Evidence: test_store.py::test_sequential_ids_and_folder_names green.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Workstream model gains _id and id property; all store calls use self._id instead of self._slug. on_filesystem handles both NNNN-slug (id=NNNN, slug=slug) and plain-slug (id=slug=name) formats. (Evidence: all workstream tests green.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Repository threads store-minted id throughout: _load_workstream(lume_dir, id); _slug_to_id(lume_dir, slug) scans state docs for slug match; workstream(slug) resolves slug->id; create_workstream stamps id into state_doc.workstream.id. load_state/save_state now take id. CLI behaviour preserved: -w <slug> still resolves correctly via the scan. (Evidence: test_selection.py, test_cli.py, test_repository.py all green.)"
+      },
+      {
+        "checked": true,
+        "text": "5. migrate.py updated: _folder_id/_folder_slug helpers imported from store.py; migrate_all uses folder-derived id for load_state/save_state calls; build_doc_from_markdown extracts slug from folder name (handles NNNN-slug and plain). (Evidence: test_migrate.py green.)"
+      },
+      {
+        "checked": true,
+        "text": "6. Existing 7 workstream folders renamed via git mv to NNNN-slug (0001-build-lume through 0007-seed-and-numbering, creation order). Each state.json updated to add workstream.id field. The active workstream (seed-and-numbering) renamed successfully with no disruption. (Evidence: lume status resolves all workstreams; git status shows renames.)"
+      },
+      {
+        "checked": true,
+        "text": "7. workstream.json schema gains optional 'id' field. All 294 tests green (was 291; +3 new store tests). Suite is the done-test."
+      }
+    ],
+    "preamble": "E1: reshape the TrackingStore to id-keyed + store-minted ids, update all three backings, thread id through Workstream and Repository, rename existing workstream folders to NNNN-slug, and migrate existing state.json files to include id. CLI behaviour-preserving: -w <slug> still resolves. Suite must be green."
+  },
+  "handback": "E1 complete. 294 tests green (was 291). Contract pivot fully landed:\n\n- TrackingStore is now id-keyed: create_workstream(slug, seed=False)->str; has/read/write/list all keyed by store-minted id.\n- FilesystemStore: NNNN-slug folder naming (0001-build-lume, ..., 0007-seed-and-numbering); sequential id minting from folder prefix scan; dual-mode fallback for legacy plain-slug folders.\n- SQLiteStore: workstreams table (AUTOINCREMENT), artifacts table keyed by ws_id.\n- InMemoryStore: counter-based sequential ids.\n- Workstream: _id + id property; all store ops use _id; on_filesystem handles both formats.\n- Repository: _slug_to_id scan for CLI -w resolution; id threaded through create/load/save; state_doc.workstream.id stamped on create.\n- migrate.py: _folder_id/_folder_slug helpers; migrate_all id-aware.\n- 7 existing workstream folders renamed via git mv; state.json files updated with id.\n- workstream.json schema gains optional id field.\n\nReady to link P1 and open E2 (-w resolution by id OR slug + id-ordered listings).",
+  "id": 3,
+  "self_review": "All 7 DoD items checked.\n\nDecision supersession (swappable-backing F3) is fully landed: the store is id-keyed, store-minted, across all three backings. The blast radius enumerated in planning (store.py x3, repository.py, workstream.py, cli/store/contract-matrix tests) was fully covered.\n\nRisks handled: the active workstream (seed-and-numbering) renamed to 0007-seed-and-numbering - works because the engine resolves by slug scan not by remembered path. The dual-mode store (NNNN-slug + plain-slug fallback) keeps the large existing test suite from needing a wholesale path update - tests that create plain folders via _make_ws() continue to work; only tests that checked paths after calling create_workstream() needed updating.\n\nTest count: 294 (was 291). Three new tests added in test_store.py (test_sequential_ids_and_folder_names) and test_store_contract.py (test_has_returns_false_for_unknown_id, test_sequential_ids_are_distinct). All green.\n\nE2 is next: -w accepts id or slug-label (unique scan; ambiguous/missing = named error); status queue + detail ordered by id; id surfaced in output (human + --json)."
+}

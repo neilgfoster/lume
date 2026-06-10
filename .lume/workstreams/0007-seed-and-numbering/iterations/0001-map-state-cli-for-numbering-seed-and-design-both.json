@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Numbering: map where a workstream number would live in state (workstream schema in state.json), how the next number is allocated (regular workstreams from 1 = max+1; seed is the reserved number 0; deterministic), the padding/width for a large corpus, and every place that lists/resolves workstreams today (Repository.workstreams, status queue/detail, slug as the directory key + -w handle). (Evidence: a numbering map in discovery.json with file/symbol refs.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Migration of existing workstreams: how to assign numbers to the 6 existing slugs deterministically by creation order, given there is no stored creation timestamp (options: iteration-001 opened date, git history, an explicit ordered list, directory mtime). Trade-offs + a recommendation. (Evidence: a migration section.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Identity decision framed: does the number or the slug stay the primary key (directory name, state key)? Should -w accept a number as an alias? Recommendation with rationale (slug likely stays the key; number is an ordered attribute + optional handle). (Evidence: an identity section.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Seed: what 'seed' is (a `lume seed` verb, a workstream type, and/or a template) - GIVEN that seed is the special workstream number 0 (reserved; regular workstreams start at 1). How it decides new-project vs existing-repo, and exactly what its discovery captures in each case (new: why/scope/constraints; existing: a map of what the repo contains). Reuse the existing discovery iteration machinery rather than inventing a parallel flow. (Evidence: a seed-design section with options + recommendation.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Seam check: does seed/numbering touch the TrackingStore contract (a non-fs backing has no directory key; numbering must work there too)? Note any contract impact. (Evidence: a seam note.)"
+      },
+      {
+        "checked": true,
+        "text": "6. Open forks listed for planning (number width + allocation; creation-order source; primary key + -w-by-number; seed as verb/type/template; what seed discovery produces; whether numbering and seed ship as one or separate slices). (Evidence: forks section.)"
+      },
+      {
+        "checked": true,
+        "text": "7. Scope held: no engine code this iteration; artifact is discovery.json only; deferrals explicit. (Evidence: git shows only workstream JSON.)"
+      }
+    ],
+    "preamble": "Discovery for seed-and-numbering. Map how workstream numbering would fit the JSON state + the slug-keyed listing/resolution surface (Repository, status, -w), and how to assign numbers to the 6 existing workstreams deterministically by creation order. Separately, design 'seed' - the bootstrap discovery workstream lume starts with in a repo - reusing the existing discovery-iteration machinery, and define what it captures for a new project vs an existing repo. Surface the identity question (number vs slug as primary key) and any TrackingStore-contract impact. No engine code - produce discovery.json and the forks for planning."
+  },
+  "handback": "Discovery complete (re-framed: ID is the primary key, minted by the store). discovery.json (8 sections), schema-valid, 291 tests green, no engine code.\n\nPIVOT (operator): the STORE owns identity - it mints a unique id on create and lume keys everything by that id; slug demotes to a human label. Rationale: external backings (GH Issues, Jira) generate their own ids, so id generation must live behind the store seam, not in lume. Filesystem store id = a sequential number (seed 0, regular from 1), encoded in the folder name `NNNN-<slug>` so workstreams sort sequentially on disk; existing folders git-mv renamed + renumbered by creation order (0001-build-lume ... 0007-seed-and-numbering, seed=0000-seed).\n\nThis is a genuine TrackingStore CONTRACT change (slug-keyed -> id-keyed, create->id) that REVISES swappable-backing decision F3 and will touch Repository + the contract-matrix tests - the largest blast radius here; must stay CLI-behaviour-preserving. Seed: `lume seed [--new|--existing]` reusing create+open(discovery), seed id 0 + a portable seed attribute.\n\n10 forks for planning (id type, contract reshape, sqlite/in-memory id schemes + matrix tests, -w by id/slug, folder-rename migration, seed surface, phasing). Recommend (a) id-as-key + fs numbering + folder rename + migration, then (b) seed - separate slices. Accept to plan.",
+  "id": 1,
+  "self_review": "All DoD items complete; discovery.json validates (8 sections); no engine code (291 tests green).\n\nTwo operator steers reshaped the original numbering framing into a contract-level pivot:\n(1) the number is encoded in the folder name (NNNN-slug) so the filesystem sorts sequentially, and existing folders are renamed/renumbered; (2) - the bigger one - ID is the PRIMARY KEY and is generated BY THE STORE, not lume, to match how GH Issues/Jira mint ids. So the TrackingStore contract moves from slug-keyed to id-keyed (create -> store-minted id; read/write/has/list by id), superseding swappable-backing decision F3; slug becomes a label; the fs store's id is the sequential number that also names the folder. lume treats the id as an opaque scalar so non-fs backings (sqlite id, GH issue number, Jira key) fit.\n\nThis is the largest-blast-radius option (touches Repository + the swappable-backing contract matrix) and must stay CLI-behaviour-preserving - flagged for planning to size carefully. Seed (id 0 in fs, plus a portable seed attribute) presupposes the id work, so sequence it after. 10 forks recorded; recommend id/contract+numbering+rename first, then seed."
+}

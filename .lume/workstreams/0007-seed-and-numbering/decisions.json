@@ -1,0 +1,64 @@
+{
+  "entries": [
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "Contract reshape (F4): TrackingStore becomes id-keyed and store-minted - create_workstream(slug, seed=False) -> id; has(id); read(id, artifact); write(id, artifact, doc); list() -> [id]. lume never generates the id; it threads the store's.",
+      "rationale": "Matches how GH Issues/Jira mint ids; keeps id generation behind the seam so external backings drop in. slug is retained in the workstream record as a human label."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "This SUPERSEDES swappable-backing decision F3 (slug-keyed per-artifact). Blast radius: store.py (fs/sqlite/in-memory), repository.py, cli resolution, and the store + contract-matrix tests. CLI behaviour stays preserving.",
+      "rationale": "An honest contract evolution; naming the impacted surface up front keeps execution scoped and the regression net (suite) authoritative."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F1 id type: the contract id is an opaque string. FilesystemStore uses a zero-padded sequential number string (0000..); SQLite uses its own row sequence as a string; a future GH/Jira store returns the service id",
+      "rationale": "An opaque scalar fits every backing; only FilesystemStore knows its ids are sequential numbers."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F2/F3 fs id scheme: regular id = max(existing numeric ids)+1 by scanning folder prefixes; seed reserved 0 via the create seed=True flag; zero-pad min width 4, no cap",
+      "rationale": "Deterministic, no extra counter state; width covers thousands; seed flag lets fs reserve 0 without lume owning id logic."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F-folder: FilesystemStore folder name is NNNN-<slug> (e.g. 0001-build-lume, 0000-seed) so the filesystem sorts sequentially; the store maps id<->dir; slug appears only for human readability",
+      "rationale": "Satisfies the sequential-on-disk requirement; sqlite/in-memory have no dirs so it simply does not apply to them."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F6 -w resolution: -w accepts the id OR the slug-label (slug resolved by unique scan); ambiguous or missing match is a named error. In v1",
+      "rationale": "Humans should not be forced to type numbers; id stays the key, slug is a convenience handle."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F7 seed surface: a lume seed [--new|--existing] verb reusing create_workstream(seed=True) + open_iteration(discovery); seed is fs id 0 AND carries a portable seed attribute in the workstream record",
+      "rationale": "Reuses existing machinery; the attribute makes seed-ness portable to non-sequential backings that cannot own a literal 0."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F8 seed detection + content: --new/--existing flag, default by repo emptiness (source outside .lume present => existing); NEW captures why/scope/constraints/done-when, EXISTING captures a repo map (languages, layout, entry points, seams)",
+      "rationale": "Deterministic detection with an explicit override; content mirrors lume's own pre-bootstrap discovery for new, and context-building for existing."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F9 rename migration: git mv each existing folder to NNNN-<slug> (history-preserving), one-shot in lume migrate, then verify id resolution; handle the currently-active workstream's own rename carefully",
+      "rationale": "git mv keeps history; one-shot + post-rename verification avoids half-migrated state; the active workstream renames itself so execution must account for it."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F10 phasing: separate slices - E1 id-keyed contract + fs numbering/folders + migration + Repository/matrix; E2 resolution (-w id|slug) + ordered listings; E3 seed verb; E4 closeout. E1 splittable if its diff is too large",
+      "rationale": "Each slice independently reviewable and suite-guarded; the primary-key change is irreducible but its consumers (resolution, seed) layer on after."
+    }
+  ]
+}

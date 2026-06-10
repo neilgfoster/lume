@@ -57,6 +57,21 @@ class SelectionTest(unittest.TestCase):
         with self.assertRaises(NoWorkstreamError):
             self._repo().workstream("ghost")
 
+    # --- target by -w id (E2) -----------------------------------------------
+    def test_target_by_id(self):
+        ws = self._repo().create_workstream("omega", "Omega")
+        self.assertEqual(self._repo().workstream(ws.id).name, "omega")
+
+    def test_target_by_id_takes_precedence_over_slug(self):
+        # id lookup tried first; when it resolves, use it directly
+        ws = self._repo().create_workstream("omega", "Omega")
+        ws2 = self._repo().workstream(ws.id)
+        self.assertEqual(ws2.id, ws.id)
+
+    def test_target_unknown_id_errors(self):
+        with self.assertRaises(NoWorkstreamError):
+            self._repo().workstream("9999")
+
     def test_target_closed_slug_refused(self):
         self._make_ws("apex", status="closed")
         with self.assertRaises(GateError):

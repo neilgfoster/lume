@@ -110,11 +110,16 @@ class ReopenVerbTest(unittest.TestCase):
     def _run(self, *args):
         return cli.main(["lume", *args], start=self.root, clock=self.clock)
 
+    def _ws_dir(self, slug: str) -> Path:
+        ws_root = self.root / ".lume" / "workstreams"
+        match = next(ws_root.glob(f"*-{slug}"), None)
+        return match if match is not None else ws_root / slug
+
     def _make_closed(self, slug="ws"):
         repo = Repository(self.root, self.clock)
         ws = repo.create_workstream(slug, "Title")
         ws.set_status("closed")
-        return self.root / ".lume" / "workstreams" / slug
+        return self._ws_dir(slug)
 
     def test_reopen_flips_status_active(self):
         ws_dir = self._make_closed()

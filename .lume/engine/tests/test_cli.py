@@ -129,8 +129,9 @@ class CliTest(unittest.TestCase):
         code, out, _ = self._run("new", "fresh", "A title")
         self.assertEqual(code, 0)
         self.assertIn("created workstream 'fresh'", out)
-        self.assertTrue((self.lume / "workstreams" / "fresh" / "objective.json").is_file())
-        self.assertFalse((self.lume / "workstreams" / "fresh" / "objective.md").exists())
+        ws_dir = next((self.lume / "workstreams").glob("*-fresh"))
+        self.assertTrue((ws_dir / "objective.json").is_file())
+        self.assertFalse((ws_dir / "objective.md").exists())
         self.assertFalse((self.lume / "current").exists())
 
     # --- single-active flows still work with no -w --------------------------

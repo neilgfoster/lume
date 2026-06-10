@@ -16,6 +16,13 @@ def _repo(root: Path) -> Repository:
     return Repository(root, FixedClock(datetime.date(2026, 6, 9)))
 
 
+def _ws_dir(lume_dir: Path, slug: str) -> Path:
+    """Find the workstream directory for slug (NNNN-slug or plain slug)."""
+    ws_root = lume_dir / "workstreams"
+    match = next(ws_root.glob(f"*-{slug}"), None)
+    return match if match is not None else ws_root / slug
+
+
 def _make_lume(root: Path) -> Path:
     lume = root / ".lume"
     (lume / "workstreams").mkdir(parents=True)
@@ -34,19 +41,19 @@ class CreateWorkstreamObjectiveTest(unittest.TestCase):
         self._tmp.cleanup()
 
     def test_create_writes_objective_json(self):
-        ws = _repo(self.root).create_workstream("alpha", "Alpha Initiative")
-        obj_path = self.root / ".lume" / "workstreams" / "alpha" / "objective.json"
+        _repo(self.root).create_workstream("alpha", "Alpha Initiative")
+        obj_path = _ws_dir(self.root / ".lume", "alpha") / "objective.json"
         self.assertTrue(obj_path.is_file())
 
     def test_objective_json_passes_schema_validation(self):
         _repo(self.root).create_workstream("alpha", "Alpha Initiative")
-        obj_path = self.root / ".lume" / "workstreams" / "alpha" / "objective.json"
+        obj_path = _ws_dir(self.root / ".lume", "alpha") / "objective.json"
         doc = json.loads(obj_path.read_text())
         validate_entity("objective", doc)  # raises on failure
 
     def test_objective_json_fields_match_inputs(self):
         _repo(self.root).create_workstream("beta", "Beta Run")
-        obj_path = self.root / ".lume" / "workstreams" / "beta" / "objective.json"
+        obj_path = _ws_dir(self.root / ".lume", "beta") / "objective.json"
         doc = json.loads(obj_path.read_text())
         self.assertEqual(doc["slug"], "beta")
         self.assertEqual(doc["title"], "Beta Run")
@@ -56,12 +63,12 @@ class CreateWorkstreamObjectiveTest(unittest.TestCase):
         """JSON-only: lume new produces no objective.md view."""
         _repo(self.root).create_workstream("gamma", "Gamma Plan")
         self.assertFalse(
-            (self.root / ".lume" / "workstreams" / "gamma" / "objective.md").exists()
+            (_ws_dir(self.root / ".lume", "gamma") / "objective.md").exists()
         )
 
     def test_canonical_data_comes_from_state_not_markdown(self):
         ws = _repo(self.root).create_workstream("delta", "Delta Goal")
-        ws_dir = self.root / ".lume" / "workstreams" / "delta"
+        ws_dir = _ws_dir(self.root / ".lume", "delta")
         # The canonical title comes from state (via objective_line).
         self.assertEqual(ws.objective_line(), "Delta Goal")
         # The canonical status comes from state.json.
@@ -83,20 +90,20 @@ class SetStatusObjectiveTest(unittest.TestCase):
     def test_set_status_updates_objective_json(self):
         ws = _repo(self.root).create_workstream("ws", "My WS")
         ws.set_status("closed")
-        ws_dir = self.root / ".lume" / "workstreams" / "ws"
+        ws_dir = _ws_dir(self.root / ".lume", "ws")
         obj = json.loads((ws_dir / "objective.json").read_text())
         self.assertEqual(obj["status"], "closed")
 
     def test_set_status_writes_no_objective_md(self):
         ws = _repo(self.root).create_workstream("ws", "My WS")
         ws.set_status("closed")
-        ws_dir = self.root / ".lume" / "workstreams" / "ws"
+        ws_dir = _ws_dir(self.root / ".lume", "ws")
         self.assertFalse((ws_dir / "objective.md").exists())
 
     def test_set_status_objective_json_remains_valid(self):
         ws = _repo(self.root).create_workstream("ws", "My WS")
         ws.set_status("closed")
-        ws_dir = self.root / ".lume" / "workstreams" / "ws"
+        ws_dir = _ws_dir(self.root / ".lume", "ws")
         validate_entity("objective", json.loads((ws_dir / "objective.json").read_text()))
 
 

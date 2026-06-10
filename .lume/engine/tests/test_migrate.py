@@ -82,7 +82,7 @@ class BuildDocTest(unittest.TestCase):
             written = migrate.migrate_all(repo, root / ".lume")
             self.assertEqual(written, ["demo"])
 
-            doc = repo.load_state("demo")  # load re-validates
+            doc = repo.load_state("demo")  # id="demo" (plain folder, legacy format)
             self.assertEqual(doc["workstream"]["slug"], "demo")
             self.assertEqual(doc["workstream"]["title"], "Demo Workstream")
             self.assertEqual(doc["workstream"]["status"], "closed")

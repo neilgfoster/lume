@@ -30,37 +30,43 @@ class FilesystemStoreTest(unittest.TestCase):
         self._tmp.cleanup()
 
     def test_create_then_has_and_list(self):
-        self.assertFalse(self.store.has_workstream("demo"))
-        self.store.create_workstream("demo")
-        self.store.write("demo", "state", _state_doc())
-        self.assertTrue(self.store.has_workstream("demo"))
-        self.assertEqual(self.store.list_workstreams(), ["demo"])
+        id = self.store.create_workstream("demo")
+        self.assertFalse(self.store.has_workstream("ghost"))
+        self.store.write(id, "state", _state_doc())
+        self.assertTrue(self.store.has_workstream(id))
+        self.assertEqual(self.store.list_workstreams(), [id])
+
+    def test_sequential_ids_and_folder_names(self):
+        id1 = self.store.create_workstream("alpha")
+        id2 = self.store.create_workstream("beta")
+        self.assertNotEqual(id1, id2)
+        self.assertTrue((self.lume / "workstreams" / f"{id1}-alpha").is_dir())
+        self.assertTrue((self.lume / "workstreams" / f"{id2}-beta").is_dir())
 
     def test_state_round_trip_via_store(self):
-        self.store.create_workstream("demo")
-        self.store.write("demo", "state", _state_doc())
-        got = self.store.read("demo", "state")
+        id = self.store.create_workstream("demo")
+        self.store.write(id, "state", _state_doc())
+        got = self.store.read(id, "state")
         self.assertEqual(got["workstream"]["slug"], "demo")
-        # state artifact maps to state.json on disk
-        self.assertTrue((self.lume / "workstreams" / "demo" / "state.json").is_file())
+        self.assertTrue((self.lume / "workstreams" / f"{id}-demo" / "state.json").is_file())
 
     def test_simple_and_iteration_artifacts(self):
-        self.store.create_workstream("demo")
-        self.store.write("demo", "objective", {"slug": "demo", "x": 1})
-        self.store.write("demo", "iteration:003", {"id": 3})
-        self.assertEqual(self.store.read("demo", "objective")["x"], 1)
-        self.assertEqual(self.store.read("demo", "iteration:003")["id"], 3)
+        id = self.store.create_workstream("demo")
+        self.store.write(id, "objective", {"slug": "demo", "x": 1})
+        self.store.write(id, "iteration:003", {"id": 3})
+        self.assertEqual(self.store.read(id, "objective")["x"], 1)
+        self.assertEqual(self.store.read(id, "iteration:003")["id"], 3)
         self.assertTrue(
-            (self.lume / "workstreams" / "demo" / "iterations" / "003.json").is_file()
+            (self.lume / "workstreams" / f"{id}-demo" / "iterations" / "003.json").is_file()
         )
 
     def test_missing_artifact_returns_none(self):
-        self.store.create_workstream("demo")
-        self.assertIsNone(self.store.read("demo", "retro"))
+        id = self.store.create_workstream("demo")
+        self.assertIsNone(self.store.read(id, "retro"))
 
     def test_unknown_artifact_id_raises(self):
         with self.assertRaises(ValueError):
-            self.store._path("demo", "bogus")
+            self.store._path("0001", "bogus")
 
 
 class _RecordingStore:
@@ -69,25 +75,29 @@ class _RecordingStore:
     def __init__(self):
         self.calls = []
         self._docs = {}
+        self._counter = 0
 
     def list_workstreams(self):
         self.calls.append(("list",))
-        return sorted({slug for (slug, _a) in self._docs})
+        return sorted({id for (id, _a) in self._docs if _a == "state"})
 
-    def has_workstream(self, slug):
-        self.calls.append(("has", slug))
-        return (slug, "state") in self._docs
+    def has_workstream(self, id):
+        self.calls.append(("has", id))
+        return (id, "state") in self._docs
 
-    def create_workstream(self, slug):
+    def create_workstream(self, slug, seed=False):
+        self._counter += 1
+        id = str(self._counter).zfill(4)
         self.calls.append(("create", slug))
+        return id
 
-    def read(self, slug, artifact):
-        self.calls.append(("read", slug, artifact))
-        return self._docs.get((slug, artifact))
+    def read(self, id, artifact):
+        self.calls.append(("read", id, artifact))
+        return self._docs.get((id, artifact))
 
-    def write(self, slug, artifact, doc):
-        self.calls.append(("write", slug, artifact))
-        self._docs[(slug, artifact)] = doc
+    def write(self, id, artifact, doc):
+        self.calls.append(("write", id, artifact))
+        self._docs[(id, artifact)] = doc
 
 
 class RepositoryDelegatesTest(unittest.TestCase):
@@ -103,11 +113,11 @@ class RepositoryDelegatesTest(unittest.TestCase):
         self._tmp.cleanup()
 
     def test_save_and_load_state_route_through_store(self):
-        self.repo.save_state("demo", _state_doc())
-        self.assertIn(("write", "demo", "state"), self.store.calls)
-        doc = self.repo.load_state("demo")
+        self.repo.save_state("0001", _state_doc())
+        self.assertIn(("write", "0001", "state"), self.store.calls)
+        doc = self.repo.load_state("0001")
         self.assertEqual(doc["workstream"]["slug"], "demo")
-        self.assertIn(("read", "demo", "state"), self.store.calls)
+        self.assertIn(("read", "0001", "state"), self.store.calls)
 
     def test_load_state_missing_raises(self):
         with self.assertRaises(LumeError):
@@ -128,12 +138,14 @@ class CreateWorkstreamViaStoreTest(unittest.TestCase):
         self._tmp.cleanup()
 
     def test_create_writes_state_and_objective(self):
-        self.repo.create_workstream("demo", "Demo")
-        ws_dir = self.root / ".lume" / "workstreams" / "demo"
+        ws = self.repo.create_workstream("demo", "Demo")
+        # Folder is NNNN-demo; find it dynamically
+        ws_root = self.root / ".lume" / "workstreams"
+        ws_dir = next(ws_root.glob("*-demo"))
         self.assertTrue((ws_dir / "state.json").is_file())
         self.assertTrue((ws_dir / "objective.json").is_file())
-        # state is loadable back through the store seam
-        self.assertEqual(self.repo.load_state("demo")["workstream"]["title"], "Demo")
+        # state is loadable back through the store seam using the minted id
+        self.assertEqual(self.repo.load_state(ws.id)["workstream"]["title"], "Demo")
 
 
 if __name__ == "__main__":

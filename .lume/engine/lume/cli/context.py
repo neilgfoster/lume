@@ -24,6 +24,8 @@ class Context:
     opt_type: str | None
     opt_context: str | None
     opt_tag: str | None
+    opt_new: bool = False
+    opt_existing: bool = False
 
     def require_ws(self) -> Workstream:
         """Resolve the targeted workstream (raises LumeError, caught by dispatch)."""
