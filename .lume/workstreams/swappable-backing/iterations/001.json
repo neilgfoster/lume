@@ -2,41 +2,41 @@
   "dod": {
     "items": [
       {
-        "checked": false,
+        "checked": true,
         "text": "1. Tracking contract mapped: the surface of its v1 implementation (`Repository`) - every public method, inputs/outputs, and exactly what each assumes about the local filesystem (paths, globbing, .lume/ discovery, per-file read/write). (Evidence: a table of the contract surface in discovery.json.)"
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "2. Contract-leak audit: every place the engine persists state WITHOUT going through the Tracking contract (notably Workstream's direct json read/write via self._path, migrate.py file I/O, cli.py path printing). Each leak classified: must-move-behind-contract vs acceptable. (Evidence: leak list with file:symbol references in discovery.json.)"
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "3. Second-backing options compared: at least a real-service option (e.g. GitHub Issues, scope.md's named example) vs an in-process proof (in-memory or a second on-disk store), with trade-offs on cost, what each actually proves about replaceability, and test-ability. A recommendation is stated. (Evidence: options + recommendation in discovery.json.)"
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "4. Selection-contract sketch: how a Tracking backing is chosen without editing engine code (constructor injection, env var, or config), and where the choice is wired. (Evidence: contract sketch in discovery.json.)"
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "5. Naming fork captured: should `Repository` be renamed to name the Tracking contract it implements (e.g. Tracker / TrackingStore / WorkstreamStore), and how to keep it distinct from the Review / Practice / future contracts? Stated as a fork for planning, not decided here. (Evidence: naming fork in discovery.json.)"
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "6. Open forks listed for planning to resolve (real vs proof backing, how much to refactor the Workstream<->Tracking boundary, state/schema ownership, the rename). (Evidence: forks section in discovery.json.)"
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "7. Stale-skeleton fix folded in: the discovery `_SKELETONS` entry in iteration.py still tells operators to produce `discovery.md` - a leftover from the JSON-only flip. Update it to reference discovery.json (the current artifact). This is the one deliberate engine change permitted in this discovery iteration. (Evidence: grep shows no `discovery.md` in iteration.py; suite green.)"
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "8. Scope held: aside from the item-7 one-line skeleton fix, no engine code changed; the discovery artifact is discovery.json only (no discovery.md). What is deferred to planning/execution is explicit. (Evidence: git diff is discovery.json + iteration/state JSON + the single _SKELETONS line.)"
       }
     ],
     "preamble": "Discovery for swappable-backing. The subject is the Tracking contract (workstream/PM-state persistence); `Repository` is its v1 filesystem implementation. Map that contract surface exactly, find where the engine still reaches around it to touch the filesystem (the real obstacle to a second backing), compare candidate second backings, sketch how a backing gets selected, and capture the `Repository`-rename question as a fork. Produce discovery.json and the forks for planning to resolve. The only engine change permitted is the one-line fix to the stale `discovery.md` reference in iteration.py's _SKELETONS (a leftover from the JSON-only flip)."
   },
-  "handback": null,
+  "handback": "Discovery complete - discovery.json drafted (8 sections), schema-valid, 238 tests green.\n\nHeadline: the Tracking contract is currently SPLIT (Repository) and MISLOCATED (Workstream does its own file I/O for objective/iteration/decisions/retro and even state.json on the write path). A second backing therefore needs the boundary moved below Workstream first - that's the real shape of the work, not a Repository subclass.\n\nDeliverables vs DoD: (1) contract surface mapped; (2) leak audit with file:symbol refs; (3) options compared -> recommend proof-first (in-memory + SQLite/blob) over GitHub; (4) selection = constructor injection + LUME_BACKING env, fs default; (5) Repository-rename fork captured (entangled with the refactor); (6) seven forks for planning (F2 = where the boundary goes is load-bearing); (7) the one permitted engine fix (skeleton discovery.md -> discovery.json) done; (8) scope held.\n\nOpen question for the operator at planning: how much of the Workstream->store boundary refactor lands in v1 vs is staged. Accept to move to planning.",
   "id": 1,
-  "self_review": null
+  "self_review": "All 8 DoD items complete; discovery.json validates (8 sections); 238 tests still green; engine diff is the single permitted line (iteration.py _SKELETONS discovery.md -> discovery.json).\n\nLoad-bearing finding (section 2): the Tracking contract is split and mislocated. Repository owns .lume/ discovery + state.json-by-slug, but Workstream holds its own self._path and writes objective.json / iterations/NNN.json / decisions.json / retro.json directly - and even saves state.json itself via state.save(self._path/...), bypassing Repository.save_state on the write path. So a second backing built as a Repository subclass alone would intercept almost none of the persistence. The real work is moving the boundary BELOW Workstream, not beside it. This reframes the workstream from 'swap Repository' to 'relocate + name the Tracking contract, then swap its backing' - captured as fork F2 (the load-bearing decision).\n\nRecommendation (section 3): proof-first. Build an in-process backing (in-memory for tests + a SQLite or single-blob store as the real second implementation) before GitHub. A non-filesystem store is the cheapest thing that breaks every path assumption and forces the boundary right; it satisfies scope.md's design test and constraints.md's 'cheapest insurance / don't abstract until pulled'. GitHub is a clean follow-on.\n\nSelection (section 4): constructor injection decided once in cli.main, env var LUME_BACKING selecting the concrete store, fs default - no engine code below branches on backing type.\n\nNaming (section 5): Repository -> Tracking contract, but the rename travels with the F2 refactor (it's not a sed). Candidates Tracker/TrackingStore/WorkstreamStore; left for planning.\n\nScope held: no engine code beyond the one skeleton line; artifact is discovery.json only."
 }

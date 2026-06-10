@@ -4,10 +4,16 @@
       "dod_artifact": "iterations/001.json",
       "id": 1,
       "opened": "2026-06-10",
-      "phase": "approved",
+      "phase": "accepted",
       "title": "Map the Repository seam and choose the second backing",
       "type": "discovery",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [],

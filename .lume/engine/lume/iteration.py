@@ -68,7 +68,7 @@ VERDICT_LABELS: dict[str, str] = {"accept": "ACCEPTED", "reject": "REJECTED"}
 SKELETONS: dict[str, str] = {
     "discovery": (
         "- [ ] Context built: the key questions for this stage are answered.\n"
-        "- [ ] Artifact produced (e.g. discovery.md) capturing findings + open forks.\n"
+        "- [ ] Artifact produced (discovery.json) capturing findings + open forks.\n"
         "- [ ] Scope held: no engine code; what is deferred to planning/execution is listed."
     ),
     "planning": (
