@@ -59,6 +59,21 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0005-e3-vault-cross-links-adopters-md-mit-license-plugin-readme-alignment.json",
+      "id": 5,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E3: vault cross-links + ADOPTERS.md + MIT LICENSE + plugin/README alignment",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -78,7 +93,7 @@
     },
     {
       "id": "P3",
-      "iter": null,
+      "iter": 5,
       "sketch": "E3: vault graph + artifacts - add relative-markdown cross-links across all docs rooted at README (no orphans); create ADOPTERS.md (table seeded with lume + PR process); add MIT LICENSE; align plugin/README tone and link it to the root install. DoD: opening the repo as an Obsidian vault yields one connected graph; ADOPTERS.md + LICENSE exist; plugin.json MIT claim now backed.",
       "tag": "committed",
       "type": "execution"

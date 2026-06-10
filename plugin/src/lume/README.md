@@ -48,4 +48,7 @@ PYTHONPATH=plugin/src python3 -m unittest discover -s tests -t .   # stdlib runn
   is testable without the real repo or the real wall-clock.
 - `repository.py` is the documented tracking/persistence seam (local files today;
   a GitHub Issues / Jira backing later). Kept concrete until a second
-  implementation pulls on it - per scope.md, don't over-abstract early.
+  implementation pulls on it - per [scope.md](../../../docs/scope.md), don't over-abstract early.
+
+---
+Part of the lume docs: [user guide](../../README.md) · [project README](../../../README.md) · [design records](../../../docs/scope.md).

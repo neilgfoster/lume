@@ -43,3 +43,6 @@
 | 2026-06-09 | Each contract must be designed against two concrete implementations (its example pair); v1 hardcodes one path expressed as data, doesn't fully abstract until a second implementation pulls on it. | Cheapest insurance against single-implementation contracts that leak. |
 | 2026-06-09 | "Ceremony exceeds value" is the headline risk and a design constraint, not just a worry. | A time-saving framework that spends time will be routed around and abandoned. |
 | 2026-06-09 | Adversarial review of the operator's own decisions is a directional guardrail to prevent scope creep. | Keep Lume true to its intent; stop it growing into something it was never meant to be. |
+
+---
+Design records: [vision](vision.md) · [scope](scope.md) · [questions](questions.md) · current state: [README](../README.md)

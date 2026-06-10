@@ -64,3 +64,6 @@ Lume is scaffolding, not a destination. Its job is to make the author effective 
 - Reputation/delegation model that relaxes approval gates (directional only).
 - A polished product for general users.
 - Reinventing project-management tooling (Lume starts by tracking itself; external PM tools are a later swap behind a contract).
+
+---
+Design records: [scope](scope.md) · [constraints](constraints.md) · [questions](questions.md) · current state: [README](../README.md)

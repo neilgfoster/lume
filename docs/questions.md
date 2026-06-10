@@ -47,3 +47,6 @@ Status of each load-bearing assumption after eight closed workstreams (this docu
 5. **The contract seams are in the right place — PARTIAL.** The tracking seam was pulled on by a second concern (id-keyed store, 0007) and held; review and practice seams have only one implementation each, so they are **not yet falsified or confirmed.** **Partial.**
 
 Which risks materialised: "scope creep / grows into something it wasn't meant to be" was actively resisted (0008 held the line against engine expansion; the closeout caught a ship-boundary defect). "Ceremony exceeds value" cannot be assessed without assumption 4's missing measurement. The honest summary: the *mechanics* work and are tested; the *value proposition* is still unproven. That is the substance behind the README's "why you should not use lume."
+
+---
+Design records: [vision](vision.md) · [scope](scope.md) · [constraints](constraints.md) · current state: [README](../README.md)

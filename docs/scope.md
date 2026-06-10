@@ -68,3 +68,6 @@ Against the priority sequence above:
 7. **Multi-operator / reputation / self-improvement — not built** (directional).
 
 Not in the original sequence but shipped: **packaging as an installable Claude Code plugin** (0008), and an agent-friendly CLI with a self-describing verb catalog (0005–0006). What's deferred above is deferred on purpose, not forgotten.
+
+---
+Design records: [vision](vision.md) · [constraints](constraints.md) · [questions](questions.md) · current state: [README](../README.md)
