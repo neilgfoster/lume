@@ -4,6 +4,7 @@
   "type": "object",
   "required": ["slug", "title", "status", "objective_artifact"],
   "properties": {
+    "id": {"type": "string"},
     "slug": {"type": "string"},
     "title": {"type": "string"},
     "status": {"type": "string", "enum": ["active", "closed"]},

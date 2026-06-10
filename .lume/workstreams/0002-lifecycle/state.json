@@ -159,6 +159,7 @@
     }
   ],
   "workstream": {
+    "id": "0002",
     "objective_artifact": "objective.json",
     "slug": "lifecycle",
     "status": "closed",

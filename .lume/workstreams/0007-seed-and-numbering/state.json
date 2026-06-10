@@ -19,16 +19,31 @@
       "dod_artifact": "iterations/002.json",
       "id": 2,
       "opened": "2026-06-10",
-      "phase": "handback",
+      "phase": "accepted",
       "title": "Resolve the forks and plan the id/numbering/seed slices",
       "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/003.json",
+      "id": 3,
+      "opened": "2026-06-10",
+      "phase": "handback",
+      "title": "E1: id-keyed TrackingStore + NNNN-slug folders + migration",
+      "type": "execution",
       "verdicts": []
     }
   ],
   "plan": [
     {
       "id": "P1",
-      "iter": null,
+      "iter": 3,
       "sketch": "E1: reshape TrackingStore to id-keyed + store-minted ids. create_workstream(slug, seed=False)->id; has/read/write(id,...); list()->[id]; id is an opaque str. FilesystemStore mints zero-padded sequential ids + names folders NNNN-slug (seed=0000 via seed flag); SQLite/in-memory mint their own id sequences. workstream schema gains id (slug kept as label). Repository threads the store id. Update store + contract-matrix tests. Migrate the 6 existing: assign ids 1-7 by creation order + git mv rename folders to NNNN-slug (handle the active workstream). DONE = contract matrix green for all backings; live .lume renamed sequentially; CLI behaviour-preserving; suite green. (Splittable if the diff is too large.)",
       "tag": "committed",
       "type": "execution"
@@ -56,6 +71,7 @@
     }
   ],
   "workstream": {
+    "id": "0007",
     "objective_artifact": "objective.json",
     "slug": "seed-and-numbering",
     "status": "active",

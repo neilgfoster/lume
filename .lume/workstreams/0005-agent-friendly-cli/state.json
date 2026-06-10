@@ -5,7 +5,7 @@
       "id": 1,
       "opened": "2026-06-10",
       "phase": "accepted",
-      "title": "Map the Repository seam and choose the second backing",
+      "title": "Distil MCP's agent-interface principles and audit the lume CLI against them",
       "type": "discovery",
       "verdicts": [
         {
@@ -20,7 +20,7 @@
       "id": 2,
       "opened": "2026-06-10",
       "phase": "accepted",
-      "title": "Resolve the forks and plan the backing-swap slices",
+      "title": "Resolve the forks and plan the agent-friendly-CLI slices",
       "type": "planning",
       "verdicts": [
         {
@@ -35,7 +35,7 @@
       "id": 3,
       "opened": "2026-06-10",
       "phase": "accepted",
-      "title": "E1: TrackingStore protocol + FilesystemStore; Repository delegates its own I/O",
+      "title": "E1: --json flag + structured errors + read-verb output",
       "type": "execution",
       "verdicts": [
         {
@@ -50,7 +50,7 @@
       "id": 4,
       "opened": "2026-06-10",
       "phase": "accepted",
-      "title": "E2: relocate Workstream persistence behind the store; fix cli leaks + 2 CLI bugs",
+      "title": "E2: structured --json results for the mutating verbs",
       "type": "execution",
       "verdicts": [
         {
@@ -65,7 +65,7 @@
       "id": 5,
       "opened": "2026-06-10",
       "phase": "accepted",
-      "title": "E3: SQLiteStore second backing + LUME_BACKING selection; lifecycle exercised against it",
+      "title": "E3: lume verbs discovery surface",
       "type": "execution",
       "verdicts": [
         {
@@ -80,7 +80,7 @@
       "id": 6,
       "opened": "2026-06-10",
       "phase": "accepted",
-      "title": "E4: InMemoryStore double + cross-backing contract test matrix",
+      "title": "E4: per-verb input schema + grammar docs",
       "type": "execution",
       "verdicts": [
         {
@@ -95,7 +95,7 @@
       "id": 7,
       "opened": "2026-06-10",
       "phase": "accepted",
-      "title": "E5: closeout - retro, naming decision, lume close",
+      "title": "E5: closeout - retro, done-when, lume close",
       "type": "closeout",
       "verdicts": [
         {
@@ -110,43 +110,44 @@
     {
       "id": "P1",
       "iter": 3,
-      "sketch": "E1: Define the TrackingStore protocol + FilesystemStore (wraps today's path logic: list/has/create + read/write per artifact). Repository takes an injected store and routes its OWN I/O (state.json, objective.json, .lume/ listing) through it. Behaviour-preserving; fs default; suite green. DONE = grep shows Repository does no direct path read/write; tests pass.",
+      "sketch": "E1: --json plumbing + structured errors (P6). Add a global --json flag; a result emitter and an error emitter; under --json, errors print {error:{code,message}} on stderr with stable codes (usage/gate/not_found/schema); exit codes unchanged. Apply structured results to the read/discovery verbs (status, get, schema, entities, snapshot). Human output unchanged without --json. DONE = --json errors+read-verb output are JSON; default output byte-identical; tests.",
       "tag": "committed",
       "type": "execution"
     },
     {
       "id": "P2",
       "iter": 4,
-      "sketch": "E2: Relocate Workstream persistence behind the store. Workstream takes (store, slug) instead of a Path; objective/iteration-content/decisions/retro/state reads+writes go through the store. Fix the cli path-printing + the retro verb's direct ws._path read (F7). ALSO fix two CLI bugs found in planning: (a) `lume plan add` ignores the -g/tag flag its usage advertises - wire -g so optional items can be tagged from the CLI; (b) `lume get plan` errors because the entity is 'plan_item' - accept 'plan' as an alias (or document the real name). DONE = no filesystem access outside FilesystemStore (+ migrate.py); plan add -g and get plan both work; suite green.",
+      "sketch": "E2: structured results for the MUTATING verbs under --json (new, open, approve/start/handback/accept/reject/redo, close, reopen, decide, plan add/link, migrate). Each emits one JSON result object (e.g. {verb, workstream, iteration, phase}) under --json; human text unchanged otherwise. DONE = every verb emits structured JSON under --json; default unchanged; tests.",
       "tag": "committed",
       "type": "execution"
     },
     {
       "id": "P3",
       "iter": 5,
-      "sketch": "E3: Second backing - SQLiteStore implementing TrackingStore ((slug,artifact)->row). Selection via LUME_BACKING env in cli.main (fs default), constructor-injected. Run the full lifecycle (new/open/transitions/decide/retro/close) against SQLite in tests. DONE = replaceability demonstrated; fs behaviour unchanged; suite green.",
+      "sketch": "E3: verb-discovery surface (P1) - 'lume verbs' lists the verb catalog (name, one-line summary, arg outline), human lines by default and JSON under --json; the tools/list analogue, joining entities/schema/get. DONE = 'lume verbs' and 'lume verbs --json' enumerate all verbs; test covers both.",
       "tag": "committed",
       "type": "execution"
     },
     {
       "id": "P4",
       "iter": 6,
-      "sketch": "E4: In-memory store as a test double + a shared contract test-suite run against all backings (fs, sqlite, memory) to pin the contract. DONE = one parametrized suite green across backings.",
+      "sketch": "E4 (optional): per-verb input schema (principle P2) + documented grammar (principle P4) - represent each verb's args as fetchable data (e.g. 'lume verbs --json' carries an input schema per verb) and document the grammar; no breaking changes. DONE = each verb advertises its args as data; suite green.",
       "tag": "optional",
       "type": "execution"
     },
     {
       "id": "P5",
       "iter": 7,
-      "sketch": "E5: Closeout - retro (did the second backing prove replaceability for the cost?), assess done-when clause by clause, finalize the Repository/TrackingStore naming decision, lume close.",
+      "sketch": "E5: closeout - retro (did the agent-friendly surface buy back its cost?), assess done-when clause by clause, lume close.",
       "tag": "committed",
       "type": "closeout"
     }
   ],
   "workstream": {
+    "id": "0005",
     "objective_artifact": "objective.json",
-    "slug": "swappable-backing",
+    "slug": "agent-friendly-cli",
     "status": "closed",
-    "title": "Swappable Backing"
+    "title": "Agent-Friendly CLI (MCP-informed)"
   }
 }

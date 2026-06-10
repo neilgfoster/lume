@@ -31,31 +31,37 @@ class SQLiteStoreTest(unittest.TestCase):
         self.store = SQLiteStore(":memory:")
 
     def test_round_trip_state_and_simple_and_iteration(self):
-        self.store.write("demo", "state", _state_doc())
-        self.store.write("demo", "objective", {"slug": "demo", "x": 1})
-        self.store.write("demo", "iteration:003", {"id": 3})
-        self.assertEqual(self.store.read("demo", "state")["workstream"]["slug"], "demo")
-        self.assertEqual(self.store.read("demo", "objective")["x"], 1)
-        self.assertEqual(self.store.read("demo", "iteration:003")["id"], 3)
+        id = self.store.create_workstream("demo")
+        self.store.write(id, "state", _state_doc())
+        self.store.write(id, "objective", {"slug": "demo", "x": 1})
+        self.store.write(id, "iteration:003", {"id": 3})
+        self.assertEqual(self.store.read(id, "state")["workstream"]["slug"], "demo")
+        self.assertEqual(self.store.read(id, "objective")["x"], 1)
+        self.assertEqual(self.store.read(id, "iteration:003")["id"], 3)
 
     def test_missing_returns_none(self):
-        self.assertIsNone(self.store.read("demo", "retro"))
+        id = self.store.create_workstream("demo")
+        self.assertIsNone(self.store.read(id, "retro"))
 
     def test_list_and_has(self):
-        self.assertFalse(self.store.has_workstream("demo"))
-        self.store.write("demo", "state", _state_doc())
-        self.store.write("other", "state", _state_doc("other"))
-        self.assertTrue(self.store.has_workstream("demo"))
-        self.assertEqual(self.store.list_workstreams(), ["demo", "other"])
+        id1 = self.store.create_workstream("demo")
+        id2 = self.store.create_workstream("other")
+        self.store.write(id1, "state", _state_doc())
+        self.store.write(id2, "state", _state_doc("other"))
+        self.assertTrue(self.store.has_workstream(id1))
+        self.assertFalse(self.store.has_workstream("9999"))
+        self.assertEqual(self.store.list_workstreams(), [id1, id2])
 
     def test_write_upserts(self):
-        self.store.write("demo", "state", _state_doc(status="active"))
-        self.store.write("demo", "state", _state_doc(status="closed"))
-        self.assertEqual(self.store.read("demo", "state")["workstream"]["status"], "closed")
+        id = self.store.create_workstream("demo")
+        self.store.write(id, "state", _state_doc(status="active"))
+        self.store.write(id, "state", _state_doc(status="closed"))
+        self.assertEqual(self.store.read(id, "state")["workstream"]["status"], "closed")
 
     def test_state_validated_on_write(self):
+        id = self.store.create_workstream("demo")
         with self.assertRaises(SchemaError):
-            self.store.write("demo", "state", {"workstream": {}, "iterations": [], "plan": []})
+            self.store.write(id, "state", {"workstream": {}, "iterations": [], "plan": []})
 
 
 class ValidateDocSharedTest(unittest.TestCase):
@@ -89,7 +95,9 @@ class SelectionTest(unittest.TestCase):
     def test_default_fs_writes_files(self):
         code, _ = self._run("new", "alpha", "Alpha")
         self.assertEqual(code, 0)
-        self.assertTrue((self.root / ".lume" / "workstreams" / "alpha" / "state.json").is_file())
+        ws_root = self.root / ".lume" / "workstreams"
+        ws_dir = next(ws_root.glob("*-alpha"))
+        self.assertTrue((ws_dir / "state.json").is_file())
         self.assertFalse((self.root / ".lume" / "lume.db").exists())
 
     def test_sqlite_backing_writes_db_not_files(self):
@@ -122,6 +130,7 @@ class SqliteLifecycleTest(unittest.TestCase):
 
     def test_full_lifecycle_on_sqlite(self):
         ws = self._repo().create_workstream("demo", "Demo")
+        ws_id = ws.id
         ws.open_iteration("First", type="execution")
         for verb in ("approve", "start", "handback", "accept"):
             self._repo().workstream("demo").transition(verb, note="ok" if verb == "accept" else None)
@@ -133,10 +142,10 @@ class SqliteLifecycleTest(unittest.TestCase):
         self._repo().workstream("demo").set_status("closed")
 
         # Everything persisted in the db; nothing on the filesystem.
-        self.assertEqual(self.store.read("demo", "state")["workstream"]["status"], "closed")
-        self.assertEqual(len(self.store.read("demo", "state")["iterations"]), 2)
-        self.assertEqual(self.store.read("demo", "decisions")["entries"][0]["decision"], "use sqlite")
-        self.assertEqual(self.store.read("demo", "retro")["overall_verdict"], "works")
+        self.assertEqual(self.store.read(ws_id, "state")["workstream"]["status"], "closed")
+        self.assertEqual(len(self.store.read(ws_id, "state")["iterations"]), 2)
+        self.assertEqual(self.store.read(ws_id, "decisions")["entries"][0]["decision"], "use sqlite")
+        self.assertEqual(self.store.read(ws_id, "retro")["overall_verdict"], "works")
         self.assertFalse((self.root / ".lume" / "workstreams" / "demo").exists())
 
 

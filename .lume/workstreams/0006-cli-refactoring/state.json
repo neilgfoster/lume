@@ -122,6 +122,7 @@
     }
   ],
   "workstream": {
+    "id": "0006",
     "objective_artifact": "objective.json",
     "slug": "cli-refactoring",
     "status": "closed",

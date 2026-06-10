@@ -86,6 +86,7 @@
   ],
   "plan": [],
   "workstream": {
+    "id": "0001",
     "objective_artifact": "objective.json",
     "slug": "build-lume",
     "status": "closed",

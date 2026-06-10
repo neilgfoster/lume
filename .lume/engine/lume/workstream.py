@@ -30,8 +30,9 @@ CLOSED = "closed"
 
 
 class Workstream:
-    def __init__(self, store, slug: str, clock: Clock, state_doc: dict) -> None:
+    def __init__(self, store, id: str, slug: str, clock: Clock, state_doc: dict) -> None:
         self._store = store
+        self._id = id
         self._slug = slug
         self._clock = clock
         self._state = state_doc
@@ -41,11 +42,18 @@ class Workstream:
         """Build a filesystem-backed Workstream from its directory.
 
         Convenience for callers/tests that hold a workstream dir rather than a
-        store + slug; roots a FilesystemStore at the dir's parent.
+        store + slug; roots a FilesystemStore at the dir's parent. Supports both
+        NNNN-slug folder names (id=NNNN, slug=slug) and plain-slug names (id=slug).
         """
-        from .store import FilesystemStore
+        from .store import FilesystemStore, _folder_id, _folder_slug
         store = FilesystemStore.from_workstreams_root(ws_dir.parent)
-        return cls(store, ws_dir.name, clock, state_doc)
+        id = _folder_id(ws_dir.name)
+        slug = _folder_slug(ws_dir.name)
+        return cls(store, id, slug, clock, state_doc)
+
+    @property
+    def id(self) -> str:
+        return self._id
 
     @property
     def name(self) -> str:
@@ -67,14 +75,14 @@ class Workstream:
 
     def _load_objective(self) -> dict:
         from .validate import validate_entity
-        doc = self._store.read(self._slug, "objective")
+        doc = self._store.read(self._id, "objective")
         validate_entity("objective", doc)
         return doc
 
     def _save_objective(self, doc: dict) -> None:
         from .validate import validate_entity
         validate_entity("objective", doc)
-        self._store.write(self._slug, "objective", doc)
+        self._store.write(self._id, "objective", doc)
 
     def set_status(self, status: str) -> None:
         """Update workstream status in state.json and objective.json (JSON-only)."""
@@ -131,12 +139,12 @@ class Workstream:
 
     def _save_state(self) -> None:
         """Validate + persist state through the store (JSON-only; no derived views)."""
-        self._store.write(self._slug, "state", self._state)
+        self._store.write(self._id, "state", self._state)
 
     def _save_iter_content(self, iter_id: int, content: dict) -> None:
         from .validate import validate_entity
         validate_entity("iteration_content", content)
-        self._store.write(self._slug, f"iteration:{iter_id:03d}", content)
+        self._store.write(self._id, f"iteration:{iter_id:03d}", content)
 
     def add_plan_item(self, sketch: str, type: str = "execution", tag: str = "committed") -> PlanItem:
         """Append a new plan item to state.plan. Returns the new item."""
@@ -198,11 +206,11 @@ class Workstream:
     def _save_decisions(self, doc: dict) -> None:
         from .validate import validate_entity
         validate_entity("decisions", doc)
-        self._store.write(self._slug, "decisions", doc)
+        self._store.write(self._id, "decisions", doc)
 
     def add_decision(self, decision: str, context: str = "", rationale: str = "") -> dict:
         """Append a decision entry to the decisions artifact (JSON-only)."""
-        doc = self._store.read(self._slug, "decisions") or {"entries": []}
+        doc = self._store.read(self._id, "decisions") or {"entries": []}
         entry = {
             "date": self._clock.today().isoformat(),
             "context": context.strip(),
@@ -217,11 +225,11 @@ class Workstream:
         """Validate + persist the retro artifact through the store (JSON-only)."""
         from .validate import validate_entity
         validate_entity("retro", retro)
-        self._store.write(self._slug, "retro", retro)
+        self._store.write(self._id, "retro", retro)
 
     def retro_doc(self) -> dict | None:
         """The retro artifact through the store, or None if not yet written."""
-        return self._store.read(self._slug, "retro")
+        return self._store.read(self._id, "retro")
 
     def transition(self, verb: str, note: str | None = None) -> Iteration:
         """Apply a named phase transition to the current iteration.

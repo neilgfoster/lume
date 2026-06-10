@@ -54,54 +54,73 @@ class TrackingStoreContractTest(unittest.TestCase):
             finally:
                 cleanup()
 
-    def test_create_has_list(self):
+    def test_create_returns_id_has_and_list(self):
         for name, store in self._each():
             with self.subTest(backing=name):
-                self.assertFalse(store.has_workstream("demo"))
-                store.create_workstream("demo")
-                store.write("demo", "state", _state_doc())
-                self.assertTrue(store.has_workstream("demo"))
-                self.assertEqual(store.list_workstreams(), ["demo"])
+                id = store.create_workstream("demo")
+                store.write(id, "state", _state_doc())
+                self.assertTrue(store.has_workstream(id))
+                self.assertEqual(store.list_workstreams(), [id])
+
+    def test_has_returns_false_for_unknown_id(self):
+        for name, store in self._each():
+            with self.subTest(backing=name):
+                self.assertFalse(store.has_workstream("0000"))
+
+    def test_sequential_ids_are_distinct(self):
+        for name, store in self._each():
+            with self.subTest(backing=name):
+                id1 = store.create_workstream("alpha")
+                id2 = store.create_workstream("beta")
+                store.write(id1, "state", _state_doc("alpha"))
+                store.write(id2, "state", _state_doc("beta"))
+                self.assertNotEqual(id1, id2)
+                self.assertEqual(sorted(store.list_workstreams()), sorted([id1, id2]))
 
     def test_round_trip_artifacts(self):
         for name, store in self._each():
             with self.subTest(backing=name):
-                store.write("demo", "state", _state_doc())
-                store.write("demo", "objective", {"slug": "demo", "x": 1})
-                store.write("demo", "iteration:003", {"id": 3})
-                self.assertEqual(store.read("demo", "state")["workstream"]["slug"], "demo")
-                self.assertEqual(store.read("demo", "objective")["x"], 1)
-                self.assertEqual(store.read("demo", "iteration:003")["id"], 3)
+                id = store.create_workstream("demo")
+                store.write(id, "state", _state_doc())
+                store.write(id, "objective", {"slug": "demo", "x": 1})
+                store.write(id, "iteration:003", {"id": 3})
+                self.assertEqual(store.read(id, "state")["workstream"]["slug"], "demo")
+                self.assertEqual(store.read(id, "objective")["x"], 1)
+                self.assertEqual(store.read(id, "iteration:003")["id"], 3)
 
     def test_missing_returns_none(self):
         for name, store in self._each():
             with self.subTest(backing=name):
-                self.assertIsNone(store.read("demo", "retro"))
+                id = store.create_workstream("demo")
+                self.assertIsNone(store.read(id, "retro"))
 
     def test_write_upserts(self):
         for name, store in self._each():
             with self.subTest(backing=name):
-                store.write("demo", "state", _state_doc(status="active"))
-                store.write("demo", "state", _state_doc(status="closed"))
+                id = store.create_workstream("demo")
+                store.write(id, "state", _state_doc(status="active"))
+                store.write(id, "state", _state_doc(status="closed"))
                 self.assertEqual(
-                    store.read("demo", "state")["workstream"]["status"], "closed")
+                    store.read(id, "state")["workstream"]["status"], "closed")
 
     def test_state_validated_on_write(self):
         for name, store in self._each():
             with self.subTest(backing=name):
+                id = store.create_workstream("demo")
                 with self.assertRaises(SchemaError):
-                    store.write("demo", "state",
+                    store.write(id, "state",
                                 {"workstream": {}, "iterations": [], "plan": []})
 
 
 class InMemoryStoreTest(unittest.TestCase):
     def test_read_is_isolated_from_stored_copy(self):
         store = InMemoryStore()
-        store.write("demo", "state", _state_doc())
-        got = store.read("demo", "state")
+        id = store.create_workstream("demo")
+        store.write(id, "state", _state_doc())
+        got = store.read(id, "state")
         got["workstream"]["status"] = "mutated"
         # Mutating the returned doc must not affect stored state.
-        self.assertEqual(store.read("demo", "state")["workstream"]["status"], "active")
+        self.assertEqual(store.read(id, "state")["workstream"]["status"], "active")
 
     def test_lifecycle_against_in_memory_double(self):
         store = InMemoryStore()
@@ -115,12 +134,13 @@ class InMemoryStoreTest(unittest.TestCase):
             def repo():
                 return Repository(root, clock, store=store)
 
-            repo().create_workstream("demo", "Demo")
+            ws = repo().create_workstream("demo", "Demo")
+            ws_id = ws.id
             repo().workstream("demo").open_iteration("First", type="execution")
             for verb in ("approve", "start", "handback", "accept"):
                 repo().workstream("demo").transition(verb)
             self.assertEqual(
-                store.read("demo", "state")["iterations"][0]["phase"], "accepted")
+                store.read(ws_id, "state")["iterations"][0]["phase"], "accepted")
             self.assertFalse((root / ".lume" / "workstreams" / "demo").exists())
 
 
