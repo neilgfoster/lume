@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Engine package moved to a src/ layout at repo root: ./src/lume/ (from .lume/engine/lume/), ./tests/ (from .lume/engine/tests/), via git mv so history is preserved."
+      },
+      {
+        "checked": true,
+        "text": "Entry point at ./bin/lume resolves the package by adding <root>/src to sys.path from its own __file__ location (no relative .lume/engine path); a root conftest.py does the same for tests; `lume` runs as a bare command."
+      },
+      {
+        "checked": true,
+        "text": ".claude-plugin/plugin.json created: name, version 0.1.0, description, author, repository, license, keywords (per F2)."
+      },
+      {
+        "checked": true,
+        "text": ".lume/ now holds workstreams/ only (engine removed from it); .lume/ is not referenced by plugin.json and is documented as outside the plugin package."
+      },
+      {
+        "checked": true,
+        "text": "Behaviour preserved: full test suite green from the new root (python3 -m pytest), and our own dogfooding loop (lume -w 0008 status) still resolves via find_lume_dir."
+      },
+      {
+        "checked": true,
+        "text": "No engine logic changed - only file locations + the bin shim's path resolution + the new manifest."
+      }
+    ],
+    "preamble": "E1 (plan P1): move the engine from .lume/engine to the repo root and stand up the plugin skeleton. Behaviour-preserving: the move is git mv (history kept); no engine logic changes. .lume/ keeps workstreams/ only - it is in-repo operator state, outside the plugin."
+  },
+  "handback": "Engine moved to src/ layout: ./src/lume (package), ./tests, ./bin/lume (git mv, history kept). bin/lume adds <root>/src to sys.path; root conftest.py mirrors that for tests. ./.claude-plugin/plugin.json created. .lume/ reduced to workstreams/ only. src/lume/README.md updated for the src layout + both test runners. Verified: 311 tests green (pytest and unittest), bare lume runs, loop intact. Next: P2/E2 - skill wrappers over the verbs.",
+  "id": 3,
+  "self_review": "Re-done after rejection: package moved from flat ./lume to a src/ layout (./src/lume) per operator steer - avoids the repo/package name echo and the conventional Python layout. git mv preserved history across both moves. bin/lume adds <root>/src to the path; a stdlib-only root conftest.py does the same for the test run, so no editable install / packaging toolchain is needed. Behaviour preserved: 311 tests green from root via pytest AND via PYTHONPATH=src unittest; bare lume runs; dogfooding loop intact. .lume/ holds workstreams/ only and is not referenced by plugin.json. No engine logic changed. Deferred to E3: front-door root README + the explicit '.lume does not ship as plugin content' mechanism."
+}

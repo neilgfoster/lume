@@ -29,12 +29,32 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0003-e1-move-engine-to-repo-root-plugin-skeleton.json",
+      "id": 3,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E1: move engine to repo root + plugin skeleton",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": "Use a src/ layout: package at ./src/lume, not flat ./lume at root (avoids the repo/package name echo and keeps root uncluttered; conventional Python src-layout).",
+          "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
     {
       "id": "P1",
-      "iter": null,
+      "iter": 3,
       "sketch": "E1: move engine to repo root (./lume package, ./bin/lume, tests/) + add .claude-plugin/plugin.json; bin/lume resolves the package via its own location; .lume/ stays in-repo state only and is excluded from plugin content. DoD: lume runs as a bare command from the new entry point; 227 tests green at new paths; our own dogfooding loop still works.",
       "tag": "committed",
       "type": "execution"
