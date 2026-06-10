@@ -49,6 +49,21 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0004-e2-one-guiding-skill-that-drives-the-lume-cli-loop.json",
+      "id": 4,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E2: one guiding skill that drives the lume CLI loop",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -61,7 +76,7 @@
     },
     {
       "id": "P2",
-      "iter": null,
+      "iter": 4,
       "sketch": "E2: skill/command wrappers - namespaced SKILL.md per loop step (seed, status, open, approve/start, handback, accept) that call bundled lume by bare name and relay --json. DoD: each loop step invocable as a plugin skill; commands map onto existing verbs with no logic duplicated.",
       "tag": "committed",
       "type": "execution"
