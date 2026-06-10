@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. A verb catalog as data in cli.py: each verb -> {name, summary, args} (args a short human outline string), covering every dispatchable verb including the transition verbs and `verbs` itself. (Evidence: the catalog literal lists all verbs.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `lume verbs` lists the catalog: human lines ('<name>  -  <summary>') by default, and a JSON array of {name, summary, args} under --json. Read-only, no workstream target needed (like entities). (Evidence: tests assert both forms.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Single source of truth: the dispatch membership set and the USAGE verb list are derived from the catalog (no third hardcoded verb list). A test asserts the catalog's names exactly match the set of verbs main() dispatches. (Evidence: grep shows membership/USAGE built from the catalog; the coverage test passes.)"
+      },
+      {
+        "checked": true,
+        "text": "4. `verbs` wired into dispatch + USAGE; structured errors/output conventions from E1/E2 hold (it is a read verb, so --json emits the array). (Evidence: `lume verbs` and `lume verbs --json` both exit 0.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Back-compat + full suite green; >= 3 new tests (verbs human, verbs --json, catalog-covers-dispatch); no new dependency; no LLM; scope cli.py + tests. (Evidence: test run 0 failures.)"
+      }
+    ],
+    "preamble": "E3 (P3): add the verb-discovery surface (principle P1, the tools/list analogue). Introduce a verb catalog as data - {name, summary, args} per verb - and a `lume verbs` command that lists it (human by default, JSON under --json). Make the catalog the single source for dispatch membership + USAGE so there is no third hardcoded verb list to drift. An agent can now enumerate the commands without parsing prose. cli.py + tests only; dependency-free; deterministic."
+  },
+  "handback": "E3 complete - the verb-discovery surface (P1, tools/list analogue). 286 tests pass.\n\n- _CATALOG (data): {name, summary, args} per verb; transitions generated from TRANSITIONS.\n- Single source of truth: USAGE + dispatch membership derive from the catalog (no second list).\n- `lume verbs` (human) and `lume verbs --json` (full catalog array).\n- Coverage test pins catalog == dispatch set. Back-compat held; dependency-free.\n\nv1 core is now done: P1 (verbs), P5 (--json read+write), P6 (structured errors). Remaining: E4 optional (per-verb input schema + grammar docs) and E5 closeout. Accept to choose E4 vs E5.",
+  "id": 5,
+  "self_review": "All 5 DoD items complete; 286 tests pass (4 new in test_verbs.py); diff = cli.py + test_verbs.py (plus test_json_output.py from E1/E2, same workstream).\n\nAdded _CATALOG: an ordered list of {name, summary, args} for every verb, with the transition entries generated from TRANSITIONS (so they stay in sync, reject carries '<reason>'). The catalog is the SINGLE source of truth: _VERB_NAMES, _VERBS, USAGE, and the dispatch membership check all derive from it - the previous duplicated hardcoded verb tuple is gone.\n\n`lume verbs` lists the catalog: aligned 'name  summary' human lines by default, the JSON array of full {name,summary,args} entries under --json. Read-only, no target (sits with entities).\n\nA coverage test asserts the catalog has no duplicates and that no catalog verb is rejected as an unknown command - pinning catalog == dispatch set so the discovery surface can't silently drift from what the CLI actually accepts.\n\nBack-compat: human output unchanged elsewhere; suite green; dependency-free; no LLM. With P1 (verbs) + P3 (schema) + P5 (--json everywhere) + P6 (structured errors), an agent can fully self-orient: enumerate verbs, fetch entity schemas, drive every verb in JSON, parse errors."
+}

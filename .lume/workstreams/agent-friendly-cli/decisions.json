@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F2 (load-bearing): structured output via an opt-in global --json flag; human text stays the default and byte-for-byte unchanged",
+      "rationale": "Opt-in is the only back-compat-safe option: existing tests and the operator read the current human stdout. With --json every verb emits one structured JSON result; without it, nothing changes. One flag, uniform across verbs."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F1: add a 'lume verbs' discovery verb emitting the verb catalog (name, summary, arg outline); joins the entities/schema/get discovery family",
+      "rationale": "tools/list analogue, consistent with the existing read-only discovery verbs; lets an agent enumerate commands without parsing the usage prose. stdlib-only."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F3: under --json, errors emit a JSON object {error:{code,message}} on stderr; exit codes unchanged (2 usage, 1 domain/gate, 0 ok); code is a small stable string enum",
+      "rationale": "Keeps the existing two-tier exit-code strength as the primary signal and adds a parseable body + stable code for agents. Human stderr string preserved when --json absent."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F4 (per-verb input schema, principle P2): DEFER to an optional later iteration",
+      "rationale": "Valuable but larger and depends on the --json result shape landing first; adopting it now risks freezing the arg grammar prematurely. Revisit after the core ships."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F5 (grammar standardisation, principle P4): NARROW - document the grammar; no breaking changes this workstream",
+      "rationale": "Caller/test safety outweighs the marginal tidiness; the rough edges (positional shapes, get plan alias) are not blocking agent use once discovery + --json exist."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F6 v1 cut: adopt P1 (verb discovery) + P5 (structured --json output) + P6 (structured errors); defer P2 (input schema) and P4 (grammar)",
+      "rationale": "These three are the high-value core that lets an agent drive lume without scraping prose; P2/P4 are deferrable polish. Matches the discovery recommendation."
+    }
+  ]
+}

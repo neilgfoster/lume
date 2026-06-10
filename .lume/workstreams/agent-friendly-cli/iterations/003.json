@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. A global `--json` flag is parsed (valueless; may appear anywhere in argv, like -w), yielding a boolean json-mode. Default off. (Evidence: a flag-extraction helper + test that --json is recognised and stripped from positional parsing.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Structured errors under --json: a single error path emits {\"error\": {\"code\": <stable-string>, \"message\": <str>}} as JSON to stderr when json-mode, else the current 'lume: <msg>' string. Codes are a small stable set (usage, gate, not_found, schema, no_lume_dir). Exit codes are unchanged (2 usage, 1 domain/gate, 0 ok). (Evidence: tests assert JSON error body + code + unchanged exit code for a usage error and a gate error.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Read/discovery verbs emit structured output under --json, consistently shaped: `entities` -> JSON array of kinds; `schema`/`get` already JSON (unchanged); `status` (detail + queue) -> a JSON object; `snapshot` -> a JSON object (or the derived text under a key). (Evidence: tests assert each read verb yields parseable JSON under --json.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Back-compat: with --json absent, every verb's stdout/stderr is byte-for-byte unchanged from today; the existing suite passes untouched. (Evidence: full pre-existing suite green with no edits to its assertions.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Mutating verbs are NOT converted in this slice (that is E2); they keep human output even under --json for now, and that interim is noted. Scope stays: cli.py + tests only. (Evidence: handback notes the deferral; diff confined to cli.py + new tests.)"
+      },
+      {
+        "checked": true,
+        "text": "6. >= 5 new tests (flag parsing, JSON usage error, JSON gate error, entities-as-JSON, status-as-JSON) and full suite green; no new dependency; no LLM. (Evidence: test run 0 failures.)"
+      }
+    ],
+    "preamble": "E1 (P1): lay the --json plumbing and convert the read side. Add an opt-in global --json flag, a single structured-error emitter (code+message on stderr, exit codes unchanged), and structured output for the read/discovery verbs (entities/schema/get/status/snapshot). Human output is unchanged when --json is absent - the back-compat contract. Mutating verbs are deferred to E2. cli.py + tests only; dependency-free; deterministic."
+  },
+  "handback": "E1 complete. Opt-in --json + structured errors + structured read-verb output. 276 tests pass.\n\n- Global --json flag (valueless, anywhere); parsed first.\n- Single structured-error path: _fail emits {error:{code,message}} under --json (codes: usage/gate/not_found/no_lume_dir/schema), human string otherwise; exit codes unchanged. ALL cli error sites converted.\n- Read verbs structured under --json: entities, status (detail+queue), snapshot (get/schema already JSON).\n- Back-compat: pre-existing suite (267) green untouched; default output byte-identical.\n- Diff: cli.py + test_json_output.py (9 new tests). Live-verified.\n\nDeferred to E2: mutating verbs still print human success output even under --json. Accept to open E2.",
+  "id": 3,
+  "self_review": "All 6 DoD items complete; 276 tests pass (9 new in test_json_output.py); diff confined to cli.py + the new test file.\n\n--json is an opt-in valueless global flag parsed first (so it governs error formatting even on flag-parse errors). A single error path (_fail + _code_for) emits {error:{code,message}} on stderr under --json with stable codes (usage/gate/not_found/no_lume_dir/schema), and the unchanged 'lume: <msg>' string otherwise; exit codes are untouched (2 usage, 1 domain, 0 ok). EVERY error site in cli.py now routes through _fail - not just the read verbs - so errors are structured uniformly, while mutating verbs' SUCCESS output stays human until E2.\n\nRead/discovery verbs emit structured JSON under --json: entities -> array; status detail -> {name,status,objective,current_iteration}; status queue -> {awaiting,in_progress,closed}; snapshot -> {snapshot}; get/schema already JSON. Built via _detail_data/_queue_data so the human renderers are untouched.\n\nBack-compat verified: the entire pre-existing suite (267 tests) passes with NO edits to its assertions - without --json, stdout/stderr are byte-for-byte unchanged. Dependency-free, no LLM.\n\nDeferred to E2 (noted): mutating verbs' success output is still human under --json."
+}
