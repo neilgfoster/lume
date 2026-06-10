@@ -1,0 +1,33 @@
+{
+  "title": "cli-refactoring - discovery",
+  "sections": [
+    {
+      "heading": "0. Frame",
+      "body": "Restructure cli.py (591 lines, the largest engine module; next is migrate at ~310) for HUMAN maintainability with zero behaviour change. External contract - verbs, flags, human + --json stdout/stderr, exit codes - stays byte-for-byte. No engine code this iteration; discovery.json + forks only."
+    },
+    {
+      "heading": "1. Responsibility map (line spans)",
+      "body": "- imports + _ENTITY_KEY (get's entity->state-key map): 1-48\n- catalog construction: _pos, flag constants (_F_JSON/_F_W/_F_TYPE/_F_CONTEXT/_F_TAG), _verb(), _CATALOG, _VERB_NAMES/_VERBS/USAGE: 50-108\n- flag parsing: _extract_bool_flag (111-117), _extract_flag (155-175)\n- error handling: _ERR_CODES, _code_for, _fail: 119-142\n- output emitters: _ok (144-153), _json_out (264-266)\n- human renderers: _render_detail (177-192), _render_queue (194-230)\n- JSON data builders: _iteration_summary, _detail_data, _queue_data: 232-262\n- main(): 268-591 - flag extraction; cmd membership + per-command arg checks (286-311); backing selection (313-328); repo build (328); then the dispatch if-chain (331-591) over 16 verb groups: new, reopen, migrate, verbs, entities, schema, status(queue+detail), close, snapshot, open, get, plan, decide, retro, + transition fallthrough.\n\nObservation: everything ABOVE main() is already small and cohesive (~260 lines of well-named helpers/data). The bulk and the pain are inside main()."
+    },
+    {
+      "heading": "2. Pain points (concrete, line-referenced)",
+      "body": "P-A main() is ~320 lines / one function: to find a verb you scroll the whole if-chain (331-591); verbs aren't grouped or ordered, and the function mixes parsing, validation, backing selection, resolution, and 16 dispatch blocks.\nP-B A single verb's concerns are SPLIT across three places: its catalog entry (50-108, top), its per-command arg validation (286-311, mid), and its action+output (somewhere in 331-591, bottom). Adding/changing a verb means editing 2-3 separated regions - the opposite of local.\nP-C No shared per-verb structure: each if-block re-implements positional extraction (rest[3]/rest[4]), ad hoc validation, the action call, and the _ok/_fail emit. Duplication and drift risk (the get id-parsing block 469-509 is itself ~40 lines inline).\nP-D Cohesion-by-kind is missing: renderers, json builders, emitters, catalog, and dispatch are all in one file, so the file serves five audiences at once."
+    },
+    {
+      "heading": "3. Target-structure options",
+      "body": "(a) Module split (package cli/): cli/catalog.py, cli/render.py (human renderers + json builders), cli/io.py (_ok/_fail/_json_out/_code_for), cli/flags.py (parsing), cli/dispatch.py (main + the if-chain). Each file focused; navigation by concern. LOW churn/risk, but dispatch.py still carries the 320-line if-chain - fixes P-D, not P-A/P-B/P-C.\n(b) Per-verb handler registry: each verb is a small handler(ctx) -> int that owns its own validation + action + output; a {name: handler} registry replaces the if-chain; main() becomes thin (parse -> build ctx -> look up -> call). A `ctx` object carries argv-rest, json_mode, flags, repo, and a lazy workstream resolver. Co-locates a verb's concerns (fixes P-B/P-C) and kills the if-chain (P-A). Moderate, mechanical churn; the contract is preserved because each handler is the SAME code relocated.\n(c) Minimal: extract only renderers/emitters/catalog to one helpers module, leave main() largely intact. Lowest churn, smallest gain (P-D partially).\n\nRECOMMENDATION: (b) the handler registry is the real fix - it makes adding/changing a verb LOCAL (one catalog entry + one handler) and shrinks main() to routing. Combine with a light (a)-style split (catalog + render/io already cleanly separable) IF the single file is still large after; but registry-first delivers most of the value. Reject (c) as not worth the ceremony on its own."
+    },
+    {
+      "heading": "4. Behaviour-preservation strategy",
+      "body": "The external contract is already strongly characterized by the suite, which drives cli.main() and asserts stdout/stderr + exit codes: test_cli.py (dispatch, e2e, types, errors), test_json_output.py (--json read + mutating results, structured errors, human-unchanged), test_verbs.py (catalog/dispatch coverage), test_plan_flip.py (plan verbs), plus migrate/objective/etc. main()'s signature stays identical, so all of these keep passing unchanged - they ARE the regression net. Rule: refactor is behaviour-preserving iff the full suite stays green with NO assertion edits (only mechanical import moves if a package split happens). A pre-refactor full-suite run is the baseline; if confidence is wanted, a tiny characterization test snapshotting `lume verbs --json` + a couple of representative human/JSON outputs can be added first, but existing coverage likely suffices (decide in planning)."
+    },
+    {
+      "heading": "5. Open forks for planning",
+      "body": "F1 Approach: handler registry (b) vs module split (a) vs both - discovery recommends registry-first, optional split after.\nF2 Layout: a cli/ package (multiple files) vs a single cli.py reorganised into a registry + clearly sectioned helpers. Engine is small + dependency-free; a package adds files but aids navigation.\nF3 Handler signature / ctx: what the shared context carries (rest/arg, json_mode, opt_type/context/tag, repo, target, a ws resolver) and how a handler signals exit code (return int) + output (via _ok/_fail).\nF4 Per-command arg validation: move each verb's required-arg check into its handler (co-located) vs keep a pre-validation pass.\nF5 Scope/depth: convert all verbs to handlers in one slice vs phase by verb group; how to keep each execution iteration independently reviewable.\nF6 Whether to add the characterization test first (F4 of preservation)."
+    },
+    {
+      "heading": "6. Scope held / deferred",
+      "body": "No engine code changed; artifact is this discovery.json only. The concrete target (registry, package-or-not, ctx shape, phasing) is a planning decision. Deferred: any actual cli.py change; planning sizes the chosen approach into reviewable, behaviour-preserving slices. Note: the helpers above main() may need little or no change - discovery finds the work is concentrated in main()'s dispatch."
+    }
+  ]
+}

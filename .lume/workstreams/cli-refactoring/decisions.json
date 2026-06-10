@@ -1,0 +1,46 @@
+{
+  "entries": [
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F1 approach: per-verb handler registry (each verb = a handler(ctx) owning validation+action+output; main becomes thin routing)",
+      "rationale": "Co-locates a verb's concerns and removes the 16-block if-chain - the core readability fix from discovery; module split alone leaves the long function intact."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F2 layout: convert cli.py into a cli/ package with concern submodules (catalog, io/render, flags, errors, handlers) and a thin app/main",
+      "rationale": "A 600-line single file still reads as 600 lines; splitting the already-cohesive helpers into named modules plus a handlers module gives humans navigation by concern. Engine stays dependency-free."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "Back-compat (load-bearing): the cli/ package __init__ MUST re-export main, _CATALOG, _VERB_NAMES so lume.cli.main / lume.cli._CATALOG / from lume import cli keep working",
+      "rationale": "Tests (test_verbs imports _CATALOG/_VERB_NAMES; others import main) and bin/lume import from lume.cli; the refactor is behaviour+API-preserving only if these names stay importable unchanged."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F3 ctx: a small Context dataclass carrying rest/arg, json_mode, opt_type/context/tag, target, repo, plus a resolve_workstream() helper; handlers are fn(ctx)->int that emit via the io helpers",
+      "rationale": "One value object threads the parsed inputs so handlers do not re-derive them; returning an int keeps exit-code control explicit and unchanged."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F4 arg-validation: move each verb's required-arg check INTO its handler (co-located), retiring the separate pre-validation pass in main",
+      "rationale": "Co-location is the whole point - a verb's validation+action+output read together; the pre-pass exists only because of the if-chain shape."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F5 phasing: E1 stand up the cli/ package and move the cohesive helpers into submodules (logic unchanged); E2 introduce Context + handler registry and convert verbs, thinning main; E3 closeout. Split E2 by verb group only if its diff is too large to review",
+      "rationale": "Two behaviour-preserving slices keep each diff reviewable and the suite green between them; the split fallback guards reviewability."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F6 characterization test: rely on the existing suite (it drives main() and pins stdout/stderr/exit codes); no new snapshot test required",
+      "rationale": "Coverage already spans human + --json output, errors, and every verb family; adding a snapshot test would duplicate it. Rule stays: full suite green with no assertion edits."
+    }
+  ]
+}

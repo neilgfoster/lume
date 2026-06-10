@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. lume/cli/handlers.py becomes a lume/cli/handlers/ package, handlers grouped by concern: lifecycle.py (new, reopen, close, open, migrate, handle_transition), discovery.py (verbs, entities, schema, status, get + _ENTITY_KEY, snapshot), authoring.py (plan, decide, retro). (Evidence: the package + submodules exist; handlers.py is gone.)"
+      },
+      {
+        "checked": true,
+        "text": "2. handlers/__init__.py assembles the HANDLERS registry from the groups and re-exports HANDLERS + handle_transition, so app.py's `from .handlers import HANDLERS, handle_transition` is unchanged. (Evidence: app.py import untouched; HANDLERS covers the same verbs as before.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Handler bodies are moved verbatim (no logic change); imports adjusted per submodule. No circular import. (Evidence: imports resolve; reading shows identical handler logic.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Behaviour byte-for-byte identical; full suite passes with NO assertion edits; public surface (lume.cli.main/_CATALOG/_VERB_NAMES) + bin/lume unchanged. (Evidence: test run 0 failures; live spot-check.)"
+      },
+      {
+        "checked": true,
+        "text": "5. No new dependency; deterministic; each submodule is focused and importable on its own; no logic in handlers/__init__ beyond assembly + re-export. (Evidence: imports resolve.)"
+      }
+    ],
+    "preamble": "P4 (added after reopen, per the closeout carry-forward): split the ~290-line handlers.py into a handlers/ package grouped by concern (lifecycle / discovery / authoring), with __init__ assembling the HANDLERS registry and re-exporting handle_transition so app's import is unchanged. Pure relocation of handler bodies - behaviour-preserving, guarded by the existing suite (green, no assertion edits)."
+  },
+  "handback": "P4 complete - handlers.py split into a lume/cli/handlers/ package by concern. 291 tests pass, no assertion edits, behaviour byte-identical.\n\n- lifecycle.py (new/reopen/close/open/migrate/transition), discovery.py (verbs/entities/schema/status/get/snapshot), authoring.py (plan/decide/retro), __init__.py assembles HANDLERS + re-exports handle_transition.\n- app.py import unchanged; 14 handlers; no circular import; bin/lume + public names intact.\n- Handler bodies verbatim; largest group file is 131 lines.\n\nThis was added post-closeout per the carry-forward. Accept, then I'll re-close the workstream (it's the same objective; the 005 retro stands).",
+  "id": 6,
+  "self_review": "All 5 DoD items complete; 291 tests pass with NO assertion edits; behaviour byte-identical (verbs --json=20, gate->1, reject usage->2 verified live).\n\nhandlers.py (~290 lines) is now a lume/cli/handlers/ package grouped by concern: lifecycle.py (82 - new/reopen/close/open/migrate/handle_transition), discovery.py (131 - verbs/entities/schema/status/get+_ENTITY_KEY/snapshot), authoring.py (70 - plan/decide/retro), __init__.py (48 - assembles HANDLERS from the groups + re-exports handle_transition). Handler bodies moved verbatim; only import depth changed (... for the grandparent package).\n\napp.py's `from .handlers import HANDLERS, handle_transition` is unchanged (the package presents the same surface). 14 handlers registered, same as before. No circular import; public surface (lume.cli.main/_CATALOG/_VERB_NAMES) + bin/lume intact.\n\nCaught a process slip: my first delete of handlers.py ran from the wrong cwd and left the stale module shadowed by the package; removed it (and its stale .pyc) and re-verified. Each handler group is now a focused <=130-line file."
+}

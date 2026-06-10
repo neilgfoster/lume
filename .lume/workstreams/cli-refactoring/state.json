@@ -1,0 +1,130 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/001.json",
+      "id": 1,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Map cli.py's responsibilities and design the target structure",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/002.json",
+      "id": 2,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Resolve the forks and plan the refactor slices",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/003.json",
+      "id": 3,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E1: stand up lume/cli/ package; move cohesive helpers into submodules",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/004.json",
+      "id": 4,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E2: Context + per-verb handler registry; thin main()",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/005.json",
+      "id": 5,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E3: closeout - retro, done-when, lume close",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/006.json",
+      "id": 6,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "P4: split handlers.py into a handlers/ package by verb group",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": 3,
+      "sketch": "E1: stand up the lume/cli/ package and move the cohesive helpers into concern submodules (catalog.py: _pos/flag-consts/_verb/_CATALOG/_VERB_NAMES/_VERBS/USAGE; io.py: _ok/_fail/_code_for/_json_out + _render_detail/_render_queue + _detail_data/_queue_data/_iteration_summary; flags.py: _extract_flag/_extract_bool_flag; _ENTITY_KEY). cli/__init__.py re-exports main, _CATALOG, _VERB_NAMES. main() logic UNCHANGED, only imports move. DONE = full suite green with no assertion edits; lume.cli.main/_CATALOG/_VERB_NAMES importable; behaviour byte-identical.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": 4,
+      "sketch": "E2: introduce a Context dataclass + a per-verb handler registry. Convert each verb's validation+action+output into a handler(ctx)->int (arg validation moved in from main's pre-pass); main() becomes parse -> build ctx -> registry lookup -> call. The if-chain is gone. DONE = main() is thin routing; every verb behaves byte-identically; suite green no assertion edits. Split by verb group if the diff is too large to review.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": 5,
+      "sketch": "E3: closeout - retro (did the restructure buy back its cost? is a verb now local to add/change?), confirm main()/file structure improved + external contract unchanged, lume close.",
+      "tag": "committed",
+      "type": "closeout"
+    },
+    {
+      "id": "P4",
+      "iter": 6,
+      "sketch": "P4: split handlers.py (~290 lines) into a handlers/ package by verb group (e.g. lifecycle, discovery, authoring); handlers/__init__ assembles HANDLERS + re-exports handle_transition so app's import is unchanged. Behaviour-preserving; suite green no assertion edits.",
+      "tag": "committed",
+      "type": "execution"
+    }
+  ],
+  "workstream": {
+    "objective_artifact": "objective.json",
+    "slug": "cli-refactoring",
+    "status": "closed",
+    "title": "CLI Refactoring"
+  }
+}

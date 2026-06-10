@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Per-stage verdict in retro.json stage_verdicts: discovery (001), planning (002), execution (E1 package split / 003, E2 registry / 004), closeout (005) - did each buy back its ceremony cost? (Evidence: retro.json validates; stage_verdicts present.)"
+      },
+      {
+        "checked": true,
+        "text": "2. Objective done-when assessed clause by clause in retro.json done_when (responsibilities separated into navigable units; adding/changing a verb is local; main() is thin routing; external contract + outputs byte-for-byte unchanged; suite green with only mechanical edits), each MET/NOT with evidence. (Evidence: retro.json done_when.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Overall verdict + carry-forwards in retro.json (e.g. handlers.py at ~290 lines could split by verb group later; a future verb should add a contract test). retro authored via lume retro. (Evidence: retro.json present + consistent.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Workstream closed: closeout iteration accepted, then lume close; objective.json status flips to closed. Full suite green. (Evidence: lume status shows cli-refactoring closed; tests pass.)"
+      }
+    ],
+    "preamble": "Close-out for cli-refactoring. Assess whether splitting cli.py into a package and replacing the if-chain with a per-verb handler registry bought back its cost (is a verb now local to add/change? is main() thin?); judge the objective's done-when clause by clause; record carry-forwards; and close on the engine's own verbs. Authored as data (retro.json)."
+  },
+  "handback": "E3 closeout complete. cli-refactoring ready to close.\n\n- retro.json authored (4 stage verdicts, 4 done-when clauses all MET, overall verdict, 4 carry-forwards) via lume retro.\n- 291 tests pass.\n\ncli.py (591-line if-chain) is now a focused lume/cli/ package with a per-verb handler registry and thin main(); behaviour byte-for-byte unchanged. Accept, then lume close.",
+  "id": 5,
+  "self_review": "All 4 DoD items complete; 291 tests pass; retro.json authored via lume retro.\n\nPer-stage verdict + done-when in retro.json - all four done-when clauses MET: responsibilities separated into a lume/cli/ package (catalog/flags/io/context/handlers/app); adding a verb is local (catalog entry + handler + registry row); main() is ~50-line thin routing; external contract + outputs byte-for-byte unchanged (291 tests, no assertion edits; exit codes verified). Overall: net positive - the human-maintainability goal the operator raised is met.\n\nCarry-forwards recorded: handlers.py (~290) can split by verb group later; new verbs should ship a handler + test; grow Context if handlers need more shared helpers; no snapshot test needed yet.\n\nClosing in order: handback -> accept -> lume close."
+}

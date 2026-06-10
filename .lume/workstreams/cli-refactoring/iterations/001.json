@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. cli.py inventoried: every distinct responsibility named with its current line span - flag parsing, verb catalog, human renderers (_render_detail/_render_queue), JSON data builders, _ok/_fail emitters, backing selection, per-verb dispatch in main(), _ENTITY_KEY. (Evidence: a responsibility map in discovery.json.)"
+      },
+      {
+        "checked": true,
+        "text": "2. The maintainability pain points named concretely: e.g. main() is one long if-chain; a verb's parse/action/output are scattered; adding a verb touches several places. Each tied to line refs. (Evidence: pain-points section.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Target-structure options compared (at least two), e.g. (a) split into focused modules (cli/dispatch, cli/render, cli/errors, cli/catalog) keeping the if-chain; (b) a per-verb handler registry (each verb = a small function owning its parse+action+output) with main() as thin routing; (c) a minimal split of just the renderers/emitters. Trade-offs on readability, churn, test impact, risk. A recommendation is stated. (Evidence: options + recommendation.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Behaviour-preservation strategy defined: how the external contract (verbs, flags, stdout/stderr human+JSON, exit codes) is held byte-for-byte, and how the existing suite guards it (which tests already pin the contract; whether a characterization test is needed first). (Evidence: a preservation section.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Open forks for planning (module boundaries vs single-file reorg; registry vs if-chain; package cli/ vs one file with clear sections; how far to go). (Evidence: forks section.)"
+      },
+      {
+        "checked": true,
+        "text": "6. Scope held: no engine code this iteration; artifact is discovery.json only; deferrals explicit. (Evidence: git shows only workstream JSON.)"
+      }
+    ],
+    "preamble": "Discovery for cli-refactoring. Map cli.py's ~590 lines into named responsibilities with line spans, pin the concrete human-maintainability pain points, and compare target structures (focused modules vs a per-verb handler registry vs a minimal renderer/emitter split) against readability, churn, and behaviour-preservation risk. Define how the external CLI contract stays byte-for-byte identical and what the test suite already guarantees. No engine code - produce discovery.json and the forks for planning."
+  },
+  "handback": "Discovery complete - discovery.json (7 sections), schema-valid, 291 tests green, no engine code.\n\nHeadline: the helpers are fine; the problem is main() - 320 lines, one if-chain, and each verb's concerns scattered across catalog/validation/dispatch. Recommended fix: a per-verb handler registry (main() becomes thin routing; a verb becomes one catalog entry + one handler), optional module split after. Behaviour-preservation rests on the existing suite, which drives main() and pins stdout/stderr/exit codes - rule: green with no assertion edits.\n\n6 forks for planning (registry vs split vs both; package vs single file; ctx shape; arg-validation placement; phasing; whether to add a characterization test first). Accept to move to planning.",
+  "id": 1,
+  "self_review": "All 6 DoD items complete; discovery.json validates (7 sections); no engine code (291 tests green).\n\nKey finding: everything ABOVE main() (catalog, flag parsing, emitters, renderers, json builders - ~260 lines) is already small and cohesive. The bulk and the pain are inside main() (268-591, ~320 lines): a single function mixing flag parse + per-command arg validation + backing selection + a 16-block dispatch if-chain. The sharpest pain (P-B) is that a verb's three concerns - catalog entry (top), arg validation (mid), action+output (bottom) - live in three separated regions, so changing a verb is non-local.\n\nRecommendation: a per-verb handler registry (each verb = handler(ctx)->int owning its own validation+action+output; main() = parse->build ctx->lookup->call). It co-locates a verb's concerns and kills the if-chain; optional light module split after if the file is still large. Behaviour-preservation is well-covered: the suite already drives main() and asserts stdout/stderr/exit codes, so it IS the regression net - rule is 'full suite green with no assertion edits'.\n\nScope held: discovery.json only; 6 forks (approach, layout, ctx shape, arg-validation placement, phasing, characterization-test) left for planning."
+}

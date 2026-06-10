@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. A Context dataclass (cli/context.py) carries the parsed inputs (repo, cmd, rest, arg, json_mode, target, opt_type/context/tag) and convenience emitters (ok/fail/out) + require_ws() (resolves repo.workstream(target), raising LumeError). (Evidence: context.py exists; handlers use it.)"
+      },
+      {
+        "checked": true,
+        "text": "2. cli/handlers.py: one handler(ctx)->int per verb, each owning its OWN arg validation (returning 2 on usage error) + action + output; transition verbs share one handle_transition. A HANDLERS registry maps verb name -> handler. _ENTITY_KEY moves here (get handler). (Evidence: a handler per verb; HANDLERS covers all non-transition verbs.)"
+      },
+      {
+        "checked": true,
+        "text": "3. main() (app.py) is thin routing: parse flags -> cmd membership check -> backing selection -> build Context -> handler = HANDLERS.get(cmd) or handle_transition -> dispatch inside one `try/except LumeError` that maps domain errors to _fail + exit 1. The 16-block if-chain and the per-command pre-validation pass are gone. (Evidence: main() is well under ~60 lines; no `if cmd ==` chain.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Behaviour byte-for-byte identical: every verb's human + --json output, error codes, and exit codes (0/1/2) unchanged. Full suite passes with NO edits to existing test assertions. (Evidence: test run 0 failures; live spot-checks across a few verbs match.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Adding/changing a verb is now LOCAL: one catalog entry + one handler (stated + true). Public surface unchanged (lume.cli.main/_CATALOG/_VERB_NAMES still importable; bin/lume runs). No new dependency; deterministic. (Evidence: imports + bin/lume verified.)"
+      }
+    ],
+    "preamble": "E2 (P2): replace main()'s 16-block if-chain with a per-verb handler registry. A Context value object threads the parsed inputs + emitters; each verb becomes a handler(ctx)->int that co-locates its validation, action, and output; transition verbs share one handler. main() shrinks to flag-parse + membership + backing + build-context + dispatch, with a single try/except LumeError mapping all domain errors (every error subclasses LumeError). Behaviour-preserving - the existing suite is the net (green, no assertion edits)."
+  },
+  "handback": "E2 complete - the if-chain is gone; main() is thin routing over a per-verb handler registry. 291 tests pass, no assertion edits, behaviour byte-identical.\n\n- cli/context.py: Context value object (inputs + ok/fail/out + require_ws).\n- cli/handlers.py: handle_<verb>(ctx)->int per verb (validation+action+output co-located); transitions share handle_transition; HANDLERS registry; _ENTITY_KEY moved here.\n- app.py: ~50-line main - parse/membership/backing/build-ctx/dispatch with one try/except LumeError (every error subclasses LumeError) mapping domain errors to exit 1.\n- Live: usage->2, gate->1, unknown->2, --json error shape unchanged. Imports + bin/lume verified.\n\nAdding/changing a verb is now local (catalog entry + handler). Only E3 closeout remains. Accept to open E3.",
+  "id": 4,
+  "self_review": "All 5 DoD items complete; 291 tests pass with NO assertion edits; behaviour byte-identical (verified live: usage->2, gate->1, unknown->2, --json gate error shape matches).\n\nNew cli/context.py: a Context dataclass carrying repo/cmd/rest/arg/json_mode/target/opt_* with ok/fail/out emitters + require_ws(). New cli/handlers.py: one handle_<verb>(ctx)->int per verb (each owns its arg validation -> return 2, action, and output), transition verbs share handle_transition, and a HANDLERS registry maps name->handler; _ENTITY_KEY moved here.\n\napp.py main() is now thin routing (~50-line body): parse flags -> membership check -> backing selection -> build Context -> handler = HANDLERS.get(cmd, handle_transition) -> dispatch inside ONE try/except LumeError that maps every domain/gate/schema/not_found error to _fail + exit 1 (all errors subclass LumeError). The 16-block if-chain and the separate per-command pre-validation pass are gone.\n\nFile shape: app 98, handlers 291, io 140, catalog 70, context 39, flags 35, __init__ 17 - each focused and navigable. Adding a verb is now local: a catalog entry + a handler + a HANDLERS row. Public surface unchanged (lume.cli.main/_CATALOG/_VERB_NAMES importable; bin/lume runs); dependency-free; deterministic."
+}

@@ -1,0 +1,61 @@
+{
+  "carry_forwards": [
+    "handlers.py is ~290 lines (one handler per verb); if it grows, split by verb group (e.g. lifecycle vs discovery vs plan) - the registry makes that a mechanical move.",
+    "A future new verb should ship with its handler + a test; the catalog coverage test already pins that every verb is dispatchable.",
+    "The Context object is currently a plain dataclass; if handlers start needing more shared helpers (e.g. lazy ws caching), grow Context rather than passing extra args.",
+    "No characterization snapshot test was added (the existing suite sufficed); revisit only if a future output-shape change needs a tighter guard."
+  ],
+  "done_when": [
+    {
+      "clause": "cli.py's responsibilities are separated into coherent, navigable units",
+      "evidence": "lume/cli/ package: catalog.py (verbs+USAGE, 70), flags.py (argv parsing, 35), io.py (emitters + human/JSON renderers, 140), context.py (Context, 39), handlers.py (per-verb handlers + registry, ~290), app.py (thin main, ~98). Each file serves one concern.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "Adding or changing a verb is local rather than threading a long function",
+      "evidence": "A verb = one catalog entry (catalog.py) + one handle_<verb>(ctx) co-locating its validation/action/output (handlers.py) + one HANDLERS row. No edits to a 320-line dispatch function; the old per-command pre-validation pass is gone.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "main() is thin routing",
+      "evidence": "app.main() is a ~50-line body: parse flags -> membership check -> backing selection -> build Context -> HANDLERS.get(cmd, handle_transition) -> dispatch inside one try/except LumeError. The 16-block if-chain is gone.",
+      "verdict": "MET"
+    },
+    {
+      "clause": "External CLI contract + all outputs byte-for-byte unchanged; suite passes with only mechanical edits",
+      "evidence": "291 tests pass with NO edits to any existing assertion (only code moved). Live spot-checks match prior output: human queue/detail, verbs --json (20), structured errors, exit codes 0/1/2 (usage->2, gate->1, unknown->2). Public surface (lume.cli.main/_CATALOG/_VERB_NAMES) and bin/lume unchanged.",
+      "verdict": "MET"
+    }
+  ],
+  "overall_verdict": "Net positive. cli.py (591 lines, one growing if-chain) is now a focused lume/cli/ package with a per-verb handler registry, and main() is thin routing. The maintainability goal is met on the human axis the operator raised: a reader navigates by concern, and adding/changing a verb is a local edit (catalog entry + handler) rather than threading a long function. The whole refactor was behaviour-preserving with zero test-assertion changes - the existing suite (which drives main() and pins stdout/stderr/exit codes) made that guarantee cheap and verifiable. Splitting relocation (E1) from restructuring (E2) kept every diff reviewable. Total line count rose slightly (helpers + handler boilerplate), but per-file size and cohesion - the thing that was actually hard for a human - improved sharply.",
+  "stage_verdicts": [
+    {
+      "cost": "One analysis iteration, no engine code.",
+      "iterations": "001",
+      "net": "Positive",
+      "saved": "Pinned the pain precisely: the helpers were already fine; the problem was main() (320-line if-chain) and a verb's concerns scattered across catalog/validation/dispatch. That focus stopped the refactor from over-reaching into code that didn't need it.",
+      "stage": "Discovery (001)"
+    },
+    {
+      "cost": "One iteration; 7 decisions + a 3-item plan.",
+      "iterations": "002",
+      "net": "Positive",
+      "saved": "Chose the handler registry over a cosmetic module split, and surfaced the load-bearing constraint up front: lume.cli.main/_CATALOG/_VERB_NAMES must stay importable (tests + bin), so the package __init__ re-exports them. Sized the work into two behaviour-preserving slices.",
+      "stage": "Planning (002)"
+    },
+    {
+      "cost": "Two iterations: package split (relocation), then Context + handler registry.",
+      "iterations": "003-004",
+      "net": "Positive",
+      "saved": "Splitting relocation (E1) from restructuring (E2) kept each diff reviewable and the suite green between them. The existing suite - which drives main() and asserts stdout/stderr/exit codes - was a complete regression net: 291 tests passed at every step with zero assertion edits. A single try/except LumeError in main collapsed ~6 scattered error catches into one (all errors subclass LumeError).",
+      "stage": "Execution (E1-E2, iters 003-004)"
+    },
+    {
+      "cost": "This iteration.",
+      "iterations": "005",
+      "net": "Positive",
+      "saved": "Honest done-when check + carry-forwards; closes on the engine's own verbs.",
+      "stage": "Close-out (005)"
+    }
+  ]
+}
