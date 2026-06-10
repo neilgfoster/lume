@@ -56,7 +56,7 @@ class OpenIterationTest(unittest.TestCase):
 
     def _ws(self) -> Workstream:
         doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
-        return Workstream(self.ws_dir, self.clock, doc)
+        return Workstream.on_filesystem(self.ws_dir, self.clock, doc)
 
     def test_first_open_creates_001_with_injected_date(self):
         it = self._ws().open_iteration("First")

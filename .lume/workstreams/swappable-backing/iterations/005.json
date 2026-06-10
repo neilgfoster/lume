@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. state.py exposes a public `validate_doc(doc)` (decouple validation from path I/O, the E2 residual). FilesystemStore keeps using state.load/save; a non-fs store can validate without touching files. (Evidence: state.validate_doc exists and is called by both stores for the 'state' artifact.)"
+      },
+      {
+        "checked": true,
+        "text": "2. `SQLiteStore` implements TrackingStore over a single SQLite db (table artifacts(slug, artifact, doc, PRIMARY KEY(slug, artifact))): list_workstreams (distinct slugs with a 'state' row), has_workstream, create_workstream (no-op; rows appear on write), read (json.loads + validate_doc for 'state'; None if absent), write (validate_doc for 'state'; upsert). Storage model is rows, not files - no paths. (Evidence: unit tests round-trip each artifact kind against SQLiteStore incl. missing->None.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Selection wiring: cli.main reads LUME_BACKING (default 'fs'); 'fs' -> FilesystemStore (current behaviour, default), 'sqlite' -> SQLiteStore(<lume_dir>/lume.db). Chosen once at the edge and injected into Repository; no engine code below branches on backing. Unknown value -> clear error. (Evidence: a test sets LUME_BACKING=sqlite and the cli persists to the db; default path unchanged.)"
+      },
+      {
+        "checked": true,
+        "text": "4. Replaceability DEMONSTRATED: a test drives the full lifecycle (new -> open -> approve -> start -> handback -> accept; plus decide, retro, close, and a second iteration) against a Repository injected with a SQLiteStore, asserting state/artifacts persist and read back correctly - no filesystem workstream files written. (Evidence: the end-to-end SQLite lifecycle test passes.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Filesystem behaviour unchanged: with LUME_BACKING unset/fs, on-disk layout and all existing behaviour are identical; full suite green. (Evidence: 249+ tests pass; live fs lifecycle unaffected.)"
+      },
+      {
+        "checked": true,
+        "text": "6. >= 4 new tests: SQLiteStore round-trip + missing->None, LUME_BACKING selection (fs default + sqlite), the end-to-end SQLite lifecycle, and validate_doc shared by both stores. No tests removed. (Evidence: test run 0 failures.)"
+      }
+    ],
+    "preamble": "E3 (P3): build the real second backing and prove replaceability by running lume on it. First split state.py's validation from its path I/O (the E2 residual) so a non-filesystem store can validate. Then implement SQLiteStore (rows, not files) behind the same TrackingStore contract, wire LUME_BACKING selection at the cli edge (fs default), and exercise the full lifecycle against SQLite in a test. Filesystem stays the default and is unchanged; GitHub remains deferred. stdlib sqlite3 only - no new dependency."
+  },
+  "handback": "E3 complete - replaceability is demonstrated, not asserted. 260 tests pass.\n\n- state.py: public validate_doc (validation decoupled from path I/O; E2 residual closed).\n- SQLiteStore (stdlib sqlite3): rows keyed by (slug, artifact); 'state' validated via state.validate_doc; upsert; missing->None.\n- cli.main: LUME_BACKING selection at the edge (fs default, sqlite supported, unknown errors); injected into Repository, nothing below branches.\n- Full lifecycle runs against SQLite in tests AND live via the CLI - workstream persists entirely in lume.db, no fs workstream files. Default fs path unchanged.\n- 11 new tests; diff: store.py, state.py, cli.py + test_sqlite_backing.py.\n\nDone-when is now materially met (a second backing exercised by the verbs, selected via a documented contract, fs unchanged). Remaining plan: E4 (optional - in-memory double + cross-backing contract matrix) and E5 closeout (retro + naming decision + close). Accept to proceed.",
+  "id": 5,
+  "self_review": "All 6 DoD items complete; 260 tests pass (11 new in test_sqlite_backing.py).\n\nstate.py: validation decoupled from path I/O - `_validate_doc` is now public `validate_doc`; load/save call it, and both stores use it for the 'state' artifact (the E2 residual closed).\n\nSQLiteStore implements TrackingStore over one db, table artifacts(slug, artifact, doc) keyed by (slug, artifact); docs are JSON text; 'state' validated via state.validate_doc on read+write; upsert via ON CONFLICT; read returns None when absent. A genuinely non-file model (rows, one connection) - it pins the contract because it shares no path assumptions with the fs backing.\n\nSelection wired once at the cli edge (F5): LUME_BACKING (default fs -> store=None, Repository builds FilesystemStore lazily; 'sqlite' -> SQLiteStore(<lume_dir>/lume.db); unknown -> error). No engine code below the edge branches on backing.\n\nReplaceability DEMONSTRATED: the full lifecycle (new/open/approve/start/handback/accept + a second iteration + decide/retro/close) runs against a SQLite-injected Repository with NO filesystem workstream files; also live-verified via the CLI (LUME_BACKING=sqlite) - the workstream lives entirely in lume.db (rows: state, objective, iteration:001). Filesystem behaviour is unchanged with the default; on-disk layout identical.\n\nstdlib sqlite3 only - no new dependency. GitHub still deferred (a future workstream)."
+}

@@ -8,6 +8,7 @@ workstream. `lume status` with no target is the cross-workstream review queue.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from .clock import Clock, SystemClock
 from .errors import GateError, LumeError, SchemaError
 from .iteration import DEFAULT_TYPE, TRANSITIONS
 from .repository import Repository
+from .store import SQLiteStore
 from .validate import entity_kinds, load_schema
 from .workstream import CLOSED, Workstream
 
@@ -123,6 +125,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         target, rest = _extract_flag(argv, ("-w", "--workstream"), "a workstream slug")
         opt_type, rest = _extract_flag(rest, ("-t", "--type"), "a type")
         opt_context, rest = _extract_flag(rest, ("-c", "--context"), "a context")
+        opt_tag, rest = _extract_flag(rest, ("-g", "--tag"), "a tag")
     except ValueError as exc:
         print(f"lume: {exc}\n{USAGE}", file=sys.stderr)
         return 2
@@ -158,7 +161,22 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         print('lume: usage: lume reopen <slug>', file=sys.stderr)
         return 2
 
-    repo = Repository(start, clock)
+    # Backing selection happens once, here at the edge (decision F5): LUME_BACKING
+    # picks the TrackingStore; no engine code below branches on it. fs is default.
+    backing = os.environ.get("LUME_BACKING", "fs").strip().lower()
+    store = None
+    if backing not in ("fs", ""):
+        lume_dir = Repository(start, clock).find_lume_dir()
+        if lume_dir is None:
+            print("lume: no .lume/ found from here.", file=sys.stderr)
+            return 1
+        if backing == "sqlite":
+            store = SQLiteStore(lume_dir / "lume.db")
+        else:
+            print(f"lume: unknown LUME_BACKING '{backing}' (use 'fs' or 'sqlite').",
+                  file=sys.stderr)
+            return 2
+    repo = Repository(start, clock, store=store)
 
     # `new` names its workstream positionally; it needs no target resolution.
     if cmd == "new":
@@ -167,7 +185,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         except LumeError as exc:
             print(f"lume: {exc}", file=sys.stderr)
             return 1
-        print(f"created workstream '{ws.name}' (active): {ws.objective_path}")
+        print(f"created workstream '{ws.name}' (active): {ws.name}/objective.json")
         print('next: edit its objective.json, then: lume open "<first iteration>".')
         return 0
 
@@ -246,13 +264,14 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
             print(f"lume: {exc}", file=sys.stderr)
             return 1
         print(f"opened iteration {iteration.id:03d}, phase {iteration.phase}: "
-              f"{ws.iterations_dir / f'{iteration.id:03d}.json'}")
+              f"{ws.name}/iterations/{iteration.id:03d}.json")
         print("next: draft its DoD, then have the operator approve before work starts.")
         return 0
 
     if cmd == "get":
         doc = ws.state_doc
-        entity = arg
+        # 'plan' is a friendly alias for the plan_item entity.
+        entity = "plan_item" if arg == "plan" else arg
         id_arg = rest[3].strip() if len(rest) > 3 else ""
 
         if not entity:
@@ -302,9 +321,15 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
                 print('lume: usage: lume plan add [-t type] [-g tag] "<sketch>"',
                       file=sys.stderr)
                 return 2
+            tag = opt_tag or "committed"
+            if tag not in ("committed", "optional"):
+                print(f"lume: tag must be 'committed' or 'optional', got '{tag}'.",
+                      file=sys.stderr)
+                return 2
             item = ws.add_plan_item(
                 sketch=sketch,
                 type=opt_type or "execution",
+                tag=tag,
             )
             print(f"plan add: {item.id} ({item.type}, {item.tag}): {item.sketch}")
             return 0
@@ -335,11 +360,9 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         return 0
 
     if cmd == "retro":
-        path = ws._path / "retro.json"
-        existed = path.is_file()
-        if existed:
-            retro = json.loads(path.read_text())
-        else:
+        retro = ws.retro_doc()
+        existed = retro is not None
+        if not existed:
             retro = {"overall_verdict": "(draft: fill in the verdict)", "carry_forwards": []}
         try:
             ws.save_retro(retro)

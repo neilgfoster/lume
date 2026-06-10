@@ -172,7 +172,7 @@ def migrate_iterations(ws_dir: Path, doc: dict) -> None:
 
     iter_dir = ws_dir / "iterations"
     changed = False
-    ws = Workstream(ws_dir, SystemClock(), doc)
+    ws = Workstream.on_filesystem(ws_dir, SystemClock(), doc)
 
     for entity in doc["iterations"]:
         n = entity["id"]
@@ -225,7 +225,7 @@ def migrate_objective(ws_dir: Path, doc: dict) -> None:
     }
     # Use Workstream helpers for validation (no clock needed here).
     from .clock import SystemClock
-    ws = Workstream(ws_dir, SystemClock(), doc)
+    ws = Workstream.on_filesystem(ws_dir, SystemClock(), doc)
     ws._save_objective(obj_doc)
 
 
@@ -241,7 +241,7 @@ def migrate_decisions(ws_dir: Path, doc: dict) -> None:
     if not md_path.is_file():
         return
     entries = parse_decisions_md(md_path.read_text())
-    ws = Workstream(ws_dir, SystemClock(), doc)
+    ws = Workstream.on_filesystem(ws_dir, SystemClock(), doc)
     ws._save_decisions({"entries": entries})
 
 
@@ -257,7 +257,7 @@ def migrate_retro(ws_dir: Path, doc: dict) -> None:
     if not md_path.is_file():
         return
     retro = parse_retro_md(md_path.read_text())
-    ws = Workstream(ws_dir, SystemClock(), doc)
+    ws = Workstream.on_filesystem(ws_dir, SystemClock(), doc)
     ws.save_retro(retro)
 
 

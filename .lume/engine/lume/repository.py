@@ -13,9 +13,9 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import state
 from .clock import Clock
 from .errors import GateError, LumeError, NoLumeDirError, NoWorkstreamError
+from .store import FilesystemStore, TrackingStore
 from .workstream import ACTIVE, Workstream
 
 WORKSTREAMS_SUBDIR = "workstreams"
@@ -26,9 +26,16 @@ _OBJECTIVE_PLACEHOLDER = "(objective: describe the done-when for this workstream
 
 
 class Repository:
-    def __init__(self, start: Path, clock: Clock) -> None:
+    def __init__(self, start: Path, clock: Clock, store: TrackingStore | None = None) -> None:
         self._start = start
         self._clock = clock
+        # The Tracking contract. When not injected, default to a FilesystemStore
+        # built lazily from the resolved .lume/ dir (see _store).
+        self._injected_store = store
+
+    def _store(self, lume_dir: Path) -> TrackingStore:
+        """The TrackingStore to persist through: the injected one, else a FilesystemStore."""
+        return self._injected_store or FilesystemStore(lume_dir)
 
     def find_lume_dir(self) -> Path | None:
         for directory in (self._start, *self._start.parents):
@@ -43,25 +50,18 @@ class Repository:
             raise NoLumeDirError("no .lume/ found from here.")
         return lume_dir
 
-    def _workstream_dirs(self, lume_dir: Path) -> list[Path]:
-        root = lume_dir / WORKSTREAMS_SUBDIR
-        if not root.is_dir():
-            return []
-        return sorted(p for p in root.iterdir() if (p / state.STATE_FILE).is_file())
-
-    def _load_workstream(self, ws_dir: Path) -> Workstream:
-        """Load state.json for ws_dir and return a state-backed Workstream."""
-        state_path = ws_dir / state.STATE_FILE
-        if not state_path.is_file():
-            raise LumeError(
-                f"no state.json for '{ws_dir.name}'; run: lume migrate"
-            )
-        doc = state.load(state_path)
-        return Workstream(ws_dir, self._clock, doc)
+    def _load_workstream(self, lume_dir: Path, slug: str) -> Workstream:
+        """Load a slug's state via the store and return a store-backed Workstream."""
+        store = self._store(lume_dir)
+        doc = store.read(slug, "state")
+        if doc is None:
+            raise LumeError(f"no state.json for '{slug}'; run: lume migrate")
+        return Workstream(store, slug, self._clock, doc)
 
     def workstreams(self, lume_dir: Path) -> list[Workstream]:
         """Every workstream as a Workstream, sorted by slug."""
-        return [self._load_workstream(p) for p in self._workstream_dirs(lume_dir)]
+        return [self._load_workstream(lume_dir, slug)
+                for slug in self._store(lume_dir).list_workstreams()]
 
     def active_workstreams(self, lume_dir: Path) -> list[Workstream]:
         return [ws for ws in self.workstreams(lume_dir) if not ws.is_closed]
@@ -76,10 +76,9 @@ class Repository:
         """
         lume_dir = self._require_lume_dir()
         if slug is not None:
-            ws_dir = lume_dir / WORKSTREAMS_SUBDIR / slug
-            if not (ws_dir / state.STATE_FILE).is_file():
+            if not self._store(lume_dir).has_workstream(slug):
                 raise NoWorkstreamError(f"no workstream '{slug}' under {lume_dir}.")
-            ws = self._load_workstream(ws_dir)
+            ws = self._load_workstream(lume_dir, slug)
             if ws.is_closed:
                 raise GateError(
                     f"workstream '{slug}' is closed; reopen it or target another."
@@ -104,27 +103,24 @@ class Repository:
         already-active workstream is a named error.
         """
         lume_dir = self._require_lume_dir()
-        ws_dir = lume_dir / WORKSTREAMS_SUBDIR / slug
-        if not (ws_dir / state.STATE_FILE).is_file():
+        if not self._store(lume_dir).has_workstream(slug):
             raise NoWorkstreamError(f"no workstream '{slug}' under {lume_dir}.")
-        ws = self._load_workstream(ws_dir)
+        ws = self._load_workstream(lume_dir, slug)
         if not ws.is_closed:
             raise GateError(f"workstream '{slug}' is already active.")
         ws.set_status(ACTIVE)
         return ws
 
-    def _state_path(self, slug: str) -> Path:
-        return self._require_lume_dir() / WORKSTREAMS_SUBDIR / slug / state.STATE_FILE
-
     def load_state(self, slug: str) -> dict:
-        """Read + validate `<slug>/state.json` (the JSON state seam, decision (f))."""
-        return state.load(self._state_path(slug))
+        """Read + validate a slug's state through the Tracking contract."""
+        doc = self._store(self._require_lume_dir()).read(slug, "state")
+        if doc is None:
+            raise LumeError(f"no state for '{slug}'.")
+        return doc
 
     def save_state(self, slug: str, doc: dict) -> None:
-        """Validate then write `<slug>/state.json`, creating the dir if needed."""
-        path = self._state_path(slug)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        state.save(path, doc)
+        """Validate + persist a slug's state through the Tracking contract."""
+        self._store(self._require_lume_dir()).write(slug, "state", doc)
 
     def create_workstream(self, slug: str, title: str) -> Workstream:
         """Create a new active workstream with objective.json and state.json (JSON-only)."""
@@ -134,10 +130,11 @@ class Repository:
                 f"invalid slug '{slug}': use letters/digits, '-' or '_', "
                 "starting with a letter or digit."
             )
+        store = self._store(lume_dir)
         ws_dir = lume_dir / WORKSTREAMS_SUBDIR / slug
-        if ws_dir.exists():
+        if ws_dir.exists() or store.has_workstream(slug):
             raise GateError(f"workstream '{slug}' already exists.")
-        ws_dir.mkdir(parents=True)
+        store.create_workstream(slug)
         initial_state: dict = {
             "workstream": {
                 "slug": slug,
@@ -148,8 +145,8 @@ class Repository:
             "iterations": [],
             "plan": [],
         }
-        state.save(ws_dir / state.STATE_FILE, initial_state)
-        ws = Workstream(ws_dir, self._clock, initial_state)
+        store.write(slug, "state", initial_state)
+        ws = Workstream(store, slug, self._clock, initial_state)
         obj_doc = {
             "slug": slug,
             "title": title,

@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. `InMemoryStore` implements TrackingStore over an in-process dict keyed by (slug, artifact): list_workstreams (slugs with a 'state' entry), has_workstream, create_workstream (no-op), read (deep-copied dict or None; validate_doc for 'state'), write (validate_doc for 'state'; stores a deep copy so callers can't mutate stored state). (Evidence: unit test round-trips + isolation check.)"
+      },
+      {
+        "checked": true,
+        "text": "2. A single parametrized contract test-suite runs the SAME behavioural assertions against every backing (FilesystemStore, SQLiteStore, InMemoryStore) via subTest: create/has/list, round-trip state + a simple artifact + an iteration artifact, missing->None, write upserts, and state validated on write. (Evidence: one test class, all backings green.)"
+      },
+      {
+        "checked": true,
+        "text": "3. The contract suite is the single source of truth for TrackingStore behaviour: adding a future backing means adding it to the matrix list, nothing else. A short module docstring states this. (Evidence: backings declared in one list the suite iterates.)"
+      },
+      {
+        "checked": true,
+        "text": "4. InMemoryStore is exported for use as a fast test double (no temp dirs / no db files); at least one existing-style lifecycle assertion runs against it. (Evidence: a lifecycle-ish test uses InMemoryStore.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Full suite green; no engine behaviour change for fs/sqlite; >= 4 new tests. (Evidence: test run 0 failures.)"
+      }
+    ],
+    "preamble": "E4 (P4, optional): add an InMemoryStore (a fast, dependency-free test double) and a parametrized contract test-suite that pins TrackingStore behaviour by running identical assertions across fs + sqlite + memory. This converts 'the contract is backing-agnostic' from a claim into an enforced, reusable check - any future backing (e.g. GitHub) proves itself by joining the matrix. No production behaviour change."
+  },
+  "handback": "E4 complete (optional item). 267 tests pass, 30 subtests across backings.\n\n- InMemoryStore (store.py): dict-backed test double, deep-copy isolation, state validated.\n- test_store_contract.py: one parametrized suite enforcing identical TrackingStore behaviour across fs + sqlite + memory; future backings join the BACKINGS list to prove themselves.\n- InMemoryStore exercised by a full lifecycle (no fs workstream files).\n- No production behaviour change.\n\nThe contract is now pinned by an enforced cross-backing matrix, not just claimed. Only E5 (closeout) remains: retro, finalize the Repository/TrackingStore naming decision, lume close. Accept to open E5.",
+  "id": 6,
+  "self_review": "All 5 DoD items complete; 267 tests pass (30 subtests). New: test_store_contract.py.\n\nInMemoryStore implements TrackingStore over a dict keyed by (slug, artifact); deep-copies on read and write so a caller mutating a returned doc can't reach stored state (tested); 'state' validated via state.validate_doc like every backing.\n\nThe contract suite (TrackingStoreContractTest) is now the single source of truth for TrackingStore behaviour: a BACKINGS list of (name, factory) for fs/sqlite/memory, and identical assertions (create/has/list, round-trip state+simple+iteration, missing->None, upsert, state-validated-on-write) run against each via subTest. Adding a future backing = add it to BACKINGS, nothing else (stated in the module docstring).\n\nInMemoryStore doubles as a fast test double: a full open->accept lifecycle runs against it through Repository with no workstream files on disk (a .lume/ dir still exists only for Repository resolution).\n\nNo production behaviour change: fs and sqlite paths untouched; this iteration adds store code + tests only (store.py InMemoryStore + test_store_contract.py)."
+}

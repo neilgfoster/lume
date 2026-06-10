@@ -1,0 +1,58 @@
+{
+  "entries": [
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F1: proof-first backing - build SQLite (real second impl) + in-memory (test double); defer GitHub",
+      "rationale": "A non-filesystem store is the cheapest thing that breaks every path assumption and forces the boundary right; satisfies scope.md's design test and constraints.md 'cheapest insurance / don't abstract until pulled'. GitHub is a clean follow-on once the contract is clean."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F2 (load-bearing): move ALL persistence below an injected store; Workstream stops touching the filesystem",
+      "rationale": "A half-move leaves leaks that defeat the proof - the second backing must intercept every write. The artifact set is small (state/objective/iteration/decisions/retro) and the move is mechanical. Staged across reviewable execution iterations, not one big diff."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F3: contract shape = per-artifact key/value keyed by (slug, artifact-id), plus workstream listing",
+      "rationale": "Matches today's granular writes and is backing-agnostic: fs maps artifact-id->file, sqlite->row, github->field/comment. A whole-workstream blob isn't needed and a blob store can compose internally."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F4: no Repository rename; the contract is a NEW TrackingStore, Repository becomes the resolver/policy layer that uses it",
+      "rationale": "Cleaner than renaming: TrackingStore owns persistence (the contract), Repository keeps resolution/gates (workstream/reopen/active). Separates policy from storage and answers the naming fork without an overloaded-name sed."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F5: backing selected by constructor injection; cli.main reads LUME_BACKING (fs default) to pick the concrete store",
+      "rationale": "Config over code; no engine code below the edge branches on backing type; tests inject the store directly with no env."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F6: migrate.py stays a local-only one-shot bridge, excluded from the live TrackingStore contract",
+      "rationale": "Migration is inherently filesystem-and-markdown legacy import; it need not and cannot run against a remote backing. Keep it out of the contract."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "F7: route cli path-printing + the retro verb's direct ws._path read through the model/store",
+      "rationale": "Output must not assume a filesystem path; fold this leak fix into the relocation iteration so no caller reaches into a model's private path."
+    },
+    {
+      "context": "(002 planning)",
+      "date": "2026-06-10",
+      "decision": "Interface sketch: TrackingStore = list_workstreams() / has_workstream(slug) / create_workstream(slug) / read(slug, artifact)->dict|None / write(slug, artifact, doc); artifact in {state,objective,decisions,retro,discovery} or 'iteration:NNN'",
+      "rationale": "Validation stays in state.py/validate (store handles dict<->storage only). Gives execution a concrete target shape; FilesystemStore wraps today's path logic, SQLiteStore maps (slug,artifact)->row."
+    },
+    {
+      "context": "(007 E5)",
+      "date": "2026-06-10",
+      "decision": "F4 finalized: no Repository rename; the Tracking contract is the new TrackingStore, Repository stays the resolver/policy layer that uses an injected store",
+      "rationale": "Confirmed by execution (E1-E3): TrackingStore (store.py) owns persistence; Repository keeps resolution/gates (workstream/reopen/active/find_lume_dir) and delegates all I/O to the store. Separation proved clean across three backings; renaming Repository would conflate policy with storage and churn callers for no gain."
+    }
+  ]
+}

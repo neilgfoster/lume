@@ -40,7 +40,7 @@ class DerivedSnapshotTest(unittest.TestCase):
 
     def _ws(self):
         doc = state_mod.load(self.ws_dir / state_mod.STATE_FILE)
-        return Workstream(self.ws_dir, self.clock, doc)
+        return Workstream.on_filesystem(self.ws_dir, self.clock, doc)
 
     def test_no_snapshot_md_written_on_open(self):
         self._ws().open_iteration("First thing")
