@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "1. Forks F1-F10 resolved, each logged via lume decide with a rationale. Above all: the new TrackingStore contract shape (F4 - create_workstream -> store-minted id; id-keyed read/write/has/list; id is an opaque scalar) and how Repository threads the id; the fs id scheme + folder naming (F2/F3); -w resolution by id and/or slug (F6); the seed surface + portable seed attribute (F7). (Evidence: decisions.json has an entry per fork.)"
+      },
+      {
+        "checked": true,
+        "text": "2. The contract-revision decision explicitly records that this SUPERSEDES swappable-backing decision F3 (slug-keyed), and names the blast radius: store.py (all three backings), repository.py, the contract-matrix + store tests, cli resolution. Behaviour-preserving for the CLI is a stated constraint. (Evidence: a decision naming the supersession + impacted surface.)"
+      },
+      {
+        "checked": true,
+        "text": "3. Plan recorded as state.plan via lume plan add (with tags): behaviour-preserving slices toward the target - e.g. (a) reshape the TrackingStore contract to id-keyed + store-minted ids across fs/sqlite/in-memory + update the matrix; (b) Repository + cli threaded by id, slug as label, -w resolution; (c) fs folder naming NNNN-slug + the rename/renumber migration of the 6 existing; (d) seed verb (id 0 + attribute); (e) closeout. Each a binary DoD sketch. (Evidence: lume get plan lists items with tags.)"
+      },
+      {
+        "checked": true,
+        "text": "4. The first execution slice is concrete enough to open next: names the exact files/signatures it changes and a binary done test (suite green; contract matrix updated; CLI behaviour unchanged). (Evidence: the P-item is specific.)"
+      },
+      {
+        "checked": true,
+        "text": "5. Scope held: no engine code this iteration; output is decisions.json + state.plan only. (Evidence: git diff shows no lume/*.py change.)"
+      }
+    ],
+    "preamble": "Planning for seed-and-numbering. Resolve the ten discovery forks - above all the TrackingStore contract reshape (id-keyed, store-minted ids) that supersedes swappable-backing's slug-keyed decision F3 - logging each as a decision and naming the blast radius. Lay out behaviour-preserving execution slices: reshape the contract across all three backings (+ matrix), thread id through Repository/cli with slug as a label, add fs folder naming + the rename/renumber migration, then the seed verb, then closeout. No engine code - decisions + plan only."
+  },
+  "handback": "Planning complete. 10 decisions, plan P1-P4, no engine code, 291 tests green.\n\nContract pivot decided + logged as superseding swappable-backing F3: TrackingStore is id-keyed, store-minted (create->id; id-keyed read/write/has/list; opaque-string id). fs = sequential ids + NNNN-slug folders (seed 0); -w by id or slug; seed = a verb with id 0 + a portable attribute.\n\nPlan: E1 id-key contract + fs numbering/folders + migrate/rename existing + Repository/matrix (splittable); E2 -w resolution + id-ordered listings; E3 seed verb; E4 closeout. E1 ready to open. Flagged: E1 renames the active workstream's own folder - handle carefully. Accept to open E1.",
+  "id": 2,
+  "self_review": "All 5 DoD items complete. 10 decisions logged; plan P1-P4 recorded; no engine code (clean diff); 291 tests green.\n\nCore decision: the TrackingStore goes id-keyed and store-minted - create_workstream(slug, seed=False)->id; has/read/write(id,artifact); list()->[id]; id is an opaque string. This SUPERSEDES swappable-backing F3 (logged), with named blast radius (store.py x3 backings, repository.py, cli resolution, store + contract-matrix tests) and a CLI-behaviour-preserving constraint. fs mints zero-padded sequential ids + NNNN-slug folders (seed=0 via a seed flag); sqlite/in-memory mint their own; -w accepts id or slug-label; seed is a verb (id 0 + portable attribute).\n\nPlan: E1 the id-key contract + fs numbering/folders + Repository/matrix + migrate-and-rename the 6 existing (E1 splittable - it is the irreducible primary-key change); E2 -w resolution + id-ordered listings; E3 seed verb; E4 closeout. E1 is concrete (names the new signatures + a binary done: matrix green, live folders renamed, CLI unchanged).\n\nRisk flagged for execution: the rename migration renames this very workstream's own folder while lume operates on it - E1 must handle the active-workstream rename."
+}

@@ -1,0 +1,64 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/001.json",
+      "id": 1,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Map state/CLI for numbering + seed, and design both",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/002.json",
+      "id": 2,
+      "opened": "2026-06-10",
+      "phase": "handback",
+      "title": "Resolve the forks and plan the id/numbering/seed slices",
+      "type": "planning",
+      "verdicts": []
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": null,
+      "sketch": "E1: reshape TrackingStore to id-keyed + store-minted ids. create_workstream(slug, seed=False)->id; has/read/write(id,...); list()->[id]; id is an opaque str. FilesystemStore mints zero-padded sequential ids + names folders NNNN-slug (seed=0000 via seed flag); SQLite/in-memory mint their own id sequences. workstream schema gains id (slug kept as label). Repository threads the store id. Update store + contract-matrix tests. Migrate the 6 existing: assign ids 1-7 by creation order + git mv rename folders to NNNN-slug (handle the active workstream). DONE = contract matrix green for all backings; live .lume renamed sequentially; CLI behaviour-preserving; suite green. (Splittable if the diff is too large.)",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": null,
+      "sketch": "E2: resolution + ordering. -w accepts an id OR a slug-label (unique scan; ambiguous/missing = named error); status queue + detail and other listings ordered by id; id surfaced in output (human + --json). DONE = -w by id and by slug both resolve; listings ordered by id; tests cover both; suite green.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "E3: seed verb. lume seed [--new|--existing] creates the seed workstream (fs id 0 via seed=True + a seed attribute in the workstream record) and opens a discovery iteration with a mode-specific DoD skeleton (new: why/scope/constraints; existing: repo map); detection defaults by repo emptiness. DONE = lume seed creates id-0 seed + discovery iteration; new/existing modes covered; suite green.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": null,
+      "sketch": "E4: closeout - retro (did id-as-key + numbering + seed buy back their cost? contract evolution clean?), assess done-when clause by clause, lume close.",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
+  "workstream": {
+    "objective_artifact": "objective.json",
+    "slug": "seed-and-numbering",
+    "status": "active",
+    "title": "Seed Workstream & Workstream Numbering"
+  }
+}
