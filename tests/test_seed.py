@@ -68,6 +68,19 @@ class SeedVerbTest(unittest.TestCase):
         seed_dirs = list(ws_root.glob("0000-*"))
         self.assertEqual(len(seed_dirs), 1)
 
+    def test_seed_bootstraps_fresh_repo(self):
+        # A brand-new repo with no .lume/: seed must create it and seed id 0.
+        fresh_tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(fresh_tmp.cleanup)
+        fresh = Path(fresh_tmp.name)
+        self.assertFalse((fresh / ".lume").exists())
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = main(["lume", "seed", "--new"], start=fresh, clock=self.clock)
+        self.assertEqual(code, 0)
+        self.assertTrue((fresh / ".lume" / "workstreams").is_dir())
+        self.assertEqual(len(list((fresh / ".lume" / "workstreams").glob("0000-*"))), 1)
+
     def test_seed_stamps_seed_true_in_state(self):
         self._run("seed", "--new")
         ws_root = self.root / ".lume" / "workstreams"

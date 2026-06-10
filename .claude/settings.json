@@ -1,0 +1,8 @@
+{
+  "extraKnownMarketplaces": [
+    { "source": "local", "path": "." }
+  ],
+  "enabledPlugins": [
+    { "marketplace": "lume", "plugin": "lume" }
+  ]
+}

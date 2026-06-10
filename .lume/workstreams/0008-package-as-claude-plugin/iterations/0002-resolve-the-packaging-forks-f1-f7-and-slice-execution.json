@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Decisions recorded: each open fork resolved with a one-line rationale."
+      },
+      {
+        "checked": true,
+        "text": "Plan: the iterations to reach the objective, each a binary DoD sketch + committed/optional tag."
+      },
+      {
+        "checked": true,
+        "text": "The first execution iteration is concrete enough to open next."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code."
+      }
+    ],
+    "preamble": ""
+  },
+  "handback": "decisions.json: 7 entries (F1-F7). plan: P1 E1 move-engine-to-root + plugin skeleton, P2 E2 skill wrappers over verbs, P3 E3 README + install + clean-repo smoke test, P4 closeout. All committed. F3 settled by operator: engine moves to repo root, .lume/ is in-repo state only and outside the plugin. Next: open P1 (E1) as the first execution iteration.",
+  "id": 2,
+  "self_review": "All 7 forks resolved with rationale; F3 (engine to root, .lume not part of the plugin) is the operator's call, recorded as such. Plan is 3 execution slices + closeout, F3-gated first (largest blast radius), each behaviour-preserving against the 227 tests and our own loop. P1 is concrete enough to open next. One assumption flagged for execution, not papered over: the exact mechanism by which .lume/workstreams does not ship as plugin content (marketplace subpath vs accepted-as-inert-data) - to be confirmed in E1/E3, not assumed. No engine code touched this iteration."
+}

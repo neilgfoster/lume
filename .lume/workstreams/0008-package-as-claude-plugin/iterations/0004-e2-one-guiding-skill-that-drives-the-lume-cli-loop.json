@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "skills/lume/SKILL.md exists with valid frontmatter (name, description) at the plugin root per the plugin spec."
+      },
+      {
+        "checked": true,
+        "text": "Body teaches the loop: orient via `lume status`; the phase machine (proposed->approved->working->handback->accepted/rejected) and which verb moves each (approve/start/handback/accept/reject/redo)."
+      },
+      {
+        "checked": true,
+        "text": "Body covers the playbook: seed a repo, open the next iteration, draft a binary DoD, operator approves, work + honest self-review, handback, operator accept/reject - with the operator gate (accept/reject) always deferred to the human."
+      },
+      {
+        "checked": true,
+        "text": "It delegates specifics to the self-describing CLI (`lume verbs [--json]`, `--json` everywhere) rather than restating each verb's flags - no logic duplicated."
+      },
+      {
+        "checked": true,
+        "text": "plugin.json exposes the skill (or it is auto-discovered from skills/); manifest still valid JSON."
+      },
+      {
+        "checked": true,
+        "text": "Behaviour preserved: no engine code changed; 311 tests still green."
+      }
+    ],
+    "preamble": "E2 (plan P2): one guiding skill, skills/lume/SKILL.md, that teaches an agent/operator the whole lume loop and drives the bundled `lume` CLI (on PATH via the plugin's bin/). Wrapper not rewrite: it delegates specifics to `lume verbs`/`lume status` and `--json`, duplicating no engine logic. Per F4 (operator chose one guiding skill)."
+  },
+  "handback": "Added skills/lume/SKILL.md: a single guiding skill that teaches the lume loop (orient via status, the phase machine, the seed->open->DoD->approve->work->handback->accept playbook, conventions) and drives the bundled lume CLI, delegating specifics to the self-describing verbs/--json. Auto-discovered from skills/; manifest unchanged and valid. 311 tests still green. Next: P3/E3 - root README + install path + clean-repo smoke test.",
+  "id": 4,
+  "self_review": "One guiding skill written at skills/lume/SKILL.md (operator chose this over a stage set or per-verb). Frontmatter (name, description) valid; auto-discovered from the default skills/ location so plugin.json needs no change. The phase machine in the body was checked against iteration.py TRANSITIONS (approve/start/handback/accept/reject/redo) and OPENABLE_AFTER - accurate, not paraphrased. It delegates specifics to lume verbs / --json rather than restating flags, so no engine logic is duplicated and the skill won't drift as verbs change. The operator gate (accept/reject is the human's) is stated twice by design. No engine code touched: 311 tests green. Not verified live in a real Claude Code session (would need the plugin installed) - the smoke test in E3 covers end-to-end install + first iteration."
+}

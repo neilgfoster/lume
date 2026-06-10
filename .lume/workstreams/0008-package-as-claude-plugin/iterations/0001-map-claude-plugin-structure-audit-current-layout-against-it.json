@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Claude plugin structure mapped from authoritative docs: manifest (.claude-plugin/plugin.json) fields, component layout, bin/ on PATH, ${CLAUDE_PLUGIN_ROOT}, commands-as-skills, and the marketplace install path."
+      },
+      {
+        "checked": true,
+        "text": "Current lume layout audited against that map: where the engine lives, how bin/lume resolves the package, how find_lume_dir walks for .lume/, and the gap list (no package, no manifest, no root README, relative-path invocation)."
+      },
+      {
+        "checked": true,
+        "text": "The coexistence model named: how an installed lume (engine at CLAUDE_PLUGIN_ROOT) stays separate from the operator's .lume/ data, and how lume-developing-lume in THIS repo is unaffected."
+      },
+      {
+        "checked": true,
+        "text": "Artifact produced (discovery.json): findings + the objective's open forks restated as planning forks with a recommended lean each."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code this iteration; what is deferred to planning/execution is listed."
+      }
+    ],
+    "preamble": "Discovery for packaging lume as an installable Claude plugin. Map how plugins are really structured, audit lume against that, and hand planning a clean set of resolved-leaning forks. Non-negotiables carried in: stdlib-only, deterministic, behaviour-preserving (227 tests + live .lume/ stay green), wrap existing verbs (do not duplicate logic)."
+  },
+  "handback": "discovery.json written (8 sections). Plugin structure mapped from authoritative code.claude.com docs; lume layout audited; coexistence model named (engine at CLAUDE_PLUGIN_ROOT vs operator .lume/, decoupled by find_lume_dir's upward walk). 7 forks handed to planning, each with a recommended lean; F3 (move engine vs expose-in-place) flagged as the biggest call to size first. No engine code touched - 227 tests and the live .lume/ untouched. Next: planning iteration to resolve F1-F7 and slice execution.",
+  "id": 1,
+  "self_review": "Done-when for a discovery iteration met: questions answered, artifact produced, scope held. Confidence high on plugin mechanics (bin/ on PATH, manifest, ${CLAUDE_PLUGIN_ROOT}, marketplace install) - verified against docs, not memory. Strongest finding: find_lume_dir already decouples engine-code-location from state-location, so packaging is genuinely a wrapper, not a rewrite. Weakest area held open, not papered over: F3 (physically move the engine vs expose in place) is unresolved by design and is the planning iteration's first job. No logic duplicated; no runtime deps added."
+}

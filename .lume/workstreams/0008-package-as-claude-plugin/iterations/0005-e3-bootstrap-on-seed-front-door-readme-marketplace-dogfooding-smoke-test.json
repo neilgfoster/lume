@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Bootstrap (F8): Repository.ensure_lume_dir() creates .lume/workstreams/ at the start path when absent; handle_seed uses it so `lume seed` in an empty dir creates .lume/ and seeds id 0. New test covers the fresh-repo case; existing seed tests still pass."
+      },
+      {
+        "checked": true,
+        "text": "Front-door README.md at repo root: what lume is + why, install (marketplace add + /plugin install), the iteration loop, and the first command (lume seed); the verb list reflects `lume verbs`."
+      },
+      {
+        "checked": true,
+        "text": ".claude-plugin/marketplace.json: lists the lume plugin with source './', valid per the marketplace schema (name, owner.name, plugins[])."
+      },
+      {
+        "checked": true,
+        "text": "Dogfooding wiring: version-controlled .claude/settings.json with extraKnownMarketplaces [{source:local, path:'.'}] + enabledPlugins [{marketplace:lume, plugin:lume}], so opening THIS repo loads skills/lume/SKILL.md and puts bin/ on PATH via the real plugin mechanism."
+      },
+      {
+        "checked": true,
+        "text": "Stale perms cleaned: .claude/settings.local.json no longer references the old .lume/engine/bin/lume paths."
+      },
+      {
+        "checked": true,
+        "text": "Clean-repo smoke test: an automated test that, in a fresh dir that is NOT this repo, runs the bundled lume to seed then open a first iteration and verifies state - proving a stranger reaches their first iteration."
+      },
+      {
+        "checked": true,
+        "text": "Behaviour preserved: full test suite green (new tests included)."
+      }
+    ],
+    "preamble": "E3 (plan P3, expanded): close the install/onboarding loop. Make seed bootstrap a fresh repo (F8), write the front-door README, add the marketplace, dogfood the plugin in this repo via the real plugin mechanism (not a .claude/skills copy), clean stale perms, and prove it all with a clean-repo smoke test. Behaviour-preserving for the existing suite."
+  },
+  "handback": "E3 done. Bootstrap: seed creates .lume/ on a fresh repo (ensure_lume_dir + OSError->LumeError guard). Added root README (what/why/install/loop/first command/verb table), .claude-plugin/marketplace.json, .claude/settings.json (local marketplace + enabledPlugins so this repo dogfoods its own plugin), removed stale engine-path perms. Clean-repo smoke test (subprocess over bin/lume) proves seed->gates->new->open on a fresh dir. 313 tests green. Unverified: live plugin load in a Claude Code session (next session/trust prompt). Next: P4 closeout - retro + assumption check + lume close.",
+  "id": 5,
+  "self_review": "Install/onboarding loop closed. F8 bootstrap: Repository.ensure_lume_dir() creates .lume/workstreams/ at the start path, wired into handle_seed; verified live (bin/lume seed --new in an empty temp dir) and by a fresh-repo unit test. The /nonexistent dispatch test surfaced an uncaught PermissionError - fixed by mapping OSError to a clean LumeError (good catch the smoke work forced). Front-door README, .claude-plugin/marketplace.json (source ./), and version-controlled .claude/settings.json (local marketplace + enabledPlugins) all added; all JSON validated. Stale .lume/engine/bin/lume perms removed from settings.local.json. Clean-repo smoke test drives the bundled bin/lume through seed->gates->new->open via subprocess and passes. 313 tests green (was 311; +fresh-repo seed, +smoke). HONEST GAPS: (1) the dogfooding wiring is in place but not verified loading in a live Claude Code session - it takes effect on the next session + trust prompt, which I cannot exercise from here; (2) the harness blocked adding bin/lume to allowed perms (self-modification guard), so the operator may still get prompts - not a product issue. Both belong in closeout's assumption check."
+}

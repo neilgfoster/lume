@@ -1,0 +1,58 @@
+{
+  "entries": [
+    {
+      "context": "F1 packaging mechanism",
+      "date": "2026-06-10",
+      "decision": "Ship lume via the plugin's bin/ directory (stdlib python3 shim), no pip/pyproject for the plugin install path.",
+      "rationale": "bin/ is auto-added to PATH while the plugin is enabled, so lume resolves as a bare command with zero runtime deps - satisfies stdlib-only and 'install must itself be simple'. A pyproject/console_script path can be published later for non-plugin users; not required by done-when."
+    },
+    {
+      "context": "F2 manifest shape",
+      "date": "2026-06-10",
+      "decision": "Fuller .claude-plugin/plugin.json: name, explicit version (0.1.0), description, author, repository, license, keywords.",
+      "rationale": "Explicit version pins releases rather than riding the git-SHA-as-version default; the metadata orients a stranger and the marketplace listing."
+    },
+    {
+      "context": "F3 engine location",
+      "date": "2026-06-10",
+      "decision": "Move the engine to the repo root (./lume package + ./bin/lume + ./.claude-plugin/). .lume/ becomes in-repo operator state ONLY and is NOT part of the plugin/package.",
+      "rationale": "Operator decision: root-level is the idiomatic plugin layout a stranger expects; the engine should not live nested under a runtime-state dotfolder. .lume/ is functionally outside the plugin - plugin.json never references it. Execution must keep this behaviour-preserving (227 tests + our own dogfooding loop) and confirm the mechanism by which .lume/workstreams does not ship as plugin content."
+    },
+    {
+      "context": "F4 command surface",
+      "date": "2026-06-10",
+      "decision": "Expose the loop as a small set of namespaced skills (SKILL.md) that call the bundled lume by bare name and relay --json; not one raw command per verb.",
+      "rationale": "Wrapper not rewrite: skills map onto existing verbs via the self-describing catalog, and a guiding skill ('you are at handback; next is accept') serves a new operator better than thin per-verb commands."
+    },
+    {
+      "context": "F5 install UX / no auto-upgrade",
+      "date": "2026-06-10",
+      "decision": "Install = marketplace add + /plugin install (with --plugin-dir for local dev); lume seed is the operator's first step on their own repo; updates stay explicit - no daemon, no background upgrade.",
+      "rationale": "One-time operator-run action per the non-negotiables; explicitly does not adopt mcp-cli's self-driving/daemon axis."
+    },
+    {
+      "context": "F6 README authorship",
+      "date": "2026-06-10",
+      "decision": "Root README hand-written for what/why/install/iteration-loop/first-command; the command list is derived from the verb catalog rather than hand-maintained.",
+      "rationale": "A stranger needs orientation prose the catalog cannot give; the mechanical verb list should not drift from lume verbs."
+    },
+    {
+      "context": "F7 phasing",
+      "date": "2026-06-10",
+      "decision": "Three execution slices: (E1) move engine to root + plugin skeleton; (E2) skill/command wrappers over verbs; (E3) root README + install path + clean-repo smoke test.",
+      "rationale": "F3 (the move) gates everything and carries the largest blast radius, so it lands first and stays behaviour-preserving; wrappers then docs build on a resolving package."
+    },
+    {
+      "context": "F8 fresh-repo bootstrap",
+      "date": "2026-06-10",
+      "decision": "lume seed creates .lume/ (workstreams/) when none exists, so seed is genuinely the new operator's first step.",
+      "rationale": "Discovery/planning missed that every verb requires a pre-existing .lume/; done-when demands seed work on a fresh repo. seed is the designated bootstrap verb, so creating the state dir there (vs a separate init or a manual mkdir) keeps onboarding to one command. Minimal, onboarding-scoped engine change - not the kind of expansion scope warned against."
+    },
+    {
+      "context": "F9 plugin packaging boundary (revises F3)",
+      "date": "2026-06-10",
+      "decision": "Shipped plugin content lives in ./plugin/ (bin, src/lume, skills, .claude-plugin/plugin.json, front-door README); marketplace source is './plugin'. Dev-only files (.lume/, tests/, conftest, docs) stay at the repo root and are excluded from installs.",
+      "rationale": "Operator requirement: lume's own .lume/workstreams must not ship to an adopter, and Claude Code has NO file-level exclude (no .claudeignore / ignore field / .gitignore respect) - the source tree is copied wholesale. The documented pattern for a repo that holds more than the plugin is a subdir source (relative path / git-subdir). Refines F3: F3's intent was 'do not bury the engine under the .lume state dir', which a clean ./plugin root still honours; the plugin root simply is not the repo root. Verified: only plugin/ is the plugin; 313 tests green via conftest->plugin/src."
+    }
+  ]
+}

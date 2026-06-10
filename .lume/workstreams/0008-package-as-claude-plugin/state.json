@@ -1,0 +1,141 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-map-claude-plugin-structure-audit-current-layout-against-it.json",
+      "id": 1,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Map Claude plugin structure; audit current layout against it",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0002-resolve-the-packaging-forks-f1-f7-and-slice-execution.json",
+      "id": 2,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Resolve the packaging forks (F1-F7) and slice execution",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0003-e1-move-engine-to-repo-root-plugin-skeleton.json",
+      "id": 3,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E1: move engine to repo root + plugin skeleton",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": "Use a src/ layout: package at ./src/lume, not flat ./lume at root (avoids the repo/package name echo and keeps root uncluttered; conventional Python src-layout).",
+          "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0004-e2-one-guiding-skill-that-drives-the-lume-cli-loop.json",
+      "id": 4,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E2: one guiding skill that drives the lume CLI loop",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0005-e3-bootstrap-on-seed-front-door-readme-marketplace-dogfooding-smoke-test.json",
+      "id": 5,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "E3: bootstrap-on-seed + front-door README + marketplace + dogfooding + smoke test",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0006-closeout-retro-assumption-check-done-when-close.json",
+      "id": 6,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Closeout: retro, assumption check, done-when, close",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": "lume's own .lume/workstreams must NOT ship to a plugin adopter. 'Accept as inert' is rejected - find the real exclusion mechanism (or restructure) so installing lume does not drag lume's dev history into the user's plugin cache.",
+          "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": 3,
+      "sketch": "E1: move engine to repo root (./lume package, ./bin/lume, tests/) + add .claude-plugin/plugin.json; bin/lume resolves the package via its own location; .lume/ stays in-repo state only and is excluded from plugin content. DoD: lume runs as a bare command from the new entry point; 227 tests green at new paths; our own dogfooding loop still works.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": 4,
+      "sketch": "E2: skill/command wrappers - namespaced SKILL.md per loop step (seed, status, open, approve/start, handback, accept) that call bundled lume by bare name and relay --json. DoD: each loop step invocable as a plugin skill; commands map onto existing verbs with no logic duplicated.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": 5,
+      "sketch": "E3: root README (what/why/install/iteration-loop/first-command, command list derived from verb catalog) + documented install path (marketplace add + /plugin install; --plugin-dir for dev) + clean-repo install smoke test proving 'lume seed' then a first iteration works on a fresh repo that is not this one. DoD: a stranger can follow the README to their first iteration; smoke test passes.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": 6,
+      "sketch": "Closeout: retro (did packaging buy back its ceremony?), assumptions checked vs evidence (esp. .lume-not-shipped mechanism + behaviour-preservation), objective done-when assessed, decisions logged, lume close.",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
+  "workstream": {
+    "id": "0008",
+    "objective_artifact": "objective.json",
+    "slug": "package-as-claude-plugin",
+    "status": "closed",
+    "title": "Package lume as an installable Claude plugin"
+  }
+}
