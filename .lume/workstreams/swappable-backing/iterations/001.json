@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": false,
+        "text": "1. Tracking contract mapped: the surface of its v1 implementation (`Repository`) - every public method, inputs/outputs, and exactly what each assumes about the local filesystem (paths, globbing, .lume/ discovery, per-file read/write). (Evidence: a table of the contract surface in discovery.json.)"
+      },
+      {
+        "checked": false,
+        "text": "2. Contract-leak audit: every place the engine persists state WITHOUT going through the Tracking contract (notably Workstream's direct json read/write via self._path, migrate.py file I/O, cli.py path printing). Each leak classified: must-move-behind-contract vs acceptable. (Evidence: leak list with file:symbol references in discovery.json.)"
+      },
+      {
+        "checked": false,
+        "text": "3. Second-backing options compared: at least a real-service option (e.g. GitHub Issues, scope.md's named example) vs an in-process proof (in-memory or a second on-disk store), with trade-offs on cost, what each actually proves about replaceability, and test-ability. A recommendation is stated. (Evidence: options + recommendation in discovery.json.)"
+      },
+      {
+        "checked": false,
+        "text": "4. Selection-contract sketch: how a Tracking backing is chosen without editing engine code (constructor injection, env var, or config), and where the choice is wired. (Evidence: contract sketch in discovery.json.)"
+      },
+      {
+        "checked": false,
+        "text": "5. Naming fork captured: should `Repository` be renamed to name the Tracking contract it implements (e.g. Tracker / TrackingStore / WorkstreamStore), and how to keep it distinct from the Review / Practice / future contracts? Stated as a fork for planning, not decided here. (Evidence: naming fork in discovery.json.)"
+      },
+      {
+        "checked": false,
+        "text": "6. Open forks listed for planning to resolve (real vs proof backing, how much to refactor the Workstream<->Tracking boundary, state/schema ownership, the rename). (Evidence: forks section in discovery.json.)"
+      },
+      {
+        "checked": false,
+        "text": "7. Stale-skeleton fix folded in: the discovery `_SKELETONS` entry in iteration.py still tells operators to produce `discovery.md` - a leftover from the JSON-only flip. Update it to reference discovery.json (the current artifact). This is the one deliberate engine change permitted in this discovery iteration. (Evidence: grep shows no `discovery.md` in iteration.py; suite green.)"
+      },
+      {
+        "checked": false,
+        "text": "8. Scope held: aside from the item-7 one-line skeleton fix, no engine code changed; the discovery artifact is discovery.json only (no discovery.md). What is deferred to planning/execution is explicit. (Evidence: git diff is discovery.json + iteration/state JSON + the single _SKELETONS line.)"
+      }
+    ],
+    "preamble": "Discovery for swappable-backing. The subject is the Tracking contract (workstream/PM-state persistence); `Repository` is its v1 filesystem implementation. Map that contract surface exactly, find where the engine still reaches around it to touch the filesystem (the real obstacle to a second backing), compare candidate second backings, sketch how a backing gets selected, and capture the `Repository`-rename question as a fork. Produce discovery.json and the forks for planning to resolve. The only engine change permitted is the one-line fix to the stale `discovery.md` reference in iteration.py's _SKELETONS (a leftover from the JSON-only flip)."
+  },
+  "handback": null,
+  "id": 1,
+  "self_review": null
+}
