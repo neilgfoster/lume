@@ -1,0 +1,27 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-inventory-classify-every-doc-map-link-graph-list-reconciliations-and-the-readme-s-honest-disqualifiers.json",
+      "id": 1,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Inventory + classify every doc; map link graph; list reconciliations and the README's honest disqualifiers",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0009",
+    "objective_artifact": "objective.json",
+    "slug": "documentation-refresh",
+    "status": "active",
+    "title": "Refresh the documentation to match the now-packaged plugin reality"
+  }
+}
