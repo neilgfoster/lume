@@ -14,9 +14,53 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0002-resolve-the-packaging-forks-f1-f7-and-slice-execution.json",
+      "id": 2,
+      "opened": "2026-06-10",
+      "phase": "accepted",
+      "title": "Resolve the packaging forks (F1-F7) and slice execution",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-10",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
-  "plan": [],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": null,
+      "sketch": "E1: move engine to repo root (./lume package, ./bin/lume, tests/) + add .claude-plugin/plugin.json; bin/lume resolves the package via its own location; .lume/ stays in-repo state only and is excluded from plugin content. DoD: lume runs as a bare command from the new entry point; 227 tests green at new paths; our own dogfooding loop still works.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": null,
+      "sketch": "E2: skill/command wrappers - namespaced SKILL.md per loop step (seed, status, open, approve/start, handback, accept) that call bundled lume by bare name and relay --json. DoD: each loop step invocable as a plugin skill; commands map onto existing verbs with no logic duplicated.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "E3: root README (what/why/install/iteration-loop/first-command, command list derived from verb catalog) + documented install path (marketplace add + /plugin install; --plugin-dir for dev) + clean-repo install smoke test proving 'lume seed' then a first iteration works on a fresh repo that is not this one. DoD: a stranger can follow the README to their first iteration; smoke test passes.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": null,
+      "sketch": "Closeout: retro (did packaging buy back its ceremony?), assumptions checked vs evidence (esp. .lume-not-shipped mechanism + behaviour-preservation), objective done-when assessed, decisions logged, lume close.",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
   "workstream": {
     "id": "0008",
     "objective_artifact": "objective.json",
