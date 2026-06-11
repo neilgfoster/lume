@@ -1,0 +1,54 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": ".github/workflows/ci.yml added: triggers on push and pull_request; a matrix over python 3.11, 3.12, 3.13; steps checkout -> setup-python -> 'python -m pytest -q'. No third-party install step (lume is stdlib-only).",
+        "check": {
+          "kind": "file-exists",
+          "path": ".github/workflows/ci.yml"
+        }
+      },
+      {
+        "checked": true,
+        "text": "The workflow is well-formed YAML and declares the expected triggers + matrix (verified by parsing it and asserting on/push, on/pull_request, and the three python versions).",
+        "check": {
+          "kind": "command",
+          "cmd": "python tools/check_ci_workflow.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "The version-consistency check runs in CI as part of the suite (no separate wiring needed - it is a test); confirmed it is collected by pytest.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q tests/test_version_consistency.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "README notes CI (a status badge pointing at the workflow); the fact that making CI a REQUIRED status check is the operator's branch-protection action is stated, not silently assumed.",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -rq 'workflows/ci' README.md plugin/README.md"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Full suite green locally.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P5/L4 build step 2 of 4 (plan item P12): add the GitHub Actions CI workflow that runs the suite (including the version-consistency test from P11) on push + PR across python 3.11-3.13. This is what finally puts an automated green check on lume's PRs. A tiny stdlib YAML-free checker (tools/check_ci_workflow.py) validates the workflow's shape so the DoD itself is machine-verified without adding a pyyaml dependency. Making the check REQUIRED is the operator's branch-protection setting - noted, not done by the agent. DOGFOOD: DoD carries file-exists + command checks."
+  },
+  "handback": "P12 done (P5/L4 build step 2 of 4): lume has CI. CHANGES: (1) .github/workflows/ci.yml - on push (main) + pull_request, matrix python 3.11/3.12/3.13, steps checkout -> setup-python -> 'python -m pytest -q'; no dependency install (stdlib-only). (2) tools/check_ci_workflow.py - a dependency-free shape guard (no pyyaml) asserting the workflow triggers on push/PR, runs pytest, and covers 3.11-3.13; usable as a DoD command-check. (3) README.md - CI status badge + a note that the version-consistency test rides the suite and that making CI a REQUIRED check is the operator's branch-protection action. The P11 consistency test runs in CI automatically (it is a test). Suite: 345 green locally; the checker passes. OPERATOR ACTION (noted, not done): enabling the required-status-check / branch protection on GitHub. NOTE: CI will run on FUTURE pushes/PRs once on main; it does not retroactively gate the current PR. RECOMMEND next: P13 - tag + release process (tag == plugin.json version).",
+  "id": 13,
+  "self_review": "Holds: the workflow is minimal and correct for a stdlib-only project (no install step to rot), the matrix enforces the 3.11 floor decided in P11, and I avoided a pyyaml dependency by writing a tiny shape checker that is itself a DoD command-check - so the workflow's shape is machine-verified, not eyeballed. README is honest that 'required' is the operator's call. Weak / watch: (1) UNRUN IN ANGER - the workflow is validated by shape only; it has not actually executed on GitHub yet, so a runner-specific issue (e.g. an action version, ubuntu image python availability for 3.13) could still surface on first run; first push to main / next PR is the real proof, and I cannot run GitHub Actions locally. (2) The shape checker is a substring guard, not a YAML parse - it would not catch a structurally-broken-but-string-present workflow; acceptable tradeoff to stay dependency-free, but noted. (3) push trigger is scoped to branches:[main]; PRs from any branch are covered via pull_request, but direct pushes to feature branches are not tested until they open a PR - intentional (avoids double-runs), flagged. Nothing deferred silently."
+}

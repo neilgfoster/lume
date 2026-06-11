@@ -1,5 +1,7 @@
 # lume
 
+[![CI](https://github.com/neilgfoster/lume/actions/workflows/ci.yml/badge.svg)](https://github.com/neilgfoster/lume/actions/workflows/ci.yml)
+
 lume is a deterministic, operator-gated iteration loop for doing real work with
 an AI agent across short, interrupted sessions without losing the thread. It
 tracks **workstreams** (goals), breaks them into **gated iterations**, and keeps
@@ -121,6 +123,11 @@ python3 -m pytest                                                 # conftest put
 PYTHONPATH=plugin/src python3 -m unittest discover -s tests -t .   # stdlib runner
 plugin/bin/lume status                                            # drive lume in this repo
 ```
+
+CI (`.github/workflows/ci.yml`) runs the suite on push and every PR across
+Python 3.11-3.13. Making that check **required** for merge is a branch-protection
+setting the repo operator enables on GitHub — the workflow provides the signal,
+the operator decides whether it blocks.
 
 ## Design records
 

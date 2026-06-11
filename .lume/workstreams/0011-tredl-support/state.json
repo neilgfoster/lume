@@ -169,8 +169,23 @@
       "dod_artifact": "iterations/0012-p11-pyproject-toml-src-layout-version-consistency-check-vs-plugin-json-tests.json",
       "id": 12,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P11: pyproject.toml (src-layout) + version-consistency check vs plugin.json (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0013-p12-github-actions-ci-pytest-matrix-3-11-3-13-version-consistency-check-on-push-pr.json",
+      "id": 13,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P12: GitHub Actions CI - pytest matrix 3.11-3.13 + version-consistency check on push/PR",
       "type": "execution",
       "verdicts": []
     }
@@ -255,7 +270,7 @@
     },
     {
       "id": "P12",
-      "iter": null,
+      "iter": 13,
       "sketch": "P5/L4 build step 2 of 4 - CI WORKFLOW. Add .github/workflows/ci.yml running 'python -m pytest -q' on push + pull_request across python 3.10-3.13, plus the version-consistency check from step 1. DONE-WHEN: workflow is valid YAML and triggers on push/PR; matrix covers 3.10-3.13; the suite + consistency check run as steps; README notes CI status; (making it a REQUIRED check is the operator's branch-protection action, noted not done by the agent). ITERATION: execution.",
       "tag": "committed",
       "type": "execution"
