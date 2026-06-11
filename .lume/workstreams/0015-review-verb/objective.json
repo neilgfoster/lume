@@ -1,6 +1,6 @@
 {
   "slug": "review-verb",
-  "status": "active",
+  "status": "closed",
   "text": "Done when lume has a `lume review` verb (alias `review emit`) and `lume review ingest <path>` subcommand that keep any lume repo true to its charter via a repeatable adversarial self-review, with all thinking done by the agent and all plumbing deterministic (no LLM calls, no network, dates via clock seam). Emit prints a protocol seeded from generically-discovered charter context (PRIMARY: lume state - objectives/decisions/retros/plan; SECONDARY: pattern-scanned docs; OVERRIDE: --charter glob; DEGRADE: lume-state-only with thin-coverage flag), with seven lenses including ecosystem-fit (live lookup instructed, nothing baked in) and META self-improvement. Ingest validates a review_result JSON against a new schema, writes a markdown report into .lume/review-<date>-NN/ (NN = next-free daily sequence from 01), persists the structured artifact through the store seam, and emits - never executes - the queue-command plan: proposed_workstreams -> new/plan add, direction_decisions -> decide, review_gaps -> the existing gap mechanic. Operator gates preserved throughout. Tests cover deterministic emission, schema validation, dated/sequenced folder behavior, gap mapping, and a no-docs fixture; suite green; SKILL.md and README updated; decisions logged for the emit/ingest split, charter discovery, lenses, gap mapping, and folder convention.",
   "title": "Add lume review verb: deterministic adversarial self-review (emit/ingest)"
 }

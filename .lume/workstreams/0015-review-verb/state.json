@@ -69,10 +69,16 @@
       "dod_artifact": "iterations/0005-execution-docs-and-final-sweep-p6.json",
       "id": 5,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Execution: docs and final sweep (P6)",
       "type": "execution",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -123,7 +129,7 @@
     "id": "0015",
     "objective_artifact": "objective.json",
     "slug": "review-verb",
-    "status": "active",
+    "status": "closed",
     "title": "Add lume review verb: deterministic adversarial self-review (emit/ingest)"
   }
 }
