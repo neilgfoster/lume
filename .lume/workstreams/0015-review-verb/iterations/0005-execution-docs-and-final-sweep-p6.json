@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "check": {
+          "cmd": "grep -q 'lume review' plugin/skills/lume/SKILL.md",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "SKILL.md documents lume review emit/ingest (what it is, the seven lenses in brief, the operator-gated queue plan, the review folder convention)."
+      },
+      {
+        "check": {
+          "cmd": "grep -rq 'review ingest' plugin/README.md README.md",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "READMEs (root and/or plugin) document the review verb and the .lume/review-<date>-NN/ convention."
+      },
+      {
+        "checked": true,
+        "text": "Whole-workstream diff swept: no dead code, no second verb list, no parallel gap mechanic, no raw file I/O beyond the sanctioned findings.md write, no hardcoded doc/plugin/feature/best-practice lists in the verb; findings of the sweep stated honestly in the self-review."
+      },
+      {
+        "check": {
+          "cmd": "python -m pytest -q",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Full suite green."
+      }
+    ],
+    "preamble": "Final slice (P6): documentation for the review verb and the whole-workstream hygiene sweep the objective demands."
+  },
+  "handback": "P6 done: review verb documented in plugin/README.md (new section + verbs table), root README cross-link, and SKILL.md agent guidance. Whole-workstream sweep complete - one stale docstring fixed, raw-write surface verified to be exactly the sanctioned findings.md write, no duplicate verb lists or parallel mechanics, no baked-in ecosystem content. Suite 401 passed. This closes the last committed plan item (P1-P6 all landed); the workstream objective is fully delivered and ready for accept + close + PR.",
+  "id": 5,
+  "self_review": "Holds: plugin/README.md gains an 'Adversarial self-review' section (emit/ingest, charter sources, seven lenses, live-lookup rule, folder convention, operator-gated queue plan) and a verbs-table row; root README points at it from the loop section; SKILL.md teaches the agent the emit->review->ingest flow including the live ecosystem lookup and the never-executes property. Sweep findings, stated honestly: (1) fixed review.py's stale '(emit half)' module docstring - it now describes both halves; (2) the only raw writes in the verb are the sanctioned folder mkdir + findings.md write_text in handle_review_ingest (grep-verified); (3) no second verb list (one _CATALOG entry), no parallel gap mechanic (queue plan emits 'lume gap add'), no hardcoded ecosystem lists (patterns in _DOC_PATTERNS are doc-shape heuristics for charter discovery, not ecosystem content); (4) read_review is currently exercised only by tests - kept because the spec requires the stored result to be queryable and a write-only seam would be a leak. All four DoD machine checks pass; suite 401 green. Weak/honest: the engine README's module list omits review.py - but that list was already partial (it also omits gap.py, adopters.py, store.py), so adding one entry would be inconsistent rather than complete; left for a docs pass if wanted."
+}

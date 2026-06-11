@@ -54,8 +54,23 @@
       "dod_artifact": "iterations/0004-execution-ingest-side-validation-review-folder-persistence-queue-plan-p3-p4-p5.json",
       "id": 4,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Execution: ingest side - validation, review folder, persistence, queue plan (P3+P4+P5)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0005-execution-docs-and-final-sweep-p6.json",
+      "id": 5,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Execution: docs and final sweep (P6)",
       "type": "execution",
       "verdicts": []
     }
@@ -98,7 +113,7 @@
     },
     {
       "id": "P6",
-      "iter": null,
+      "iter": 5,
       "sketch": "S6 Docs + sweep: SKILL.md and README document lume review emit/ingest and the review folder convention; diff sweep (no dead code, no second verb list, no parallel gap mechanic, no stray raw I/O, no hardcoded ecosystem lists)",
       "tag": "committed",
       "type": "execution"

@@ -1,10 +1,12 @@
-"""lume review (emit half) - deterministic adversarial self-review plumbing.
+"""lume review - deterministic adversarial self-review plumbing (emit + ingest).
 
-lume contains no LLM: this module only GATHERS charter context from the repo and
-EMITS a review protocol as text. The reviewing agent does all judgement, then
+lume contains no LLM: the emit half GATHERS charter context from the repo and
+EMITS a review protocol as text; the ingest half (bottom of this module) turns a
+validated review result into lume artifacts. The reviewing agent does all judgement, then
 hands a structured result back to `lume review ingest`. Determinism boundary:
 same repo state + same discovered files in -> byte-identical protocol out. The
-emit side reads the clock nowhere and writes nothing.
+emit side reads the clock nowhere and writes nothing; the clock enters only at
+ingest (the dated review folder).
 
 Charter discovery is generic so the verb works in ANY lume repo:
 - PRIMARY: lume state itself (every workstream's objective, decisions, plan,
