@@ -18,7 +18,10 @@ feature and does not ship to lume's users (nothing for it lives under
    iteration. Draft a crisp, checkable DoD in its content artifact.
 3. `lume approve` -> `lume start` - move the iteration to the `working` phase.
 4. Do the work, then `git commit` it. Write an honest self-review + handback,
-   `lume handback`, and let the **operator** accept (`lume accept`) or reject.
+   `lume handback`, and present it for the **operator's** accept/reject decision.
+   On the operator's explicit instruction the agent may run `lume accept` /
+   `lume reject` to execute that decision (see "Gates are the operator's"); it
+   must never decide the gate itself.
 
 Driving the loop and editing anything under `.lume/` need no commit, so you can
 always create and start a workstream before the gate applies - it never
@@ -43,9 +46,24 @@ an active workstream has a current iteration in the `working` phase. It is a
 
 ## Gates are the operator's
 
-Per lume's defining rule, the **accept** and **PR merge** gates belong to the
-human operator. Drive the loop up to handback; never accept on the operator's
-behalf, and never merge a PR or bypass branch protection.
+Per lume's defining rule, the **accept**/reject and **PR merge** gates belong to
+the human operator. The gate exists to stop the **agent proceeding past the
+operator's decision on its own** - not to make the operator context-switch to a
+terminal. So the rule is about *who decides*, not *who types*:
+
+- The agent **may** run `lume approve`, `lume accept`, and `lume reject` **only
+  when the operator has explicitly instructed it for the current iteration in
+  the conversation** (e.g. the operator replies "approve" / "accept" / "reject
+  because X"). The agent must be able to point to that instruction. Running the
+  verb then is *executing* the operator's decision, not making it.
+- The agent **must never** run these verbs autonomously, speculatively, on
+  inferred or assumed approval, because a previous turn said "proceed", or
+  because the agent judges the work good. Operator silence, an earlier
+  "proceed", and the agent's own confidence are all **insufficient** - each gate
+  needs its own explicit instruction. When in doubt, stop and ask; never
+  self-accept.
+- The agent never merges a PR or bypasses branch protection - that gate stays
+  strictly human regardless of any instruction.
 
 ## Other conventions
 

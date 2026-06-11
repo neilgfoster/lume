@@ -1,0 +1,32 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-reword-claude-md-gate-section-add-settings-json-allow-rule-for-gate-verbs.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Reword CLAUDE.md gate section + add settings.json allow-rule for gate verbs",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": "fold in the settings.json allow-rule (deterministic gate-verb permission), not CLAUDE.md alone",
+          "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0013",
+    "objective_artifact": "objective.json",
+    "slug": "gate-rule-intent",
+    "status": "closed",
+    "title": "Reframe the operator gate: agent may run approve/accept/reject on explicit per-iteration instruction, never autonomously"
+  }
+}

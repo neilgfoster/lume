@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "CLAUDE.md 'Gates are the operator's' section reworded: agent MAY run approve/accept/reject on an explicit per-iteration operator instruction in the conversation (pointing to it), and MUST NEVER run them autonomously, speculatively, on inferred/assumed approval, or from its own judgement. PR-merge gate stays strictly human."
+      },
+      {
+        "checked": true,
+        "text": "The step-4 line under 'How to satisfy it' is reconciled with the new rule (no longer implies the operator must personally type accept)."
+      },
+      {
+        "checked": true,
+        "text": ".claude/settings.json gains a permissions.allow rule so the gate verbs are deterministically allowed (not classifier-dependent). Implemented as Bash(plugin/bin/lume:*) + Bash(lume:*): a narrow gate-verb-only rule is NOT expressible (lume puts -w <slug> before the verb; permission patterns only wildcard the suffix), so the rule allows all lume verbs. Acceptable blast radius: lume only edits .lume/ JSON and never commits; the commit hook remains the chokepoint on history. The CLAUDE.md decide-rule still bounds WHEN the agent may run the gate verbs."
+      },
+      {
+        "checked": true,
+        "text": "Wording is adversarial-reader-safe: it cannot be read as licence to self-accept; the trigger is an explicit operator instruction for THIS iteration, and silence/prior-turn 'proceed'/agent confidence are explicitly insufficient."
+      },
+      {
+        "checked": true,
+        "text": "Tests pass (python -m pytest -q) - no engine/product code changed (docs + settings only)."
+      },
+      {
+        "checked": true,
+        "text": "Change committed through this workstream's working iteration."
+      }
+    ],
+    "preamble": "Reframe the operator gate from 'agent never runs the verb' to 'agent runs the verb only on an explicit per-iteration operator instruction, never autonomously'. Removes the operator's context-switch overhead while preserving the gate's actual guarantee (the agent does not proceed past the operator's decision on its own). Docs + settings only; no engine change."
+  },
+  "handback": "Two-part fix to make the operator gate guard WHO DECIDES, not WHO TYPES. (1) CLAUDE.md 'Gates are the operator's' reworded: agent MAY run approve/accept/reject only on an explicit per-iteration operator instruction (and must point to it), and MUST NEVER run them autonomously, on inferred/assumed approval, on a prior-turn 'proceed', or on its own judgement; PR-merge stays strictly human; step-4 line reconciled. (2) .claude/settings.json gains permissions.allow [Bash(plugin/bin/lume:*), Bash(lume:*)] so the gate verbs are deterministically allowed rather than left to classifier interpretation. A narrow gate-verb-only rule is not expressible (lume puts -w <slug> before the verb; patterns wildcard only the suffix), so the rule allows all lume verbs - acceptable: lume only edits .lume/ JSON, the commit hook still gates history, and the CLAUDE.md decide-rule bounds WHEN the agent runs the gate. HISTORY: DoD 3 was first struck (rely on CLAUDE.md only) and the change committed; operator then reversed and asked for the settings fix, so the iteration was rejected->redone to fold settings.json in. 313 tests still pass; no engine code. NOTE: settings permissions load at session start, so this is active NEXT session (deterministic then) - 0011's iteration-004 accept later THIS session may still need a manual operator run.",
+  "id": 1,
+  "self_review": "Holds: change is docs+settings only, engine behaviour-preserving (313 tests green). The guarantee the gate exists for - agent does not proceed past the operator's decision on its own - is preserved and strengthened: the prohibition on inferred/silent/prior-'proceed'/confidence-based acceptance is now explicit in CLAUDE.md, and the settings allow-rule makes the permitted path deterministic rather than classifier-interpreted. Weak / watch: (1) BLAST RADIUS: the allow-rule is broader than 'gate verbs' (all lume verbs) because a narrow rule is not expressible; mitigated by lume editing only .lume/ JSON and never committing, and the commit hook still gating history - but a reviewer should note the agent can now run any lume verb (e.g. open/start/reject/redo) without a prompt, so the behavioural bound on the GATE verbs rests on the CLAUDE.md decide-rule, not the permission layer. (2) settings permissions load at session start, so effect is next-session; does not relieve this session's remaining accepts. (3) 'explicit per-iteration instruction' still requires good-faith reading; silence/prior-proceed/confidence are explicitly insufficient to close the obvious abuse path. (4) PROCESS: this iteration was committed once (CLAUDE.md only), then rejected->redone to add settings.json after the operator reversed the earlier scope cut - the commit will be amended so history shows one coherent change; the churn is recorded here for honesty."
+}
