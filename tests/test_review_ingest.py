@@ -73,20 +73,20 @@ class IngestValidationTest(_IngestBase):
 
     def test_malformed_json_is_usage_error(self):
         self.result_path.write_text("{not json")
-        code, _ = _run(self.root, "review", "ingest", str(self.result_path))
+        code, _ = _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
         self.assertEqual(code, 2)
 
     def test_schema_violation_is_usage_error_not_traceback(self):
         bad = json.loads(json.dumps(VALID_RESULT))
         del bad["provenance"]
         self.result_path.write_text(json.dumps(bad))
-        code, _ = _run(self.root, "review", "ingest", str(self.result_path))
+        code, _ = _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
         self.assertEqual(code, 2)
 
 
 class IngestCaptureTest(_IngestBase):
     def test_first_run_writes_dated_01_folder(self):
-        code, out = _run(self.root, "review", "ingest", str(self.result_path))
+        code, out = _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
         self.assertEqual(code, 0, out)
         folder = self.root / ".lume" / "reviews" / "2026-06-11-01"
         findings = (folder / "findings.md").read_text()
@@ -98,28 +98,71 @@ class IngestCaptureTest(_IngestBase):
         stored = json.loads((folder / "result.json").read_text())
         validate_entity("discovery", stored)
         headings = [s["heading"] for s in stored["sections"]]
-        self.assertEqual(headings, ["provenance", "direction_decisions",
+        self.assertEqual(headings, ["workstream", "provenance", "direction_decisions",
                                     "proposed_workstreams", "review_gaps"])
+        self.assertEqual(stored["sections"][0]["body"], "0001")  # the spawned owner
 
     def test_second_same_day_run_gets_02_without_clobbering_01(self):
-        _run(self.root, "review", "ingest", str(self.result_path))
+        _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
         first = (self.root / ".lume" / "reviews" / "2026-06-11-01" / "findings.md").read_text()
-        code, _ = _run(self.root, "review", "ingest", str(self.result_path))
+        code, _ = _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
         self.assertEqual(code, 0)
         self.assertTrue((self.root / ".lume" / "reviews" / "2026-06-11-02" / "findings.md").is_file())
         self.assertEqual(
             (self.root / ".lume" / "reviews" / "2026-06-11-01" / "findings.md").read_text(), first)
 
-    def test_ingest_never_creates_workstreams_or_gaps(self):
-        _run(self.root, "review", "ingest", str(self.result_path))
-        ws_dirs = list((self.root / ".lume" / "workstreams").iterdir())
-        self.assertEqual(ws_dirs, [])  # no 'fix-drift' workstream created
-        self.assertFalse((self.root / ".lume" / "gaps").exists())  # no gap recorded
+    def test_ingest_spawns_owner_but_never_proposed_workstreams(self):
+        _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
+        ws_dirs = [p.name for p in (self.root / ".lume" / "workstreams").iterdir()]
+        # The spawned OWNER exists; the proposed 'fix-drift' was NOT created.
+        self.assertEqual(ws_dirs, ["0001-review-2026-06-11-01"])
+        state = json.loads((self.root / ".lume" / "workstreams"
+                            / "0001-review-2026-06-11-01" / "state.json").read_text())
+        self.assertEqual(state["iterations"], [])  # nothing self-approves
+        # review_gaps ARE captured as open records (F3, workstream 0020).
+        from lume.gap import read_gaps
+        gaps = read_gaps(self.root)
+        self.assertEqual(len(gaps), 1)
+        self.assertEqual(gaps[0]["status"], "open")
+        self.assertEqual(gaps[0]["title"], "no performance lens")
+        self.assertIn("reviews/2026-06-11-01: missed because protocol omits it",
+                      gaps[0]["context"])
+        self.assertNotIn("workstreams", gaps[0])  # not auto-linked - triage is the operator's
+
+    def test_reingest_captures_its_own_records_no_dedupe(self):
+        _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
+        _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
+        from lume.gap import read_gaps
+        self.assertEqual(len(read_gaps(self.root)), 2)  # per F3: no rerun dedupe
+
+
+class IngestOwnershipTest(_IngestBase):
+    def test_refused_without_workstream_or_spawn(self):
+        code, _ = _run(self.root, "review", "ingest", str(self.result_path))
+        self.assertEqual(code, 1)  # gate-class named error, not usage/traceback
+        self.assertFalse((self.root / ".lume" / "reviews").exists())  # nothing written
+
+    def test_w_attributes_to_existing_active_workstream(self):
+        _run(self.root, "new", "owner-ws", "Owner")
+        code, out = _run(self.root, "--json", "review", "ingest",
+                         str(self.result_path), "-w", "owner-ws")
+        self.assertEqual(code, 0, out)
+        doc = json.loads(out)
+        self.assertEqual(doc["workstream"], "0001")
+        stored = json.loads((self.root / ".lume" / "reviews" / "2026-06-11-01"
+                             / "result.json").read_text())
+        self.assertEqual(stored["sections"][0],
+                         {"heading": "workstream", "body": "0001"})
+
+    def test_unknown_workstream_is_named_error(self):
+        code, _ = _run(self.root, "review", "ingest", str(self.result_path),
+                       "-w", "nope")
+        self.assertEqual(code, 1)
 
 
 class QueuePlanTest(_IngestBase):
     def test_queue_plan_commands(self):
-        code, out = _run(self.root, "--json", "review", "ingest", str(self.result_path))
+        code, out = _run(self.root, "--json", "review", "ingest", str(self.result_path), "--spawn")
         self.assertEqual(code, 0)
         doc = json.loads(out)
         self.assertEqual(doc["result"], "review_ingest")
@@ -132,17 +175,15 @@ class QueuePlanTest(_IngestBase):
         self.assertEqual(plan[2],
                          'lume plan add -w fix-drift -t discovery -g optional "investigate overlap"')
         self.assertEqual(plan[3], 'lume decide -c "scope" "stay small" "charter says so"')
-        # Review gaps map to the gap mechanic, tagged with the review slug.
-        self.assertEqual(plan[4],
-                         'lume gap add "no performance lens" -c "reviews/2026-06-11-01: '
-                         'missed because protocol omits it; proposed: add lens 8"')
-        self.assertEqual(len(plan), 5)
+        # review_gaps are NOT in the plan - captured as records at ingest (F3).
+        self.assertEqual(len(plan), 4)
+        self.assertEqual(doc["captured_gaps"], ["G1"])
 
     def test_empty_collections_emit_no_commands(self):
         empty = {"direction_decisions": [], "proposed_workstreams": [],
                  "review_gaps": [], "provenance": VALID_RESULT["provenance"]}
         self.result_path.write_text(json.dumps(empty))
-        code, out = _run(self.root, "review", "ingest", str(self.result_path))
+        code, out = _run(self.root, "review", "ingest", str(self.result_path), "--spawn")
         self.assertEqual(code, 0)
         self.assertIn("(nothing to queue)", out)
         findings = (self.root / ".lume" / "reviews" / "2026-06-11-01" / "findings.md").read_text()

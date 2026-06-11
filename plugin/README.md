@@ -141,14 +141,20 @@ clock seam):
   the review on itself); the ecosystem lens instructs the agent to consult the
   **current** Claude Code features, plugin marketplace, and official best
   practices at review time - lume bakes in no such list.
-- `lume review ingest <path>` validates the agent's filled-in result against
-  the `review_result` schema, writes the human-readable report to
+- `lume review ingest <path> (-w <ws> | --spawn)` validates the agent's
+  filled-in result against the `review_result` schema. It refuses to run
+  without an owning workstream for its output: `-w` attributes the review to
+  an existing active workstream, `--spawn` creates a dedicated empty
+  `review-<date>-NN` one (no iteration opened, so nothing self-approves - the
+  operator still gates the first iteration that lands the artifacts). It then
+  writes the human-readable report to
   `.lume/reviews/<date>-NN/findings.md` (NN = that day's sequence, from 01),
-  persists the structured result through the store seam, and **prints - never
-  runs -** the queue plan: `lume new`/`plan add` for proposed workstreams,
-  `lume decide` for direction decisions, and `lume gap add` for the review's
-  own self-improvement gaps (the META lens feeding the gap mechanic, so the
-  review gets better over time). Adopting any of it stays behind the
+  persists the structured result through the store seam, auto-captures the
+  review's own self-improvement gaps (the META lens) as **open gap records**
+  tagged with the review slug - mechanical capture; linking them to work stays
+  the operator's triage - and **prints - never runs -** the queue plan for the
+  direction-shaping items: `lume new`/`plan add` for proposed workstreams,
+  `lume decide` for direction decisions. Adopting those stays behind the
   operator's gate.
 
 ## Hierarchical workstreams

@@ -3,9 +3,13 @@
   "source": "lume",
   "title": "review_gaps from lume review ingest are print-only and silently evaporate unless the operator re-reads findings.md: ingest treats all three finding types uniformly as operator-gated queue commands, though gap records are mechanical capture (an open gap commissions no work) just like the review capture and lume decide, which ingest already performs ungated",
   "context": "Operator direction 2026-06-11 after review/2026-06-11-01: supersede the uniform-emit rule - ingest should write review_gaps directly as open gap records tagged with the review slug, while proposed_workstreams and direction_decisions stay print-only behind the operator gate. Wiring exists (gap.add_gap + validated review_gaps data); needs a decision, a small ingest change, tests, and a doc line.",
-  "status": "open",
+  "status": "resolved",
   "created": "2026-06-11",
-  "resolution": null,
+  "resolution": {
+    "kind": "implemented",
+    "note": "Implemented by 0020 P1: ingest auto-captures review_gaps as open gap records (review-slug context); queue plan slims to operator-gated items; dogfooded on review 2026-06-11-02 (captured G10)",
+    "workstream": "0020"
+  },
   "workstreams": [
     "0020"
   ]

@@ -1,0 +1,9 @@
+{
+  "carry_forwards": [
+    "--spawn path not yet exercised by a live review (tests only); the first real spawned-review triage cycle will prove the empty-container + operator-gate flow",
+    "G10 (open): seed the protocol with the previous review's queue plan + adoption status so unadopted proposals surface as standing findings",
+    "No rerun dedupe for captured review_gaps (F3, deliberate): revisit if repeated ingests start duplicating records in practice",
+    "Closed-workstream refusal on -w is coded but not directly tested"
+  ],
+  "overall_verdict": "Net positive. The two gaps this workstream answered were both born from the FIRST real review run, and the fix was structural, not cosmetic: review output is now born with an owning workstream (G2) and the review's self-improvement findings become real backlog records instead of printed text that evaporates (G6). The dogfood proved the claim immediately - the delta review's ingest ran under -w 0020, captured G10 automatically, and left nothing orphaned; the first review's gaps had needed two operator nudges and a dedicated workstream to land. Honest scope: the dogfood exercised the -w path live; --spawn is proven by tests (a real spawned-review triage cycle has not happened yet); the closed-workstream refusal path is coded but only mirror-tested; and G10 (no follow-up loop on prior reviews) shows the lifecycle is owned but not yet self-auditing."
+}

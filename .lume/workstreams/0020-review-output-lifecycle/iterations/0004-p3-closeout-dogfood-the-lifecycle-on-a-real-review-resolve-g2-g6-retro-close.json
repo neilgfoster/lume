@@ -1,0 +1,46 @@
+{
+  "dod": {
+    "items": [
+      {
+        "check": {
+          "cmd": "python3 -c \"import json,glob; fs=sorted(glob.glob('.lume/reviews/*/result.json')); assert len(fs)>=2, fs; d=json.load(open(fs[-1])); assert d['sections'][0]['heading']=='workstream', d['sections'][0]; print('ok')\"",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Dogfood: a real lume review run end to end through the new lifecycle - emit, an honest delta review against the morning's review-2026-06-11-01 (deduped against current plans/decisions/open gaps; thin findings are acceptable if true), then ingest with an owning workstream; the new folder lands under .lume/reviews/ with the owner recorded in its result.json"
+      },
+      {
+        "check": {
+          "cmd": "python3 -c \"import json,glob; recs=[json.load(open(f)) for f in glob.glob('.lume/gaps/lume-000[26]-*.json')]; assert len(recs)==2 and all(r['status']=='resolved' and '0020' in r['workstreams'] for r in recs); print('ok')\"",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "G2 and G6 resolved via the structured resolve, linked to this workstream (0020)"
+      },
+      {
+        "check": {
+          "cmd": "python3 -c \"import json; d=json.load(open('.lume/workstreams/0020-review-output-lifecycle/retro.json')); assert d['overall_verdict'] and 'draft' not in d['overall_verdict']; print('ok')\"",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Retro written (lume retro): did the lifecycle change buy its cost? Honest verdict including what the dogfood did NOT exercise; carry-forwards recorded"
+      },
+      {
+        "check": {
+          "cmd": "test -z \"$(git status --porcelain .lume/gaps .lume/reviews)\"",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Objective done-when assessed clause by clause (decisions logged; G2+G6 designed, built, tested, documented, dogfooded) and recorded via lume decide; all review/gap artifacts committed"
+      },
+      {
+        "checked": true,
+        "text": "Workstream handed off for operator accept; lume close runs only on the operator's accept of this iteration (close is the operator's call)"
+      }
+    ],
+    "preamble": "P3 closeout: dogfood the new review lifecycle for real, resolve the answered gaps, retro honestly, and hand the workstream off for close."
+  },
+  "handback": "P3 done: the lifecycle is dogfooded (review 2026-06-11-02 under owner 0020, G10 auto-captured), G2+G6 resolved, retro honest (net positive; spawn-not-live and G10 carried forward), done-when assessed MET. On your accept I will run lume close on 0020 and raise its PR. Open backlog after this: G3-G5 (workstream 0021, protocol lenses - G10 is a natural addition to its scope) and G10.",
+  "id": 4,
+  "self_review": "Closeout complete; all machine checks pass (0 failed / 5; the close item is prose-only by design - the close is the operator's). The dogfood was real, not staged: emit ran against live state, the result was an honest same-day delta (no manufactured findings - project findings were confirmations; the one genuine new finding, the missing prior-review follow-up loop, became G10 via the auto-capture being tested), and ingest ran the -w path live, recording 0020 as owner in result.json. Weaknesses owned in the retro: --spawn proven by tests only; closed-ws refusal mirror-tested; ecosystem lens reused the morning's same-day lookup rather than re-fetching. G2+G6 carry structured resolutions linked to 0020."
+}

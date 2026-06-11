@@ -89,6 +89,12 @@ class Workstream:
         validate_entity("objective", doc)
         self._store.write(self._id, "objective", doc)
 
+    def set_objective_text(self, text: str) -> None:
+        """Set the objective prose (e.g. a spawned review workstream's)."""
+        doc = self._load_objective()
+        doc["text"] = text
+        self._save_objective(doc)
+
     def set_status(self, status: str) -> None:
         """Update workstream status in state.json and objective.json (JSON-only)."""
         self._state["workstream"]["status"] = status

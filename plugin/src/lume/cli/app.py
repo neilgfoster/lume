@@ -52,6 +52,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         opt_tag, rest = _extract_flag(rest, ("-g", "--tag"), "a tag")
         opt_new, rest = _extract_bool_flag(rest, "--new")
         opt_existing, rest = _extract_bool_flag(rest, "--existing")
+        opt_spawn, rest = _extract_bool_flag(rest, "--spawn")
         opt_charter, rest = _extract_multi_flag(rest, ("--charter",), "a file glob")
     except ValueError as exc:
         _fail(json_mode, "usage", str(exc))
@@ -93,6 +94,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         opt_tag=opt_tag,
         opt_new=opt_new,
         opt_existing=opt_existing,
+        opt_spawn=opt_spawn,
         opt_charter=opt_charter,
     )
 

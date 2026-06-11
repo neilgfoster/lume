@@ -26,6 +26,7 @@ class Context:
     opt_tag: str | None
     opt_new: bool = False
     opt_existing: bool = False
+    opt_spawn: bool = False
     opt_charter: list[str] = field(default_factory=list)  # repeatable --charter globs
 
     def require_ws(self) -> Workstream:

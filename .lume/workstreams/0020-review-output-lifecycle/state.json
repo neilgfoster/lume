@@ -1,6 +1,83 @@
 {
-  "iterations": [],
-  "plan": [],
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-plan-the-review-output-lifecycle-resolve-the-require-vs-spawn-fork-slice-g2-g6-execution.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Plan the review output lifecycle: resolve the require-vs-spawn fork, slice G2+G6 execution",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0002-p1-g6-ingest-auto-captures-review-gaps-as-open-gap-records.json",
+      "id": 2,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P1 (G6): ingest auto-captures review_gaps as open gap records",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0003-p2-g2-ingest-requires-an-owning-workstream-w-or-spawn.json",
+      "id": 3,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P2 (G2): ingest requires an owning workstream (-w or --spawn)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0004-p3-closeout-dogfood-the-lifecycle-on-a-real-review-resolve-g2-g6-retro-close.json",
+      "id": 4,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P3: closeout - dogfood the lifecycle on a real review, resolve G2+G6, retro, close",
+      "type": "closeout",
+      "verdicts": []
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": 2,
+      "sketch": "P1 (G6): ingest auto-captures review_gaps as open gap records via gap.add_gap (context = review slug + why_missed + proposed_change); the printed queue plan drops its 'lume gap add' lines; --json carries the captured gap ids; tests cover capture, context tagging, and the slimmer queue plan; docs (SKILL.md, plugin/README) updated",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": 3,
+      "sketch": "P2 (G2): ingest requires an owning workstream - '-w <active-ws>' attributes the review to it, '--spawn' creates review-<date>-NN (objective from provenance + finding counts, no iteration opened); refuses with a named error when neither is given; the review store doc and --json carry the workstream id; tests cover -w, --spawn, refusal, and no-self-approve; docs updated",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": 4,
+      "sketch": "P3: dogfood on the next real 'lume review' run (ingest under a spawned workstream, gaps auto-captured), resolve G2+G6 via gap resolve -w 0020, retro (did the lifecycle change buy its cost?), lume close",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
   "workstream": {
     "id": "0020",
     "objective_artifact": "objective.json",

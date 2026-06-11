@@ -4,7 +4,7 @@
       "dod_artifact": "iterations/0001-rename-gap-files-to-source-g-nnnn-stub-json-migrate-existing-records.json",
       "id": 1,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Rename gap files to <source>-G<nnnn>-<stub>.json, migrate existing records",
       "type": "execution",
       "verdicts": [
@@ -12,6 +12,11 @@
           "date": "2026-06-11",
           "reason": "Filenames don't need the G prefix on the padded id - <source>-<nnnn>-<stub>.json is enough, being under .lume/gaps/ already says it's a gap",
           "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
         }
       ]
     }
@@ -21,7 +26,7 @@
     "id": "0019",
     "objective_artifact": "objective.json",
     "slug": "gap-file-naming",
-    "status": "active",
+    "status": "closed",
     "title": "Gap filenames follow the workstream convention: <source>-G<nnnn>-<stub>.json"
   }
 }
