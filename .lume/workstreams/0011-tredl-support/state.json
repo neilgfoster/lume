@@ -184,8 +184,23 @@
       "dod_artifact": "iterations/0013-p12-github-actions-ci-pytest-matrix-3-11-3-13-version-consistency-check-on-push-pr.json",
       "id": 13,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P12: GitHub Actions CI - pytest matrix 3.11-3.13 + version-consistency check on push/PR",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0014-p13-tag-release-process-tag-plugin-json-version-check-documented-release-flow.json",
+      "id": 14,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P13: tag + release process - tag==plugin.json version check + documented release flow",
       "type": "execution",
       "verdicts": []
     }
@@ -277,7 +292,7 @@
     },
     {
       "id": "P13",
-      "iter": null,
+      "iter": 14,
       "sketch": "P5/L4 build step 3 of 4 - TAG + RELEASE. Define and document the release flow: git tag vX.Y.Z where X.Y.Z == plugin.json version, plus a GitHub release; the tag/ref is the pinnable artifact (no built archive required for v0.1). DONE-WHEN: a documented release procedure exists; a check/script verifies tag == plugin.json version before release; an adopter-facing note shows how to pin via 'marketplace add' at a tag. (Cutting the actual v0.1.0 tag/release is an operator action, noted.) ITERATION: execution.",
       "tag": "committed",
       "type": "execution"
