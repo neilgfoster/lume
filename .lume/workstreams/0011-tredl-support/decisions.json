@@ -71,6 +71,12 @@
       "date": "2026-06-11",
       "decision": "The accept veto refuses with a clear multi-line GateError message (each failed item -> reason); the STRUCTURED machine-readable failures list is delivered by P9's 'lume check', not by extending the shared accept error plumbing.",
       "rationale": "Routing structured results to 'lume check' is better design than overloading the {error:{code,message}} shape used by every verb: an autonomous operator runs 'lume check' to read per-item pass/fail BEFORE attempting accept, and the human-facing accept error stays a clear message. Keeps P8 to the veto and avoids touching shared error plumbing for marginal gain."
+    },
+    {
+      "context": "P5/L4 discovery (iteration 010)",
+      "date": "2026-06-11",
+      "decision": "Keep plugin.json as the SINGLE version source and make the pinnable release artifact a git tag equal to that version; do NOT add a pyproject.toml merely to satisfy P5's packaging clause.",
+      "rationale": "lume ships as a Claude Code marketplace plugin (source ./plugin), stdlib-only, never pip-installed. A pyproject would declare a package nobody installs and duplicate the version, risking drift. For a git-repo marketplace the pin IS a tag/ref, so a semver tag == plugin.json version is the real packaging for this channel. P5 DONE-WHEN clause 2 is refined accordingly (recorded in discovery, not silently changed)."
     }
   ]
 }

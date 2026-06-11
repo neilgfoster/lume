@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Delivery inventory recorded in discovery.json: current state of CI (none/.github absent), version source (plugin/.claude-plugin/plugin.json = 0.1.0, single source), distribution channel (Claude plugin marketplace.json source=./plugin, not PyPI), release/tags (none), and existing install verification (tests/test_smoke_install.py drives bin/lume end to end) - each cited."
+      },
+      {
+        "checked": true,
+        "text": "P5 DONE-WHEN clauses are each confirmed or REFINED against reality, in particular: is a pyproject the right packaging artifact, or is the marketplace plugin (version in plugin.json, pinned by git tag/ref) lume's actual distribution - so 'pyproject declares the package and version' may be refined to 'single version source + tag pin'. Recorded as a finding, not silently changed."
+      },
+      {
+        "checked": true,
+        "text": "Open forks for planning listed and scoped: (a) CI shape (GitHub Actions, pytest on push/PR, required check); (b) version single-source + how a tag matches plugin.json; (c) what 'release artifact an adopter can pin to' means for a directory-source plugin (a git tag/SHA vs a built archive); (d) what end-to-end install verification adds beyond the existing smoke test."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: discovery only - no CI files, no pyproject, no engine code written this iteration; all building deferred to planning/execution.",
+        "check": {
+          "kind": "command",
+          "cmd": "test ! -e .github && test ! -e pyproject.toml"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; committed.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      }
+    ],
+    "preamble": "P5/L4 lead discovery: audit lume's delivery gaps before building any of it. lume has a strong suite but no CI, no tagged release, and no packaging despite a v0.1.0 label, so an adopter (tredl) cannot pin a dependable version. Ground-truth the current state and CONFIRM-OR-REFINE each P5 DONE-WHEN clause against how lume actually ships (a Claude plugin via marketplace, stdlib-only, not a PyPI package) - the pyproject assumption in particular. Design/findings only; no engine or CI code."
+  },
+  "handback": "P5/L4 discovery done: delivery gaps audited and each P5 DONE-WHEN clause confirmed or refined against how lume actually ships. Recorded as discovery.json sections P5.1-P5.3 + one logged decision. FINDINGS: CI = none (.github absent); version = single source in plugin/.claude-plugin/plugin.json (0.1.0); channel = Claude marketplace plugin (source ./plugin), stdlib-only, NOT PyPI; tags/release = none; install = test_smoke_install.py drives bin/lume end to end, but the live '/plugin install' path is [U]. KEY REFINEMENT (logged): do NOT add a pyproject just to satisfy clause 2 - keep plugin.json the single version source and make the pinnable artifact a git tag == that version (for a git-repo marketplace the pin IS a tag/ref). FORKS for planning: (A) CI shape + min python version + required check; (B) tag==version consistency check (dogfood P3); (C) minimal tag->release process; (D) closing the [U] live-install gap (likely a documented manual verification, since Claude CLI in CI is out of scope); (E) scope guard against PyPI-packaging creep. No engine/CI code written. RECOMMEND next: open the P5 PLANNING iteration to turn these forks into an ordered build plan (CI workflow, version/tag consistency, release process, install-verification doc).",
+  "id": 10,
+  "self_review": "Holds: every inventory claim is cited to a real file/command (plugin.json line, marketplace.json, empty git tag, test_smoke_install), and the load-bearing refinement - pyproject is the WRONG artifact for a marketplace plugin - is argued from lume's actual install path, not assumed; it is recorded as a finding that REFINES the plan clause openly rather than silently dropping it. Weak / watch: (1) The pyproject refinement overrides a literal P5 DONE-WHEN clause; I judged the clause was written before the distribution model was settled, but an operator who specifically wants a pyproject (e.g. for editable dev installs or future PyPI) should veto this in planning - it is a genuine scope decision, flagged not buried. (2) The [U] live-install verification likely cannot be automated without the Claude CLI in CI; I lean to a documented manual verification, which is weaker than an automated gate - planning should decide if that is acceptable for clause 4. (3) Minimum supported python version is unverified - I noted 3.10+ as a guess; planning/execution must confirm against syntax actually used (e.g. X | Y unions, match) before pinning CI. Nothing deferred silently."
+}

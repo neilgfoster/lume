@@ -124,9 +124,24 @@
       "dod_artifact": "iterations/0009-p10-document-machine-verifiable-dod-closeout-retro-for-the-p3-l2-keystone.json",
       "id": 9,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P10: document machine-verifiable DoD + closeout retro for the P3/L2 keystone",
       "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0010-p5-l4-discovery-audit-delivery-gaps-ci-packaging-pyproject-versioning-tagged-release-plugin-install-path.json",
+      "id": 10,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P5/L4 discovery: audit delivery gaps - CI, packaging/pyproject, versioning, tagged release, plugin install path",
+      "type": "discovery",
       "verdicts": []
     }
   ],
@@ -161,7 +176,7 @@
     },
     {
       "id": "P5",
-      "iter": null,
+      "iter": 10,
       "sketch": "L4 (order 5) - Delivery practices: CI, releases, packaging, install verification. OBJECTIVE: lume has a strong test suite but no CI, no tagged release, and no packaging despite a v0.1.0 label; an adopter (tredl) cannot pin a dependable version. Establish first-class delivery so lume ships verifiable, pinnable releases. DONE-WHEN: (1) CI runs the full pytest suite on push/PR and is required to pass; (2) a pyproject declares the package and version; (3) a tagged, semver release exists and matches the declared version; (4) the Claude Code plugin install path is verified end to end (documented steps reproduced from a clean state); (5) a release produces an artifact an adopter can pin to. ITERATIONS: discovery (audit current gaps), planning, execution, closeout.",
       "tag": "committed",
       "type": "execution"
