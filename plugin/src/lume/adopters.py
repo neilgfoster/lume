@@ -2,7 +2,7 @@
 
 ADOPTERS.json (repo root) is the deterministic source of truth for who uses lume
 (ADOPTERS.md's table is generated from it). `read_adopters` returns those rows;
-`reach_gaps` reads one adopter repo's gaps/ by git clone/fetch + an ephemeral
+`reach_gaps` reads one adopter repo's .lume/gaps/ by git clone/fetch + an ephemeral
 worktree, caching the clone under .lume/cache/adopters/.
 
 Reading is data-only (JSON), but cloning an adopter repo does fetch its content
@@ -55,7 +55,7 @@ def _default_ref(clone_dir: Path) -> str:
 
 
 def reach_gaps(url: str, slug: str, cache_root, ref: str | None = None) -> list[dict]:
-    """Clone/fetch the adopter repo and read its gaps/ via an ephemeral worktree.
+    """Clone/fetch the adopter repo and read its .lume/gaps/ via an ephemeral worktree.
 
     Caches the clone under cache_root/<slug>/. Adds a detached worktree at the
     default ref (or `ref`), reads gaps, and ALWAYS removes the worktree. Raises
@@ -78,7 +78,7 @@ def reach_gaps(url: str, slug: str, cache_root, ref: str | None = None) -> list[
 
 
 def scan_and_ingest(repo_root) -> dict:
-    """Scan every adopter (except self) and ingest their OPEN gaps into lume's gaps/.
+    """Scan every adopter (except self) and ingest their OPEN gaps into lume's .lume/gaps/.
 
     Each ingested gap lands as an 'acknowledged' record keyed by (adopter
     project, gap id). Idempotent: a gap already present (any status) is left

@@ -1,9 +1,10 @@
 """Capability-gap records - the cross-repo lume<->adopter integration unit.
 
 A `gap` is a capability gap one repo records about lume: lume writes them about
-itself, and adopters write them about lume. They live per-file at a repo ROOT in
-`gaps/<id>.json` (deliberately NOT under `.lume/`, so an adopter can add one with
-a single-file PR and lume can read them out of any checked-out repo). This module
+itself, and adopters write them about lume. They live per-file under
+`.lume/gaps/<id>.json` - co-located with all other lume state. An adopter can
+still add one with a single-file PR, and lume can read them out of any
+checked-out repo at the same well-known path. This module
 is pure I/O over that directory; the scan/ingest of adopter gaps is built on top
 of it (P16/P17).
 
@@ -23,12 +24,12 @@ _ID_RE = re.compile(r"^G(\d+)$")
 
 
 def gaps_dir(repo_root) -> Path:
-    """The repo-root gaps/ directory for `repo_root` (not created here)."""
-    return Path(repo_root) / "gaps"
+    """The .lume/gaps/ directory for `repo_root` (not created here)."""
+    return Path(repo_root) / ".lume" / "gaps"
 
 
 def read_gaps(repo_root) -> list[dict]:
-    """Every validated gap record under repo_root/gaps/, sorted by id."""
+    """Every validated gap record under repo_root/.lume/gaps/, sorted by id."""
     d = gaps_dir(repo_root)
     if not d.is_dir():
         return []

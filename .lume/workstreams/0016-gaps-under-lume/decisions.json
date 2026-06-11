@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {
+      "context": "gap-location",
+      "date": "2026-06-11",
+      "decision": "Gaps move to .lume/gaps/ with NO legacy repo-root fallback",
+      "rationale": "State co-location wins over the original root-level one-file-PR discoverability argument: .lume/gaps/ is still a one-file PR at a well-known path, and lume controls both ends of the scan. No repo has any gap records yet (gaps/ does not exist here or in tredl), so there is nothing to migrate and a fallback would be dead code. Operator confirmed dropping the fallback."
+    }
+  ]
+}

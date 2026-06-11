@@ -96,8 +96,8 @@ same trust as running its test suite.
 ## Cross-repo capability gaps
 
 A **gap** is a capability gap one repo records about lume - lume writes them
-about itself, and adopters write them about lume. They live per-file at a repo
-root in `gaps/<source>-<id>.json` (a small schema: id, source, title, context,
+about itself, and adopters write them about lume. They live per-file under
+`.lume/gaps/<source>-<id>.json`, co-located with the rest of lume's state (a small schema: id, source, title, context,
 status `open|acknowledged|resolved`, created, resolution).
 
 - `lume gap add "<title>" [-c <context>]` records a gap in the current repo.
@@ -105,7 +105,7 @@ status `open|acknowledged|resolved`, created, resolution).
 - `lume gap scan` reads the repos in `ADOPTERS.json` (the source of truth;
   `ADOPTERS.md`'s table is generated from it), reaches each by `git`
   clone/fetch into a worktree, and ingests their **open** gaps into lume's own
-  `gaps/` as `acknowledged` records. It is idempotent on `(source, id)` and
+  `.lume/gaps/` as `acknowledged` records. It is idempotent on `(source, id)` and
   skips an unreachable adopter rather than failing. Ingested gaps take their
   `source` from the `ADOPTERS.json` project name.
 - `lume gap resolve <source> <id>` marks a gap resolved (a re-scan won't revert it).

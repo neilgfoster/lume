@@ -35,6 +35,10 @@ class GapModuleTest(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
+    def test_gaps_live_under_lume_dir(self):
+        # Gaps are lume state, co-located with the rest of it under .lume/.
+        self.assertEqual(gaps_dir(self.root), self.root / ".lume" / "gaps")
+
     def test_next_id_sequences(self):
         self.assertEqual(next_id([]), "G1")
         self.assertEqual(next_id([{"id": "G1"}, {"id": "G2"}]), "G3")
