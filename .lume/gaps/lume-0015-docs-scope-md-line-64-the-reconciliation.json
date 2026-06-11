@@ -5,5 +5,8 @@
   "context": "reviews/2026-06-11-04: missed because Goal-fidelity originally framed this as an honest logged decision change (low). Adversarial verification found the opposite: scope.md's own reconciliation still claims the feature was NOT built, contradicting the shipped engine. The original finding's evidence was also largely wrong (claimed .lume/workstreams/0016/state.json has parent:0015 \u2014 false; no workstream has any parent set; and cited an unverifiable 'protocol line 470+').; proposed: Correct docs/scope.md line 64 to acknowledge decomposition (parent field + spawn verb + rollup + close-guards) shipped in workstream 0011 (P19-P22, accepted), re-anchoring the evidence to docs/scope.md:64 and the 0011 retro. Fold this correction into the doc-freshness workstream's doc-currency pass.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0026"
+  ]
 }

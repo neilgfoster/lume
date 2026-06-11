@@ -1,0 +1,16 @@
+{
+  "entries": [
+    {
+      "context": "README.md line 39 'It is v0.1.0. Expect rough edges' while plugin.json/pyproject declare 0.2.0 (released, tagged, merged in workstream 0022, commit 1346d78); version-consistency test checks plugin.json+pyproject but never README prose. Skeptic lowered to medium: the string sits in the 'Why you should NOT use lume' maturity warning, so it reads as conservative caution, not a capability overclaim.",
+      "date": "2026-06-11",
+      "decision": "Treat the stale v0.1.0 string as documentation debt, fixed within this doc-freshness workstream (not a separate item). Do not over-read the secondary complaint that the README omits hierarchical workstreams / machine-verifiable DoD / cross-repo gaps - the README is deliberately evidence-conservative.",
+      "rationale": "A released version undocumented in the README is real inconsistency but carries no functional risk; folding it into the freshness fix avoids ceremony while keeping the correction honest."
+    },
+    {
+      "context": "README.md (lines 28-30,53,157) and docs/vision.md:57 carry a [U] caveat 'install never run in a live Claude Code session, verified only by automated smoke test', but workstream 0011's retro P5.4 records an operator-run live install (/plugin marketplace add + install, then lume seed/status/check) in the tredl repo on 2026-06-11, and that retro even claims it flipped the caveat to [E] - the edit never landed, so project state is internally self-contradicting.",
+      "date": "2026-06-11",
+      "decision": "Flip the caveat [U]->[E] citing 0011 retro P5.4. Keep the [E] citation pointed at internal evidence (operator-run in tredl) - do NOT invent an external-validation claim.",
+      "rationale": "The README's credibility rests on honest [E]/[U] tagging; a [U] that the project's own accepted state already flipped to [E] is a real honesty gap, and the evidence already lives in lume's state."
+    }
+  ]
+}
