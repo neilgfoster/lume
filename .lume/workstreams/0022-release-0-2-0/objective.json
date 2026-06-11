@@ -1,0 +1,6 @@
+{
+  "slug": "release-0-2-0",
+  "status": "active",
+  "text": "Cut release v0.2.0 per RELEASING.md. Everything shipped since v0.1.0 lands in a pinnable tag: the review verb era (0015 emit/ingest), gaps under .lume/ (0016), reviews under .lume/reviews/ (0017), gap<->workstream linkage + structured resolutions (0018), workstream-style gap filenames (0019), the review output lifecycle - ingest needs -w/--spawn and auto-captures review_gaps (0020), and the eight-lens protocol with prior-review follow-up + fixes contract (0021). Pre-1.0 minor bump; includes backward-incompatible state changes (gap filename migration; string resolutions no longer schema-valid) noted in the release notes. Done when: plugin.json and pyproject both read 0.2.0 with the consistency test green; the full suite passes; tools/check_release_tag.py v0.2.0 passes; the bump is merged to main via PR; the v0.2.0 tag points at the merged commit and a GitHub release with honest notes exists.",
+  "title": "Release v0.2.0"
+}

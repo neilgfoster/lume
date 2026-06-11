@@ -1,0 +1,21 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-bump-to-0-2-0-verify-consistency-pr-tag-github-release.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Bump to 0.2.0, verify consistency, PR, tag + GitHub release",
+      "type": "execution",
+      "verdicts": []
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0022",
+    "objective_artifact": "objective.json",
+    "slug": "release-0-2-0",
+    "status": "active",
+    "title": "Release v0.2.0"
+  }
+}

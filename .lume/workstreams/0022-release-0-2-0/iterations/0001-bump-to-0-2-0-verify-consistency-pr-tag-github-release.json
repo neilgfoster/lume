@@ -1,0 +1,46 @@
+{
+  "dod": {
+    "items": [
+      {
+        "check": {
+          "cmd": "grep -q '\"version\": \"0.2.0\"' plugin/.claude-plugin/plugin.json && grep -q 'version = \"0.2.0\"' pyproject.toml && python3 -m pytest -q tests/test_version_consistency.py 2>/dev/null | tail -1 | grep -q passed",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "Version bumped to 0.2.0 in plugin/.claude-plugin/plugin.json and pyproject.toml; version-consistency test green"
+      },
+      {
+        "check": {
+          "cmd": "python3 -m pytest -q",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "Full suite green"
+      },
+      {
+        "check": {
+          "cmd": "python3 tools/check_release_tag.py v0.2.0",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "tools/check_release_tag.py v0.2.0 passes"
+      },
+      {
+        "checked": false,
+        "text": "Release notes drafted (what shipped since v0.1.0, including the two state-format breaks: gap filename migration and structured-only resolutions); bump committed and PR raised - PR merge is the operator's"
+      },
+      {
+        "check": {
+          "cmd": "git tag -l v0.2.0 | grep -q v0.2.0",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "After the operator merges: tag v0.2.0 on the merged main commit and GitHub release created (executing the operator's 'new release' instruction); tag == plugin.json version"
+      }
+    ],
+    "preamble": "Release v0.2.0 per RELEASING.md: bump, verify, PR (operator merges), tag + GitHub release on the merged commit (operator-instructed)."
+  },
+  "handback": null,
+  "id": 1,
+  "self_review": null
+}
