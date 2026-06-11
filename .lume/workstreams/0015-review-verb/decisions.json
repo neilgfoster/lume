@@ -47,6 +47,48 @@
       "date": "2026-06-11",
       "decision": "Supersedes the earlier gap-mechanic decision's location detail: gaps now live under .lume/gaps/<source>-G<n>.json (child workstream 0016 relocated them; no legacy repo-root fallback)",
       "rationale": "The review_gaps mapping is unchanged - ingest still emits 'lume gap add' commands, and gap add writes wherever gap.gaps_dir points, so the relocation is transparent to the lume review design. Only the discovery record's description of the storage location needed correcting."
+    },
+    {
+      "context": "fork-flags",
+      "date": "2026-06-11",
+      "decision": "Repeatable --charter is parsed by a new multi-value flag helper in cli/flags.py (collects every occurrence into a list), carried on Context as opt_charter; only the review verb reads it",
+      "rationale": "The existing _extract_flag is single-value; a parallel helper keeps the grammar stable and other verbs untouched."
+    },
+    {
+      "context": "fork-dispatch",
+      "date": "2026-06-11",
+      "decision": "Subcommand parsing follows the gap handler: ctx.arg empty or 'emit' -> emit; 'ingest' -> path from ctx.rest; anything else -> usage error exit 2",
+      "rationale": "Matches the established gap/plan precedent so 'lume review' with no positional is the emit alias for free."
+    },
+    {
+      "context": "fork-scoping",
+      "date": "2026-06-11",
+      "decision": "The review verb is unscoped (no -w): it is repo-level and gathers charter context from ALL workstreams' objectives, decisions, retros, and plans",
+      "rationale": "A self-review of the project cannot be scoped to one workstream; scoped=False in the catalog entry, like gap."
+    },
+    {
+      "context": "fork-store",
+      "date": "2026-06-11",
+      "decision": "TrackingStore gains read_review(slug)/write_review(slug, doc): FilesystemStore maps to .lume/review-<slug>/result.json (beside findings.md); SQLiteStore to a reviews table keyed by slug; both validate against the discovery shape",
+      "rationale": "Smallest seam extension that keeps reviews repo-level; the structured result sits beside the markdown so one folder is the whole captured review."
+    },
+    {
+      "context": "fork-scan-caps",
+      "date": "2026-06-11",
+      "decision": "Doc scan caps: at most 12 charter files, at most 8192 characters embedded per file (truncated with an explicit marker), deterministic sorted-path order",
+      "rationale": "Bounds protocol size in doc-heavy repos while keeping output deterministic; truncation is visible, never silent."
+    },
+    {
+      "context": "fork-golden-test",
+      "date": "2026-06-11",
+      "decision": "Golden emission test: a tmp fixture repo with fixed .lume state and FixedClock, asserting byte-identical protocol output across two runs and exact presence of the seven lens instructions; the no-docs case asserts the thin-coverage flag and N=0",
+      "rationale": "Byte-identical double-run is the determinism property itself; lens/flag assertions pin the contract without freezing every word of prose."
+    },
+    {
+      "context": "fork-plan-types",
+      "date": "2026-06-11",
+      "decision": "review_result keeps the spec's plan-item taxonomy (epic|slice|spike|chore) and ingest's queue plan maps it deterministically onto lume's plan_item types: spike->discovery, epic->planning, slice->execution, chore->execution",
+      "rationale": "lume plan add only accepts discovery|planning|execution|closeout (plan_item schema). The review taxonomy describes work shape, lume's describes loop stage; a fixed mapping keeps the emitted commands valid without changing lume's plan schema or forking the Result contract."
     }
   ]
 }

@@ -4,7 +4,7 @@
       "dod_artifact": "iterations/0001-discovery-gap-mechanic-constraints-and-design-decisions-for-lume-review.json",
       "id": 1,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Discovery: gap mechanic, constraints, and design decisions for lume review",
       "type": "discovery",
       "verdicts": [
@@ -12,11 +12,68 @@
           "date": "2026-06-11",
           "reason": "Gaps relocated to .lume/gaps/ by child workstream 0016 - the discovery record describes the old repo-root gaps/ convention and must be redone against the new location",
           "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0002-planning-slice-the-lume-review-verb-into-plan-items.json",
+      "id": 2,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Planning: slice the lume review verb into plan items",
+      "type": "planning",
+      "verdicts": []
     }
   ],
-  "plan": [],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": null,
+      "sketch": "S1 Charter gathering: review.py module - PRIMARY lume-state collection (all workstreams' objectives, decisions, retros, plans), SECONDARY capped pattern scan (12 files / 8192 chars, sorted), --charter override, thin-coverage degradation; unit tests incl. no-docs fixture",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": null,
+      "sketch": "S2 Protocol emission: seven-lens protocol + Result contract instructions, ecosystem-fit live-lookup and META review-gap directives; catalog entry, handle_review in cli/handlers/discovery.py, multi-value --charter flag; --json with labelled charter_sources; golden + byte-identical determinism tests",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "S3 review_result schema + ingest validation: schemas/review_result.json (validator subset), ingest path parsing, malformed/missing input -> usage exit 2; surfaced via lume entities/schema; tests",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": null,
+      "sketch": "S4 Review folder + persistence: clock-dated review-<date>-NN slug with next-free daily sequence, findings.md renderer (the one sanctioned raw write), TrackingStore read_review/write_review in both backends; FixedClock sequencing tests (-01 then -02, no clobber)",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P5",
+      "iter": null,
+      "sketch": "S5 Queue-plan emission: proposed_workstreams -> lume new/plan add (taxonomy mapped), direction_decisions -> lume decide, review_gaps -> lume gap add; text + --json, never executed; handle_review_ingest in cli/handlers/authoring.py; gap-mapping tests",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P6",
+      "iter": null,
+      "sketch": "S6 Docs + sweep: SKILL.md and README document lume review emit/ingest and the review folder convention; diff sweep (no dead code, no second verb list, no parallel gap mechanic, no stray raw I/O, no hardcoded ecosystem lists)",
+      "tag": "committed",
+      "type": "execution"
+    }
+  ],
   "workstream": {
     "id": "0015",
     "objective_artifact": "objective.json",

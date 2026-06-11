@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Plan built with lume plan add: an ordered set of execution slices covering charter gathering + protocol emission, the review_result schema + ingest (validation, dated/sequenced folder, findings.md, store persistence, queue-plan emission), CLI wiring (catalog, handlers, flags incl. repeatable --charter), tests (golden emission, no-docs fixture, folder sequencing with FixedClock, gap mapping, malformed input -> exit 2), and docs (SKILL.md, README)."
+      },
+      {
+        "checked": true,
+        "text": "Each of discovery's six open forks is resolved in the plan or by a logged decision: repeatable --charter flag approach, emit-alias/subcommand parsing, -w scoping, store-protocol extension shape, doc-scan caps (concrete numbers), golden-test fixture design."
+      },
+      {
+        "checked": true,
+        "text": "Slices are independently land-able and ordered so each leaves the suite green; committed vs optional tagging is explicit."
+      },
+      {
+        "check": {
+          "cmd": "git diff --quiet HEAD -- plugin/ tests/ README.md",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "No engine/product code changed in this iteration."
+      }
+    ],
+    "preamble": "Planning for the lume review verb: turn the accepted discovery into ordered, checkable execution slices and close the six recorded forks."
+  },
+  "handback": "Planning complete: 6 committed execution slices P1-P6 added via lume plan add, 7 fork-resolution decisions logged (the 6 from discovery plus a newly found spec/code mismatch: the Result contract's plan-item taxonomy vs lume's plan_item types, resolved by a deterministic mapping). Each slice is independently land-able with its own tests; docs+sweep is the final committed slice. No engine code changed (machine check green). Next: accept, then open execution iterations working through P1-P6.",
+  "id": 2,
+  "self_review": "Holds: six committed execution slices (P1-P6) cover the whole DoD surface in land-able order - charter gathering, protocol emission, schema+validation, folder+persistence, queue-plan emission, docs+sweep - each slice carrying its own tests so the suite stays green per slice. All six discovery forks are closed with logged decisions (multi-value --charter helper, gap-style subcommand parsing with emit alias, unscoped verb, read_review/write_review store extension, 12-file/8192-char scan caps, byte-identical golden test design). Planning also surfaced and resolved a seventh fork the spec didn't know about: lume's plan_item types are discovery|planning|execution|closeout, not the Result contract's epic|slice|spike|chore - resolved by a fixed deterministic taxonomy mapping (spike->discovery, epic->planning, slice->execution, chore->execution), decision logged. Machine check passes: no engine code touched. Weak/honest: P6 was initially mis-tagged optional and retagged committed by direct state edit (docs are DoD-required); slice ordering assumes S1/S2 can land before ingest exists, which holds because emit is read-only and independently testable. The 12/8192 scan caps are judgement numbers - cheap to revisit in execution if golden fixtures suggest otherwise."
+}
