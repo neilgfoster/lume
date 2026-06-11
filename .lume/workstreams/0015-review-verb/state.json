@@ -1,0 +1,21 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-discovery-gap-mechanic-constraints-and-design-decisions-for-lume-review.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Discovery: gap mechanic, constraints, and design decisions for lume review",
+      "type": "discovery",
+      "verdicts": []
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0015",
+    "objective_artifact": "objective.json",
+    "slug": "review-verb",
+    "status": "active",
+    "title": "Add lume review verb: deterministic adversarial self-review (emit/ingest)"
+  }
+}

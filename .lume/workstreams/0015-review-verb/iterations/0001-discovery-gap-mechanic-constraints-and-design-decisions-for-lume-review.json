@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Gap mechanic documented from source/state/tests (verbs + CLI surface, gap artifact/schema, create/list/resolve flow, relation to workstreams/plan items) and the review_gaps -> gap-mechanic mapping is recorded via lume decide."
+      },
+      {
+        "checked": true,
+        "text": "Constraints confirmed against docs/constraints.md and docs/vision.md and recorded via lume decide: no-LLM/no-network deterministic verb, agent does live ecosystem lookup (verb hardcodes/fetches nothing), all dates via the clock seam (plugin/src/lume/clock.py)."
+      },
+      {
+        "checked": true,
+        "text": "Emit/ingest split settled and recorded via lume decide: emit prints protocol + context only; ingest validates, writes the markdown report, persists via the store seam, and emits (never executes) the queue-command plan; neither transitions workstreams or records gaps itself."
+      },
+      {
+        "checked": true,
+        "text": "Generic charter discovery design recorded via lume decide: PRIMARY lume-state (objectives/decisions/retros/plan), SECONDARY capped pattern scan, --charter glob override, graceful degradation with explicit thin-coverage flag in the emitted protocol."
+      },
+      {
+        "checked": true,
+        "text": "Output conventions recorded via lume decide: .lume/review-<date-slug>-NN/ folder (clock date, NN next-free zero-padded daily sequence from 01), findings.md as the primary captured record (the one sanctioned raw file write), structured result reusing the discovery artifact shape through the store seam."
+      },
+      {
+        "checked": true,
+        "text": "Architecture anchors verified against current code (catalog.py registration, handlers/discovery.py + handlers/authoring.py, cli/app.py dispatch, schemas/review_result.json surfaced via lume schema and lume entities) and any divergences from the spec noted in discovery findings."
+      },
+      {
+        "checked": true,
+        "text": "Discovery artifact produced capturing findings and open forks; no engine/product code changed; items deferred to planning/execution are listed."
+      }
+    ],
+    "preamble": "Discovery for the lume review verb: learn the existing gap mechanic before designing anything, confirm the hard constraints, and settle the design forks with recorded decisions. No engine code in this iteration."
+  },
+  "handback": "Discovery complete for the lume review verb. Produced: schema-valid discovery.json (8 sections: gap mechanic, constraints, emit/ingest split, charter discovery, output conventions, architecture anchors, schema-subset constraint, open forks) and 7 decisions logged via lume decide. Key findings: gaps live at repo root gaps/<source>-G<n>.json with ids assigned at execution time, so ingest emits 'lume gap add' commands rather than precomputing ids; validate.py is a deliberate JSON Schema subset that review_result.json must fit; reviews are repo-level so the store seam needs a small repo-level extension rather than misfiling under a workstream. Six concrete forks are deferred to planning. No code changed; tests green. Next: a planning iteration to slice execution.",
+  "id": 1,
+  "self_review": "Holds: the gap mechanic was learned from source (gap.py, gap.json, handlers/authoring.py, tests) before any design - gaps are repo-root, per-source-sequenced, repo-level records, and review_gaps map to emitted 'lume gap add' commands, never executed by ingest. All seven DoD items are met: constraints confirmed against docs/constraints.md and docs/vision.md (the verb is even anticipated there as a constitutional guardrail), and all five design forks (emit/ingest split, charter precedence, folder/markdown/store conventions, gap mapping, schema-subset constraint) are recorded as seven lume decide entries plus a schema-valid discovery.json. Architecture anchors verified against current code, with one spec divergence noted: handlers live at cli/handlers/, and dispatch is the HANDLERS dict, so app.py likely needs no edit. Weak/honest: the store-seam extension for the repo-level review artifact is decided in direction (TrackingStore gains review addressing) but its exact shape is deferred; same for the repeatable --charter flag helper, the -w-scoping question, and concrete doc-scan caps - all listed as open forks for planning. 'lume get discovery' is not a supported entity fetch, so the artifact was validated directly via validate_entity instead. No engine code was changed; suite green (373 passed)."
+}

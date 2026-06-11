@@ -1,0 +1,37 @@
+{
+  "title": "Discovery: gap mechanic, constraints, and design decisions for lume review",
+  "sections": [
+    {
+      "heading": "Gap mechanic (discovered from source: gap.py, schemas/gap.json, handlers/authoring.py, test_gap*.py)",
+      "body": "Gaps are cross-repo capability records living per-file at the REPO ROOT in gaps/<source>-<id>.json - deliberately NOT under .lume/. Schema (gap.json): id (G<n>, sequenced per source), source, title, context, status (open|acknowledged|resolved), created, resolution. CLI surface: `lume gap add \"<title>\" [-c <context>]` (creates, id assigned at execution time, created date from the clock via Repository.today), `lume gap list`, `lume gap scan` (ingests adopters' gaps from ADOPTERS.json, idempotent on (source,id)), `lume gap resolve <source> <id>`. Gaps are repo-level: not linked to workstreams or plan items. Mapping for review_gaps: each becomes an emitted `lume gap add \"<gap>\" -c \"<context incl. review folder slug + why_missed/proposed_change>\"` command in ingest's queue plan - emitted as text, never executed, so id assignment and the operator gate stay where they belong. No parallel mechanic."
+    },
+    {
+      "heading": "Constraints confirmed (docs/constraints.md, docs/vision.md)",
+      "body": "'Deterministic over inference' for mechanism is a non-negotiable; lume contains no LLM. Therefore lume review must not call a model, shell out to an agent, or touch the network. 'Stay true to intent' explicitly anticipates this verb: 'Lume adversarially reviews the operator's own decisions to keep this honest' and 'audit against Claude Code native features and deprecate once superseded' - the ecosystem-fit and goal-fidelity lenses implement a stated constitutional guardrail. All dates come from the clock seam (plugin/src/lume/clock.py, injected into Repository; FixedClock in tests). The live-ecosystem knowledge problem is resolved by the determinism boundary: the verb EMITS an instruction telling the agent to consult current native features, the official plugin marketplace, and official best practices at review time; it bakes in and fetches nothing."
+    },
+    {
+      "heading": "Emit/ingest split (decided)",
+      "body": "`lume review` (alias `lume review emit`) is read-only: gathers charter context + current plan + decisions and prints the adversarial protocol (7 lenses: goal-fidelity, honesty, ecosystem-fit incl. best-practice conformance, value/viability, keystone risk, vision coherence, META self-improvement) plus the Result contract. `--json` adds charter_sources (labelled lume-state | discovered-doc | override), plan, decisions, lenses, result_schema. `lume review ingest <path>` validates against review_result.json, computes .lume/review-<date-slug>-NN/, writes findings.md, persists the structured artifact via the store seam, and PRINTS the queue plan (lume new / plan add / decide / gap add). It never creates, opens, or transitions anything and never records a gap itself."
+    },
+    {
+      "heading": "Charter discovery (decided)",
+      "body": "PRIMARY: lume state - all workstream objectives, decisions, retros, and the active plan (guaranteed present in any lume repo, states intent in lume's own terms). SECONDARY: best-effort pattern scan (README*, docs/**, *.seed.md, ADOPTERS*, CONTRIBUTING*, bundled SKILL/command docs), capped in count and embedded size. OVERRIDE: repeatable --charter <glob> replaces the scan. DEGRADE: with few/no docs the protocol still emits from lume state alone and explicitly tells the agent coverage is thin (N files found) and that missing charter docs are themselves a finding. Same repo state + same files in -> same output out."
+    },
+    {
+      "heading": "Output conventions (decided)",
+      "body": "Folder: .lume/review-<YYYY-MM-DD>-NN/ with NN the next-free zero-padded daily sequence from a scan of existing folders (first run -01, same-day second run -02, never clobbers). findings.md in that folder is the primary captured record and the ONE sanctioned raw file write outside the store seam - kept isolated and tested. The structured result goes through the TrackingStore seam as a repo-level review artifact reusing the discovery artifact shape ({title, sections[]}); the store protocol gains review addressing in both FilesystemStore and SQLiteStore (reviews are repo-level, so misfiling them under a workstream was rejected)."
+    },
+    {
+      "heading": "Architecture anchors verified against current code",
+      "body": "Catalog: _CATALOG in plugin/src/lume/cli/catalog.py flows into _VERB_NAMES and USAGE automatically - one new _verb('review', ...) entry with a subcommand positional (gap/plan precedent). Handlers: the spec's 'handlers/discovery.py' and 'handlers/authoring.py' live at plugin/src/lume/cli/handlers/ - emit fits discovery.py (read verbs), ingest fits authoring.py (content verbs); dispatch is the HANDLERS dict in cli/handlers/__init__.py (app.py needs no change beyond what HANDLERS provides; spec's 'wire dispatch in cli/app.py' is satisfied there). Schemas: validate.entity_kinds() globs schemas/*.json, so review_result.json auto-surfaces via lume entities and lume schema. Exit codes: 0 ok / 1 LumeError / 2 usage, identical under --json."
+    },
+    {
+      "heading": "Constraints on the new schema (decided)",
+      "body": "validate.py is a deliberate draft-2020-12 SUBSET: type, enum, required, properties, items only (first-failure SchemaError). review_result.json must fit that subset - the contract (direction_decisions[{context,decision,rationale}], proposed_workstreams[{slug,title,serves_goal,objective,critical_path,plan_items[{sketch,type epic|slice|spike|chore,tag committed|optional,evidence}]}], review_gaps[{gap,why_missed,proposed_change}], provenance{source,date,note}) fits with required+enum alone. Malformed ingest input maps to usage error (exit 2, code=usage), not a stack trace."
+    },
+    {
+      "heading": "Open forks deferred to planning/execution",
+      "body": "(1) --charter is repeatable but flags.py's _extract_flag is single-value - planning must add a repeatable-flag helper without disturbing the existing grammar. (2) Subcommand dispatch nuance: `lume review` with no positional must alias emit while `lume review ingest <path>` parses path from ctx.rest - follow the gap handler's ctx.rest indexing. (3) Whether the review verb is -w scoped: leaning unscoped (repo-level, reads ALL workstreams for charter) - settle in planning. (4) Exact store-protocol extension shape (read_review/write_review methods vs generalized repo-level addressing) - settle when touching store.py. (5) Caps for the doc scan (file count / bytes embedded) - fix concrete numbers in planning. (6) Protocol golden-output test fixture design (fixed state + FixedClock). No engine/product code was changed in this iteration."
+    }
+  ]
+}
