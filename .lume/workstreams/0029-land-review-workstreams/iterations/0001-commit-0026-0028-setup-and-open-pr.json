@@ -3,33 +3,48 @@
     "preamble": "Commit and PR the 0026-0028 setup. .lume/ state only, no engine/product code. Operator instruction: do NOT start any of 0026-0028 tonight.",
     "items": [
       {
-        "checked": false,
+        "checked": true,
         "text": "No untracked review-queue setup remains under .lume/ (workstreams/gaps committed).",
-        "check": { "kind": "command", "cmd": "test -z \"$(git ls-files --others --exclude-standard .lume/workstreams .lume/gaps .lume/reviews)\"" }
+        "check": {
+          "kind": "command",
+          "cmd": "test -z \"$(git ls-files --others --exclude-standard .lume/workstreams .lume/gaps .lume/reviews)\""
+        }
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "Workstreams 0026, 0027, 0028 have NO iterations (none started tonight, per operator instruction).",
-        "check": { "kind": "command", "cmd": "test ! -d .lume/workstreams/0026-doc-freshness-guard/iterations -a ! -d .lume/workstreams/0027-value-signal/iterations -a ! -d .lume/workstreams/0028-review-protocol-auditability/iterations" }
+        "check": {
+          "kind": "command",
+          "cmd": "test ! -d .lume/workstreams/0026-doc-freshness-guard/iterations -a ! -d .lume/workstreams/0027-value-signal/iterations -a ! -d .lume/workstreams/0028-review-protocol-auditability/iterations"
+        }
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "No product/engine code changed - the branch diff touches only .lume/.",
-        "check": { "kind": "command", "cmd": "test -z \"$(git diff --name-only origin/main...HEAD -- ':!.lume/')\"" }
+        "check": {
+          "kind": "command",
+          "cmd": "test -z \"$(git diff --name-only origin/main...HEAD -- ':!.lume/')\""
+        }
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "Test suite still green (no code changed).",
-        "check": { "kind": "command", "cmd": "python -m pytest -q" }
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "A PR is open against main describing the three queued workstreams.",
-        "check": { "kind": "command", "cmd": "gh pr view land-review-workstreams --json state -q .state | grep -q OPEN" }
+        "check": {
+          "kind": "command",
+          "cmd": "gh pr view land-review-workstreams --json state -q .state | grep -q OPEN"
+        }
       }
     ]
   },
-  "handback": null,
+  "handback": "Committed the 0026-0028 setup on branch land-review-workstreams and opened PR #37. Scope: .lume/ only - objectives, plan items, 2 decisions, gap links (G11/G13/G15/G17/G19/G20). All 5 DoD checks pass, including the guard that 0026-0028 have zero iterations (operator: do not start any tonight). No code changed; pytest 427 green.",
   "id": 1,
-  "self_review": null
+  "self_review": "What holds: the PR is mechanically clean (diff .lume/-only, suite untouched), and the 'none started' instruction is encoded as a passing command-check, not just prose - so the operator's constraint is verifiable. Weak points: (1) approve/start silently no-op'd inside a combined bash block on the first attempt (the commit error aborted the line); caught by re-checking phase, no harm, but a reminder not to chain gate verbs with a commit in one shell line. (2) This is the second landing-vehicle workstream in one session (0025, now 0029) - the repo's commit gate means every batch of .lume/ state needs a working iteration to land, which is friction worth noting though not in scope to fix here. (3) Nothing here advances the actual review fixes; it only queues them."
 }
