@@ -2,14 +2,68 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "gap",
   "type": "object",
-  "required": ["id", "source", "title", "status", "created"],
+  "required": [
+    "id",
+    "source",
+    "title",
+    "status",
+    "created"
+  ],
   "properties": {
-    "id":       {"type": "string"},
-    "source":   {"type": "string"},
-    "title":    {"type": "string"},
-    "context":  {"type": "string"},
-    "status":   {"type": "string", "enum": ["open", "acknowledged", "resolved"]},
-    "created":  {"type": "string"},
-    "resolution": {"type": ["string", "null"]}
+    "id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "context": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "acknowledged",
+        "resolved"
+      ]
+    },
+    "created": {
+      "type": "string"
+    },
+    "resolution": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "implemented",
+            "wont-fix",
+            "superseded",
+            "duplicate"
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "workstream": {
+          "type": "string"
+        }
+      }
+    },
+    "workstreams": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   }
 }

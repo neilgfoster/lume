@@ -2,8 +2,15 @@
   "context": "Operator direction 2026-06-11, revising the location chosen in workstream 0017 (which resolved G1 by moving reviews from the .lume root to .lume/review/). Touches next_review_slug, FilesystemStore._review_path, the ingest handler's folder + printed paths, docs (README, plugin/README, SKILL.md), tests, and a migration of .lume/review/2026-06-11-01/ to .lume/reviews/.",
   "created": "2026-06-11",
   "id": "G8",
-  "resolution": "Resolved by workstream 0017 (redo after reject): review folders pluralised to .lume/reviews/<date>-NN/, engine/docs/tests updated, existing folder migrated",
+  "resolution": {
+    "kind": "implemented",
+    "note": "Resolved by workstream 0017 (redo after reject): review folders pluralised to .lume/reviews/<date>-NN/, engine/docs/tests updated, existing folder migrated",
+    "workstream": "0017"
+  },
   "source": "lume",
   "status": "resolved",
-  "title": "Review folders live under .lume/review/ (singular) but should be .lume/reviews/ (plural), matching the container-pluralisation of .lume/workstreams/ and .lume/gaps/"
+  "title": "Review folders live under .lume/review/ (singular) but should be .lume/reviews/ (plural), matching the container-pluralisation of .lume/workstreams/ and .lume/gaps/",
+  "workstreams": [
+    "0017"
+  ]
 }

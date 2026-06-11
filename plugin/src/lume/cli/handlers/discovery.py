@@ -5,6 +5,7 @@ All read-only views and queries; each is `handle_<verb>(ctx) -> int`.
 from __future__ import annotations
 
 from ...dod_checks import evaluate_dod
+from ...gap import gaps_for_workstream
 from ...validate import entity_kinds, load_schema
 from ..catalog import _CATALOG
 from ..context import Context
@@ -74,10 +75,11 @@ def handle_status(ctx: Context) -> int:
         return 0
     ws = ctx.require_ws()
     children = ctx.repo.children(ws.id)
+    gaps = gaps_for_workstream(ctx.repo.project_root(), ws.id)
     if ctx.json_mode:
-        ctx.out(_detail_data(ws, children))
+        ctx.out(_detail_data(ws, children, gaps))
         return 0
-    _render_detail(ws, children)
+    _render_detail(ws, children, gaps)
     return 0
 
 

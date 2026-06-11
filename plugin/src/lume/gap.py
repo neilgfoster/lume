@@ -110,6 +110,46 @@ def set_status(repo_root, source: str, id: str, status: str) -> dict:
     return _write(repo_root, record)
 
 
+def link_gap(repo_root, source: str, id: str, workstream_id: str) -> dict:
+    """Record that `workstream_id` answers this gap (idempotent append)."""
+    record = find_gap(repo_root, source, id)
+    if record is None:
+        raise LumeError(f"no gap {source}/{id} to link.")
+    linked = record.setdefault("workstreams", [])
+    if workstream_id not in linked:
+        linked.append(workstream_id)
+    return _write(repo_root, record)
+
+
+def resolve_gap(repo_root, source: str, id: str, kind: str = "implemented",
+                note: str = "", workstream_id: str | None = None) -> dict:
+    """Resolve a gap with a structured resolution; returns the record.
+
+    Also links `workstream_id` (when given) so the answering workstream is
+    data, not prose.
+    """
+    record = find_gap(repo_root, source, id)
+    if record is None:
+        raise LumeError(f"no gap {source}/{id} to resolve.")
+    resolution: dict = {"kind": kind}
+    if note:
+        resolution["note"] = note
+    if workstream_id:
+        resolution["workstream"] = workstream_id
+        linked = record.setdefault("workstreams", [])
+        if workstream_id not in linked:
+            linked.append(workstream_id)
+    record["status"] = "resolved"
+    record["resolution"] = resolution
+    return _write(repo_root, record)
+
+
+def gaps_for_workstream(repo_root, workstream_id: str) -> list[dict]:
+    """The gaps whose `workstreams` list includes this id (derived by scan)."""
+    return [r for r in read_gaps(repo_root)
+            if workstream_id in r.get("workstreams", [])]
+
+
 def _sorted(records: list[dict]) -> list[dict]:
     """Sort by numeric id where possible, else lexically by id."""
     def key(r):

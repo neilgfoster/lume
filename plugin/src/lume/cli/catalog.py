@@ -48,10 +48,12 @@ _CATALOG: list[dict] = [
           [_pos("slug", True, "Workstream slug to reopen.")], False),
     _verb("snapshot", "Print the derived Done/Now/Next snapshot.", "", [], True),
     _verb("check", "Dry-run the current iteration's DoD machine-checks (read-only).", "", [], True),
-    _verb("gap", "Record, list, scan, or resolve cross-repo capability gaps.",
-          "add \"<title>\" [-c <context>] | list | scan | resolve <source> <id>",
-          [_pos("subcommand", True, "add | list | scan | resolve."),
-           _pos("arg", False, "add: title; resolve: source then id."), _F_CONTEXT], False),
+    _verb("gap", "Record, list, scan, link, or resolve cross-repo capability gaps.",
+          "add \"<title>\" [-c <context>] | list | scan | link <source> <id> -w <ws> "
+          "| resolve <source> <id> [-w <ws>] [-t <kind>] [\"<note>\"]",
+          [_pos("subcommand", True, "add | list | scan | link | resolve."),
+           _pos("arg", False, "add: title; link/resolve: source then id "
+                "(resolve also takes an optional note)."), _F_CONTEXT], False),
     _verb("review", "Emit the adversarial self-review protocol, or ingest a review result.",
           "[emit] [--charter <glob>]... | ingest <path>",
           [_pos("subcommand", False, "emit (default) | ingest."),

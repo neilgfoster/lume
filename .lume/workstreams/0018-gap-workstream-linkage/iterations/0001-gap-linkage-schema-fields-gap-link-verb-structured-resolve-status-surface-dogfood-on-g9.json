@@ -1,0 +1,66 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": false,
+        "text": "schemas/gap.json gains optional 'workstreams' (array of workstream-id strings) and optional structured 'resolution' object (kind: implemented|wont-fix|superseded|duplicate; note; optional workstream) within the validator subset; all existing .lume/gaps/ records still validate unchanged",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -c \"import sys,json,glob; sys.path.insert(0,'plugin/src'); from lume.validate import validate_entity, load_schema; s=load_schema('gap'); assert 'workstreams' in s['properties'] and 'resolution' in s['properties'] and 'workstreams' not in s.get('required',[]); [validate_entity('gap', json.load(open(f))) for f in glob.glob('.lume/gaps/*.json')]; print('ok')\""
+        }
+      },
+      {
+        "checked": false,
+        "text": "'lume gap link <source> <id> -w <ws>' appends the resolved workstream id to the gap's workstreams list (idempotent; unknown workstream or gap is a named error, not a traceback)",
+        "check": {
+          "kind": "command",
+          "cmd": "plugin/bin/lume verbs gap | grep -q link"
+        }
+      },
+      {
+        "checked": false,
+        "text": "'lume gap resolve <source> <id> [-w <ws>] [\"note\"]' persists a structured resolution (kind implemented when -w given, note stored - the silently-dropped-text bug is fixed); plain resolve without args still works",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q tests/ -k 'gap' 2>/dev/null | tail -1 | grep -q passed"
+        }
+      },
+      {
+        "checked": false,
+        "text": "'lume status -w <ws>' detail lists the gaps whose workstreams include it (derived by scanning .lume/gaps/, read-only, same pattern as the children rollup); workstreams answering no gap render unchanged",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Dogfood: G9 is linked to this workstream (0018) via lume gap link and resolved via the new structured resolve, so its record carries workstreams:['0018'] and a resolution object with kind 'implemented'",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -c \"import json; d=json.load(open('.lume/gaps/lume-G9.json')); assert '0018' in d.get('workstreams',[]), 'not linked'; r=d.get('resolution'); assert isinstance(r,dict) and r.get('kind')=='implemented', r; print('ok')\""
+        }
+      },
+      {
+        "checked": false,
+        "text": "Docs describe the linkage (gap link verb, structured resolve, the demand-backlog framing) in plugin/skills/lume/SKILL.md and plugin/README.md; tests cover schema back-compat, link, structured resolve, status surface, and error paths; full suite green",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q 'gap link' plugin/skills/lume/SKILL.md && grep -q 'gap link' plugin/README.md && python3 -m pytest -q"
+        }
+      },
+      {
+        "checked": false,
+        "text": "The pre-existing uncommitted loop residue (0017 accept/close state flips, gap G9) is committed on this iteration; nothing under .lume/gaps or .lume/reviews left uncommitted at handback",
+        "check": {
+          "kind": "command",
+          "cmd": "test -z \"$(git status --porcelain .lume/gaps .lume/reviews)\""
+        }
+      }
+    ],
+    "preamble": "Answer G9: gap-to-workstream linkage as data. Optional schema fields (back-compatible), gap link verb, structured resolve (fixing the dropped-resolution-text bug), derived status surface, dogfooded on G9 itself."
+  },
+  "handback": null,
+  "id": 1,
+  "self_review": null
+}

@@ -27,7 +27,8 @@ def _adopter_repo(path: Path) -> None:
         "status": "open", "created": "2026-06-11", "resolution": None}))
     (path / ".lume" / "gaps" / "tredl-G2.json").write_text(json.dumps({
         "id": "G2", "source": "tredl", "title": "resolved gap", "context": "",
-        "status": "resolved", "created": "2026-06-11", "resolution": "done"}))
+        "status": "resolved", "created": "2026-06-11",
+        "resolution": {"kind": "implemented", "note": "done"}}))
     _git(["add", "."], path)
     _git(["commit", "-m", "gaps"], path)
 
