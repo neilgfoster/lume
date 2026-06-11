@@ -64,7 +64,7 @@ def _ok(json_mode: bool, data: dict, *human_lines: str) -> None:
             print(line)
 
 
-def _render_detail(ws: Workstream) -> None:
+def _render_detail(ws: Workstream, children: list[Workstream] | None = None) -> None:
     """Single-workstream view: objective, current iteration, Done/Now/Next."""
     current = ws.current_iteration()
     if current is None:
@@ -87,6 +87,13 @@ def _render_detail(ws: Workstream) -> None:
         )
     print()
     print(ws.snapshot_done_now_next())
+    if children:
+        print()
+        print("## Children")
+        for c in children:
+            it = c.current_iteration()
+            where = f"{it.id:03d} {it.type} {it.phase}" if it is not None else "(no iterations)"
+            print(f"- {c.name} [{c.id}]  {'closed' if c.is_closed else where}")
 
 
 def _render_queue(workstreams: list[Workstream]) -> None:
@@ -102,15 +109,25 @@ def _render_queue(workstreams: list[Workstream]) -> None:
         else:
             in_progress.append((ws, it))
 
-    print("# lume - review queue")
-    print()
-    print("## Awaiting you")
+    by_id = {ws.id: ws for ws in workstreams}
+
     def _ws_label(ws: Workstream) -> str:
         return f"{ws.name} [{ws.id}]" if ws.id != ws.name else ws.name
 
+    def _row(ws: Workstream, where: str = "") -> str:
+        # A child is indented and annotated with its parent within its bucket
+        # (the queue groups by review status, not by hierarchy).
+        body = f"{_ws_label(ws)}  {where}".rstrip()
+        if ws.parent and ws.parent in by_id:
+            return f"  - {body}  (child of {by_id[ws.parent].name})"
+        return f"- {body}"
+
+    print("# lume - review queue")
+    print()
+    print("## Awaiting you")
     if awaiting:
         for ws, it in awaiting:
-            print(f"- {_ws_label(ws)}  {it.id:03d} {it.type} handback")
+            print(_row(ws, f"{it.id:03d} {it.type} handback"))
     else:
         print("- (nothing awaiting review)")
     print()
@@ -120,14 +137,14 @@ def _render_queue(workstreams: list[Workstream]) -> None:
             where = (
                 f"{it.id:03d} {it.type} {it.phase}" if it is not None else "(no iterations)"
             )
-            print(f"- {_ws_label(ws)}  {where}")
+            print(_row(ws, where))
     else:
         print("- (none)")
     if closed:
         print()
         print("## Closed")
         for ws in closed:
-            print(f"- {_ws_label(ws)}")
+            print(_row(ws))
 
 
 def _iteration_summary(it) -> dict | None:
@@ -136,15 +153,23 @@ def _iteration_summary(it) -> dict | None:
     return {"id": it.id, "type": it.type, "phase": it.phase}
 
 
-def _detail_data(ws: Workstream) -> dict:
+def _child_summary(ws: Workstream) -> dict:
+    it = ws.current_iteration()
+    return {"id": ws.id, "name": ws.name, "status": ws.status,
+            "phase": it.phase if it is not None else None}
+
+
+def _detail_data(ws: Workstream, children: list[Workstream] | None = None) -> dict:
     """Single-workstream status as a structured object (the --json form of _render_detail)."""
     return {
         "id": ws.id,
         "name": ws.name,
         "status": ws.status,
+        "parent": ws.parent,
         "objective": ws.objective_line(),
         "current_iteration": _iteration_summary(ws.current_iteration()),
         "dod_verifiability": _dod_verifiability(ws),
+        "children": [_child_summary(c) for c in (children or [])],
     }
 
 
@@ -153,10 +178,11 @@ def _queue_data(workstreams: list[Workstream]) -> dict:
     awaiting, in_progress, closed = [], [], []
     for ws in workstreams:
         if ws.is_closed:
-            closed.append({"id": ws.id, "workstream": ws.name})
+            closed.append({"id": ws.id, "workstream": ws.name, "parent": ws.parent})
             continue
         it = ws.current_iteration()
-        entry = {"id": ws.id, "workstream": ws.name, "iteration": _iteration_summary(it)}
+        entry = {"id": ws.id, "workstream": ws.name, "parent": ws.parent,
+                 "iteration": _iteration_summary(it)}
         if it is not None and it.phase == "handback":
             awaiting.append(entry)
         else:

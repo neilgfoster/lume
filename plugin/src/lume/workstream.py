@@ -70,6 +70,11 @@ class Workstream:
         return self._state["workstream"].get("status", ACTIVE)
 
     @property
+    def parent(self) -> str | None:
+        """The parent workstream id, or None for a root workstream."""
+        return self._state["workstream"].get("parent")
+
+    @property
     def is_closed(self) -> bool:
         return self.status == CLOSED
 

@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "schemas/workstream.json gains an OPTIONAL 'parent' (string, parent workstream id); existing parent-less workstreams still validate.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q tests/test_artifact_schemas.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Repository.create_workstream gains an optional parent= (validates the parent exists; a child cannot self-parent) and writes it into the child's workstream section; Workstream.parent property reads it; Repository.children(parent_id) returns the workstreams whose parent==id (derived by scan, no stored list)."
+      },
+      {
+        "checked": true,
+        "text": "'lume spawn <slug> \"<title>\"' creates a child workstream of the -w target (parent = target id) and reports it; spawning under a missing/closed parent errors via the existing workstream resolution. Registered in catalog (scoped) + HANDLERS.",
+        "check": {
+          "kind": "command",
+          "cmd": "plugin/bin/lume verbs spawn >/dev/null"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Tests (tests/test_hierarchy.py): spawn creates a child with parent set; children(parent) returns it and excludes roots; a root workstream has parent None; create_workstream(parent=<missing>) errors. Full suite green (incl. any updated schema/count tests).",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P4/L3 build step 1 of 4 (plan item P19): parent ref + spawn. Add an optional parent to the workstream schema, teach create_workstream to set+validate it, expose Workstream.parent and a children-by-scan helper, and add 'lume spawn <slug> \"<title>\"' to create a child of the -w target. Rollup (P20) and the close/reopen guards (P21) come next. DOGFOOD: DoD carries command checks driving the new verb + schema."
+  },
+  "handback": "P19 done (P4/L3 build step 1 of 4): parent ref + spawn. CHANGES: (1) schemas/workstream.json gains optional 'parent' (parent-less workstreams still validate). (2) Repository.create_workstream(parent=) validates the parent exists + guards self-parent and writes parent into the child's section; Workstream.parent property; Repository.children(parent_id) derives children by scan (no stored list). (3) 'lume spawn <slug> \"<title>\"' creates a child of the -w target (missing/closed parent -> existing named error); catalog + HANDLERS. (4) tests/test_hierarchy.py (4): root has no parent, spawn links child, children-by-scan excludes roots, missing-parent errors. Suite: 367 passed (was 363). Rollup (P20) and close/reopen guards (P21) next. RECOMMEND next: P20.",
+  "id": 25,
+  "self_review": "Holds: parent is an OPTIONAL additive field so every existing workstream still validates and is a root; children are derived by scan (no children array to drift), consistent with lume's iter/plan/gap patterns; spawn reuses create_workstream + the existing -w resolution, so a closed/unknown parent is already a named error with no new code path. The self-parent guard is in create_workstream even though spawn can't trigger it, pre-empting a future re-parent verb. Weak / watch: (1) the parent EXISTS check uses store.has_workstream(parent) keyed by id - spawn passes the resolved target id so it's fine, but a caller passing a SLUG as parent would fail the check; create_workstream's parent is documented as an id, not a slug - noted. (2) children() loads + parses every workstream's state per call (O(n)); fine at lume's scale, carried from the design. (3) no acyclic-chain check beyond self-parent yet - unreachable via spawn (fresh children), but a re-parent verb would need the full ancestor walk; flagged. (4) spawn was unit-tested in temp repos, not run against the real .lume (avoided leaving a stray workstream); the CLI path is covered by the verb registration + create path tests rather than a live spawn. Nothing deferred silently."
+}

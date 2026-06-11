@@ -158,6 +158,13 @@ class Repository:
         ws = self._load_workstream(lume_dir, id)
         if not ws.is_closed:
             raise GateError(f"workstream '{slug}' is already active.")
+        if ws.parent is not None and self._store(lume_dir).has_workstream(ws.parent):
+            parent = self._load_workstream(lume_dir, ws.parent)
+            if parent.is_closed:
+                raise GateError(
+                    f"cannot reopen '{slug}' - its parent '{parent.name}' "
+                    f"[{parent.id}] is closed; reopen the parent first."
+                )
         ws.set_status(ACTIVE)
         return ws
 
@@ -172,8 +179,19 @@ class Repository:
         """Validate + persist a workstream's state through the Tracking contract (by id)."""
         self._store(self._require_lume_dir()).write(id, "state", doc)
 
-    def create_workstream(self, slug: str, title: str, seed: bool = False) -> Workstream:
-        """Create a new active workstream with objective.json and state.json (JSON-only)."""
+    def children(self, parent_id: str) -> list[Workstream]:
+        """Workstreams whose parent == parent_id, derived by scan (no stored list)."""
+        lume_dir = self._require_lume_dir()
+        return [ws for ws in self.workstreams(lume_dir) if ws.parent == parent_id]
+
+    def create_workstream(self, slug: str, title: str, seed: bool = False,
+                          parent: str | None = None) -> Workstream:
+        """Create a new active workstream with objective.json and state.json (JSON-only).
+
+        With `parent` (a parent workstream id), the new workstream is a child of
+        it - the parent must exist. A workstream cannot be its own parent (a
+        fresh child never can, so this guards future re-parenting too).
+        """
         lume_dir = self._require_lume_dir()
         if not _SLUG_RE.match(slug):
             raise GateError(
@@ -183,7 +201,11 @@ class Repository:
         store = self._store(lume_dir)
         if self._slug_to_id(lume_dir, slug) is not None:
             raise GateError(f"workstream '{slug}' already exists.")
+        if parent is not None and not store.has_workstream(parent):
+            raise GateError(f"parent workstream '{parent}' does not exist.")
         id = store.create_workstream(slug, seed=seed)
+        if parent is not None and parent == id:
+            raise GateError("a workstream cannot be its own parent.")
         ws_section: dict = {
             "id": id,
             "slug": slug,
@@ -193,6 +215,8 @@ class Repository:
         }
         if seed:
             ws_section["seed"] = True
+        if parent is not None:
+            ws_section["parent"] = parent
         initial_state: dict = {
             "workstream": ws_section,
             "iterations": [],

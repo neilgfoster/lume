@@ -7,6 +7,7 @@ app.main's dispatch maps to a structured error + exit 1.
 from __future__ import annotations
 
 from ... import migrate as migrate_mod
+from ...errors import GateError
 from ...iteration import DEFAULT_TYPE
 from ...workstream import CLOSED
 from ..context import Context
@@ -23,6 +24,20 @@ def handle_new(ctx: Context) -> int:
     return 0
 
 
+def handle_spawn(ctx: Context) -> int:
+    """Create a child workstream of the -w target (the 'sprint' decomposition)."""
+    if not ctx.arg or not (len(ctx.rest) > 3 and ctx.rest[3].strip()):
+        ctx.fail("usage", 'usage: lume spawn <slug> "<title>"  (parent = the -w target)')
+        return 2
+    parent = ctx.require_ws()  # the parent; closed/unknown -> named error, exit 1
+    child = ctx.repo.create_workstream(ctx.arg, ctx.rest[3].strip(), parent=parent.id)
+    ctx.ok({"result": "spawn", "id": child.id, "workstream": child.name,
+            "parent": parent.id, "status": "active"},
+           f"spawned '{child.name}' [{child.id}] as a child of '{parent.name}' [{parent.id}].",
+           'next: edit its objective.json, then: lume open "<first iteration>".')
+    return 0
+
+
 def handle_reopen(ctx: Context) -> int:
     if not ctx.arg:
         ctx.fail("usage", "usage: lume reopen <slug>")
@@ -35,6 +50,13 @@ def handle_reopen(ctx: Context) -> int:
 
 def handle_close(ctx: Context) -> int:
     ws = ctx.require_ws()
+    active = [c for c in ctx.repo.children(ws.id) if not c.is_closed]
+    if active:
+        names = ", ".join(f"{c.name} [{c.id}]" for c in active)
+        raise GateError(
+            f"cannot close '{ws.name}' - it has active child workstream(s): "
+            f"{names}. Close them first."
+        )
     ws.set_status(CLOSED)
     ctx.ok({"result": "close", "id": ws.id, "workstream": ws.name, "status": "closed"},
            f"closed workstream '{ws.name}'.")

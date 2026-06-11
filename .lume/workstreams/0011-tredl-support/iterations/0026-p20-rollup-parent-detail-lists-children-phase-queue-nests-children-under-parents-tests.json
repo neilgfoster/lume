@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Parent DETAIL rollup: 'lume status -w <parent>' lists its child workstreams with each child's current phase (human) and _detail_data carries a 'children' array [{id, name, phase, status}] (--json). handle_status passes ctx.repo.children(ws.id). A childless workstream is unchanged (empty/no children section)."
+      },
+      {
+        "checked": true,
+        "text": "QUEUE rollup: in 'lume status', a workstream that has a parent is rendered INDENTED with a '(child of <parent>)' annotation within its review bucket; _queue_data entries carry 'parent'. REFINEMENT (logged): annotation-within-bucket, not a cross-bucket tree, because the queue groups by review status (awaiting/in-progress/closed) which cuts across hierarchy. Root-only repos render exactly as before."
+      },
+      {
+        "checked": true,
+        "text": "Existing snapshot/queue/detail tests updated for the new output shape; new tests cover parent-with-children detail (+--json children) and a child row's queue annotation. Full suite green.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Read-only: rollup adds NO stored state - children are derived by scan each render; no engine state mutated.",
+        "check": {
+          "kind": "command",
+          "cmd": "plugin/bin/lume status >/dev/null"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P4/L3 build step 2 of 4 (plan item P20): rollup. Make a parent's children visible - parent detail lists children + their phase, and the cross-workstream queue annotates/indents child rows under their parent. This is the step that changes 'lume status' output shape, so it updates existing render tests; it is read-only (children derived by scan, no new state). REFINEMENT vs the plan: the queue shows parentage as an indented annotation within the existing review buckets rather than a full tree, because the buckets are by status not hierarchy. DOGFOOD: DoD carries command checks."
+  },
+  "handback": "P20 done (P4/L3 build step 2 of 4): rollup. CHANGES: (1) parent DETAIL - 'lume status -w <parent>' prints a '## Children' section (child name/id + current phase or 'closed'); _detail_data carries 'parent' + a 'children' array; handle_status passes ctx.repo.children(ws.id). (2) QUEUE - a child row is INDENTED with '(child of <parent>)' within its review bucket (refinement logged: annotation-within-bucket, not a cross-bucket tree, since the queue groups by review status); _queue_data entries carry 'parent'. (3) tests/test_hierarchy.py +3 (detail children, queue parent field, queue render annotation). BACKWARD-COMPATIBLE: root-only repos render identically (the 367 prior tests passed unchanged); only parented workstreams add output. Read-only (children by scan, no new state). Suite: 370 passed (was 367). RECOMMEND next: P21 (close/reopen guards).",
+  "id": 26,
+  "self_review": "Holds: the output-shape change I flagged as the riskiest step turned out BACKWARD-COMPATIBLE - _row produces byte-identical lines for parent-less workstreams and the children section only prints when children exist, so every existing render/queue/snapshot test passed without edits; the new behaviour is covered by 3 added tests incl. a captured-stdout render assertion. Detail and queue both derive children by scan - no stored rollup state. Weak / watch: (1) the child annotation uses ws.name (the SLUG, e.g. 'sprint'), not the title - consistent with the rest of the queue's labelling but worth knowing the annotation shows slugs. (2) queue nesting is a flat indent+annotation, NOT a recursive tree - by design (one level, buckets-first); a deep hierarchy would show grandchildren annotated by their immediate parent, still flat. (3) children() is called once per 'status -w' and once-per-ws is avoided, but the queue's _row does an O(1) by_id lookup while detail does a full O(n) children scan - fine at scale, carried. Nothing deferred silently."
+}

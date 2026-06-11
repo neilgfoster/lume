@@ -79,5 +79,10 @@ A new iteration can only be opened once the latest one is `accepted`.
   `(source, id)`, source taken from the ADOPTERS project name); `lume gap
   resolve <source> <id>` marks one resolved. v0.1 is ingest-only - no round-trip
   back to the adopter yet.
+- A workstream can spawn children: `lume spawn <slug> "<title>"` creates a child
+  of the `-w` target (a "sprint" decomposing into sub-work). `lume status -w
+  <parent>` lists children + phase; the queue annotates child rows. Closing a
+  parent with active children, or reopening a child under a closed parent, is
+  refused (no cascade) - keep the tree consistent by closing/reopening in order.
 
 When in doubt about a verb's exact arguments, ask lume: `lume verbs <verb>`.

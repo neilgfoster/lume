@@ -92,6 +92,22 @@
     {
       "heading": "P2.4 Landing target + open forks for planning",
       "body": "LANDING (recommended, fork to ratify): ingested gaps land in a lume-SIDE backlog store (lume's own gaps/ records marked 'acknowledged', referencing source+id) - NOT auto-created plan items. Turning an acknowledged gap into a workstream/plan item stays an operator triage step, preserving operator-in-the-loop (lume ingests and surfaces; the human decides what to build). FORKS for planning: (a) confirm the naming (gaps vs discoveries dir); (b) the lume-side landing store shape + where it lives; (c) worktree cache location (e.g. a .lume/cache or out-of-tree) + lifecycle/cleanup details; (d) STATUS TRANSITIONS - who moves open->acknowledged (lume on ingest) and ->resolved, and how a resolution SIGNALS BACK to the adopter (lume publishes its resolved gap; the adopter re-scans / learns - full round-trip likely deferred past v0.1); (e) contract-test shape for ingest + dedupe + status. Scope held: iteration 017 is discovery - no engine code; findings + decisions only."
+    },
+    {
+      "heading": "P4.1 Parent reference - design",
+      "body": "Premise B re-confirmed (L0): schemas/workstream.json is {id, seed, slug, title, status, objective_artifact} - no parent. DESIGN: add an OPTIONAL 'parent' field to the workstream section = the PARENT workstream's id (string). A child stores its parent; CHILDREN are DERIVED by scanning all workstreams' state for parent==this id (single source of truth - no duplicated children array to drift, mirroring how iterations link to plan items by iter id and gaps key by source). Backward-compatible: existing workstreams have no parent and are roots. Validation: parent must reference an existing workstream; a workstream may not be its own parent, and the parent chain must be acyclic (no ancestor cycle)."
+    },
+    {
+      "heading": "P4.2 Spawn - design",
+      "body": "DECIDED (recommended): a new verb 'lume spawn <slug> \"<title>\"' creates a child workstream whose parent is the -w target (or the sole active workstream). It reuses create_workstream then sets parent on the child's workstream section. Rationale: a dedicated verb reads as the 'sprint spawns sub-work' intent and keeps 'lume new' (root creation) simple; the alternative 'lume new --parent <id>' overloads new. Guards at spawn: parent exists (it's the target, so yes), and the new slug is unique (create_workstream already enforces). Cycle prevention is trivial for spawn (child is brand-new) but the validator must still reject a parent edit that would form a cycle."
+    },
+    {
+      "heading": "P4.3 Rollup - design",
+      "body": "DECIDED (v0.1 scope): (a) a parent's single-workstream detail ('lume status -w <parent>') lists its CHILD workstreams with each child's current iteration phase + status; (b) the cross-workstream queue ('lume status') NESTS children under their parent (indented) so the tree is visible. DEFERRED past v0.1: aggregate metrics/percent-complete rollup and recursive multi-level summarisation beyond direct children - keep v0.1 to one level of visible children + their phase, not a computed burn-up. Rollup is READ-ONLY derivation (scan children), no new stored state."
+    },
+    {
+      "heading": "P4.4 Close-guard + forks",
+      "body": "DECIDED (recommended): 'lume close' on a parent with one or more ACTIVE (non-closed) children is REFUSED with a clear GateError naming the open children - NOT a cascade (cascading close would silently end child work and break the operator-in-the-loop principle). Closing is allowed once all children are closed; reopen is unaffected (reopening a child under a closed parent is allowed but flagged as a fork to confirm). FORKS for planning: (1) verb shape (spawn vs new --parent) - recommended spawn; (2) rollup depth - recommended one level + phase, queue nesting; (3) close-guard - recommended refuse; (4) whether reopen of a child requires the parent active; (5) how 'lume status' renders deep trees (indent vs flat-with-parent-column). Scope held: iteration 023 is discovery - no engine code."
     }
   ]
 }

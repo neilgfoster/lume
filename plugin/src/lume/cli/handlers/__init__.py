@@ -27,12 +27,14 @@ from .lifecycle import (
     handle_open,
     handle_reopen,
     handle_seed,
+    handle_spawn,
     handle_transition,
 )
 
 HANDLERS = {
     "seed": handle_seed,
     "new": handle_new,
+    "spawn": handle_spawn,
     "reopen": handle_reopen,
     "migrate": handle_migrate,
     "verbs": handle_verbs,

@@ -1,0 +1,35 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Forks resolved + logged: (a) spawn verb shape (recommended 'lume spawn <slug> \"<title>\"'); (b) rollup depth (recommended one level: parent detail lists children+phase, queue nests one level); (c) close-guard (recommended refuse with named open children); (d) child reopen under a closed parent (decide allow/refuse); (e) deep-tree queue rendering (indent)."
+      },
+      {
+        "checked": true,
+        "text": "Build plan recorded via lume plan add: ordered execution (+closeout) iterations - e.g. parent ref + spawn verb + cycle/exists validation; rollup (parent detail + queue nesting); close-guard; docs + closeout - each a binary DoD sketch + committed/optional tag; the first is concrete enough to open next.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "The snapshot/queue test-update risk (output shape change from nesting) is called out in the relevant build step so it is expected, not a surprise.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "decisions",
+          "path": ".lume/workstreams/0011-tredl-support/decisions.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code; decisions + plan only."
+      }
+    ],
+    "preamble": "P4/L3 planning: turn the iteration-023 forks (verb shape, rollup depth, close-guard, child reopen, deep-tree rendering) into logged decisions and an ordered build plan. Carry the design decisions already made (optional parent ref + children-by-scan; spawn verb; refuse-not-cascade; one-level read-only rollup). Decisions + plan only - no engine code; building is the execution iterations. This is the last committed plan item."
+  },
+  "handback": "P4/L3 planning done: forks resolved (1 logged decision) + a 4-step build plan (P19-P22, committed). DECISIONS: spawn = 'lume spawn <slug> \"<title>\"' (parent = -w target); rollup one-level read-only (parent detail lists children+phase; queue nests children, indented); close parent with active children => REFUSE; reopen child under a closed parent => REFUSE. PLAN: P19 parent ref + spawn + validation; P20 rollup (parent detail + queue nesting, updating snapshot/queue tests); P21 close/reopen guards; P22 docs + closeout (incl. assessing whether the whole workstream objective is met and can close). P19 is concrete enough to open next. No engine code. RECOMMEND next: open P19. This is the last committed item - after P4, only the deferred P6/L5 remains.",
+  "id": 24,
+  "self_review": "Holds: the plan slices the work so the schema+spawn (P19) lands before the output-shape change (P20, which carries the explicit snapshot/queue test-update risk) and before the guards (P21), each independently testable; child-reopen-refuse is symmetric with the close-guard, keeping the tree-consistency rule simple. P22 explicitly asks whether the whole objective is done, so closing the workstream is a deliberate assessed step, not an afterthought. Weak / watch: (1) P20 will change 'lume status' output for ALL repos (nesting), so it touches shared rendering + existing tests - the riskiest step for regressions; isolating it from P19/P21 was deliberate. (2) the re-parent cycle guard is NOT in this plan (spawn only makes fresh children, which can't cycle); if a re-parent verb is ever wanted it is a new item with the cycle check - flagged, not silently assumed away. (3) P22 may conclude the workstream should close, which is the OPERATOR's gate (lume close on the parent) - the plan prepares the assessment but the close itself stays the human's call. Nothing deferred silently."
+}
