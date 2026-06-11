@@ -125,6 +125,30 @@
       "date": "2026-06-11",
       "decision": "Ingest is idempotent on dedupe key (source, id); ingested OPEN gaps land in a lume-side backlog store as 'acknowledged' records referencing source+id, NOT auto-created plan items - turning a gap into a workstream stays operator triage.",
       "rationale": "Idempotence lets the scan run repeatedly (e.g. on a schedule) without duplicating backlog. Keeping ingest separate from plan-creation preserves lume's operator-in-the-loop rule: lume surfaces gaps; the human decides what becomes work. The resolution round-trip back to the adopter is deferred past v0.1."
+    },
+    {
+      "context": "P2/L1 planning (iter 018) - dir + verb surface",
+      "date": "2026-06-11",
+      "decision": "Use 'gaps/<id>.json' (entity 'gap') in every repo; reconcile ADOPTERS.md's 'discoveries/*.json' wording to 'gaps/'. Verb surface: 'lume gap add' (capture in current repo), 'lume gap scan' (clone/fetch adopters + ingest), 'lume gap list' (show gaps incl. ingested).",
+      "rationale": "One name end to end avoids the third 'discovery' meaning; gaps/ matches the entity. A small gap subcommand keeps the surface legible and parallel to 'lume plan add/link'."
+    },
+    {
+      "context": "P2/L1 planning (iter 018) - landing store",
+      "date": "2026-06-11",
+      "decision": "Ingested gaps land in lume's OWN gaps/ dir as records with status 'acknowledged' carrying source+id (and a copy of title/context); lume's self-authored gaps live there too. No separate backlog entity; gaps/ is the single gap store.",
+      "rationale": "Reusing one gaps/ store for self-authored and ingested gaps keeps one schema + one read path; 'acknowledged' marks 'lume has seen it', distinct from an adopter's local 'open'. Avoids inventing a parallel entity."
+    },
+    {
+      "context": "P2/L1 planning (iter 018) - cache + lifecycle",
+      "date": "2026-06-11",
+      "decision": "git reach caches clones under a gitignored .lume/cache/adopters/<slug>/; scan does clone-if-absent / fetch-if-present, adds an ephemeral worktree at the default ref to read gaps/, prunes the worktree after; unreachable repo => skip+report, scan continues. .lume/cache/ is added to .gitignore.",
+      "rationale": "A gitignored in-repo cache keeps the fetched clones out of history while reusing them across scans for speed; ephemeral worktrees give clean reads without dirtying the cache; skip-and-report keeps one bad adopter from failing the whole scan."
+    },
+    {
+      "context": "P2/L1 planning (iter 018) - status + round-trip",
+      "date": "2026-06-11",
+      "decision": "Status: 'lume gap scan' sets ingested gaps to 'acknowledged' (idempotent on source+id); operator moves a gap to 'resolved'. The resolution ROUND-TRIP back to the adopter is OUT of v0.1 (deferred, discovery-triggered) - v0.1 delivers capture + scan + idempotent ingest only.",
+      "rationale": "Ingest is the high-value half and is cleanly testable; the round-trip (lume signalling resolution back so the adopter drops its workaround) needs a publish/notify channel that should be demand-driven, not built speculatively. Shipping ingest first is honest and unblocks tredl's emit side."
     }
   ]
 }
