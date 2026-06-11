@@ -3,9 +3,13 @@
   "source": "lume",
   "title": "No trust/security lens. DoD command checks execute author-supplied shell, the commit-gate hook runs as a PreToolUse script, and gap scan clones and reads arbitrary adopter repos - none of the seven lenses asks whether these trust boundaries are still appropriate as adoption grows.",
   "context": "review/2026-06-11-01: missed because The lens set was derived from charter fidelity concerns (drift, honesty, value, ecosystem); trust was decided per-feature (e.g. the FORK 2 sandbox deferral) and never aggregated into a review dimension.; proposed: Add a trust-boundaries lens (or fold into keystone): enumerate every place lume executes or ingests external content (command checks, hooks, adopter scans) and re-grade each deferral against current adoption.",
-  "status": "open",
+  "status": "resolved",
   "created": "2026-06-11",
-  "resolution": null,
+  "resolution": {
+    "kind": "implemented",
+    "note": "Implemented by 0021: eighth 'trust boundaries' lens enumerates run-external-content surfaces and re-grades each trust deferral against current adoption",
+    "workstream": "0021"
+  },
   "workstreams": [
     "0021"
   ]
