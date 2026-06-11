@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "preamble": "Land the 0011 closure state. No engine code.",
+    "items": [
+      {
+        "checked": true,
+        "text": "The 0011 state/objective closure flips (028 accepted; status closed) are committed.",
+        "check": {
+          "kind": "command",
+          "cmd": "git diff --quiet -- .lume/workstreams/0011-tredl-support"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Suite green; no engine code touched.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; branch pushed and PR raised (merge is the operator's)."
+      }
+    ]
+  },
+  "handback": "Housekeeping done: committed 0011's closure flips (iteration 028 accepted; workstream status closed in state.json + objective.json) plus this workstream's own loop state. No engine code; suite green. PR raised for the operator to merge; after merge this workstream can be closed.",
+  "id": 1,
+  "self_review": "Holds: a pure state-landing change, gated through a real working iteration per the repo rule; the DoD's git-diff check proves the 0011 flips are committed. Weak: this workstream's own final accept/close flip will itself be uncommitted after merge - an inherent one-step lag in recording loop state; acceptable, noted rather than chased recursively."
+}
