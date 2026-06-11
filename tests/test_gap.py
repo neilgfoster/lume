@@ -45,14 +45,28 @@ class GapModuleTest(unittest.TestCase):
         self.assertEqual(next_id([{"id": "G1"}, {"id": "G2"}]), "G3")
 
     def test_add_writes_valid_file_and_reads_back(self):
-        rec = add_gap(self.root, title="needs X", source="demo",
+        rec = add_gap(self.root, title="Needs X, badly!", source="demo",
                       created="2026-06-11", context="because Y")
         self.assertEqual(rec["id"], "G1")
         self.assertEqual(rec["status"], "open")
-        # Source-aware filename so one store can hold multiple sources.
-        on_disk = json.loads((gaps_dir(self.root) / "demo-G1.json").read_text())
+        # Workstream-style filename: <source>-G<nnnn>-<stub>.json (padded id
+        # and slugified title hint in the NAME only; the id stays G<n>).
+        on_disk = json.loads(
+            (gaps_dir(self.root) / "demo-G0001-needs-x-badly.json").read_text())
         self.assertEqual(on_disk, rec)
         self.assertEqual(read_gaps(self.root), [rec])
+
+    def test_legacy_filename_still_read_and_migrates_on_write(self):
+        d = gaps_dir(self.root)
+        d.mkdir(parents=True)
+        legacy = {"id": "G1", "source": "demo", "title": "old name", "context": "",
+                  "status": "open", "created": "2026-06-11", "resolution": None}
+        (d / "demo-G1.json").write_text(json.dumps(legacy))
+        self.assertEqual(read_gaps(self.root), [legacy])  # legacy name readable
+        link_gap(self.root, "demo", "G1", "0019")  # any write renames it
+        self.assertFalse((d / "demo-G1.json").exists())
+        self.assertTrue((d / "demo-G0001-old-name.json").exists())
+        self.assertEqual(len(read_gaps(self.root)), 1)  # no duplicate
 
     def test_read_gaps_sorted_and_empty(self):
         self.assertEqual(read_gaps(self.root), [])

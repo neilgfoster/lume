@@ -5,5 +5,8 @@
   "resolution": null,
   "source": "lume",
   "status": "open",
-  "title": "lume review ingest writes repo files (findings.md, result.json) outside any workstream, so review artifacts are orphaned until some workstream commits them"
+  "title": "lume review ingest writes repo files (findings.md, result.json) outside any workstream, so review artifacts are orphaned until some workstream commits them",
+  "workstreams": [
+    "0020"
+  ]
 }

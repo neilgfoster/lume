@@ -5,5 +5,8 @@
   "context": "review/2026-06-11-01: missed because The emit verb gathers text deterministically; the protocol's honesty lens asks for unsupported claims but assumes reading, not executing, is the verification method.; proposed: Add an explicit instruction to the honesty lens: re-derive every mechanically checkable [E]-tagged claim (test count, workstream/adopter counts, CI status) before grading, and treat any mismatch as a finding.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0021"
+  ]
 }

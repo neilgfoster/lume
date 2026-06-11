@@ -1,0 +1,11 @@
+{
+  "iterations": [],
+  "plan": [],
+  "workstream": {
+    "id": "0021",
+    "objective_artifact": "objective.json",
+    "slug": "review-protocol-lenses",
+    "status": "active",
+    "title": "Review protocol: verify evidence mechanically, trust lens, lightweight fixes"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": false,
+        "text": "gap.py writes new records as .lume/gaps/<source>-G<nnnn>-<stub>.json: numeric id zero-padded to 4 in the FILENAME only (the gap id stays 'G<n>' and the (source,id) dedupe identity is unchanged), <stub> slugified from the title and length-capped; read_gaps still reads every *.json so any legacy name remains readable",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q"
+        }
+      },
+      {
+        "checked": false,
+        "text": "All 9 existing records under .lume/gaps/ are migrated to the new filenames via git mv (history-preserving); no legacy <source>-G<n>.json name remains",
+        "check": {
+          "kind": "command",
+          "cmd": "cd .lume/gaps && ls *.json | grep -vqE '^[a-z0-9_.-]+-G[0-9]{4}-[a-z0-9-]+\\.json$' && exit 1 || ls *.json | wc -l | grep -qx 9"
+        }
+      },
+      {
+        "checked": false,
+        "text": "add/list/scan/link/resolve all work against the new naming: the adopter-scan ingest path writes ingested gaps with the new filename too, and (source,id) addressing (gap link/resolve lume G2 etc.) is unaffected",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q tests/test_gap.py tests/test_gap_scan.py 2>/dev/null | tail -1 | grep -q passed"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Docs stating the old convention are updated: plugin/README.md and plugin/skills/lume/SKILL.md describe <source>-G<nnnn>-<stub>.json; no doc still says gaps live at <source>-<id>.json",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q 'G<nnnn>-<stub>' plugin/README.md && grep -q 'G<nnnn>-<stub>' plugin/skills/lume/SKILL.md && ! grep -rn '<source>-<id>.json' plugin/README.md plugin/skills/lume/SKILL.md"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Tests assert the new filename shape (a written record lands at the padded, stubbed path; a legacy-named record is still read); full suite green with no assertion weakened",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -rq 'G0001-' tests/test_gap.py && python3 -m pytest -q"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Loop residue (0018 accept/close flips, the three new workstreams 0019-0021, gap links G2-G7) is committed; .lume/gaps and .lume/reviews clean at handback",
+        "check": {
+          "kind": "command",
+          "cmd": "test -z \"$(git status --porcelain .lume/gaps .lume/reviews)\""
+        }
+      },
+      {
+        "checked": false,
+        "text": "Dogfood: G7 is resolved through gap resolve -w gap-file-naming with a structured resolution, and its own record sits at the new-format filename",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -c \"import json,glob; f=glob.glob('.lume/gaps/lume-G0007-*.json'); assert f, 'no new-format G7 file'; d=json.load(open(f[0])); assert d['status']=='resolved' and d['resolution']['kind']=='implemented' and '0019' in d['workstreams']; print('ok')\""
+        }
+      }
+    ],
+    "preamble": "Answer G7: gap filenames follow the workstream NNNN-stub convention, adapted for the multi-source store as <source>-G<nnnn>-<stub>.json. Filename-only change: ids and the (source,id) identity are untouched."
+  },
+  "handback": null,
+  "id": 1,
+  "self_review": null
+}
