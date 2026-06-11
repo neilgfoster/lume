@@ -1,0 +1,21 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-commit-the-0011-closure-state-028-accepted-workstream-closed.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Commit the 0011 closure state (028 accepted, workstream closed)",
+      "type": "execution",
+      "verdicts": []
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0014",
+    "objective_artifact": "objective.json",
+    "slug": "record-roadmap-closure",
+    "status": "active",
+    "title": "Record workstream 0011's final accepted+closed state in history"
+  }
+}

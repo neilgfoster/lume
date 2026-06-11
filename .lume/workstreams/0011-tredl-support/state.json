@@ -409,10 +409,16 @@
       "dod_artifact": "iterations/0028-p22-docs-spawn-rollup-guards-p4-l3-closeout-retro-whole-objective-assessment.json",
       "id": 28,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P22: docs (spawn/rollup/guards) + P4/L3 closeout retro + whole-objective assessment",
       "type": "closeout",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -575,7 +581,7 @@
     "id": "0011",
     "objective_artifact": "objective.json",
     "slug": "tredl-support",
-    "status": "active",
+    "status": "closed",
     "title": "Enable autonomous operation (tredl support) and delivery hardening"
   }
 }
