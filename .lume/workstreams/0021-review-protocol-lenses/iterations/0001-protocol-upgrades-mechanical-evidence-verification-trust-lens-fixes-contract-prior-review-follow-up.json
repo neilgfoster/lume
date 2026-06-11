@@ -1,0 +1,58 @@
+{
+  "dod": {
+    "items": [
+      {
+        "check": {
+          "cmd": "grep -q 're-derive' plugin/src/lume/review.py",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "G3: the honesty lens instructs the reviewer to mechanically re-derive every checkable evidence-tagged claim (run the test suite, count workstreams/adopters, check CI status) before grading, treating any mismatch as a finding"
+      },
+      {
+        "check": {
+          "cmd": "grep -qi 'trust boundaries' plugin/src/lume/review.py && python3 -c \"import sys; sys.path.insert(0,'plugin/src'); from lume.review import LENSES; assert len(LENSES)==8, len(LENSES)\"",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "G4: a trust-boundaries lens is added (eighth lens): enumerate every place lume executes or ingests external content (DoD command checks, hooks, adopter-repo cloning/scanning, charter doc embedding) and grade whether each deferral/trust assumption still fits current adoption"
+      },
+      {
+        "check": {
+          "cmd": "python3 -c \"import sys; sys.path.insert(0,'plugin/src'); from lume.validate import load_schema; s=load_schema('review_result'); assert 'fixes' in s['properties'] and 'fixes' not in s.get('required',[]); print('ok')\"",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "G5: review_result gains an optional 'fixes' list (description + evidence + suggested one-line change) within the validator subset; ingest renders them in findings.md and emits them in the queue plan as a single chore-bundle proposed workstream (operator-gated like other direction items); schema back-compatible (results without 'fixes' still validate)"
+      },
+      {
+        "check": {
+          "cmd": "grep -qi 'previous review' plugin/src/lume/review.py && plugin/bin/lume review | grep -q 'evidence-freshness'",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "G10: emit seeds the protocol with the most recent review's queue plan + adoption status (proposed workstream slugs that exist as workstreams, decisions that appear in decision logs - derived deterministically from state) and instructs the reviewer to report unadopted items as standing findings; repos with no prior review emit unchanged"
+      },
+      {
+        "check": {
+          "cmd": "python3 -m pytest -q",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "Tests: each lens/contract change covered (emit golden/determinism tests updated deliberately, no-prior-review case, fixes validation + ingest mapping, adoption-status derivation); full suite green"
+      },
+      {
+        "check": {
+          "cmd": "grep -qi 'eight lenses' plugin/skills/lume/SKILL.md && grep -qi 'fixes' plugin/README.md && test -z \"$(git status --porcelain .lume/gaps .lume/reviews)\"",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "Docs: SKILL.md and plugin/README reflect the eight lenses, the fixes list, and the prior-review follow-up; loop residue committed (.lume/gaps and .lume/reviews clean at handback)"
+      }
+    ],
+    "preamble": "Answer G3/G4/G5/G10 in one execution iteration: four additive protocol/contract changes, each small and independently testable; determinism preserved (golden byte-identical test stays green or is updated deliberately)."
+  },
+  "handback": null,
+  "id": 1,
+  "self_review": null
+}

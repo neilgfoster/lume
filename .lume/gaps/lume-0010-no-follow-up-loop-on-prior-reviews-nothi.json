@@ -5,5 +5,8 @@
   "context": "reviews/2026-06-11-02: missed because The review is designed as a self-contained snapshot: emit seeds from current state and findings flow forward into records, but no lens or contract field looks BACKWARD at the previous review's outcomes.; proposed: Seed the emitted protocol with the most recent review's queue plan and its adoption status (workstreams that exist, decisions that were logged), and instruct the reviewer to report unadopted items as standing findings rather than re-proposing or silently dropping them.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0021"
+  ]
 }

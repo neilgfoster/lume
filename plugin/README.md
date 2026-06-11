@@ -136,11 +136,19 @@ clock seam):
   objective, decisions, plan, retro), plus a capped pattern scan for
   charter-like docs - or explicit files via repeatable `--charter <glob>`. With
   few or no docs it still emits and tells the agent coverage is thin. The
-  protocol carries seven lenses (goal-fidelity, honesty, ecosystem fit,
-  value/viability, keystone risk, vision coherence, and a META lens that turns
-  the review on itself); the ecosystem lens instructs the agent to consult the
-  **current** Claude Code features, plugin marketplace, and official best
-  practices at review time - lume bakes in no such list.
+  protocol carries eight lenses (goal-fidelity, honesty, ecosystem fit,
+  value/viability, keystone risk, vision coherence, trust boundaries, and a
+  META lens that turns the review on itself); the ecosystem lens instructs the
+  agent to consult the **current** Claude Code features, plugin marketplace,
+  and official best practices at review time - lume bakes in no such list -
+  and the honesty lens instructs mechanically re-deriving every checkable
+  evidence-tagged claim. When a prior review exists, the protocol also seeds
+  its queue plan with derived adoption status (which proposals became
+  workstreams, which decisions were logged), so unadopted items surface as
+  standing findings instead of silently dropping. The Result contract carries
+  an optional `fixes` list for small one-line corrections too light for a
+  full workstream; ingest maps them to a single chore-bundle workstream
+  proposal (operator-gated like the rest of the queue plan).
 - `lume review ingest <path> (-w <ws> | --spawn)` validates the agent's
   filled-in result against the `review_result` schema. It refuses to run
   without an owning workstream for its output: `-w` attributes the review to

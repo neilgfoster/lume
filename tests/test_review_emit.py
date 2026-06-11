@@ -78,7 +78,7 @@ class EmitProtocolTest(_EmitBase):
         self.assertEqual(code, 0)
         for lens in ("goal-fidelity", "honesty", "ecosystem fit",
                      "value / viability", "keystone", "vision coherence",
-                     "META / self-improvement"):
+                     "trust boundaries", "META / self-improvement"):
             self.assertIn(lens, out)
         # Live-lookup directive, not a baked-in list.
         self.assertIn("marketplace", out)
@@ -123,7 +123,7 @@ class EmitProtocolTest(_EmitBase):
         self.assertEqual(doc["result"], "review_emit")
         kinds = {s["kind"] for s in doc["charter_sources"]}
         self.assertEqual(kinds, {"lume-state", "discovered-doc"})
-        self.assertEqual(len(doc["lenses"]), 7)
+        self.assertEqual(len(doc["lenses"]), 8)
         self.assertEqual(doc["result_schema"]["title"], "review_result")
         self.assertEqual(doc["plan"][0]["sketch"], "build the thing")
         self.assertEqual(doc["decisions"][0]["decision"], "keep it flat")
@@ -184,3 +184,44 @@ class CatalogTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PreviousReviewFollowUpTest(_EmitBase):
+    """G10: emit seeds the protocol with the prior review's queue plan + adoption."""
+
+    def _store_review(self, proposed, decisions):
+        d = self.root / ".lume" / "reviews" / "2026-06-10-01"
+        d.mkdir(parents=True)
+        (d / "result.json").write_text(json.dumps({
+            "title": "Review result - 2026-06-10-01",
+            "sections": [
+                {"heading": "proposed_workstreams", "body": json.dumps(proposed)},
+                {"heading": "direction_decisions", "body": json.dumps(decisions)},
+            ]}))
+
+    def test_no_prior_review_emits_without_section(self):
+        code, out = _run(self.root, "review")
+        self.assertEqual(code, 0)
+        self.assertNotIn("Previous review follow-up", out)
+
+    def test_adoption_status_derived_from_state(self):
+        self._store_review(
+            proposed=[{"slug": "demo", "title": "Already exists"},
+                      {"slug": "never-built", "title": "Still pending"}],
+            decisions=[{"context": "c", "decision": "keep it flat", "rationale": "r"},
+                       {"context": "c2", "decision": "never logged", "rationale": "r2"}])
+        code, out = _run(self.root, "review")
+        self.assertEqual(code, 0)
+        self.assertIn("Previous review follow-up (1 stored review(s), latest 2026-06-10-01)", out)
+        self.assertIn("[ADOPTED] workstream (review 2026-06-10-01): demo", out)
+        self.assertIn("[UNADOPTED] workstream (review 2026-06-10-01): never-built", out)
+        self.assertIn("[ADOPTED] decision (review 2026-06-10-01): keep it flat", out)
+        self.assertIn("[UNADOPTED] decision (review 2026-06-10-01): never logged", out)
+        self.assertIn("standing finding", out)
+
+    def test_followup_source_labelled_in_json(self):
+        self._store_review(proposed=[], decisions=[])
+        code, out = _run(self.root, "--json", "review")
+        doc = json.loads(out)
+        kinds = {s["kind"] for s in doc["charter_sources"]}
+        self.assertIn("previous-review", kinds)
