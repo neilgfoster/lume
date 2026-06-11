@@ -1,0 +1,94 @@
+{
+  "entries": [
+    {
+      "context": "gap-mechanic",
+      "date": "2026-06-11",
+      "decision": "review_gaps map to the existing gap mechanic via emitted 'lume gap add \"<gap>\" -c <context>' commands; ingest never runs them",
+      "rationale": "Discovered mechanic: gaps live per-file at repo root gaps/<source>-G<n>.json (NOT under .lume/), schema gap.json (id/source/title/context/status open|acknowledged|resolved/created/resolution), created via gap.add_gap which assigns the next G<n> per source at execution time and stamps created from the clock. They are repo-level, not workstream- or plan-linked. Because ids are assigned on execution, the emitted queue plan uses 'lume gap add' invocations (with the review folder slug in the -c context) rather than precomputing ids. No parallel mechanic is built."
+    },
+    {
+      "context": "determinism",
+      "date": "2026-06-11",
+      "decision": "lume review is deterministic plumbing only: no LLM, no network, no agent shell-out; all dates via the clock seam (clock.py through Repository.today)",
+      "rationale": "docs/constraints.md mandates 'deterministic over inference' for mechanism; the engine never calls date.today() directly (clock.py seam, FixedClock in tests). The ecosystem-fit lens needs live knowledge, so the emitted protocol INSTRUCTS the agent to look up current native features, the official plugin marketplace, and official best practices at review time; the verb hardcodes and fetches nothing."
+    },
+    {
+      "context": "emit-ingest-split",
+      "date": "2026-06-11",
+      "decision": "Two subcommands: 'lume review' (alias 'review emit') prints the protocol + gathered context; 'lume review ingest <path>' validates a review_result JSON, writes the markdown report, persists the structured artifact, and EMITS (never executes) the queue-command plan",
+      "rationale": "Mirrors gap/plan subcommand style. Emit is read-only. Ingest never creates/opens/transitions workstreams nor records gaps - it prints the 'lume new'/'lume plan add'/'lume decide'/'lume gap add' plan as text (JSON under --json) for the operator/agent to run, preserving the operator gate."
+    },
+    {
+      "context": "charter-discovery",
+      "date": "2026-06-11",
+      "decision": "Generic charter discovery with fixed precedence: PRIMARY lume state (workstream objectives, decisions, retros, current plan); SECONDARY capped pattern scan (README*, docs/**, *.seed.md, ADOPTERS*, CONTRIBUTING*, bundled SKILL/command docs); OVERRIDE --charter <glob> (repeatable) replacing the scan; DEGRADE to lume-state-only with an explicit thin-coverage instruction in the protocol",
+      "rationale": "The verb must work in ANY lume repo: lume state is the one guaranteed source and states intent in lume's own terms. Doc scan is by pattern not fixed path, with caps on file count and embedded size so output stays bounded. Determinism holds: same repo state + same found files in -> same protocol out. The emitted --json output labels each charter source as lume-state, discovered-doc, or override."
+    },
+    {
+      "context": "review-output",
+      "date": "2026-06-11",
+      "decision": "Ingest writes .lume/review-<date-slug>-NN/findings.md as the primary captured record (the ONE sanctioned raw file write), with <date-slug> = clock date YYYY-MM-DD and NN the next-free zero-padded daily sequence starting 01, determined by scanning existing .lume/review-<date-slug>-* folders",
+      "rationale": "Date from the clock seam keeps it testable (FixedClock); sequence from a folder scan keeps assignment deterministic given existing folders + clock date; first review of a day is always -01 and a second same-day run gets -02 without clobbering."
+    },
+    {
+      "context": "review-store",
+      "date": "2026-06-11",
+      "decision": "The structured review result is persisted through the TrackingStore seam as a repo-level 'review:<date-slug>-NN' artifact reusing the discovery artifact SHAPE ({title, sections[]}) for validation; the store protocol gains review-artifact addressing implemented by both FilesystemStore and SQLiteStore",
+      "rationale": "The existing store is keyed (workstream id, artifact) but reviews are repo-level, not workstream-bound, so the seam needs a small extension rather than misfiling the review under an arbitrary workstream. Reusing the discovery schema shape avoids a second 'findings document' schema; review_result.json (the ingest INPUT contract) is separate and new. No raw file I/O for the store artifact; findings.md is the single tested exception."
+    },
+    {
+      "context": "review-result-schema",
+      "date": "2026-06-11",
+      "decision": "review_result.json must stay inside lume's validator subset (type, enum, required, properties, items - no oneOf/patterns/conditionals); malformed ingest input maps to a usage error (exit 2, code=usage), not a stack trace",
+      "rationale": "validate.py is deliberately a draft-2020-12 subset; the contract (direction_decisions, proposed_workstreams with plan_items type epic|slice|spike|chore and tag committed|optional, review_gaps with gap/why_missed/proposed_change, provenance) fits it with enum + required alone. Schema lands in plugin/src/lume/schemas/ and auto-surfaces via lume entities / lume schema."
+    },
+    {
+      "context": "gap-mechanic",
+      "date": "2026-06-11",
+      "decision": "Supersedes the earlier gap-mechanic decision's location detail: gaps now live under .lume/gaps/<source>-G<n>.json (child workstream 0016 relocated them; no legacy repo-root fallback)",
+      "rationale": "The review_gaps mapping is unchanged - ingest still emits 'lume gap add' commands, and gap add writes wherever gap.gaps_dir points, so the relocation is transparent to the lume review design. Only the discovery record's description of the storage location needed correcting."
+    },
+    {
+      "context": "fork-flags",
+      "date": "2026-06-11",
+      "decision": "Repeatable --charter is parsed by a new multi-value flag helper in cli/flags.py (collects every occurrence into a list), carried on Context as opt_charter; only the review verb reads it",
+      "rationale": "The existing _extract_flag is single-value; a parallel helper keeps the grammar stable and other verbs untouched."
+    },
+    {
+      "context": "fork-dispatch",
+      "date": "2026-06-11",
+      "decision": "Subcommand parsing follows the gap handler: ctx.arg empty or 'emit' -> emit; 'ingest' -> path from ctx.rest; anything else -> usage error exit 2",
+      "rationale": "Matches the established gap/plan precedent so 'lume review' with no positional is the emit alias for free."
+    },
+    {
+      "context": "fork-scoping",
+      "date": "2026-06-11",
+      "decision": "The review verb is unscoped (no -w): it is repo-level and gathers charter context from ALL workstreams' objectives, decisions, retros, and plans",
+      "rationale": "A self-review of the project cannot be scoped to one workstream; scoped=False in the catalog entry, like gap."
+    },
+    {
+      "context": "fork-store",
+      "date": "2026-06-11",
+      "decision": "TrackingStore gains read_review(slug)/write_review(slug, doc): FilesystemStore maps to .lume/review-<slug>/result.json (beside findings.md); SQLiteStore to a reviews table keyed by slug; both validate against the discovery shape",
+      "rationale": "Smallest seam extension that keeps reviews repo-level; the structured result sits beside the markdown so one folder is the whole captured review."
+    },
+    {
+      "context": "fork-scan-caps",
+      "date": "2026-06-11",
+      "decision": "Doc scan caps: at most 12 charter files, at most 8192 characters embedded per file (truncated with an explicit marker), deterministic sorted-path order",
+      "rationale": "Bounds protocol size in doc-heavy repos while keeping output deterministic; truncation is visible, never silent."
+    },
+    {
+      "context": "fork-golden-test",
+      "date": "2026-06-11",
+      "decision": "Golden emission test: a tmp fixture repo with fixed .lume state and FixedClock, asserting byte-identical protocol output across two runs and exact presence of the seven lens instructions; the no-docs case asserts the thin-coverage flag and N=0",
+      "rationale": "Byte-identical double-run is the determinism property itself; lens/flag assertions pin the contract without freezing every word of prose."
+    },
+    {
+      "context": "fork-plan-types",
+      "date": "2026-06-11",
+      "decision": "review_result keeps the spec's plan-item taxonomy (epic|slice|spike|chore) and ingest's queue plan maps it deterministically onto lume's plan_item types: spike->discovery, epic->planning, slice->execution, chore->execution",
+      "rationale": "lume plan add only accepts discovery|planning|execution|closeout (plan_item schema). The review taxonomy describes work shape, lume's describes loop stage; a fixed mapping keeps the emitted commands valid without changing lume's plan schema or forking the Result contract."
+    }
+  ]
+}

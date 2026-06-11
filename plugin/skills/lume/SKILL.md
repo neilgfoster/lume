@@ -79,6 +79,15 @@ A new iteration can only be opened once the latest one is `accepted`.
   `(source, id)`, source taken from the ADOPTERS project name); `lume gap
   resolve <source> <id>` marks one resolved. v0.1 is ingest-only - no round-trip
   back to the adopter yet.
+- Adversarial self-review: `lume review` (alias `review emit`) prints a review
+  protocol seeded from lume state (all objectives, decisions, plans, retros)
+  plus discovered charter docs (`--charter <glob>` overrides discovery). You do
+  the review across its seven lenses - the ecosystem lens requires looking up
+  the CURRENT Claude Code features/marketplace/best practices at review time -
+  then write the Result-contract JSON and run `lume review ingest <path>`.
+  Ingest captures the report under `.lume/review-<date>-NN/findings.md` and
+  PRINTS the queue plan (`lume new`/`plan add`/`decide`/`gap add`); it executes
+  nothing - adopting findings is the operator's call, like any gate.
 - A workstream can spawn children: `lume spawn <slug> "<title>"` creates a child
   of the `-w` target (a "sprint" decomposing into sub-work). `lume status -w
   <parent>` lists children + phase; the queue annotates child rows. Closing a

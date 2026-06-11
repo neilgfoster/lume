@@ -95,6 +95,11 @@ lume handback               # hand back for review
 lume accept                 # operator: done   (or: lume reject "<reason>" -> lume redo)
 ```
 
+Beyond the loop, `lume review` emits an adversarial self-review protocol for the
+agent and `lume review ingest` captures the result under `.lume/review-<date>-NN/`,
+printing (never running) the commands that would queue its findings — see the
+[plugin README](plugin/README.md) for the full guide.
+
 ## This repository
 
 This is lume's development repo; it is also where lume dogfoods itself. It is

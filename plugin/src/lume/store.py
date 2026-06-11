@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Protocol
 
 from . import state as state_mod
+from .validate import validate_entity
 
 WORKSTREAMS_SUBDIR = "workstreams"
 
@@ -42,6 +43,10 @@ class TrackingStore(Protocol):
     def create_workstream(self, slug: str, seed: bool = False) -> str: ...
     def read(self, id: str, artifact: str) -> dict | None: ...
     def write(self, id: str, artifact: str, doc: dict) -> None: ...
+    # Reviews are repo-level (not workstream-keyed): one structured result per
+    # dated review slug, validated against the discovery artifact shape.
+    def read_review(self, slug: str) -> dict | None: ...
+    def write_review(self, slug: str, doc: dict) -> None: ...
 
 
 def _folder_id(name: str) -> str:
@@ -158,6 +163,24 @@ class FilesystemStore:
         else:
             path.write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
 
+    def _review_path(self, slug: str) -> Path:
+        # Reviews live beside workstreams/, directly under .lume/.
+        return self._root.parent / slug / "result.json"
+
+    def read_review(self, slug: str) -> dict | None:
+        path = self._review_path(slug)
+        if not path.is_file():
+            return None
+        doc = json.loads(path.read_text())
+        validate_entity("discovery", doc)
+        return doc
+
+    def write_review(self, slug: str, doc: dict) -> None:
+        validate_entity("discovery", doc)
+        path = self._review_path(slug)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
+
 
 class SQLiteStore:
     """TrackingStore backed by a single SQLite db - a non-filesystem proof that
@@ -230,6 +253,32 @@ class SQLiteStore:
         )
         self._conn.commit()
 
+    def _ensure_reviews_table(self) -> None:
+        self._conn.execute(
+            "CREATE TABLE IF NOT EXISTS reviews ("
+            " slug TEXT PRIMARY KEY, doc TEXT NOT NULL)"
+        )
+
+    def read_review(self, slug: str) -> dict | None:
+        self._ensure_reviews_table()
+        row = self._conn.execute(
+            "SELECT doc FROM reviews WHERE slug = ?", (slug,)).fetchone()
+        if row is None:
+            return None
+        doc = json.loads(row[0])
+        validate_entity("discovery", doc)
+        return doc
+
+    def write_review(self, slug: str, doc: dict) -> None:
+        validate_entity("discovery", doc)
+        self._ensure_reviews_table()
+        self._conn.execute(
+            "INSERT INTO reviews (slug, doc) VALUES (?, ?) "
+            "ON CONFLICT(slug) DO UPDATE SET doc = excluded.doc",
+            (slug, json.dumps(doc, indent=2, sort_keys=True)),
+        )
+        self._conn.commit()
+
 
 class InMemoryStore:
     """TrackingStore over an in-process dict - a fast, dependency-free test double
@@ -262,3 +311,11 @@ class InMemoryStore:
         if artifact == "state":
             state_mod.validate_doc(doc)
         self._docs[(id, artifact)] = copy.deepcopy(doc)
+
+    def read_review(self, slug: str) -> dict | None:
+        doc = self._docs.get(("@review", slug))
+        return copy.deepcopy(doc) if doc is not None else None
+
+    def write_review(self, slug: str, doc: dict) -> None:
+        validate_entity("discovery", doc)
+        self._docs[("@review", slug)] = copy.deepcopy(doc)

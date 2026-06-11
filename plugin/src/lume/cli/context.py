@@ -6,7 +6,7 @@ ok/fail/out helpers, so a verb's parse->action->output reads as one unit.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ..repository import Repository
 from ..workstream import Workstream
@@ -26,6 +26,7 @@ class Context:
     opt_tag: str | None
     opt_new: bool = False
     opt_existing: bool = False
+    opt_charter: list[str] = field(default_factory=list)  # repeatable --charter globs
 
     def require_ws(self) -> Workstream:
         """Resolve the targeted workstream (raises LumeError, caught by dispatch)."""

@@ -238,6 +238,14 @@ class Workstream:
         """The retro artifact through the store, or None if not yet written."""
         return self._store.read(self._id, "retro")
 
+    def objective_doc(self) -> dict:
+        """The objective artifact (validated read)."""
+        return self._load_objective()
+
+    def decisions_doc(self) -> dict | None:
+        """The decisions artifact through the store, or None if not yet written."""
+        return self._store.read(self._id, "decisions")
+
     def transition(self, verb: str, note: str | None = None, repo_root=None) -> Iteration:
         """Apply a named phase transition to the current iteration.
 

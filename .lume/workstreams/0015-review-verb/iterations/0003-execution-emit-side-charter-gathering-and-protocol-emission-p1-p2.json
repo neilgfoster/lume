@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "review.py gathers charter context: PRIMARY all workstreams' objectives/decisions/retros/plans from lume state; SECONDARY pattern scan capped at 12 files / 8192 chars each in sorted order with visible truncation; --charter glob override replaces the scan; thin-coverage degradation flags N files found."
+      },
+      {
+        "check": {
+          "cmd": "cd /tmp && rm -rf lume-emit-check && mkdir lume-emit-check && cd lume-emit-check && mkdir -p .lume/workstreams && python /home/nfoster/source/lume/plugin/bin/lume review | grep -q 'META' && python /home/nfoster/source/lume/plugin/bin/lume review | grep -qi 'marketplace'",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "lume review (alias: lume review emit) prints the protocol with all seven lenses; ecosystem-fit instructs live lookup of native features, official plugin marketplace, and official best practices; META instructs critiquing the protocol itself into review_gaps; nothing fetched or hardcoded (no network calls, no baked-in feature/plugin/best-practice lists)."
+      },
+      {
+        "check": {
+          "cmd": "python /home/nfoster/source/lume/plugin/bin/lume verbs review",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "review appears in lume verbs and USAGE via a single _CATALOG entry; --json emits charter_sources (each labelled lume-state | discovered-doc | override), plan, decisions, lenses, result_schema; usage errors exit 2 with code=usage."
+      },
+      {
+        "check": {
+          "cmd": "python -m pytest -q",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Determinism proven: golden test on a fixed fixture repo asserts byte-identical output across two runs; no-docs fixture emits a usable protocol that flags thin coverage; full suite green."
+      },
+      {
+        "checked": true,
+        "text": "Emit is read-only: running lume review changes no file in the repo (no side-effect property tested)."
+      }
+    ],
+    "preamble": "Execution slice 1 of the review verb: the emit side (plan items P1+P2). Charter gathering and deterministic protocol emission, with tests. Ingest follows in the next iteration."
+  },
+  "handback": "Emit side of lume review is done (P1+P2): review.py (charter gathering + protocol builder), schemas/review_result.json (needed early for --json result_schema), catalog entry, handle_review in cli/handlers/discovery.py, multi-value --charter flag through flags.py/app.py/Context, and public objective_doc/decisions_doc accessors on Workstream. 13 new tests; suite 387 passed; all DoD machine checks green. review ingest is a stub raising a clear domain error until the next slice (P3-P5). Next: execution iteration for the ingest side.",
+  "id": 3,
+  "self_review": "Holds: review.py implements the decided design exactly - PRIMARY lume-state charter (every workstream's objective/decisions/plan/retro via new public Workstream accessors), SECONDARY sorted pattern scan capped at 12 files/8192 chars with visible truncation and a dropped-files note, --charter override (repeatable, via a new _extract_multi_flag helper), and thin-coverage degradation tested on a no-docs fixture. The protocol carries all seven lenses; ecosystem-fit says 'look it up now' for native features, the marketplace, and best practices, and the verb embeds no such list and makes no network call; META directs review_gaps with the dont-invent-gaps clause. --json emits charter_sources (labelled), plan, decisions, lenses, result_schema, protocol. 13 new tests including byte-identical double-run, read-only tree-digest property, cap/truncation, override labelling, and exit-2 usage errors. All 4 machine checks pass; suite 387 green. Weak/honest: (1) schemas/review_result.json landed in THIS slice rather than P3 because emit --json must serve result_schema - P3 still owns ingest validation against it. (2) 'lume review ingest' currently raises a clear LumeError('not implemented yet, next slice') - the catalog advertises it before it works; deliberate so the verb surface is stable, flagged here rather than hidden. (3) Two existing tests needed updating (declared-flags set, entity-kind count 10->11) - contract-tracking updates, not behavior changes. (4) Emit contains no timestamp at all, which makes the determinism story trivial - the clock seam is only needed by ingest."
+}

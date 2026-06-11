@@ -113,6 +113,33 @@ status `open|acknowledged|resolved`, created, resolution).
 This is the lume↔adopter feedback channel. v0.1 delivers the **ingest** half;
 signalling a resolution back to the adopter is a deliberate later step.
 
+## Adversarial self-review
+
+`lume review` keeps a repo true to its own charter via a repeatable self-review
+whose output is shaped as queue-ready workstreams. The thinking is the agent's;
+lume is deterministic plumbing on both ends (no LLM, no network, dates via the
+clock seam):
+
+- `lume review` (alias `lume review emit`) prints a review **protocol** seeded
+  from the repo's charter: primarily lume's own state (every workstream's
+  objective, decisions, plan, retro), plus a capped pattern scan for
+  charter-like docs - or explicit files via repeatable `--charter <glob>`. With
+  few or no docs it still emits and tells the agent coverage is thin. The
+  protocol carries seven lenses (goal-fidelity, honesty, ecosystem fit,
+  value/viability, keystone risk, vision coherence, and a META lens that turns
+  the review on itself); the ecosystem lens instructs the agent to consult the
+  **current** Claude Code features, plugin marketplace, and official best
+  practices at review time - lume bakes in no such list.
+- `lume review ingest <path>` validates the agent's filled-in result against
+  the `review_result` schema, writes the human-readable report to
+  `.lume/review-<date>-NN/findings.md` (NN = that day's sequence, from 01),
+  persists the structured result through the store seam, and **prints - never
+  runs -** the queue plan: `lume new`/`plan add` for proposed workstreams,
+  `lume decide` for direction decisions, and `lume gap add` for the review's
+  own self-improvement gaps (the META lens feeding the gap mechanic, so the
+  review gets better over time). Adopting any of it stays behind the
+  operator's gate.
+
 ## Hierarchical workstreams
 
 A workstream can **spawn** child workstreams - a "sprint" that decomposes into
@@ -145,6 +172,7 @@ explains one; add `--json` to any verb for machine-readable output.
 | `retro` | create or refresh the retro artifact |
 | `check` | dry-run the current iteration's DoD machine-checks (read-only) |
 | `gap` | record / list / scan / resolve cross-repo capability gaps |
+| `review` | emit the adversarial self-review protocol / ingest a review result |
 | `snapshot` | print the derived Done / Now / Next snapshot |
 | `get` / `schema` / `entities` | inspect state and its schemas as JSON |
 | `close` / `reopen` | close or reopen a workstream |

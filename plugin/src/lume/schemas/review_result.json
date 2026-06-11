@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "review_result",
+  "type": "object",
+  "required": ["direction_decisions", "proposed_workstreams", "review_gaps", "provenance"],
+  "properties": {
+    "direction_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["context", "decision", "rationale"],
+        "properties": {
+          "context":   {"type": "string"},
+          "decision":  {"type": "string"},
+          "rationale": {"type": "string"}
+        }
+      }
+    },
+    "proposed_workstreams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["slug", "title", "serves_goal", "objective", "critical_path", "plan_items"],
+        "properties": {
+          "slug":          {"type": "string"},
+          "title":         {"type": "string"},
+          "serves_goal":   {"type": "string"},
+          "objective":     {"type": "string"},
+          "critical_path": {"type": "boolean"},
+          "plan_items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["sketch", "type", "tag", "evidence"],
+              "properties": {
+                "sketch":   {"type": "string"},
+                "type":     {"enum": ["epic", "slice", "spike", "chore"], "type": "string"},
+                "tag":      {"enum": ["committed", "optional"], "type": "string"},
+                "evidence": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "review_gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["gap", "why_missed", "proposed_change"],
+        "properties": {
+          "gap":             {"type": "string"},
+          "why_missed":      {"type": "string"},
+          "proposed_change": {"type": "string"}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source", "date", "note"],
+      "properties": {
+        "source": {"type": "string"},
+        "date":   {"type": "string"},
+        "note":   {"type": "string"}
+      }
+    }
+  }
+}

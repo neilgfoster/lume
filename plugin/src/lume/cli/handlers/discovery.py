@@ -157,3 +157,29 @@ def handle_check(ctx: Context) -> int:
         print(f"[{mark}] {r['text']} - {r['reason']}")
     print(f"{len(failed)} failed / {len(results)} items (iteration {it.id:03d})")
     return 0 if not failed else 1
+
+
+def handle_review(ctx: Context) -> int:
+    """Emit the adversarial self-review protocol (the read-only half).
+
+    `lume review` / `lume review emit` gathers charter context (lume state
+    first, then discovered or --charter-overridden docs) and prints the
+    protocol. The ingest half lives in authoring (it writes artifacts).
+    """
+    from ...review import build_protocol, emit_json, gather_charter
+
+    sub = ctx.arg or "emit"
+    if sub == "ingest":
+        from .authoring import handle_review_ingest
+        return handle_review_ingest(ctx)
+    if sub != "emit":
+        ctx.fail("usage", "usage: lume review [emit] [--charter <glob>]... | ingest <path>")
+        return 2
+    ctx.repo.project_root()  # NoLumeDirError -> dispatch maps to exit 1
+    charter = gather_charter(ctx.repo, ctx.opt_charter or None)
+    protocol = build_protocol(charter)
+    if ctx.json_mode:
+        ctx.out(emit_json(charter, protocol))
+        return 0
+    print(protocol)
+    return 0

@@ -33,7 +33,7 @@ from ..repository import Repository
 from ..store import SQLiteStore
 from .catalog import _VERB_NAMES, USAGE
 from .context import Context
-from .flags import _extract_bool_flag, _extract_flag
+from .flags import _extract_bool_flag, _extract_flag, _extract_multi_flag
 from .handlers import HANDLERS, handle_transition
 from .io import _code_for, _fail
 
@@ -52,6 +52,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         opt_tag, rest = _extract_flag(rest, ("-g", "--tag"), "a tag")
         opt_new, rest = _extract_bool_flag(rest, "--new")
         opt_existing, rest = _extract_bool_flag(rest, "--existing")
+        opt_charter, rest = _extract_multi_flag(rest, ("--charter",), "a file glob")
     except ValueError as exc:
         _fail(json_mode, "usage", str(exc))
         if not json_mode:
@@ -92,6 +93,7 @@ def main(argv: list[str], start: Path | None = None, clock: Clock | None = None)
         opt_tag=opt_tag,
         opt_new=opt_new,
         opt_existing=opt_existing,
+        opt_charter=opt_charter,
     )
 
     handler = HANDLERS.get(cmd, handle_transition)
