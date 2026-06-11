@@ -1,0 +1,22 @@
+{
+  "entries": [
+    {
+      "context": "discovery channel",
+      "date": "2026-06-11",
+      "decision": "Discoveries are recorded in-repo as discoveries/*.json (not GitHub issues).",
+      "rationale": "Matches lume's 'state as JSON in the repo' philosophy, is contract-testable, and adds no external coupling. One schema, one scan, two sources (lume's own operator feedback and adopter repos)."
+    },
+    {
+      "context": "autonomous acceptance v0.1",
+      "date": "2026-06-11",
+      "decision": "Autonomous acceptance for the consumer (tredl) is STRICT: auto-accept only when the Definition of Done is machine-verifiable; anything subjective escalates to the human. No confidence thresholds in v0.1.",
+      "rationale": "Confidence thresholds are how autonomous agents ship confident garbage. tredl-as-operator only has value if its acceptance is independent and verifiable - this is why L2 (DoD machine-evaluable, read at accept) is the keystone."
+    },
+    {
+      "context": "template mechanism vs intelligence split",
+      "date": "2026-06-11",
+      "decision": "lume owns the MECHANISM to instantiate a workstream/phase structure from a declarative pattern definition; the consumer (tredl) owns the INTELLIGENCE of choosing/authoring a pattern. Built-in named templates are content grown by demonstrated need only, never speculatively.",
+      "rationale": "Keeps lume's focus on deterministic mechanism and pushes goal-fitting judgement to the consumer; a speculative template library is the scope-creep trap. This is why L5 is deferred and discovery-triggered, not scheduled."
+    }
+  ]
+}

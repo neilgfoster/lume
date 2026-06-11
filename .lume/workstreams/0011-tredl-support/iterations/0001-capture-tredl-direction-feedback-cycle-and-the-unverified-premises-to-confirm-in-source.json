@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Direction captured: tredl is defined (the lume loop with Claude Code as the per-iteration operator), the loom->tredl->Jaqard autonomy ladder is recorded, and the hard rules (tredl uses lume, never modifies it; operator always in the loop) are stated."
+      },
+      {
+        "checked": true,
+        "text": "Feedback cycle captured: the discovery-driven loop between lume and adopter repos (record -> scan -> ingest -> resolve -> adopt -> remove workaround) is written down, including that lume captures discoveries on itself from its own operator."
+      },
+      {
+        "checked": true,
+        "text": "Unverified premises flagged: the two assumptions inherited from external assessment (DoD is write-only / not read at accept; workstreams have no parent field) are recorded as assumptions to CONFIRM in source during each L-item's own discovery iteration, not yet confirmed here."
+      },
+      {
+        "checked": true,
+        "text": "Soft spots recorded: the strategic risks (replacing the trust gate with the thing it guarded; autonomy bounded by verifiability; bootstrapping; deadlock; discovery-as-API; scope creep) are listed so an adversarial reviewer can see them."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code; no lume behaviour change. Artifact is discovery.json only. The backlog itemisation (L0-L5) is deferred to the planning iteration; building any L-item is deferred to its own future workstream."
+      }
+    ],
+    "preamble": "Discovery for the tredl-support roadmap workstream. This iteration records the strategic direction (why tredl, the feedback cycle, the autonomy ladder) into the repo so the unbuilt backlog reads as staged roadmap, not scope creep. It does not itemise the backlog (that is the planning iteration) and builds nothing. Critically, it flags the two premises inherited from external assessment as assumptions to verify in source - they are NOT confirmed in this iteration."
+  },
+  "handback": "discovery.json written (8 sections) capturing the tredl direction and reasoning. Defined tredl (the lume loop with Claude Code as per-iteration operator) and the loom->tredl->Jaqard autonomy ladder; stated the hard rules (tredl uses lume and never modifies it; an operator is always in the loop); recorded the discovery-driven feedback cycle between lume and adopter repos, and that lume also captures discoveries on itself; FLAGGED the two unverified premises (DoD write-only / not read at accept; no parent field on workstreams) as assumptions to confirm in source during each L-item's own discovery, not confirmed here; listed the strategic soft spots for an adversarial reviewer. No engine code; no behaviour change. Backlog itemisation L0-L5 deferred to the planning iteration; building any L-item deferred to its own future workstream.",
+  "id": 1,
+  "self_review": "Holds: the direction, feedback cycle, and autonomy ladder are recorded faithfully from the seed doc, and the unverified premises are explicitly flagged rather than asserted as fact - which is the honest move, since L2 (DoD machine-evaluable) and L3 (hierarchical workstreams) each open with a discovery iteration that will confirm or refute them in source. Weak/deferred (correctly): no source verification performed here; the parent-field absence is trivially checkable (the workstream schema has no parent property) but per the operator's instruction it is carried as an assumption to confirm inside L3's discovery rather than struck now, keeping the strategy auditable. Scope held: discovery.json only, no engine code, no lume behaviour change."
+}

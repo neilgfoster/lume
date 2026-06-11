@@ -1,0 +1,85 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-capture-tredl-direction-feedback-cycle-and-the-unverified-premises-to-confirm-in-source.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Capture tredl direction, feedback cycle, and the unverified premises to confirm in source",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0002-record-the-l0-l5-backlog-as-ordered-plan-items-l5-deferred-discovery-triggered.json",
+      "id": 2,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Record the L0-L5 backlog as ordered plan items, L5 deferred/discovery-triggered",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": null,
+      "sketch": "L0 (order 1) - Inventory the existing primitives. OBJECTIVE: establish ground truth on what seed/workstream/iteration/discovery/plan/decide/snapshot already do and what their JSON artifacts actually contain on disk, before extending anything. DONE-WHEN: a short inventory note exists documenting, per primitive, the on-disk artifact shape, which verb(s) read vs only write it, and the current iteration type/phase enums; the gaps assumed in L1-L5 are each confirmed true or struck. ITERATIONS: discovery (read the modules) + closeout (write the inventory note).",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": null,
+      "sketch": "L1 (order 2) - Promote discoveries to a first-class, cross-repo mechanism. OBJECTIVE: extend 'discovery' (today an in-repo iteration type + discovery.json schema) into a capture-and-scan mechanism: discoveries/*.json records in any repo, captured from lume's own operator feedback AND from adopter repos, that lume can scan (via ADOPTERS) and pull into its backlog. DONE-WHEN: (1) documented discoveries/*.json schema with stable fields (id, source repo, title, context, status open/acknowledged/resolved, optional resolution link); (2) lume can record a discovery on itself; (3) lume can scan ADOPTERS repos, ingest open discoveries, and not double-ingest on rerun; (4) a contract test covers ingest + dedupe + status transitions. This is the integration API between lume and every adopter - design it deliberately. ITERATIONS: discovery, planning, execution, closeout.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "L2 (order 3, KEYSTONE) - Make the Definition of Done machine-evaluable and read at accept. OBJECTIVE: assessment indicates dod_artifact is persisted but not evaluated by any verb (write-only); for an autonomous operator the accept gate is only meaningful if the DoD can be CHECKED, not just asserted. Make DoD support machine-verifiable checks and have accept evaluate them. DONE-WHEN: (1) discovery confirms or refutes the 'DoD is write-only' claim [UNVERIFIED PREMISE A]; (2) a DoD can carry verifiable checks (command-exit-zero / file-exists / schema-valid predicates) alongside prose; (3) lume accept evaluates the verifiable checks and refuses if any fail; (4) prose-only DoD is flagged non-verifiable so a caller can route it to human escalation; (5) tests cover pass, fail, and non-verifiable paths. ITERATIONS: discovery, planning, execution, closeout.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": null,
+      "sketch": "L3 (order 4) - Hierarchical workstreams (a workstream that spawns workstreams). OBJECTIVE: the workstream schema has no parent reference, so a 'sprint' (a workstream that decomposes into and spawns child workstreams) is not representable. Add parent/child relationships and verb support to spawn and roll up children. DONE-WHEN: (1) workstream schema gains an optional parent reference and children are discoverable from a parent [confirms UNVERIFIED PREMISE B in its discovery]; (2) a verb spawns a child workstream linked to its parent; (3) status/snapshot can roll up child state to the parent; (4) closing a parent is refused while children are open (or defines explicit behaviour); (5) tests cover spawn, rollup, and the close guard. ITERATIONS: discovery, planning, execution, closeout.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P5",
+      "iter": null,
+      "sketch": "L4 (order 5) - Delivery practices: CI, releases, packaging, install verification. OBJECTIVE: lume has a strong test suite but no CI, no tagged release, and no packaging despite a v0.1.0 label; an adopter (tredl) cannot pin a dependable version. Establish first-class delivery so lume ships verifiable, pinnable releases. DONE-WHEN: (1) CI runs the full pytest suite on push/PR and is required to pass; (2) a pyproject declares the package and version; (3) a tagged, semver release exists and matches the declared version; (4) the Claude Code plugin install path is verified end to end (documented steps reproduced from a clean state); (5) a release produces an artifact an adopter can pin to. ITERATIONS: discovery (audit current gaps), planning, execution, closeout.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P6",
+      "iter": null,
+      "sketch": "L5 (order 6, DEFERRED / discovery-triggered - DO NOT SCHEDULE) - Declarative workstream/phase pattern instantiation. OBJECTIVE: lume's planned operator-selectable workstream/phase templates. SPLIT: lume owns the MECHANISM to instantiate a workstream/phase structure from a declarative pattern definition; the INTELLIGENCE of choosing/authoring a pattern lives in the consumer (tredl). A custom pattern is tredl's no-lume-code escape hatch for composition gaps. STATUS: deferred on purpose. Do NOT schedule. TRIGGER is empirical: when tredl's ad-hoc custom patterns recur, they arrive as discoveries that justify promoting the mechanism. Build the mechanism (one) when demanded; grow any built-in template library by demonstrated need only, never speculatively (a speculative template library is the scope-creep trap to avoid). DONE-WHEN (when triggered): (1) a documented declarative pattern definition format; (2) a verb instantiates a workstream/phase structure from a pattern; (3) at least one pattern promoted from a real recurring tredl workaround; (4) tests cover instantiation and validation. ITERATIONS (when triggered): discovery, planning, execution, closeout.",
+      "tag": "optional",
+      "type": "execution"
+    }
+  ],
+  "workstream": {
+    "id": "0011",
+    "objective_artifact": "objective.json",
+    "slug": "tredl-support",
+    "status": "active",
+    "title": "Enable autonomous operation (tredl support) and delivery hardening"
+  }
+}
