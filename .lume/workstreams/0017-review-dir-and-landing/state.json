@@ -1,0 +1,21 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-relocate-review-output-to-lume-review-date-nn-migrate-the-existing-folder-land-orphaned-state.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Relocate review output to .lume/review/<date>-NN, migrate the existing folder, land orphaned state",
+      "type": "execution",
+      "verdicts": []
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0017",
+    "objective_artifact": "objective.json",
+    "slug": "review-dir-and-landing",
+    "status": "active",
+    "title": "Relocate reviews to .lume/review/ and land orphaned review state"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "slug": "review-dir-and-landing",
+  "status": "active",
+  "text": "Close gaps G1 and G2 from review-2026-06-11-01 in one workstream. (1) Reviews move under a co-located subdir: ingest writes .lume/review/<date-stub>-<suffix>/ (e.g. .lume/review/2026-06-11-01/) instead of .lume/review-<date>-NN/ at the .lume root; the FilesystemStore review-artifact path, the next-free daily-sequence folder scan, the findings.md writer, and all docs that name the convention (SKILL.md, READMEs) change consistently; the existing .lume/review-2026-06-11-01/ folder is migrated to the new location; tests assert the new path and the suite is green. (2) The orphaned review state lands in history through this workstream: the migrated review folder, gap records G1, G2 under .lume/gaps/, and this workstream's own state are committed, resolving G2's immediate instance (the general workstream-linkage design question stays open as G2 until a mechanism is decided). Done when no review artifact lives at the .lume root, lume review ingest writes under .lume/review/, docs and tests agree, the suite is green, and the previously uncommitted .lume review/gap state is committed on this workstream's iteration.",
+  "title": "Relocate reviews to .lume/review/ and land orphaned review state"
+}

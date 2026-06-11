@@ -293,15 +293,16 @@ _PLAN_TYPE_MAP = {"spike": "discovery", "epic": "planning",
 
 
 def next_review_slug(lume_dir: Path, today: str) -> str:
-    """The dated review folder name: review-<today>-NN, NN the first free
-    zero-padded daily sequence (01, 02, ...) given the folders already present.
-    Deterministic in (existing folders, clock date); never reuses a taken NN."""
-    existing = {p.name for p in Path(lume_dir).glob(f"review-{today}-*")
+    """The dated review folder name under .lume/review/: <today>-NN, NN the
+    first free zero-padded daily sequence (01, 02, ...) given the folders
+    already present. Deterministic in (existing folders, clock date); never
+    reuses a taken NN."""
+    existing = {p.name for p in (Path(lume_dir) / "review").glob(f"{today}-*")
                 if p.is_dir()}
     n = 1
-    while f"review-{today}-{n:02d}" in existing:
+    while f"{today}-{n:02d}" in existing:
         n += 1
-    return f"review-{today}-{n:02d}"
+    return f"{today}-{n:02d}"
 
 
 def build_findings_md(result: dict, review_slug: str) -> str:
@@ -374,6 +375,6 @@ def queue_commands(result: dict, review_slug: str) -> list[str]:
         commands.append(f'lume decide -c "{d["context"]}" "{d["decision"]}" "{d["rationale"]}"')
     for g in result["review_gaps"]:
         commands.append(
-            f'lume gap add "{g["gap"]}" -c "{review_slug}: missed because '
+            f'lume gap add "{g["gap"]}" -c "review/{review_slug}: missed because '
             f'{g["why_missed"]}; proposed: {g["proposed_change"]}"')
     return commands

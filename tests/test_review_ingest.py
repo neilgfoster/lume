@@ -88,9 +88,9 @@ class IngestCaptureTest(_IngestBase):
     def test_first_run_writes_dated_01_folder(self):
         code, out = _run(self.root, "review", "ingest", str(self.result_path))
         self.assertEqual(code, 0, out)
-        folder = self.root / ".lume" / "review-2026-06-11-01"
+        folder = self.root / ".lume" / "review" / "2026-06-11-01"
         findings = (folder / "findings.md").read_text()
-        self.assertIn("# Review findings - review-2026-06-11-01", findings)
+        self.assertIn("# Review findings - 2026-06-11-01", findings)
         self.assertIn("fix-drift: Fix the drift [critical path]", findings)
         self.assertIn("no performance lens", findings)
         self.assertIn("automated self-review", findings)
@@ -103,12 +103,12 @@ class IngestCaptureTest(_IngestBase):
 
     def test_second_same_day_run_gets_02_without_clobbering_01(self):
         _run(self.root, "review", "ingest", str(self.result_path))
-        first = (self.root / ".lume" / "review-2026-06-11-01" / "findings.md").read_text()
+        first = (self.root / ".lume" / "review" / "2026-06-11-01" / "findings.md").read_text()
         code, _ = _run(self.root, "review", "ingest", str(self.result_path))
         self.assertEqual(code, 0)
-        self.assertTrue((self.root / ".lume" / "review-2026-06-11-02" / "findings.md").is_file())
+        self.assertTrue((self.root / ".lume" / "review" / "2026-06-11-02" / "findings.md").is_file())
         self.assertEqual(
-            (self.root / ".lume" / "review-2026-06-11-01" / "findings.md").read_text(), first)
+            (self.root / ".lume" / "review" / "2026-06-11-01" / "findings.md").read_text(), first)
 
     def test_ingest_never_creates_workstreams_or_gaps(self):
         _run(self.root, "review", "ingest", str(self.result_path))
@@ -123,7 +123,7 @@ class QueuePlanTest(_IngestBase):
         self.assertEqual(code, 0)
         doc = json.loads(out)
         self.assertEqual(doc["result"], "review_ingest")
-        self.assertEqual(doc["review"], "review-2026-06-11-01")
+        self.assertEqual(doc["review"], "2026-06-11-01")
         plan = doc["queue_plan"]
         self.assertEqual(plan[0], 'lume new fix-drift "Fix the drift"')
         # Taxonomy mapping: slice -> execution, spike -> discovery.
@@ -134,7 +134,7 @@ class QueuePlanTest(_IngestBase):
         self.assertEqual(plan[3], 'lume decide -c "scope" "stay small" "charter says so"')
         # Review gaps map to the gap mechanic, tagged with the review slug.
         self.assertEqual(plan[4],
-                         'lume gap add "no performance lens" -c "review-2026-06-11-01: '
+                         'lume gap add "no performance lens" -c "review/2026-06-11-01: '
                          'missed because protocol omits it; proposed: add lens 8"')
         self.assertEqual(len(plan), 5)
 
@@ -145,31 +145,31 @@ class QueuePlanTest(_IngestBase):
         code, out = _run(self.root, "review", "ingest", str(self.result_path))
         self.assertEqual(code, 0)
         self.assertIn("(nothing to queue)", out)
-        findings = (self.root / ".lume" / "review-2026-06-11-01" / "findings.md").read_text()
+        findings = (self.root / ".lume" / "review" / "2026-06-11-01" / "findings.md").read_text()
         self.assertIn("(none - the review judged itself thorough)", findings)
 
 
 class ReviewStoreSeamTest(unittest.TestCase):
-    DOC = {"title": "Review result - review-2026-06-11-01",
+    DOC = {"title": "Review result - 2026-06-11-01",
            "sections": [{"heading": "provenance", "body": "{}"}]}
 
     def test_inmemory_round_trip(self):
         store = InMemoryStore()
-        self.assertIsNone(store.read_review("review-2026-06-11-01"))
-        store.write_review("review-2026-06-11-01", self.DOC)
-        self.assertEqual(store.read_review("review-2026-06-11-01"), self.DOC)
+        self.assertIsNone(store.read_review("2026-06-11-01"))
+        store.write_review("2026-06-11-01", self.DOC)
+        self.assertEqual(store.read_review("2026-06-11-01"), self.DOC)
 
     def test_sqlite_round_trip(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = SQLiteStore(Path(tmp) / "lume.db")
-            self.assertIsNone(store.read_review("review-2026-06-11-01"))
-            store.write_review("review-2026-06-11-01", self.DOC)
-            self.assertEqual(store.read_review("review-2026-06-11-01"), self.DOC)
+            self.assertIsNone(store.read_review("2026-06-11-01"))
+            store.write_review("2026-06-11-01", self.DOC)
+            self.assertEqual(store.read_review("2026-06-11-01"), self.DOC)
 
     def test_invalid_shape_rejected(self):
         store = InMemoryStore()
         with self.assertRaises(SchemaError):
-            store.write_review("review-2026-06-11-01", {"nope": True})
+            store.write_review("2026-06-11-01", {"nope": True})
 
 
 if __name__ == "__main__":

@@ -1,0 +1,58 @@
+{
+  "dod": {
+    "items": [
+      {
+        "check": {
+          "cmd": "python3 -m pytest -q",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "lume review ingest writes review folders under .lume/review/<date>-NN/ (e.g. .lume/review/2026-06-11-01/), not at the .lume root: FilesystemStore review-artifact path, the next-free daily-sequence scan, and the findings.md writer all use the new location; SQLite backing behaviour unchanged"
+      },
+      {
+        "check": {
+          "cmd": "test -f .lume/review/2026-06-11-01/findings.md && test -f .lume/review/2026-06-11-01/result.json && ! ls -d .lume/review-* 2>/dev/null",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "The existing .lume/review-2026-06-11-01/ folder is migrated to .lume/review/2026-06-11-01/ (findings.md + result.json intact) and no review-* folder remains at the .lume root"
+      },
+      {
+        "check": {
+          "cmd": "grep -rq '\"review\" / \"2026' tests/test_review_ingest.py && ! grep -rq 'review-2026' tests/",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "Tests assert the new path: at least one test references .lume/review/ sequencing/location and the full suite is green with no assertion weakened"
+      },
+      {
+        "check": {
+          "cmd": "! grep -rn 'review-<date' README.md plugin/README.md plugin/skills/lume/SKILL.md",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "All docs naming the convention (plugin/skills/lume/SKILL.md, plugin/README.md, root README.md) say .lume/review/<date>-NN and no doc still says .lume/review-<date>"
+      },
+      {
+        "check": {
+          "cmd": "test -z \"$(git status --porcelain .lume)\"",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "The previously orphaned state is landed: gap records under .lume/gaps/ (G1, G2), the migrated review folder, and this workstream's own state are committed - nothing under .lume/ is left uncommitted at handback"
+      },
+      {
+        "check": {
+          "cmd": "python3 -c \"import json; d=json.load(open('.lume/gaps/lume-G1.json')); assert d['status']=='resolved', d['status']\"",
+          "kind": "command"
+        },
+        "checked": false,
+        "text": "G1 is marked resolved (lume gap resolve lume G1) with a resolution pointing at this workstream; G2's general design question stays open (only its immediate instance is landed here)"
+      }
+    ],
+    "preamble": "Close gaps G1 and (the immediate instance of) G2 in one execution iteration: relocate review output to .lume/review/<date>-NN/, migrate the existing folder, update docs and tests, and commit all currently-orphaned .lume state through this workstream."
+  },
+  "handback": null,
+  "id": 1,
+  "self_review": null
+}
