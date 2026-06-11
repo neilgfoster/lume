@@ -1,0 +1,6 @@
+{
+  "slug": "plugin-settings-schema-fix",
+  "status": "closed",
+  "text": "Done when: .claude/settings.json uses the Claude Code record (object) shape for extraKnownMarketplaces and enabledPlugins (was authored as arrays in workstream 0008/E3, which /doctor flagged as schema errors); the repo is swept for any other copies of the malformed shape (docs, READMEs, fixtures); and the closeout records the root cause (E3 'JSON validated' only checked syntax, never the Claude Code settings schema) plus a guard so future scaffolding is schema-checked, not just syntax-checked. settings.json hand-fix already applied 2026-06-11; this workstream tracks verification + prevention.",
+  "title": "Fix self-applied plugin settings schema (array->record)"
+}
