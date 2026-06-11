@@ -1,6 +1,6 @@
 {
   "name": "lume",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A deterministic, operator-driven iteration loop: workstreams, gated iterations, and JSON state you can inspect. The machine does not act without the operator.",
   "author": {
     "name": "Neil Foster",
