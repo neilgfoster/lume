@@ -104,7 +104,10 @@ def handle_transition(ctx: Context) -> int:
         ctx.fail("usage", 'usage: lume reject "<reason>"  (a reason is required)')
         return 2
     ws = ctx.require_ws()
-    iteration = ws.transition(ctx.cmd, note=ctx.arg or None)  # GateError -> exit 1
+    # accept evaluates the iteration's DoD machine-checks against the repo root;
+    # a failed check refuses the transition (GateError -> exit 1).
+    repo_root = ctx.repo.project_root() if ctx.cmd == "accept" else None
+    iteration = ws.transition(ctx.cmd, note=ctx.arg or None, repo_root=repo_root)
     ctx.ok({"result": ctx.cmd, "workstream": ws.name, "iteration": iteration.id,
             "phase": iteration.phase},
            f"{ctx.cmd}: iteration {iteration.id:03d} -> phase {iteration.phase}")

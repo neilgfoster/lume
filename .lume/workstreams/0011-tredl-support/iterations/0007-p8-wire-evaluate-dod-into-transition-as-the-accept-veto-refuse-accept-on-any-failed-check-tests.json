@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Workstream.transition() gains an optional repo_root; on verb=='accept' with repo_root provided, it loads the current iteration's content doc, evaluates its DoD checks via evaluate_dod, and raises GateError (listing each failed item -> reason) if any VERIFIABLE check fails - phase stays handback, no verdict appended."
+      },
+      {
+        "checked": true,
+        "text": "Back-compat: transition() with repo_root=None is unchanged (no evaluation), and all non-accept verbs are unaffected; prose-only DoDs accept exactly as before.",
+        "check": {"kind": "command", "cmd": "python -m pytest -q tests/test_transitions.py"}
+      },
+      {
+        "checked": true,
+        "text": "CLI handle_transition passes the project root (the directory containing .lume) for accept, so 'lume accept' is gated in real use; Repository exposes that root.",
+        "check": {"kind": "command", "cmd": "grep -q project_root plugin/src/lume/repository.py"}
+      },
+      {
+        "checked": true,
+        "text": "The accept-veto is covered by tests: failing-check refusal (phase stays handback), passing-check accept, prose-only accept, repo_root=None skip, and a CLI-level 'lume accept' refusal.",
+        "check": {"kind": "file-exists", "path": "tests/test_accept_veto.py"}
+      },
+      {
+        "checked": true,
+        "text": "Full suite green including the new tests.",
+        "check": {"kind": "command", "cmd": "python -m pytest -q"}
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P3/L2 build step 2 of 4 (plan item P8): wire the pure evaluator from P7 into the accept gate so a failed machine-verifiable check REFUSES accept. This is the behaviour change with teeth. DOGFOOD: this iteration's own DoD carries real checks (command/file-exists), so the operator's 'lume accept' will exercise the new veto end to end - accept runs pytest, confirms the wiring marker/file, and only then passes. Decisions from 005 govern; the structured --json failures list is intentionally routed to P9's 'lume check' rather than the accept error (logged)."
+  },
+  "handback": "P8 done (P3/L2 build step 2 of 4): the DoD machine-checks now GATE accept. Premise A is closed - the accept gate, which never read the DoD, now refuses on a failed verifiable check. CHANGES: (1) Workstream.transition() gains optional repo_root; on verb=='accept' with a root it calls _refuse_on_failed_checks, which loads the iteration content doc (symmetric to _save_iter_content's stem) and raises GateError listing each failed item->reason; phase stays handback, no verdict appended. (2) repo_root=None => no evaluation, so direct callers / sqlite|memory backings and every existing transition test are behaviour-preserving. (3) Repository.project_root() returns the dir containing .lume; cli handle_transition passes it only for accept, so 'lume accept' is gated in real use. (4) tests/test_accept_veto.py - 6 tests: failing command-check refusal (+phase unchanged on disk), passing-check accept, prose-only accept, repo_root=None skip, file-exists gating, and a CLI-level 'lume accept' refusal via subprocess. Suite: 337 passed (was 331). FORK 4 refinement logged: the structured --json failures list goes to P9's 'lume check', not the shared accept-error plumbing; the accept GateError carries a clear multi-line human message. DOGFOOD: this iteration's own DoD carries 4 verifiable checks (pytest, the project_root marker, the test file) - a read-only dry-run confirms all 4 pass, so the operator's 'lume accept' will run the veto on 007 itself and pass. Committed on branch workstream/tredl-support. RECOMMEND next: P9 - 'lume check' dry-run verb + verifiability status surface.",
+  "id": 7,
+  "self_review": "Holds: the veto is wired at the single correct seam (transition, before the phase mutation) and reuses the existing GateError->exit-1 path, so no handler/CLI error plumbing changed. Back-compat is structural and tested: repo_root defaults to None and only the CLI's accept path supplies it, so all 331 prior tests pass untouched and non-filesystem backings are unaffected. The dogfood is real - 007's own accept will be gated by the code 007 ships, verified by a read-only dry-run (4/4 checks pass). Weak / watch: (1) COMMAND-CHECK TRUST is now LIVE, not theoretical - 'lume accept' will execute author-supplied shell (here, pytest). For a human operator this is the intended test-suite trust model, but for unattended tredl accept it is a real code-execution surface; sandbox/allowlist remains the named discovery-triggered follow-up and P9 must keep flagging command-bearing DoDs. (2) repo_root=None SILENTLY skips evaluation - this is deliberate back-compat, but it means the veto's teeth depend on the caller passing the root; only the CLI accept path does, so a future programmatic caller could accept without checks. Documented in the docstring; worth a guard if more callers appear. (3) _refuse_on_failed_checks returns early if the content doc is missing (treats absent content as nothing-to-check) rather than erroring - lenient by design, noted. (4) capture_output still discards command output, so the refusal reason is exit-code-level only; P9's 'lume check' is the place to surface output tails. Nothing deferred silently; FORK 4's structured-list move is logged as a decision."
+}

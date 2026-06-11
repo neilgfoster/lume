@@ -65,6 +65,12 @@
       "date": "2026-06-11",
       "decision": "On any failed/failed-to-run check, accept raises GateError (exit 1, phase stays handback) with message 'cannot accept - N DoD check(s) failed' followed by per-item 'text -> reason'; --json error payload carries a structured 'failures' list (item index, text, kind, reason).",
       "rationale": "Reuses the existing GateError->exit-1 path so no handler change; the structured --json failures list is what an autonomous operator (tredl) parses to report or escalate, while the text message serves a human."
+    },
+    {
+      "context": "P3/L2 execution (iteration 007, P8) - FORK 4 refinement",
+      "date": "2026-06-11",
+      "decision": "The accept veto refuses with a clear multi-line GateError message (each failed item -> reason); the STRUCTURED machine-readable failures list is delivered by P9's 'lume check', not by extending the shared accept error plumbing.",
+      "rationale": "Routing structured results to 'lume check' is better design than overloading the {error:{code,message}} shape used by every verb: an autonomous operator runs 'lume check' to read per-item pass/fail BEFORE attempting accept, and the human-facing accept error stays a clear message. Keeps P8 to the veto and avoids touching shared error plumbing for marginal gain."
     }
   ]
 }

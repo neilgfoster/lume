@@ -79,8 +79,23 @@
       "dod_artifact": "iterations/0006-p7-machine-verifiable-dod-optional-check-field-in-iteration-content-schema-pure-evaluate-dod-evaluator-unit-tests.json",
       "id": 6,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P7: machine-verifiable DoD - optional 'check' field in iteration_content schema + pure evaluate_dod evaluator (+unit tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0007-p8-wire-evaluate-dod-into-transition-as-the-accept-veto-refuse-accept-on-any-failed-check-tests.json",
+      "id": 7,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P8: wire evaluate_dod into transition() as the accept veto - refuse accept on any failed check (+tests)",
       "type": "execution",
       "verdicts": []
     }
@@ -137,7 +152,7 @@
     },
     {
       "id": "P8",
-      "iter": null,
+      "iter": 7,
       "sketch": "P3/L2 build step 2 of 4 - ACCEPT VETO. Wire the evaluator into Workstream.transition(): on verb=='accept', before the phase mutation, evaluate the current iteration's DoD checks and raise GateError (per FORK 4 shape) if any fail/fail-to-run. DONE-WHEN: accept refuses with exit 1 + structured --json failures when a check fails; accept proceeds when all checks pass or none exist; prose-only DoDs accept exactly as today; tests cover refuse/pass/prose-only/back-compat. ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

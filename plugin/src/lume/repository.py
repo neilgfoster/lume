@@ -50,6 +50,14 @@ class Repository:
             raise NoLumeDirError("no .lume/ found from here.")
         return lume_dir
 
+    def project_root(self) -> Path:
+        """The repo root: the directory containing `.lume/`.
+
+        This is the working directory DoD command/file checks resolve against
+        at the accept gate (decision, iteration 005: cwd = repo root).
+        """
+        return self._require_lume_dir().parent
+
     def ensure_lume_dir(self) -> Path:
         """The operator's .lume/ dir, creating it at the start path if absent.
 
