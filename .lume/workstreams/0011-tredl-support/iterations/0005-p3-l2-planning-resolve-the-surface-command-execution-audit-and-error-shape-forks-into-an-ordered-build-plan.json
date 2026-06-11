@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "FORK 1 (surface) resolved: decide how checks are evaluated/exposed - a pure evaluator function, whether a 'lume check' dry-run verb exists in v0.1, and how verifiability status is surfaced (status/get field). One-line rationale logged via lume decide."
+      },
+      {
+        "checked": true,
+        "text": "FORK 2 (command-execution model) resolved: cwd, default timeout, env handling, and the trust boundary for 'command' checks; sandbox/allowlist explicitly in or out of v0.1. Logged."
+      },
+      {
+        "checked": true,
+        "text": "FORK 3 (audit) resolved: whether evaluated check results are persisted (and where) or recomputed each accept. Logged."
+      },
+      {
+        "checked": true,
+        "text": "FORK 4 (error shape) resolved: the GateError message + --json error shape for failed/failed-to-run checks. Logged."
+      },
+      {
+        "checked": true,
+        "text": "Build plan recorded via lume plan add: an ordered set of execution (and closeout) iterations for P3/L2, each with a binary DoD sketch and committed/optional tag (e.g. schema+evaluator, accept-gate wiring, surface/dry-run verb, tests, docs). [P7 schema+evaluator, P8 accept-veto, P9 dry-run+status, P10 docs+closeout - all committed.]"
+      },
+      {
+        "checked": true,
+        "text": "The first execution iteration is concrete enough to open next (clear DoD, touches named files). [P7: schemas/iteration_content.json + new evaluator module + tests; binary DoD in the sketch.]"
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code in this planning iteration; the command-check trust soft spot from 004's self-review is explicitly carried or resolved, not dropped. [Carried: FORK 2 keeps command checks in v0.1 with the test-suite trust model, defers sandbox as discovery-triggered, and flags command-bearing DoDs to autonomous operators.]"
+      }
+    ],
+    "preamble": "P3/L2 keystone planning. Turn the four forks deferred by iteration 004 (surface, command-execution model, audit, error shape) into logged decisions, then record an ordered build plan of execution iterations. No engine code - decisions + plan only. Constraint: v0.1 STRICT line holds (three predicate kinds, no confidence thresholds, no arbitrary predicate languages); carry the command-check trust concern forward deliberately."
+  },
+  "handback": "P3/L2 planning complete: all four forks from iteration 004 resolved as logged decisions, and a 4-step build plan recorded (P7-P10, all committed). FORKS: (1) SURFACE - a pure evaluate_dod(content, repo_root) function reused by both accept (veto) and a new v0.1 'lume check' dry-run verb; verifiability status surfaced on 'lume check' and 'lume get'. (2) COMMAND EXEC - cwd=repo root, 120s default timeout, inherited env, trust = same as running the test suite; sandbox/allowlist OUT of v0.1 (discovery-triggered follow-up), command-bearing DoDs flagged for autonomous operators. (3) AUDIT - recompute each accept, no persisted results artifact; accept verdict reason carries a one-line summary. (4) ERROR SHAPE - failed check => GateError exit 1 (phase stays handback), human message 'cannot accept - N DoD check(s) failed' + per-item 'text -> reason', --json carries a structured failures list. BUILD PLAN: P7 schema+pure evaluator (+unit tests), P8 wire evaluator into transition()/accept veto (+tests), P9 'lume check' verb + status surface (+CLI/help/tests), P10 docs+closeout retro. First execution iteration (P7) is concrete: touches schemas/iteration_content.json and a new evaluator module with named test cases. No engine code in this iteration. RECOMMEND next: open the P7 execution iteration.",
+  "id": 5,
+  "self_review": "Holds: every fork is closed with a decision that fits lume's existing seams (pure function + validate_entity reuse + the existing GateError->exit-1 path), the v0.1 STRICT line is held (three kinds, no confidence, no arbitrary predicate language), and the build plan is sliced so each step is independently testable and the accept-veto (P8, the behaviour change with teeth) is isolated from the schema/evaluator (P7). Weak / watch: (1) COMMAND-CHECK TRUST is carried, not solved - FORK 2 keeps arbitrary shell execution at accept with a test-suite trust model and only FLAGS it for autonomous operators; this is the right v0.1 call for a human operator but remains a genuine hole for unattended tredl accept, and I have left it as a named discovery-triggered follow-up rather than forcing a sandbox design now. An adversarial reviewer should confirm they accept that deferral. (2) PLAN GRANULARITY - P7-P10 sit after P6 in a flat plan whose P1-P6 are the L-ladder, so plan ordering no longer reads as strict execution order (we are doing the keystone P3 before P2 by deliberate decision); the sketches name themselves as P3/L2 steps to keep this legible, but the plan list is now mixed-granularity. (3) The 'lume check' verb and the get-status field are committed to v0.1 here on a judgement that the dry-run is high-value for tredl; if it proves scope, P9 is the cut point. Nothing dropped silently."
+}

@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "schemas/iteration_content.json: each dod item gains an OPTIONAL 'check' object constrained to the three v0.1 kinds - command {kind, cmd}, file-exists {kind, path}, schema-valid {kind, entity, path} - with required fields per kind; an item with NO check and existing iteration_content docs still validate (verified by the existing suite staying green). [NOTE: the schema enforces kind-enum + optional string fields; per-KIND required fields are enforced in the evaluator, since lume's validator subset has no oneOf - documented in both schema use and module docstring.]"
+      },
+      {
+        "checked": true,
+        "text": "New pure evaluator (plugin/src/lume/dod_checks.py): evaluate_dod(content_doc, repo_root) returns a per-item result {index, text, verifiable, passed, kind, reason}; non-verifiable (no check) items are reported verifiable=false/passed=None; it never mutates state and runs nothing at import."
+      },
+      {
+        "checked": true,
+        "text": "Predicate semantics implemented: command = subprocess exit 0 (cwd=repo_root, 120s timeout, inherited env; timeout/nonzero/not-found => passed=false with reason); file-exists = path resolved under repo_root exists; schema-valid = JSON at path loads AND validate_entity(entity, doc) passes (failure => passed=false with reason)."
+      },
+      {
+        "checked": true,
+        "text": "Unit tests (tests/test_dod_checks.py): command pass/nonzero/not-found/timeout/missing-cmd/cwd, file-exists hit/miss/missing-path, schema-valid pass/invalid-doc/missing-file/missing-fields, unknown-kind, prose-only, result-ordering; plus back-compat tests that checkless AND check-bearing iteration_content validate. 18 new tests."
+      },
+      {
+        "checked": true,
+        "text": "Full suite green (python -m pytest -q): 331 passed (was 313). No behaviour change to any existing verb - the evaluator is not yet wired into accept (that is P8)."
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P3/L2 build step 1 of 4 (plan item P7). Add the machine-verifiable DoD substrate: an optional 'check' field on iteration_content dod items and a pure, well-tested evaluator for the three v0.1 predicate kinds. NO wiring into accept yet (that is P8) - this iteration only adds the schema + evaluator + tests, so it is behaviour-preserving for every existing verb. Decisions from iteration 005 govern: cwd=repo root, 120s timeout, inherited env, recompute (no persistence), three kinds only."
+  },
+  "handback": "P7 done (P3/L2 build step 1 of 4): the machine-verifiable DoD substrate is in, behaviour-preserving. CHANGES: (1) schemas/iteration_content.json - dod items gain an optional 'check' object (kind enum: command|file-exists|schema-valid, plus optional cmd/path/entity strings). (2) plugin/src/lume/dod_checks.py - a pure evaluate_dod(content, repo_root) returning per-item {index, text, verifiable, passed, kind, reason}; command runs via subprocess (cwd=repo root, COMMAND_TIMEOUT_SECONDS=120, inherited env), file-exists resolves under repo root, schema-valid reuses validate_entity; malformed checks fail closed with a reason. (3) tests/test_dod_checks.py - 18 tests across every branch + back-compat. Suite: 331 passed (was 313). NOT wired into accept yet (P8) - no existing verb changes behaviour. DESIGN NOTE: per-kind required fields are enforced in the evaluator, not the schema, because lume's validator is a deliberate subset with no oneOf; documented in the module docstring. Committed on branch workstream/tredl-support. RECOMMEND next: P8 - wire evaluate_dod into Workstream.transition() as the accept veto.",
+  "id": 6,
+  "self_review": "Holds: the change is strictly additive and behaviour-preserving - the evaluator is pure, imported nowhere in the transition path, so every existing verb is untouched (the 313 prior tests still pass unchanged). Predicate branches are each tested including the fail-closed paths (missing cmd/path/entity, unknown kind) and the awkward ones (timeout via a monkeypatched constant, command not-found => exit 127, cwd correctness). Back-compat is proven by validating both a checkless and a check-bearing iteration_content. Weak / watch: (1) COMMAND-CHECK TRUST remains the known hole carried from 004/005 - evaluate_dod will run arbitrary author shell with shell=True; acceptable under the v0.1 test-suite trust model for a human operator, but P8/P9 must keep flagging command-bearing DoDs and the sandbox question stays a named discovery-triggered follow-up. (2) schema-valid only validates against lume's own entity schemas via validate_entity, so it cannot check arbitrary external JSON - intentional for v0.1, but worth stating so nobody assumes general JSON-schema validation. (3) capture_output discards stdout/stderr; a failing command reports only its exit code, not its output - fine for a gate verdict, but P9's 'lume check' may want to surface tails for debuggability (left to P9). Nothing deferred silently."
+}

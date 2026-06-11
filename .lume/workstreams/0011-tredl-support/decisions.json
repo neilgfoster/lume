@@ -17,6 +17,54 @@
       "date": "2026-06-11",
       "decision": "lume owns the MECHANISM to instantiate a workstream/phase structure from a declarative pattern definition; the consumer (tredl) owns the INTELLIGENCE of choosing/authoring a pattern. Built-in named templates are content grown by demonstrated need only, never speculatively.",
       "rationale": "Keeps lume's focus on deterministic mechanism and pushes goal-fitting judgement to the consumer; a speculative template library is the scope-creep trap. This is why L5 is deferred and discovery-triggered, not scheduled."
+    },
+    {
+      "context": "accept-gate friction surfaced driving iteration 003 of this workstream",
+      "date": "2026-06-11",
+      "decision": "Prioritise P3/L2 (machine-evaluable DoD read at accept) as the next execution work; the keystone, not just plan-order.",
+      "rationale": "The accept gate today is a pure human assertion - L0.2 confirmed no verb reads the DoD. That is exactly why the gate adds friction: an in-session agent cannot relay the operator's 'approve' without appearing to self-accept, so every accept forces a manual operator command. Building P3 first makes accept a verifiable check (tests/lint/schema green = accept; subjective = human escalation), which dissolves the friction in a principled way rather than by loosening the human-in-the-loop rule. This is also tredl's whole premise (autonomy bounded by verifiability), so it must land before any auto-accept path."
+    },
+    {
+      "context": "P3/L2 keystone design (iteration 004)",
+      "date": "2026-06-11",
+      "decision": "DoD checks hook into Workstream.transition() on verb=='accept', before the phase mutation, raising GateError on any failed check.",
+      "rationale": "transition() is the single function that gates accept (handback->accepted) and already raises GateError mapped to exit 1 by handle_transition; evaluating there reuses the existing refuse path with no CLI/handler change. It is also the only place that currently never reads the DoD - the exact gap Premise A names."
+    },
+    {
+      "context": "P3/L2 keystone design (iteration 004)",
+      "date": "2026-06-11",
+      "decision": "Each DoD item gains an OPTIONAL 'check' object; v0.1 supports exactly three predicate kinds: command (exit 0), file-exists, schema-valid (reusing validate_entity).",
+      "rationale": "Optional keeps iteration_content backward-compatible (existing prose-only items still validate; no migration). The three kinds are deterministic and already expressible with lume's own seams (subprocess, path, validate). Arbitrary predicate languages / output-regex / HTTP probes are deferred as scope-creep traps."
+    },
+    {
+      "context": "P3/L2 keystone design (iteration 004)",
+      "date": "2026-06-11",
+      "decision": "Split veto from autonomy: lume REFUSES accept if any verifiable check fails and EXPOSES verifiability status, but never auto-accepts; the auto-accept-vs-escalate decision lives in the consumer (tredl).",
+      "rationale": "Preserves lume's operator-in-the-loop contract (lume only gains a machine VETO, not the power to accept) while giving an autonomous operator the signal it needs: fully-verifiable + all-green may auto-accept; any prose-only item escalates to a human. Matches iteration 001 decision #2 (STRICT autonomous acceptance) and keeps the intelligence in tredl per the template split."
+    },
+    {
+      "context": "P3/L2 planning (iteration 005) - FORK 1 surface",
+      "date": "2026-06-11",
+      "decision": "Build a pure evaluate_dod(content_doc, repo_root)->results function; accept calls it for the veto AND ship a 'lume check' verb in v0.1 that calls it for a dry-run (pass/fail without transitioning); verifiability status is surfaced in 'lume check' output and as a field on 'lume get'.",
+      "rationale": "A pure evaluator is unit-testable in isolation and reused by both accept and the dry-run. 'lume check' is cheap and high-value: it lets a human preview the gate and lets tredl read pass/fail + verifiable/prose-only status before deciding accept-vs-escalate, without a state transition."
+    },
+    {
+      "context": "P3/L2 planning (iteration 005) - FORK 2 command execution",
+      "date": "2026-06-11",
+      "decision": "command checks run with cwd=repo root, a default 120s timeout, inheriting the current env; trust model = same as running the test suite (DoD author == operator). Sandbox/allowlist is OUT of v0.1 and recorded as a discovery-triggered follow-up; 'lume check'/status flags that a DoD contains command checks.",
+      "rationale": "Matches how the project already runs (pytest from repo root, no sandbox). Flagging command-bearing DoDs gives an autonomous operator the signal to apply its own trust policy. A real sandbox is non-trivial and must be demand-driven, not speculative - but the hole is named, not hidden."
+    },
+    {
+      "context": "P3/L2 planning (iteration 005) - FORK 3 audit",
+      "date": "2026-06-11",
+      "decision": "v0.1 RECOMPUTES checks at each accept (and on 'lume check'); no separate persisted check-result artifact. The accept verdict's reason carries a one-line summary of what was evaluated for an audit trail.",
+      "rationale": "Checks are cheap and a pure re-runnable evaluator avoids staleness/cache-invalidation questions. Persisting a results artifact is speculative complexity; the verdict summary gives enough audit without a new schema."
+    },
+    {
+      "context": "P3/L2 planning (iteration 005) - FORK 4 error shape",
+      "date": "2026-06-11",
+      "decision": "On any failed/failed-to-run check, accept raises GateError (exit 1, phase stays handback) with message 'cannot accept - N DoD check(s) failed' followed by per-item 'text -> reason'; --json error payload carries a structured 'failures' list (item index, text, kind, reason).",
+      "rationale": "Reuses the existing GateError->exit-1 path so no handler change; the structured --json failures list is what an autonomous operator (tredl) parses to report or escalate, while the text message serves a human."
     }
   ]
 }
