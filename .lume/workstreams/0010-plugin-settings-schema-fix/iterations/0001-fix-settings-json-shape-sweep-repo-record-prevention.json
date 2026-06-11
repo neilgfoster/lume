@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": ".claude/settings.json: extraKnownMarketplaces is a record keyed by marketplace name (lume) with {source:{source:directory,path:'.'}}, and enabledPlugins is a record {'lume@lume': true}. /doctor reports no schema errors for these two keys."
+      },
+      {
+        "checked": true,
+        "text": "Repo swept for other copies of the array-shaped settings (docs/, README.md, plugin/README.md, settings.local.json, any test fixtures). Any found are corrected or confirmed absent."
+      },
+      {
+        "checked": true,
+        "text": "Closeout records the root cause: workstream 0008/E3 'JSON validated' checked syntax only, never the Claude Code settings schema, so array vs record went undetected until /doctor."
+      },
+      {
+        "checked": true,
+        "text": "Prevention noted: any future scaffolding that emits .claude/settings.json must be schema-checked (or copy the now-correct file), not just syntax-validated. Captured as a guard/assumption for the next plugin-packaging change."
+      }
+    ],
+    "preamble": "Fix the self-applied plugin settings that /doctor flagged (array form where Claude Code expects records), confirm it is the only occurrence, and record why it was missed so it does not recur."
+  },
+  "handback": "Fixed .claude/settings.json: extraKnownMarketplaces and enabledPlugins rewritten from arrays to the Claude Code record shape (extraKnownMarketplaces: {lume: {source: {source: directory, path: '.'}}}, enabledPlugins: {'lume@lume': true}). Confirmed via /doctor by the operator (the two flagged errors are gone) and by a json.load assert that both keys are dicts. Repo swept: the array shape existed ONLY in .claude/settings.json; docs/README use '/plugin marketplace add neilgfoster/lume', and settings.local.json holds only a permission allowlist. Root cause: workstream 0008/E3 authored this file by hand and self-reviewed it as 'all JSON validated' - that was a syntax check, not a Claude Code settings-schema check, so array-vs-record was invisible until /doctor ran in a live session (which E3 explicitly flagged as an unverified gap). Prevention for the next packaging change: schema-check, don't just syntax-check, any emitted .claude/settings.json - or treat this now-correct file as the canonical template.",
+  "id": 1,
+  "self_review": "DoD met. The /doctor errors are resolved and verified by the operator. Sweep was grep over code/docs/json for both keys plus inspection of settings.local.json; no other occurrence. HONEST GAPS: (1) prevention is captured as guidance/assumption only - there is no automated settings-schema validator in the engine, and adding one was out of scope for a one-file fix; if lume ever generates .claude/settings.json programmatically this should become a real check. (2) Live plugin load (marketplace + enabledPlugins actually taking effect on session start/trust prompt) is the same gap E3 noted and still cannot be exercised from within this session beyond the /doctor pass. No test suite change: the fix is a config file, not engine code."
+}

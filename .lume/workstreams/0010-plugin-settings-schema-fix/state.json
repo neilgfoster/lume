@@ -1,0 +1,27 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-fix-settings-json-shape-sweep-repo-record-prevention.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Fix settings.json shape, sweep repo, record prevention",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0010",
+    "objective_artifact": "objective.json",
+    "slug": "plugin-settings-schema-fix",
+    "status": "closed",
+    "title": "Fix self-applied plugin settings schema (array->record)"
+  }
+}
