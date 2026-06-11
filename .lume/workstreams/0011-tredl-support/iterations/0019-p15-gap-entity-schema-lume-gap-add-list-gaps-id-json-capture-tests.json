@@ -1,0 +1,46 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "schemas/gap.json added: a 'gap' entity with id, source, title, context, status (enum open|acknowledged|resolved), created (ISO date), resolution (string|null). Listed by 'lume entities' / 'lume schema gap'.",
+        "check": {
+          "kind": "command",
+          "cmd": "plugin/bin/lume schema gap >/dev/null"
+        }
+      },
+      {
+        "checked": true,
+        "text": "plugin/src/lume/gap.py: pure helpers - gaps_dir(repo_root), read_gaps(repo_root) (reads repo-root gaps/*.json, sorted, validated), next_id(existing) -> 'G<n>', add_gap(repo_root, title, source, context, created, status='open') writes gaps/<id>.json and returns the validated record. Repo-ROOT gaps/ (not under .lume/)."
+      },
+      {
+        "checked": true,
+        "text": "Repository.today() helper added (exposes the clock's date) so the handler can stamp 'created' deterministically."
+      },
+      {
+        "checked": true,
+        "text": "'lume gap add \"<title>\"' [-c context] creates gaps/<id>.json in the current repo (source defaults to the project-root dir name, status open, created today); 'lume gap list' prints gaps incl. id/source/status. Registered in catalog (gap = add|list, repo-level, not -w scoped) + HANDLERS.",
+        "check": {
+          "kind": "command",
+          "cmd": "plugin/bin/lume verbs gap >/dev/null"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Unit tests (tests/test_gap.py): schema validates a good record + rejects a bad status; next_id sequences; add_gap writes a valid file; read_gaps round-trips and sorts; a CLI add->list flow in a temp repo. Full suite green.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P2/L1 build step 1 of 4 (plan item P15): the gap entity + capture. A 'gap' is a cross-repo capability-gap record stored per-file at the repo ROOT in gaps/<id>.json (decided in 017/018). This iteration adds the schema, a pure gap module, a Repository.today() helper, and 'lume gap add/list' - capture only. The git scan/reach (P16) and ingest (P17) come next. DOGFOOD: DoD carries command checks driving the new verb."
+  },
+  "handback": "P15 done (P2/L1 build step 1 of 4): the gap entity + capture. CHANGES: (1) schemas/gap.json - gap = {id, source, title, context, status open|acknowledged|resolved, created, resolution?}. (2) plugin/src/lume/gap.py - pure helpers: gaps_dir, read_gaps (repo-root gaps/*.json, validated + sorted), next_id (G<n>), add_gap. (3) Repository.today() for deterministic created stamps. (4) 'lume gap add \"<title>\" [-c context]' writes gaps/<id>.json (source=project dir name, status open, created today); 'lume gap list' prints them; registered in catalog (gap=add|list, repo-level, not -w scoped) + HANDLERS. (5) tests/test_gap.py (6 tests: schema good/bad, next_id, add+read round-trip, sorted/empty, CLI add->list) and updated test_artifact_schemas (8->9 kinds, gap present). Suite: 356 passed (was 350). Capture only - git scan/reach is P16, ingest is P17. RECOMMEND next: P16.",
+  "id": 19,
+  "self_review": "Holds: the gap store is a clean repo-root artifact independent of the workstream store, validated on every read/write, with a pure module the scan (P16) and ingest (P17) build on without rework; the (source,id) identity is in place for the dedupe P17 needs. Verb is repo-level (not -w scoped), matching that gaps are about the repo, not a workstream. Weak / watch: (1) SOURCE = project-root DIR NAME is a weak identity - two repos both named 'lume' would collide on (source,id); fine for the lume+tredl pair now, but P16/P17 should set source to the adopter's repo URL/slug from ADOPTERS on ingest, and a self-authored gap's source may want to be the git remote rather than the folder name - flagged. (2) next_id is not concurrency-safe (two adds racing could both pick G<n>); acceptable for human/CLI use, noted. (3) gap ids are per-repo, so global uniqueness only comes from the (source,id) pair - by design, but means lume's own G1 and an adopter's G1 are distinct only via source. Nothing deferred silently."
+}

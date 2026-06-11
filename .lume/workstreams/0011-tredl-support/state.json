@@ -259,9 +259,24 @@
       "dod_artifact": "iterations/0018-p2-l1-planning-resolve-dir-name-landing-store-worktree-cache-lifecycle-status-transitions-round-trip-scope-into-an-ordered-build-plan.json",
       "id": 18,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P2/L1 planning: resolve dir-name, landing store, worktree cache/lifecycle, status transitions, round-trip scope into an ordered build plan",
       "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0019-p15-gap-entity-schema-lume-gap-add-list-gaps-id-json-capture-tests.json",
+      "id": 19,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P15: gap entity schema + lume gap add/list (gaps/<id>.json capture) (+tests)",
+      "type": "execution",
       "verdicts": []
     }
   ],
@@ -366,7 +381,7 @@
     },
     {
       "id": "P15",
-      "iter": null,
+      "iter": 19,
       "sketch": "P2/L1 build step 1 of 4 - GAP SCHEMA + CAPTURE. Add a 'gap' entity schema (id, source, title, context, status open|acknowledged|resolved, created, resolution?) and 'lume gap add' writing gaps/<id>.json in the current repo (+ 'lume gap list'). DONE-WHEN: schema validates; gap add creates a well-formed record; list shows it; dedupe key (source,id) defined; unit tests cover add/list/validation. ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

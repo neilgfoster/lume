@@ -68,3 +68,44 @@ def handle_retro(ctx: Context) -> int:
     verb = "updated" if existed else "created"
     ctx.ok({"result": "retro", "status": verb}, f"retro: {verb} retro.json")
     return 0
+
+
+def handle_gap(ctx: Context) -> int:
+    """Capture/list cross-repo capability gaps (repo-level, not -w scoped).
+
+    `lume gap add "<title>" [-c <context>]` records gaps/<id>.json in the
+    current repo (source = the project-root dir name, status open, created
+    today). `lume gap list` prints the repo's gaps. The scan/ingest of adopter
+    gaps (P16/P17) builds on the same gaps/ store.
+    """
+    from ...gap import add_gap, read_gaps
+
+    sub = ctx.arg
+    if sub not in ("add", "list"):
+        ctx.fail("usage", "usage: lume gap <add|list> ...")
+        return 2
+    root = ctx.repo.project_root()  # NoLumeDirError -> dispatch maps to exit 1
+
+    if sub == "add":
+        title = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
+        if not title:
+            ctx.fail("usage", 'usage: lume gap add "<title>" [-c <context>]')
+            return 2
+        record = add_gap(root, title=title, source=root.name,
+                         created=ctx.repo.today(), context=ctx.opt_context or "")
+        ctx.ok({"result": "gap_add", "id": record["id"], "source": record["source"],
+                "status": record["status"], "title": record["title"]},
+               f"gap add: {record['id']} ({record['source']}, {record['status']}): {record['title']}")
+        return 0
+
+    # sub == "list"
+    records = read_gaps(root)
+    if ctx.json_mode:
+        ctx.out(records)
+        return 0
+    if not records:
+        print("(no gaps)")
+        return 0
+    for r in records:
+        print(f"{r['id']}  {r['status']:12}  {r['source']}  {r['title']}")
+    return 0

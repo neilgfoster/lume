@@ -10,7 +10,7 @@ handler in the right group module and add one HANDLERS row here.
 """
 from __future__ import annotations
 
-from .authoring import handle_decide, handle_plan, handle_retro
+from .authoring import handle_decide, handle_gap, handle_plan, handle_retro
 from .discovery import (
     handle_check,
     handle_entities,
@@ -47,6 +47,7 @@ HANDLERS = {
     "plan": handle_plan,
     "decide": handle_decide,
     "retro": handle_retro,
+    "gap": handle_gap,
 }
 
 __all__ = ["HANDLERS", "handle_transition"]
