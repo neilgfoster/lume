@@ -214,9 +214,24 @@
       "dod_artifact": "iterations/0015-p14-install-verification-doc-live-plugin-install-verified-in-tredl-p5-l4-closeout-retro.json",
       "id": 15,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P14: install-verification doc (live /plugin install verified in tredl) + P5/L4 closeout retro",
       "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0016-p5-hotfix-ci-must-install-pytest-test-tooling-strengthen-check-ci-workflow-to-require-the-install-step.json",
+      "id": 16,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P5 hotfix: CI must install pytest (test tooling); strengthen check_ci_workflow to require the install step",
+      "type": "execution",
       "verdicts": []
     }
   ],

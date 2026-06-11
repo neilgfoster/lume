@@ -29,6 +29,10 @@ def main() -> int:
         problems.append("no 'pull_request:' trigger")
     if "pytest" not in text:
         problems.append("does not run pytest")
+    # pytest is a test tool the runner does not ship; the workflow must install
+    # it (this guard exists because an earlier workflow ran pytest without it).
+    if "pip install" not in text or "pytest" not in text.split("pip install", 1)[1]:
+        problems.append("no 'pip install ... pytest' step (the runner has no pytest)")
     for v in REQUIRED_VERSIONS:
         if f'"{v}"' not in text and f"'{v}'" not in text:
             problems.append(f"python {v} missing from the matrix")
