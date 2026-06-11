@@ -334,9 +334,24 @@
       "dod_artifact": "iterations/0023-p4-l3-discovery-design-parent-child-workstreams-schema-parent-ref-spawn-verb-rollup-close-guard.json",
       "id": 23,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P4/L3 discovery: design parent/child workstreams - schema parent ref, spawn verb, rollup, close-guard",
       "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0024-p4-l3-planning-resolve-verb-shape-rollup-depth-close-guard-reopen-forks-into-an-ordered-build-plan.json",
+      "id": 24,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P4/L3 planning: resolve verb-shape, rollup depth, close-guard, reopen forks into an ordered build plan",
+      "type": "planning",
       "verdicts": []
     }
   ],
@@ -464,6 +479,34 @@
       "id": "P18",
       "iter": 22,
       "sketch": "P2/L1 build step 4 of 4 - DOCS + CLOSEOUT. Document the gap mechanism (README/skill + reconcile ADOPTERS.md to gaps/), assess P2 done-when, closeout retro. DONE-WHEN: docs describe gap add/scan/list + the gaps/ record; ADOPTERS.md reconciled; P2 done-when assessed met/not with evidence; retro records the deferred resolution round-trip + the git-cache trust/disk concerns as carry_forwards. ITERATION: closeout.",
+      "tag": "committed",
+      "type": "closeout"
+    },
+    {
+      "id": "P19",
+      "iter": null,
+      "sketch": "P4/L3 build step 1 of 4 - PARENT REF + SPAWN. Add optional 'parent' to schemas/workstream.json; Repository.create_workstream gains an optional parent (validated: parent exists, no self-parent); 'lume spawn <slug> \"<title>\"' creates a child of the -w target; Workstream exposes parent + a children-by-scan helper. DONE-WHEN: schema accepts parent + existing workstreams still validate; spawn creates a linked child; children(parent) returns it; spawning under a missing parent errors; tests cover spawn + link + validation. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P20",
+      "iter": null,
+      "sketch": "P4/L3 build step 2 of 4 - ROLLUP. Parent's 'lume status -w <parent>' detail lists child workstreams + each child's current phase; the cross-workstream queue ('lume status') NESTS children under their parent (indented), one level. DONE-WHEN: parent detail shows children+phase (human + --json); queue nests children; root-only repos render unchanged; existing snapshot/queue tests updated for the new shape; tests cover rollup. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P21",
+      "iter": null,
+      "sketch": "P4/L3 build step 3 of 4 - CLOSE/REOPEN GUARDS. 'lume close' on a parent with active (non-closed) children is REFUSED naming them; reopening a child whose parent is closed is REFUSED (reopen the parent first). DONE-WHEN: close-parent-with-active-children errors with the child list; close allowed once children closed; reopen-child-under-closed-parent errors; tests cover both guards + the allowed paths. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P22",
+      "iter": null,
+      "sketch": "P4/L3 build step 4 of 4 - DOCS + CLOSEOUT. Document spawn/rollup/guards (README/skill); assess P4 done-when; closeout retro; assess whether the workstream's whole objective (P1-P5 + P4) is now met and the workstream can close. DONE-WHEN: docs describe hierarchical workstreams; P4 done-when assessed; retro records derived-children cost + re-parent cycle-guard carry-forwards; objective assessment recorded. ITERATION: closeout.",
       "tag": "committed",
       "type": "closeout"
     }

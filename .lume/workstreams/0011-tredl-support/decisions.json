@@ -167,6 +167,12 @@
       "date": "2026-06-11",
       "decision": "Spawn via a new verb 'lume spawn <slug> \"<title>\"' (parent = the -w target), keeping 'lume new' for roots. Closing a parent with active children is REFUSED with a clear error (not a cascade). Rollup is read-only: parent detail lists children+phase and the queue nests children under parents, one level for v0.1.",
       "rationale": "A dedicated spawn verb reads as the sprint-decomposition intent without overloading new; refuse-not-cascade preserves operator-in-the-loop (no silent ending of child work); one-level read-only rollup is the useful minimum, deeper metrics deferred."
+    },
+    {
+      "context": "P4/L3 planning (iter 024) - verbs/rollup/guards",
+      "date": "2026-06-11",
+      "decision": "Spawn = 'lume spawn <slug> \"<title>\"' (parent = -w target). Rollup is one-level read-only (parent detail lists children+phase; queue nests children under parents via indentation). Close a parent with active children => REFUSE (name them). Reopening a child whose parent is closed => REFUSE (reopen the parent first).",
+      "rationale": "Carries the 023 design; refuse-child-reopen-under-closed-parent keeps the tree consistent (a closed sprint shouldn't sprout live children) and is symmetric with the close-guard; both are refusals, not cascades, preserving operator-in-the-loop."
     }
   ]
 }
