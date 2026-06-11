@@ -1,0 +1,46 @@
+{
+  "overall_verdict": "MET. The P3/L2 keystone - make the Definition of Done machine-evaluable and read at accept - is delivered and dogfooded: lume accept now refuses on a failed verifiable check, lume check dry-runs the same evaluation, and iterations 007/008/009 were themselves gated by their own DoD checks. The ceremony (discovery 004, planning 005, three build iterations 006-008, this closeout) bought back a real, reusable capability and closed the long-standing Premise A gap, not just paperwork.",
+  "done_when": [
+    {
+      "clause": "P3.1 Discovery confirms or refutes Premise A (DoD write-only, not read at accept).",
+      "verdict": "met",
+      "evidence": "Confirmed TRUE in iteration 003 (L0.2) and re-confirmed at design depth in 004 (P3.1): transition()'s accept was a pure phase-tuple move that never read dod.items. Closed by P8."
+    },
+    {
+      "clause": "P3.2 A DoD can carry machine-verifiable checks (command-exit-zero / file-exists / schema-valid).",
+      "verdict": "met",
+      "evidence": "Iteration 006 (P7): optional `check` added to schemas/iteration_content.json; pure dod_checks.evaluate_dod implements all three kinds; 18 unit tests across every branch."
+    },
+    {
+      "clause": "P3.3 lume accept evaluates the verifiable checks and refuses if any fail.",
+      "verdict": "met",
+      "evidence": "Iteration 007 (P8): Workstream.transition() runs the evaluator on accept and raises GateError (phase stays handback) on any failure; 6 tests incl. a CLI-level refusal. Dogfooded: accepting 007/008/009 ran their own checks first."
+    },
+    {
+      "clause": "P3.4 Prose-only DoD is flagged non-verifiable so a caller can route it to human escalation.",
+      "verdict": "met",
+      "evidence": "Iteration 008 (P9): verifiability_summary classifies items; lume check marks prose items, lume status -w shows verifiable/prose-only counts + has_command_checks, giving an autonomous operator the auto-accept-vs-escalate signal."
+    },
+    {
+      "clause": "P3.5 Tests cover the pass, fail, and non-verifiable paths.",
+      "verdict": "met",
+      "evidence": "tests/test_dod_checks.py (18), test_accept_veto.py (6), test_check_verb.py (7) cover pass/fail/timeout/not-found/missing-field/prose-only/back-compat/CLI. Suite grew 313 -> 344, all green."
+    }
+  ],
+  "carry_forwards": [
+    "COMMAND-CHECK TRUST (discovery-triggered follow-up, NOT scheduled): both `lume accept` and `lume check` execute author-supplied shell (shell=True) with the test-suite trust model. Acceptable for a human operator; a genuine code-execution surface for unattended tredl accept. A sandbox/allowlist should be promoted only when a real tredl workaround recurs (per the L5/P6 demand-driven rule). Until then, `has_command_checks` only WARNS - it does not prevent execution.",
+    "repo_root=None silently skips check evaluation in transition() (deliberate back-compat); only the CLI accept path passes a root. If more programmatic callers appear, add a guard so the veto cannot be bypassed by omission.",
+    "Command output tails are discarded (only exit-code reasons surface); a future refinement could surface stdout/stderr tails in `lume check` for debuggability.",
+    "Placement note: verifiability is surfaced on `lume status -w` detail, not the raw `lume get` state passthrough - revisit if consumers expect it on get."
+  ],
+  "sections": [
+    {
+      "heading": "Did the work buy back more time than its ceremony cost?",
+      "body": "Yes. The keystone is the prerequisite for tredl-as-operator: without an evaluable accept gate, an autonomous operator's acceptance is a rubber stamp. Six iterations (1 discovery, 1 planning, 3 execution, 1 closeout) produced a small, well-tested, behaviour-preserving feature (one new module, one optional schema field, one verb, ~31 new tests) that is already dogfooded by lume on itself. The discovery+planning overhead was justified: it confirmed Premise A in source before building and split the veto from the autonomy decision cleanly, which kept the engine change tiny and lume's operator-in-the-loop contract intact."
+    },
+    {
+      "heading": "Scope held",
+      "body": "Keystone only. P2 (L1 cross-repo discoveries), P4 (L3 hierarchical workstreams), and P5 (L4 delivery/CI/packaging) remain open in the plan; the workstream is intentionally NOT closed. The v0.1 STRICT line held: three predicate kinds, no confidence thresholds, no arbitrary predicate language, sandbox deferred by demand."
+    }
+  ]
+}

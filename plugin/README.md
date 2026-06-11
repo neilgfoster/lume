@@ -70,6 +70,29 @@ before execution.
 State lives in `.lume/` in your repo (workstreams, iterations, decisions, plans)
 as JSON you can read and diff. It is your data, separate from the plugin.
 
+## Machine-verifiable DoD
+
+A Definition-of-Done item can carry an optional, machine-checkable `check`
+alongside its prose, so the accept gate is a real check, not just an assertion.
+Three predicate kinds:
+
+- `{"kind": "command", "cmd": "python -m pytest -q"}` - passes iff the command
+  exits 0 (run from the repo root);
+- `{"kind": "file-exists", "path": "dist/app.tar.gz"}` - passes iff the path exists;
+- `{"kind": "schema-valid", "entity": "objective", "path": "x.json"}` - passes iff
+  the JSON validates against a lume entity schema.
+
+`lume accept` evaluates the current iteration's checks first and **refuses** if
+any fail (the iteration stays in `handback`). Items with no `check` are
+prose-only and left to the operator's judgement. `lume check` runs the same
+evaluation read-only (no transition) as a dry-run - exit 0 if nothing fails,
+non-zero otherwise - and `lume status -w` shows how many items are
+machine-verifiable. This is what lets an autonomous operator auto-accept only a
+fully-verifiable, all-green DoD and escalate anything prose-only to a human.
+
+Command checks run author-supplied shell, so treat a DoD's commands with the
+same trust as running its test suite.
+
 ## Commands
 
 lume is self-describing - `lume verbs` lists them all and `lume verbs <name>`
@@ -85,6 +108,7 @@ explains one; add `--json` to any verb for machine-readable output.
 | `plan` | add or link a plan item |
 | `decide` | log a decision |
 | `retro` | create or refresh the retro artifact |
+| `check` | dry-run the current iteration's DoD machine-checks (read-only) |
 | `snapshot` | print the derived Done / Now / Next snapshot |
 | `get` / `schema` / `entities` | inspect state and its schemas as JSON |
 | `close` / `reopen` | close or reopen a workstream |

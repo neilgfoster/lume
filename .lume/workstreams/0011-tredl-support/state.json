@@ -109,9 +109,24 @@
       "dod_artifact": "iterations/0008-p9-lume-check-dry-run-verb-verifiability-status-on-lume-get-cli-tests.json",
       "id": 8,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P9: 'lume check' dry-run verb + verifiability status on 'lume get' (+CLI/tests)",
       "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0009-p10-document-machine-verifiable-dod-closeout-retro-for-the-p3-l2-keystone.json",
+      "id": 9,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P10: document machine-verifiable DoD + closeout retro for the P3/L2 keystone",
+      "type": "closeout",
       "verdicts": []
     }
   ],
@@ -181,7 +196,7 @@
     },
     {
       "id": "P10",
-      "iter": null,
+      "iter": 9,
       "sketch": "P3/L2 build step 4 of 4 - DOCS + CLOSEOUT. Document machine-verifiable DoD (README + lume skill), assess the objective done-when for the keystone, log decisions, and run the closeout retro. DONE-WHEN: docs describe the 'check' format + accept veto + 'lume check'; retro verdict recorded; command-check trust soft spot reviewed (kept open as discovery-triggered or resolved). ITERATION: closeout.",
       "tag": "committed",
       "type": "closeout"

@@ -1,0 +1,51 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Docs: plugin/README.md and plugin/skills/lume/SKILL.md document machine-verifiable DoD - the optional `check` field (command/file-exists/schema-valid), that accept refuses on a failed check, and the read-only `lume check` dry-run + verifiability surface.",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q 'lume check' plugin/README.md && grep -q check plugin/skills/lume/SKILL.md"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Retro artifact written (lume retro) assessing the P3/L2 keystone's DONE-WHEN clauses each with verdict + evidence, an overall verdict, and carry_forwards capturing the command-check trust / sandbox follow-up.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "retro",
+          "path": ".lume/workstreams/0011-tredl-support/retro.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Keystone objective assessment recorded: P3 DONE-WHEN (1) Premise A confirmed, (2) DoD carries verifiable checks, (3) accept evaluates + refuses, (4) prose-only flagged for escalation, (5) tests cover pass/fail/non-verifiable - each marked met/not with where it landed (003-008)."
+      },
+      {
+        "checked": true,
+        "text": "Command-check trust soft spot explicitly reviewed and carried forward as a discovery-triggered follow-up (not silently closed).",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -rq -i 'sandbox\\|trust' .lume/workstreams/0011-tredl-support/retro.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Full suite green; this iteration changes docs + .lume state only, no engine code.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; committed. NOTE: the workstream is NOT closed here - P2/P4/P5 remain; this closeout completes only the P3/L2 keystone."
+      }
+    ],
+    "preamble": "P3/L2 build step 4 of 4 (plan item P10): close out the keystone. Document the machine-verifiable DoD for users (README + skill), write the retro assessing the keystone's done-when with evidence, and carry the command-check trust concern forward. This closeout scopes to the KEYSTONE, not the whole workstream - P2 (L1 discoveries), P4 (L3 hierarchy), P5 (L4 delivery) remain, so do NOT lume close. DOGFOOD: this DoD's checks include a schema-valid check on the retro artifact this iteration produces."
+  },
+  "handback": "P10 done (P3/L2 build step 4 of 4): the keystone is closed out. DOCS: plugin/README.md gains a 'Machine-verifiable DoD' section + a 'check' row in the commands table; plugin/skills/lume/SKILL.md gains a conventions bullet (prefer a check where mechanically verifiable, leave subjective items prose-only). RETRO: .lume/.../retro.json assesses all five P3 DONE-WHEN clauses (each met, with evidence pointing at iterations 003-008), overall verdict MET, and four carry_forwards - chiefly the command-check trust/sandbox follow-up (discovery-triggered, not scheduled). ASSESSMENT: (1) Premise A confirmed (003/004, closed by P8); (2) verifiable checks (P7); (3) accept evaluates+refuses (P8); (4) prose-only flagged for escalation (P9); (5) tests cover pass/fail/non-verifiable (31 new tests, suite 313->344). Docs + .lume state only, no engine code; suite green. Dogfooded: 'lume check' on 009 shows 4 PASS + 2 prose, exit 0. WORKSTREAM NOT CLOSED: P2 (L1 discoveries), P4 (L3 hierarchy), P5 (L4 delivery) remain. RECOMMEND next: push branch workstream/tredl-support and open the PR for the complete keystone (P7-P10), then pick up P2/P4/P5 in plan order.",
+  "id": 9,
+  "self_review": "Holds: the keystone's done-when is assessed clause-by-clause with concrete evidence, not asserted; the retro is itself schema-valid (and a DoD check proves it); the command-check trust soft spot is carried forward explicitly rather than quietly closed; and the closeout correctly scopes to the keystone, leaving the workstream open for P2/P4/P5. The docs are user-facing and honest about the trust model ('trust a DoD's commands as you would its test suite'). Weak / watch: (1) DOCS REACH - I updated the shipped plugin/README.md + SKILL.md but not the repo-root README.md 'What lume can honestly claim' section; the shipped docs are the ones adopters see, but the root claim list now lags the feature and could be refreshed in a later docs pass. (2) The retro's 'MET' verdict is lume grading its own keystone; it is evidence-backed and dogfooded, but the deeper claim - that an evaluable gate makes an AUTONOMOUS operator trustworthy - is unproven until tredl actually drives accept, which is downstream work, not this workstream. (3) command-check trust remains the one real hole, now shipped live in two verbs; the carry_forward names it but does not solve it. Nothing deferred silently."
+}
