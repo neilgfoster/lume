@@ -1,6 +1,6 @@
 {
   "slug": "review-protocol-lenses",
-  "status": "active",
+  "status": "closed",
   "text": "Answer gaps G3, G4, G5, G10: the emitted review protocol gets sharper and the review cycle closes its loop. (G3) The honesty lens instructs the reviewer to mechanically re-derive every evidence-tagged claim that is checkable (run the test suite, count workstreams/adopters, check CI) and treat mismatches as findings. (G4) A trust-boundaries lens (or an extension of keystone) enumerates every place lume executes or ingests external content - DoD command checks, hooks, adopter-repo cloning - and grades each deferral against current adoption. (G5) The Result contract gains a lightweight home for small direct fixes (a 'fixes' list mapping to a chore bundle, or a documented convention), so one-line findings are not forced into full proposed workstreams. Done when: protocol text and review_result schema updated within the validator subset, ingest maps the new finding type, golden/determinism tests updated, docs updated, suite green. (G10, added after the 2026-06-11-02 delta review) The emitted protocol is seeded with the most recent review's queue plan and its adoption status (which proposed workstreams exist, which decisions were logged), and instructs the reviewer to report unadopted items as standing findings rather than re-proposing or silently dropping them.",
   "title": "Review protocol: verify evidence mechanically, trust lens, lightweight fixes"
 }

@@ -4,10 +4,16 @@
       "dod_artifact": "iterations/0001-protocol-upgrades-mechanical-evidence-verification-trust-lens-fixes-contract-prior-review-follow-up.json",
       "id": 1,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Protocol upgrades: mechanical evidence verification, trust lens, fixes contract, prior-review follow-up",
       "type": "execution",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [],
@@ -15,7 +21,7 @@
     "id": "0021",
     "objective_artifact": "objective.json",
     "slug": "review-protocol-lenses",
-    "status": "active",
+    "status": "closed",
     "title": "Review protocol: verify evidence mechanically, trust lens, lightweight fixes"
   }
 }
