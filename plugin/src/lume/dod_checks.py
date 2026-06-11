@@ -61,6 +61,25 @@ def evaluate_dod(content_doc: dict, repo_root) -> list[dict]:
     return results
 
 
+def verifiability_summary(content_doc: dict) -> dict:
+    """Static classification of a DoD's items - no predicate is executed.
+
+    Returns {total, verifiable, prose_only, has_command_checks}. Lets a caller
+    (e.g. an autonomous operator) judge whether a DoD is fully machine-checkable
+    and whether it carries command checks (a code-execution surface) before
+    deciding to auto-accept versus escalate.
+    """
+    items = content_doc.get("dod", {}).get("items", [])
+    verifiable = [i for i in items if i.get("check") is not None]
+    has_command = any(i["check"].get("kind") == "command" for i in verifiable)
+    return {
+        "total": len(items),
+        "verifiable": len(verifiable),
+        "prose_only": len(items) - len(verifiable),
+        "has_command_checks": has_command,
+    }
+
+
 def _evaluate_check(kind, check, root: Path):
     if kind == "command":
         cmd = check.get("cmd")

@@ -94,8 +94,23 @@
       "dod_artifact": "iterations/0007-p8-wire-evaluate-dod-into-transition-as-the-accept-veto-refuse-accept-on-any-failed-check-tests.json",
       "id": 7,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P8: wire evaluate_dod into transition() as the accept veto - refuse accept on any failed check (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0008-p9-lume-check-dry-run-verb-verifiability-status-on-lume-get-cli-tests.json",
+      "id": 8,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P9: 'lume check' dry-run verb + verifiability status on 'lume get' (+CLI/tests)",
       "type": "execution",
       "verdicts": []
     }
@@ -159,7 +174,7 @@
     },
     {
       "id": "P9",
-      "iter": null,
+      "iter": 8,
       "sketch": "P3/L2 build step 3 of 4 - DRY-RUN + STATUS SURFACE. Add a 'lume check' verb that runs the evaluator without transitioning and prints per-item pass/fail + verifiable/prose-only, and surface verifiability status (and command-check presence flag) on 'lume get'. DONE-WHEN: 'lume check' exits 0/non-zero by aggregate result, --json carries results; 'lume get' exposes the status; CLI catalog/help/usage updated; tests cover the verb + status. ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

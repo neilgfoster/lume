@@ -270,20 +270,30 @@ class Workstream:
         self._save_state()
         return Iteration.from_entity(entity)
 
-    def _refuse_on_failed_checks(self, repo_root) -> None:
-        """Evaluate the current iteration's DoD checks; GateError if any fail.
+    def current_iteration_content(self) -> dict | None:
+        """The current iteration's content doc (dod/self_review/handback), or None.
 
-        Reads the content doc symmetrically to _save_iter_content (the stem of
-        the iteration's dod_artifact). Only VERIFIABLE items (those carrying a
-        `check`) can refuse; prose-only items are left to the operator.
+        Reads it symmetrically to _save_iter_content - the stem of the latest
+        iteration's dod_artifact. This is the read that Premise A noted was
+        missing; the accept veto and `lume check` both go through it.
         """
         from pathlib import PurePosixPath
 
-        from .dod_checks import evaluate_dod
-
+        if not self._state["iterations"]:
+            return None
         entity = self._state["iterations"][-1]
         stem = PurePosixPath(entity["dod_artifact"]).stem
-        content = self._store.read(self._id, f"iteration:{stem}")
+        return self._store.read(self._id, f"iteration:{stem}")
+
+    def _refuse_on_failed_checks(self, repo_root) -> None:
+        """Evaluate the current iteration's DoD checks; GateError if any fail.
+
+        Only VERIFIABLE items (those carrying a `check`) can refuse; prose-only
+        items are left to the operator.
+        """
+        from .dod_checks import evaluate_dod
+
+        content = self.current_iteration_content()
         if content is None:
             return
         failures = [
