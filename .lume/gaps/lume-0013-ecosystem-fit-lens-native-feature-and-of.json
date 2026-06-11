@@ -5,5 +5,8 @@
   "context": "The ecosystem-fit lens requires checking lume for redundancy/overlap against (a) every current Claude Code native feature (skills, subagents, plan mode, todo/Tasks, hooks, memory, workflows) and (b) the official first-party plugin set, grading each. In review 2026-06-11-03 the reviewer ran a single web search and then re-affirmed review-01's prior conclusion as a STANDING decision, without enumerating each native feature/plugin and showing the per-item overlap grading. The findings contain a conclusion ('the wedge survives') with no visible audit behind it. Gap: the protocol does not force the overlap audit to be itemised and recorded as evidence (a per-feature / per-plugin table), so a reviewer can assert the conclusion without doing or showing the work. Proposed: require the ecosystem lens to emit an explicit overlap matrix (feature/plugin -> overlaps? -> grade -> evidence) as part of the result, and have ingest surface its absence.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0028"
+  ]
 }

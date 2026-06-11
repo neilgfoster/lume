@@ -1,0 +1,6 @@
+{
+  "slug": "land-review-workstreams",
+  "status": "active",
+  "text": "Commit and PR the setup state for the three review-queue workstreams created from the deep review (2026-06-11-04): 0026 doc-freshness-guard, 0027 value-signal, 0028 review-protocol-auditability - their objectives, plan items, logged decisions, and gap links (G11/G13/G15/G17/G19/G20). This is a commit vehicle only; per operator instruction NONE of 0026-0028 is to be started tonight - they stay at zero iterations awaiting their own approve gates. Adds no engine or product code. Done-when: the .lume/ setup for 0026-0028 (plus this workstream 0029) is committed on the land-review-workstreams branch and a PR is opened against main; workstreams 0026-0028 have no iterations; the suite is unaffected (no code changed).",
+  "title": "Land review-queue workstreams 0026-0028 (setup only, not started)"
+}

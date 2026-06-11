@@ -5,5 +5,8 @@
   "context": "reviews/2026-06-11-04: missed because The result contract was designed to record findings (the assumption being that findings ARE the evidence). Adversarial verification narrowed the scope: findings-producing checks ARE re-derived and baseline-compared via the prior-review follow-up mechanism (demonstrated by the live 427-vs-401 test-count comparison), so 'not auditable' was overstated; only null checks leave no trace, which is minor.; proposed: Tracked as an optional spike in the review-protocol-auditability-and-scale workstream. Weigh capturing null-check outcomes against the unbounded-context cost they would add (logging every null verification would worsen the M4/G11 context-bloat gap); it may be correct to leave null checks out by design.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0028"
+  ]
 }

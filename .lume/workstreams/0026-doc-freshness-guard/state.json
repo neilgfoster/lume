@@ -1,0 +1,40 @@
+{
+  "iterations": [],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": null,
+      "sketch": "Correct drifted figures: test count 313->427; '8 closed + 1 in progress' -> 22 closed + current active across README.md:54-55,158, docs/vision.md, docs/constraints.md, docs/questions.md; reconcile adopter wording against ADOPTERS.json; flip the live-install caveat [U]->[E] citing 0011 retro P5.4; update the stale 'It is v0.1.0' string to 0.2.0.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": null,
+      "sketch": "Correct docs/scope.md:64 (G15): the 'Reconciliation' section denies decomposition/nesting was built, but lume spawn ships (handlers/lifecycle.py handle_spawn, workstream parent field, 0011 P19-P22 accepted). Reframe as a logged revision acknowledging the build, not a denial.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "Wire a deterministic, offline CI freshness guard (extend the version-consistency test pattern) that re-derives test/closed-workstream/active/adopter counts from source and fails when README/docs prose disagrees.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P4",
+      "iter": null,
+      "sketch": "Add a short docs note that [E]-tagged count/version claims are CI-enforced, so future edits know the figures are machine-checked.",
+      "tag": "optional",
+      "type": "execution"
+    }
+  ],
+  "workstream": {
+    "id": "0026",
+    "objective_artifact": "objective.json",
+    "slug": "doc-freshness-guard",
+    "status": "active",
+    "title": "Re-anchor drifted README/docs claims and wire a CI freshness guard"
+  }
+}

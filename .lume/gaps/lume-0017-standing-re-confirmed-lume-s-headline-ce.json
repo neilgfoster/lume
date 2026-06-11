@@ -5,5 +5,8 @@
   "context": "reviews/2026-06-11-04: missed because Not missed \u2014 deliberately deferred. It is re-surfaced here (rather than silently dropped or re-proposed as new) because the prior-review follow-up loop and protocol line 1217 require standing UNADOPTED items to be re-affirmed with fresh evidence each cycle. Fresh evidence: grep across plugin/ confirms still no counters/timers/metrics (only prose prompt strings and store.py's ID-sequence _counter).; proposed: Re-affirm STANDING and convert to action this cycle via the proposed value-signal workstream (above), which derives the signal deterministically from already-persisted state. Until then, keep README/docs value claims qualitative and unembellished rather than asserting an unmeasured payoff.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0027"
+  ]
 }

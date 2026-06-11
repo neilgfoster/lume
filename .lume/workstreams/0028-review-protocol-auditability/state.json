@@ -1,0 +1,40 @@
+{
+  "iterations": [],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": null,
+      "sketch": "Slice: add a structured ecosystem-overlap-matrix field to the review_result contract+schema (per {native feature | official plugin} x {overlap grade | rationale}); the protocol requires the ecosystem lens to populate it so the surviving-wedge conclusion always ships with its audit. Closes G13.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": null,
+      "sketch": "Slice: bound the embedded charter in emit - full text for recent N workstreams + all open items, title+retro-verdict digest for older closed - so review context stops growing monotonically. Closes/mitigates G11.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "Spike: evaluate a null-check evidence-trail field (G19/M2) recording which checks were re-derived, when, and the outcome, weighed against the context-bloat cost it adds.",
+      "tag": "optional",
+      "type": "discovery"
+    },
+    {
+      "id": "P4",
+      "iter": null,
+      "sketch": "Spike: evaluate fields for steelmanned-away/near findings + rejection reasoning and a re-surfacing mechanism (G20/M5/M8), and a dedicated structural-simplification lens, against the protocol's deliberate minimalism.",
+      "tag": "optional",
+      "type": "discovery"
+    }
+  ],
+  "workstream": {
+    "id": "0028",
+    "objective_artifact": "objective.json",
+    "slug": "review-protocol-auditability",
+    "status": "active",
+    "title": "Make the review protocol auditable and scale-resilient"
+  }
+}

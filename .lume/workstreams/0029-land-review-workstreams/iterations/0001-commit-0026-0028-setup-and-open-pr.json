@@ -1,0 +1,35 @@
+{
+  "dod": {
+    "preamble": "Commit and PR the 0026-0028 setup. .lume/ state only, no engine/product code. Operator instruction: do NOT start any of 0026-0028 tonight.",
+    "items": [
+      {
+        "checked": false,
+        "text": "No untracked review-queue setup remains under .lume/ (workstreams/gaps committed).",
+        "check": { "kind": "command", "cmd": "test -z \"$(git ls-files --others --exclude-standard .lume/workstreams .lume/gaps .lume/reviews)\"" }
+      },
+      {
+        "checked": false,
+        "text": "Workstreams 0026, 0027, 0028 have NO iterations (none started tonight, per operator instruction).",
+        "check": { "kind": "command", "cmd": "test ! -d .lume/workstreams/0026-doc-freshness-guard/iterations -a ! -d .lume/workstreams/0027-value-signal/iterations -a ! -d .lume/workstreams/0028-review-protocol-auditability/iterations" }
+      },
+      {
+        "checked": false,
+        "text": "No product/engine code changed - the branch diff touches only .lume/.",
+        "check": { "kind": "command", "cmd": "test -z \"$(git diff --name-only origin/main...HEAD -- ':!.lume/')\"" }
+      },
+      {
+        "checked": false,
+        "text": "Test suite still green (no code changed).",
+        "check": { "kind": "command", "cmd": "python -m pytest -q" }
+      },
+      {
+        "checked": false,
+        "text": "A PR is open against main describing the three queued workstreams.",
+        "check": { "kind": "command", "cmd": "gh pr view land-review-workstreams --json state -q .state | grep -q OPEN" }
+      }
+    ]
+  },
+  "handback": null,
+  "id": 1,
+  "self_review": null
+}

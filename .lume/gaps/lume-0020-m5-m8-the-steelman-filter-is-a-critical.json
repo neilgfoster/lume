@@ -5,5 +5,8 @@
   "context": "reviews/2026-06-11-04: missed because The protocol emphasises steelmanning in instructions but designed the result contract to capture only what survives, treating the steelman as a thought process rather than an artifact. Verification confirmed the asymmetry: review_gaps carry a why_missed trail for surviving findings, but rejected candidates leave none; distinct from the adjacent gap lume-0014 (multi-viewpoint swarm) which proposes a structurally different remedy.; proposed: Tracked as an optional spike in the review-protocol-auditability-and-scale workstream: evaluate a lightweight 'steelmanned-away / near-finding' note (capture the rejection rationale so future reviews can re-check whether it still holds) against the protocol's deliberate single-pass minimalism. Low priority \u2014 a discarded finding can be independently re-found by a future thorough review.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0028"
+  ]
 }

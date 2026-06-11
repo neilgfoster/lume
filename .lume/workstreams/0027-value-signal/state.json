@@ -1,0 +1,33 @@
+{
+  "iterations": [],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": null,
+      "sketch": "Spike: define a deterministic value-signal derivable purely from existing persisted iteration transitions (reject/accept counts per workstream, accept->redo cycles, iterations-per-workstream, gate-friction) - no new counters in the hot path.",
+      "tag": "committed",
+      "type": "discovery"
+    },
+    {
+      "id": "P2",
+      "iter": null,
+      "sketch": "Slice: a read-only 'lume value' report (or extend 'lume status') computing reject-rate and gate-friction from persisted transition history; dates via the existing clock seam; deterministic and offline.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "Chore: document the measured baseline in README/docs to replace anecdotal 'net positive' phrasing with an evidenced [E] figure, wired into the doc-freshness guard so it cannot drift.",
+      "tag": "optional",
+      "type": "execution"
+    }
+  ],
+  "workstream": {
+    "id": "0027",
+    "objective_artifact": "objective.json",
+    "slug": "value-signal",
+    "status": "active",
+    "title": "Capture the value signal: reject-rate and gate-friction from lume's own state"
+  }
+}
