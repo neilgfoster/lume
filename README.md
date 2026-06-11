@@ -64,9 +64,12 @@ Requires `python3` on your PATH. In Claude Code:
 /plugin install lume@lume
 ```
 
-> Caveat (honest): this install path is verified by an automated smoke test, not
-> yet by a human in a live Claude Code session. *[U].* For local development you
-> can instead run `claude --plugin-dir /path/to/lume/plugin`.
+This install path is verified two ways: an automated smoke test
+(`tests/test_smoke_install.py` drives the entry point end to end) and a live
+human run — `/plugin marketplace add` + `/plugin install`, then `lume seed` /
+`lume status` / `lume check`, exercised in the `tredl` adopter repo on
+2026-06-11. For local development you can instead run
+`claude --plugin-dir /path/to/lume/plugin`.
 
 Then, from the repo you want to work in:
 

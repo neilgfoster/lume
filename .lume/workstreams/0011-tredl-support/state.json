@@ -199,9 +199,24 @@
       "dod_artifact": "iterations/0014-p13-tag-release-process-tag-plugin-json-version-check-documented-release-flow.json",
       "id": 14,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P13: tag + release process - tag==plugin.json version check + documented release flow",
       "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0015-p14-install-verification-doc-live-plugin-install-verified-in-tredl-p5-l4-closeout-retro.json",
+      "id": 15,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P14: install-verification doc (live /plugin install verified in tredl) + P5/L4 closeout retro",
+      "type": "closeout",
       "verdicts": []
     }
   ],
@@ -299,7 +314,7 @@
     },
     {
       "id": "P14",
-      "iter": null,
+      "iter": 15,
       "sketch": "P5/L4 build step 4 of 4 - INSTALL VERIFICATION DOC + CLOSEOUT. Close the [U] live-install caveat with a documented, reproduced clean-state verification ('/plugin marketplace add' + '/plugin install'); assess the (refined) P5 done-when; closeout retro. DONE-WHEN: install-verification steps recorded with the result; P5 done-when assessed met/not with evidence; retro written; command-check trust + any new soft spots carried forward. ITERATION: closeout.",
       "tag": "committed",
       "type": "closeout"

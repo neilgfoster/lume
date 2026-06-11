@@ -1,0 +1,43 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "README Install caveat flipped: the live '/plugin install' path is recorded as VERIFIED by a human in a real Claude Code session (tredl adopter repo, 2026-06-11, Option A: marketplace add -> install -> lume seed/status/check), and the [U] marker is removed/updated - not left as 'unverified'.",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q 'verified' README.md && ! grep -q '\\*\\[U\\]\\.\\* For local' README.md"
+        }
+      },
+      {
+        "checked": true,
+        "text": "retro.json EXTENDED (not overwritten) with a P5/L4 delivery assessment: each P5 DONE-WHEN clause (CI; version source + pyproject; tag/release; live install; pinnable artifact) gets a verdict + evidence; the P3 keystone retro content is preserved; the two remaining OPERATOR actions (enable required CI check; cut v0.1.0 tag/release) are recorded as carry_forwards.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "retro",
+          "path": ".lume/workstreams/0011-tredl-support/retro.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "P5/L4 objective assessed: delivery done-when is MET for the agent-buildable parts (CI workflow, pyproject+consistency guard, release-tag check + RELEASING.md, live install verified) and explicitly PENDING-OPERATOR for the two human actions; stated honestly, not claimed fully closed."
+      },
+      {
+        "checked": true,
+        "text": "Full suite green; this iteration is docs + .lume state only, no engine code.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; committed. NOTE: the workstream is NOT closed - P2 (L1 discoveries) and P4 (L3 hierarchy) remain; this closeout completes only P5/L4 delivery."
+      }
+    ],
+    "preamble": "P5/L4 build step 4 of 4 (plan item P14): close out delivery. Record the now-verified live '/plugin install' result (a human ran Option A in the tredl adopter repo, 2026-06-11) by flipping the README [U] caveat, and extend the workstream retro with the P5 delivery assessment (preserving the P3 keystone retro - one retro.json per workstream). Be honest that two completions are operator actions (required-check enforcement; cutting the v0.1.0 tag/release). Closeout scopes to P5 only - P2 and P4 remain, so do NOT lume close. DOGFOOD: DoD carries command + schema-valid checks."
+  },
+  "handback": "P14 done (P5/L4 build step 4 of 4): delivery closed out. CHANGES: (1) README Install caveat flipped from [U] to VERIFIED - the live '/plugin install' path was run by a human in the tredl adopter repo on 2026-06-11 (Option A: marketplace add -> install -> lume seed/status/check), now recorded alongside the automated smoke test. (2) retro.json EXTENDED (P3 keystone retro preserved): five P5 DONE-WHEN clauses assessed with evidence (CI/P12, pyproject+guard/P11, tag-check+RELEASING/P13, live install/P14, pinnable=tag), overall verdict updated to cover both keystones, and the two operator actions added as carry_forwards. ASSESSMENT: P5/L4 is MET for the agent-buildable parts and PENDING two operator actions (enable required CI check; cut v0.1.0 tag/release). Docs + .lume only; suite 350 green. WORKSTREAM NOT CLOSED: P2 (L1 cross-repo discoveries) and P4 (L3 hierarchical workstreams) remain. RECOMMEND next: push branch workstream/delivery-hardening + open the P5 PR (P11-P14); then the operator merges, enables the required CI check, and cuts v0.1.0. After that, pick up P2 or P4.",
+  "id": 15,
+  "self_review": "Holds: the P5 retro is honest about the seam between agent work and operator work - it does NOT claim 'released', it claims 'mechanism complete, two human actions pending', and each clause cites the iteration that delivered it. The live-install verification is a real human result in a real adopter (tredl), not a self-assertion, and the README now reflects that. Extending rather than overwriting retro.json preserved the P3 record within the one-retro-per-workstream model. Weak / watch: (1) the P5 done-when is genuinely only PARTIALLY closable by the agent; I marked the two operator clauses 'met (pending operator)' which is a slightly soft verdict - an operator reviewing should read those as NOT DONE until they act, and I called that out plainly. (2) the live install was verified once, on one machine/date, with the result reported to me (I did not observe it directly) - it is a single data point, not a matrix; honest but not exhaustive. (3) CI itself is still unrun until this branch merges, so 'CI works' rests on the shape check + local pytest, not a real Actions run. Nothing deferred silently."
+}
