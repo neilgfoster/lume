@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Decisions recorded: enforcement mechanism (PreToolUse hook in .claude/, never plugin/), gate scope (commit-only), commit-match rule (Bash command containing a git commit invocation), and agent-facing surface (repo-root CLAUDE.md), each with rationale."
+      },
+      {
+        "checked": true,
+        "text": "Plan: execution iterations E1 (hook + settings + dry-run) and E2 (CLAUDE.md), then a closeout, each a binary DoD sketch tagged committed."
+      },
+      {
+        "checked": true,
+        "text": "The first execution iteration (E1) is concrete enough to open next: exact script behaviour, settings wiring, and the two dry-run states are specified."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code; nothing under plugin/."
+      }
+    ],
+    "preamble": "Planning for the commit gate. Resolve the design forks left by discovery (commit-match rule, deny wording, agent-facing surface) and lay out execution as E1 (hook script + settings wiring + dry-run) and E2 (CLAUDE.md), then closeout. No code this iteration."
+  },
+  "handback": "Logged four decisions (mechanism: PreToolUse hook in .claude/ never plugin/; scope: commit-only; commit-match: Bash command containing a git commit invocation, regex token match; surface: repo-root CLAUDE.md). Recorded plan items P1 (E1 hook + settings + dry-run), P2 (E2 CLAUDE.md), P3 (closeout). E1 is fully specified: a stdlib python3 hook that, on a Bash git-commit call, allows only when some .lume/workstreams/*/state.json has workstream.status active and its latest iteration phase == working, else denies with a reason; wired via a PreToolUse matcher on Bash. No engine code; nothing under plugin/. (Note: one decide call's backtick triggered shell substitution and mangled the stored text; corrected the decisions.json entry directly and re-validated the file.)",
+  "id": 2,
+  "self_review": "Holds: decisions and plan match the operator's commit-only choice and the repo-only boundary; E1 is concrete enough to implement directly. Process honesty: I hit a real defect using the CLI - a backtick in a decide argument was interpreted by the shell and wrote git status output into the decision; I fixed the artifact and re-validated, and will avoid backticks/unescaped shell metacharacters in CLI string args going forward. Scope held: planning only, no hook code, nothing under plugin/."
+}

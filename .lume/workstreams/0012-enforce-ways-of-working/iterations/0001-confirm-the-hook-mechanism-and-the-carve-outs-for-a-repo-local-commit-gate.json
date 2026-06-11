@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Mechanism confirmed: a project-scoped PreToolUse hook in .claude/settings.json can deny a tool call (permissionDecision: deny with a reason), reads tool_name/tool_input/cwd on stdin, and fires on the agent's tool calls - not the human's direct editor edits."
+      },
+      {
+        "checked": true,
+        "text": "Chosen scope recorded: commit-only chokepoint (deny `git commit` unless an active workstream has a current iteration in `working`); edits flow freely so only landing is gated."
+      },
+      {
+        "checked": true,
+        "text": "Carve-outs identified: how the agent BOOTSTRAPS a workstream (lume new + .lume edits + approve/start need no committed change), and that files outside this repo and the operator's manual edits are out of scope."
+      },
+      {
+        "checked": true,
+        "text": "Repo-only boundary confirmed: the hook lives in .claude/ (committed repo config), never under plugin/, so it does not ship to lume users; no engine code changes."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no code written this iteration; planning resolves the remaining design forks and execution implements the hook + CLAUDE.md."
+      }
+    ],
+    "preamble": "Discovery for the repo-local commit gate. The enforcement mechanism (a Claude Code PreToolUse hook) was researched and confirmed; this iteration records what it can/can't do, the chosen commit-only scope, and the carve-outs that keep the rule from locking the agent out of bootstrapping a workstream. No code this iteration."
+  },
+  "handback": "Recorded discovery.json (6 sections). Confirmed the PreToolUse hook mechanism (deny via permissionDecision:deny + reason; stdin carries tool_name/tool_input/cwd; fires on agent tool calls, not the operator's direct edits). Locked the scope to a COMMIT-ONLY chokepoint per operator decision: deny `git commit` unless an active workstream has a current iteration in `working`. Mapped the bootstrap path so the gate never deadlocks (lume new, .lume edits, approve, start are not commits). Confirmed the repo-only boundary: hook lives in .claude/, never plugin/, no engine change. Listed forks for planning (predicate exactness, how to detect git commit in a Bash command, deny-message wording, CLAUDE.md placement). No code written.",
+  "id": 1,
+  "self_review": "Holds: the mechanism is verified (not guessed) and the commit-only scope matches the operator's choice; the bootstrap carve-out is the load-bearing detail - because creating and starting a workstream involves no `git commit`, the agent can always reach a working iteration before the gate bites, so there is no chicken-and-egg lockout. Honest gaps surfaced for planning: (1) the gate is a chokepoint, not a sandbox - raw Bash redirects could still mutate files without a commit, but they cannot LAND without `git commit`, which is gated; (2) matching `git commit` inside arbitrary compound Bash commands is heuristic; planning will pin the match rule. Scope held: discovery.json only, no hook code yet."
+}

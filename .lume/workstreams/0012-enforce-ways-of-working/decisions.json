@@ -1,0 +1,28 @@
+{
+  "entries": [
+    {
+      "context": "enforcement mechanism",
+      "date": "2026-06-11",
+      "decision": "Use a project-scoped Claude Code PreToolUse hook in .claude/settings.json that denies git commit unless an active workstream has a working-phase iteration. Repo-only: under .claude/, never plugin/.",
+      "rationale": "Hooks are the only thing that can actually block an agent tool call; .claude/settings.json is committed so it applies to anyone driving the repo with the agent, and keeping it out of plugin/ ensures the rule does not ship to lume users."
+    },
+    {
+      "context": "gate scope",
+      "date": "2026-06-11",
+      "decision": "Commit-only chokepoint: gate git commit, leave Edit/Write/NotebookEdit ungated.",
+      "rationale": "Operator's choice: lowest-friction option that still guarantees nothing LANDS in history outside a workstream; edits can be drafted freely but only a working-phase iteration may commit."
+    },
+    {
+      "context": "commit-match rule",
+      "date": "2026-06-11",
+      "decision": "The hook gates a Bash call when its command contains a 'git commit' invocation (regex token match tolerant of flags/heredocs/compound commands); all other commands pass through. Non-Bash tools are never gated.",
+      "rationale": "Keeps the chokepoint precise and predictable; commit is the single landing action, so matching it is sufficient for the commit-only scope."
+    },
+    {
+      "context": "agent-facing surface",
+      "date": "2026-06-11",
+      "decision": "Add a repo-root CLAUDE.md documenting the way of working (all changes via a workstream, how to start one, the commit gate and its bootstrap path).",
+      "rationale": "CLAUDE.md is the conventional agent-instruction file and is loaded into the agent's context, reinforcing the rule in prose alongside the hard hook."
+    }
+  ]
+}
