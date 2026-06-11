@@ -379,8 +379,23 @@
       "dod_artifact": "iterations/0026-p20-rollup-parent-detail-lists-children-phase-queue-nests-children-under-parents-tests.json",
       "id": 26,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P20: rollup - parent detail lists children+phase; queue nests children under parents (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0027-p21-close-reopen-guards-refuse-closing-a-parent-with-active-children-refuse-reopening-a-child-under-a-closed-parent-tests.json",
+      "id": 27,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P21: close/reopen guards - refuse closing a parent with active children; refuse reopening a child under a closed parent (+tests)",
       "type": "execution",
       "verdicts": []
     }
@@ -528,7 +543,7 @@
     },
     {
       "id": "P21",
-      "iter": null,
+      "iter": 27,
       "sketch": "P4/L3 build step 3 of 4 - CLOSE/REOPEN GUARDS. 'lume close' on a parent with active (non-closed) children is REFUSED naming them; reopening a child whose parent is closed is REFUSED (reopen the parent first). DONE-WHEN: close-parent-with-active-children errors with the child list; close allowed once children closed; reopen-child-under-closed-parent errors; tests cover both guards + the allowed paths. ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

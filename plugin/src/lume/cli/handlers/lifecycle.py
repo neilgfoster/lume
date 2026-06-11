@@ -7,6 +7,7 @@ app.main's dispatch maps to a structured error + exit 1.
 from __future__ import annotations
 
 from ... import migrate as migrate_mod
+from ...errors import GateError
 from ...iteration import DEFAULT_TYPE
 from ...workstream import CLOSED
 from ..context import Context
@@ -49,6 +50,13 @@ def handle_reopen(ctx: Context) -> int:
 
 def handle_close(ctx: Context) -> int:
     ws = ctx.require_ws()
+    active = [c for c in ctx.repo.children(ws.id) if not c.is_closed]
+    if active:
+        names = ", ".join(f"{c.name} [{c.id}]" for c in active)
+        raise GateError(
+            f"cannot close '{ws.name}' - it has active child workstream(s): "
+            f"{names}. Close them first."
+        )
     ws.set_status(CLOSED)
     ctx.ok({"result": "close", "id": ws.id, "workstream": ws.name, "status": "closed"},
            f"closed workstream '{ws.name}'.")

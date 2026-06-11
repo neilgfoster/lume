@@ -158,6 +158,13 @@ class Repository:
         ws = self._load_workstream(lume_dir, id)
         if not ws.is_closed:
             raise GateError(f"workstream '{slug}' is already active.")
+        if ws.parent is not None and self._store(lume_dir).has_workstream(ws.parent):
+            parent = self._load_workstream(lume_dir, ws.parent)
+            if parent.is_closed:
+                raise GateError(
+                    f"cannot reopen '{slug}' - its parent '{parent.name}' "
+                    f"[{parent.id}] is closed; reopen the parent first."
+                )
         ws.set_status(ACTIVE)
         return ws
 

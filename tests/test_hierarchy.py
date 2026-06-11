@@ -57,6 +57,36 @@ class HierarchyTest(unittest.TestCase):
         self.assertEqual(entries[child.id]["parent"], parent.id)
         self.assertIsNone(entries[parent.id]["parent"])
 
+    def test_close_parent_with_active_child_refused(self):
+        from lume.cli.context import Context
+        parent = self.repo.create_workstream("sprint", "Sprint")
+        self.repo.create_workstream("task-a", "A", parent=parent.id)
+        from lume.cli.handlers import HANDLERS
+        ctx = Context(repo=self.repo, cmd="close", rest=["lume", "close"], arg="",
+                      json_mode=True, target="sprint", opt_type=None,
+                      opt_context=None, opt_tag=None)
+        with self.assertRaises(GateError):
+            HANDLERS["close"](ctx)
+
+    def test_close_parent_allowed_once_children_closed(self):
+        from lume.cli.context import Context
+        from lume.cli.handlers import HANDLERS
+        parent = self.repo.create_workstream("sprint", "Sprint")
+        child = self.repo.create_workstream("task-a", "A", parent=parent.id)
+        child.set_status("closed")
+        ctx = Context(repo=self.repo, cmd="close", rest=["lume", "close"], arg="",
+                      json_mode=True, target="sprint", opt_type=None,
+                      opt_context=None, opt_tag=None)
+        self.assertEqual(HANDLERS["close"](ctx), 0)
+
+    def test_reopen_child_under_closed_parent_refused(self):
+        parent = self.repo.create_workstream("sprint", "Sprint")
+        child = self.repo.create_workstream("task-a", "A", parent=parent.id)
+        child.set_status("closed")
+        parent.set_status("closed")
+        with self.assertRaises(GateError):
+            self.repo.reopen_workstream("task-a")
+
     def test_queue_render_annotates_child(self):
         import io as _io
         from contextlib import redirect_stdout
