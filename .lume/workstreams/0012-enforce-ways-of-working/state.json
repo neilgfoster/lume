@@ -1,0 +1,109 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-confirm-the-hook-mechanism-and-the-carve-outs-for-a-repo-local-commit-gate.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Confirm the hook mechanism and the carve-outs for a repo-local commit gate",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0002-pin-the-commit-match-rule-deny-wording-and-plan-the-hook-claude-md.json",
+      "id": 2,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Pin the commit-match rule, deny wording, and plan the hook + CLAUDE.md",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0003-e1-implement-the-commit-gate-hook-wire-settings-json-dry-run-both-states.json",
+      "id": 3,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "E1 - implement the commit-gate hook, wire settings.json, dry-run both states",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0004-e2-write-repo-root-claude-md-documenting-the-way-of-working.json",
+      "id": 4,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "E2 - write repo-root CLAUDE.md documenting the way of working",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0005-closeout-verify-done-when-retro-confirm-repo-only-boundary-hand-off-for-operator-accept-merge.json",
+      "id": 5,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Closeout - verify done-when, retro, confirm repo-only boundary; hand off for operator accept + merge",
+      "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [
+    {
+      "id": "P1",
+      "iter": null,
+      "sketch": "E1 - Implement the commit gate: write .claude/hooks/require-workstream-commit.py (stdlib python3; reads stdin JSON; if tool is Bash and command contains a git commit invocation, allow only when a .lume/workstreams/*/state.json has workstream.status active AND its latest iteration phase == working, else deny with a reason; non-Bash and non-commit commands pass), wire it into .claude/settings.json PreToolUse matcher Bash, and dry-run the decision logic against both states.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P2",
+      "iter": null,
+      "sketch": "E2 - Write repo-root CLAUDE.md documenting the way of working: all repo changes go through a lume workstream; how to start/drive one; the commit-only gate and its no-deadlock bootstrap path; the repo-only / not-a-lume-feature boundary; that the operator's manual edits are not policed.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P3",
+      "iter": null,
+      "sketch": "Closeout - verify done-when, retro (did the gate buy back more than its ceremony), confirm nothing under plugin/ changed and no engine code touched; hand off for operator accept + PR merge.",
+      "tag": "committed",
+      "type": "closeout"
+    }
+  ],
+  "workstream": {
+    "id": "0012",
+    "objective_artifact": "objective.json",
+    "slug": "enforce-ways-of-working",
+    "status": "closed",
+    "title": "Enforce: all repo changes go through a lume workstream (repo-only commit gate)"
+  }
+}

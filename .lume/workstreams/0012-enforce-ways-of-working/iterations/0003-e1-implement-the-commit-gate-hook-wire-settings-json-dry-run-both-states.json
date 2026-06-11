@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": ".claude/hooks/require-workstream-commit.py exists: stdlib python3, reads the PreToolUse JSON on stdin, and only acts when tool_name is Bash and the command contains a git commit invocation; everything else exits 0 with no decision (pass through)."
+      },
+      {
+        "checked": true,
+        "text": "Predicate correct: a gated commit is ALLOWED only when some .lume/workstreams/*/state.json has workstream.status == active AND its latest iteration phase == working; otherwise the hook prints permissionDecision deny with a clear reason naming the rule and how to satisfy it."
+      },
+      {
+        "checked": true,
+        "text": ".claude/settings.json wires the hook: hooks.PreToolUse with a matcher on Bash pointing at the script via ${CLAUDE_PROJECT_DIR}; existing keys (extraKnownMarketplaces, enabledPlugins) preserved; valid JSON."
+      },
+      {
+        "checked": true,
+        "text": "Dry-run verified BOTH ways using a real git-commit payload on stdin: denies when no working-phase iteration exists, allows when one does (and a non-commit Bash command passes through). Outputs captured in the handback."
+      },
+      {
+        "checked": true,
+        "text": "Repo-only boundary held: changes confined to .claude/; nothing under plugin/; no lume engine code touched."
+      }
+    ],
+    "preamble": "E1: build the commit-only gate. A PreToolUse hook denies git commit unless an active workstream has a working-phase iteration, wired in repo-scoped .claude/ config and dry-run against both states. No engine code; nothing under plugin/."
+  },
+  "handback": "Implemented .claude/hooks/require-workstream-commit.py (stdlib python3): on a Bash git-commit call it allows only when some .lume/workstreams/*/state.json is status=active with its latest iteration phase=working, else denies with a reason that names the rule and the bootstrap path; all other tools and non-commit Bash pass through. Wired it via hooks.PreToolUse (matcher Bash, ${CLAUDE_PROJECT_DIR}) in .claude/settings.json, preserving existing keys. Dry-ran 8 payloads: ALLOW (working iteration present; compound `add && commit`), PASS (git status, Edit tool, commit-graph, commit-tree), DENY (active+accepted iteration; empty repo). Found and fixed a real bug mid-iteration: `commit\\b` matched `commit-graph`/`commit-tree`; tightened to `commit(?![\\w-])` and re-verified those now pass. Confined to .claude/; nothing under plugin/; no engine code.",
+  "id": 3,
+  "self_review": "Holds: the predicate matches the design (active workstream + latest iteration working), deny carries an actionable reason, and the commit-only scope is honoured (only Bash git-commit is gated). The word-boundary bug is the kind of thing dry-running is for - caught and fixed before handback, with sibling subcommands re-tested. Honest limits: (1) chokepoint not sandbox - raw redirects can still mutate files, but cannot land without the gated commit; (2) the regex is heuristic - an exotically obfuscated commit (e.g. via a shell variable) could slip the match, acceptable for honest agent guidance; (3) the hook only activates on the operator's next session (hooks load at startup), so it does not retroactively gate this one. Scope held: .claude/ only, no plugin/, no engine code."
+}

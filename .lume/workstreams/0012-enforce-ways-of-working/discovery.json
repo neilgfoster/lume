@@ -1,0 +1,29 @@
+{
+  "title": "enforce-ways-of-working - discovery (repo-local commit gate)",
+  "sections": [
+    {
+      "heading": "0. Frame",
+      "body": "Requirement (operator): every change to THIS repo must go through a lume workstream, enforced more against the agent than the operator, as a property of THIS repo only - NOT a lume feature that ships to users. This iteration confirms the enforcement mechanism and the carve-outs; it writes no code."
+    },
+    {
+      "heading": "1. Mechanism confirmed - Claude Code PreToolUse hook",
+      "body": "A project-scoped PreToolUse hook configured in .claude/settings.json under hooks.PreToolUse, matcher matching the tool name (pipe-separated names like 'Bash', or regex). The hook command receives JSON on stdin: {session_id, transcript_path, cwd, permission_mode, hook_event_name, tool_name, tool_input{...}, agent_id?}. To BLOCK, the script prints to stdout (exit 0): {\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"<message shown to the agent>\"}}. (Exit code 2 also blocks, surfacing stderr.) The hook fires on the AGENT's tool calls; edits the human makes directly in their own editor/terminal (outside Claude) are never seen by the hook - this is exactly the 'more for the agent than the operator' property."
+    },
+    {
+      "heading": "2. Scope decided - commit-only chokepoint",
+      "body": "Operator chose the commit-only option: do NOT gate individual Edit/Write/NotebookEdit calls; the agent may read, explore, and edit freely. Gate only `git commit` (the Bash tool): DENY unless an active lume workstream has a current iteration in the `working` phase. Rationale: changes can be drafted freely, but nothing LANDS in history outside a workstream's working phase, which is the traceability the rule is really after. Low friction, single clear chokepoint."
+    },
+    {
+      "heading": "3. Predicate - when is a commit allowed?",
+      "body": "ALLOW `git commit` iff there exists a workstream with status 'active' whose latest iteration has phase 'working'. The hook computes this by scanning .lume/workstreams/*/state.json (each holds workstream.status and an iterations[] list with the last entry's phase). Stdlib only (python3, already a repo requirement). Detecting a commit within the Bash command: treat the call as gated when the command contains a `git commit` invocation (token match, tolerant of flags and compound commands); non-commit git/other commands pass through untouched."
+    },
+    {
+      "heading": "4. Carve-outs and the no-deadlock argument",
+      "body": "BOOTSTRAP never deadlocks: creating a workstream (lume new), editing objective/DoD (writes under .lume/, not commits), and approve -> start (phase to working) involve NO `git commit`, so the agent can always reach a working iteration before the gate is consulted. Once `working`, commits are allowed; the agent commits its work, then hands back. OUT OF SCOPE: the operator's manual (non-agent) edits; any file outside this repo; reads/explore/builds/tests (only `git commit` is gated). NOT A SANDBOX: a determined agent could mutate files via raw Bash redirects, but it cannot LAND them without `git commit`, which is gated - this is honest guidance at the landing chokepoint, not a security boundary."
+    },
+    {
+      "heading": "5. Repo-only boundary + deferred to planning/execution",
+      "body": "REPO-ONLY: the hook script and its .claude/settings.json wiring live in committed repo config under .claude/; NOTHING is added under plugin/, so the rule never ships to lume's users and no lume engine code changes. A repo-root CLAUDE.md (new) states the rule in prose for the agent. DEFERRED to PLANNING: pin the exact commit-match rule, the deny-message wording, and confirm CLAUDE.md is the right agent-facing surface. DEFERRED to EXECUTION: write the hook script, wire settings.json, write CLAUDE.md, and dry-run the decision logic against both the no-working-iteration and working-iteration states. Note: hooks load at session start, so the gate goes live for the operator's NEXT session - it will not retroactively lock this session."
+    }
+  ]
+}

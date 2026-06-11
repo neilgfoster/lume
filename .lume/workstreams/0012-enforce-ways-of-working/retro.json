@@ -1,0 +1,57 @@
+{
+  "overall_verdict": "Worth it. A small, repo-local guardrail (one stdlib hook + settings wiring + CLAUDE.md) now makes the repo's own discipline self-enforcing for the agent at the commit chokepoint, without touching the engine or the shipped plugin. The ceremony of routing it through a workstream paid for itself: it forced the design forks (scope, commit-match, repo-only boundary) to be decided explicitly and surfaced a real regex bug during the dry-run before it could land.",
+  "done_when": [
+    {
+      "clause": "(a) PreToolUse hook denies git commit without a working-phase iteration, allows it with one, clear reason",
+      "verdict": "met",
+      "evidence": ".claude/hooks/require-workstream-commit.py; dry-run showed deny (no working iteration / empty repo) and allow (working iteration present), with an actionable deny reason."
+    },
+    {
+      "clause": "(b) Hook in repo-scoped .claude/, not plugin/, no engine change",
+      "verdict": "met",
+      "evidence": "Files added only under .claude/ and repo root; git diff touches nothing under plugin/ and no lume engine module."
+    },
+    {
+      "clause": "(c) Repo-root CLAUDE.md documents the way of working",
+      "verdict": "met",
+      "evidence": "CLAUDE.md states the rule, the satisfy-path, the enforcement, and the operator-only accept/merge gates."
+    },
+    {
+      "clause": "(d) Carve-outs correct (only absence-of-working blocks; operator manual edits and out-of-repo files unaffected)",
+      "verdict": "met",
+      "evidence": "Hook only acts on Bash git-commit; non-commit Bash and non-Bash tools pass; the hook fires on agent tool calls only; predicate keys on .lume state under the repo root."
+    },
+    {
+      "clause": "(e) Verified deny and allow via dry-run",
+      "verdict": "met",
+      "evidence": "8 payloads dry-run: allow, pass-through (status/Edit/commit-graph/commit-tree), deny (accepted iteration / empty repo); word-boundary bug found and fixed."
+    },
+    {
+      "clause": "(f) This workstream's own changes committed through it",
+      "verdict": "met",
+      "evidence": "E1 and E2 committed during their iterations' working phases on branch workstream/enforce-workstream-gate."
+    }
+  ],
+  "stage_verdicts": [
+    {
+      "stage": "discovery + planning",
+      "iterations": "001-002",
+      "cost": "Two iterations of recording mechanism, scope, and forks.",
+      "saved": "Locked the commit-only scope and repo-only boundary before any code, avoiding a heavier edit-gating design and a plugin-coupled mistake.",
+      "net": "positive"
+    },
+    {
+      "stage": "execution",
+      "iterations": "003-004",
+      "cost": "Hook script + settings + CLAUDE.md, plus a dry-run harness.",
+      "saved": "Dry-run caught the commit-graph/commit-tree false-positive pre-merge; CLAUDE.md pairs prose guidance with the hard stop.",
+      "net": "positive"
+    }
+  ],
+  "carry_forwards": [
+    "The gate activates only at session start (hooks load then), so it takes effect for the operator's NEXT session after this merges.",
+    "It is a chokepoint, not a sandbox: raw Bash redirects can mutate files; only the commit is gated. Revisit if evasion is ever observed.",
+    "The commit-match is heuristic regex; an obfuscated commit (e.g. via a shell variable) could slip it - acceptable for honest guidance.",
+    "lume close for this workstream is left to the operator, to pair with their accept/merge authority after the PR lands."
+  ]
+}
