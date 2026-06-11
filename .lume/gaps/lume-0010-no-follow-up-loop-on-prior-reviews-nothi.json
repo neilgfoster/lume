@@ -3,7 +3,14 @@
   "source": "lume",
   "title": "No follow-up loop on prior reviews: nothing in the protocol or the Result contract tracks whether the previous review's queue plan was adopted, consciously declined, or silently dropped. This delta review found review-2026-06-11-01's two proposed workstreams (evidence-freshness, value-signal) and two direction decisions still unadopted hours later with no recorded operator verdict - they exist only in that review's findings.md.",
   "context": "reviews/2026-06-11-02: missed because The review is designed as a self-contained snapshot: emit seeds from current state and findings flow forward into records, but no lens or contract field looks BACKWARD at the previous review's outcomes.; proposed: Seed the emitted protocol with the most recent review's queue plan and its adoption status (workstreams that exist, decisions that were logged), and instruct the reviewer to report unadopted items as standing findings rather than re-proposing or silently dropping them.",
-  "status": "open",
+  "status": "resolved",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": {
+    "kind": "implemented",
+    "note": "Implemented by 0021: emit seeds the protocol with all stored reviews' queue plans + derived adoption status; unadopted items are reported as standing findings (aggregated so thin delta reviews cannot bury earlier proposals)",
+    "workstream": "0021"
+  },
+  "workstreams": [
+    "0021"
+  ]
 }

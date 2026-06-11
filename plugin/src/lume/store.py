@@ -47,6 +47,7 @@ class TrackingStore(Protocol):
     # dated review slug, validated against the discovery artifact shape.
     def read_review(self, slug: str) -> dict | None: ...
     def write_review(self, slug: str, doc: dict) -> None: ...
+    def list_reviews(self) -> list[str]: ...
 
 
 def _folder_id(name: str) -> str:
@@ -181,6 +182,13 @@ class FilesystemStore:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
 
+    def list_reviews(self) -> list[str]:
+        reviews_dir = self._root.parent / "reviews"
+        if not reviews_dir.is_dir():
+            return []
+        return sorted(p.name for p in reviews_dir.iterdir()
+                      if (p / "result.json").is_file())
+
 
 class SQLiteStore:
     """TrackingStore backed by a single SQLite db - a non-filesystem proof that
@@ -279,6 +287,11 @@ class SQLiteStore:
         )
         self._conn.commit()
 
+    def list_reviews(self) -> list[str]:
+        self._ensure_reviews_table()
+        rows = self._conn.execute("SELECT slug FROM reviews ORDER BY slug").fetchall()
+        return [r[0] for r in rows]
+
 
 class InMemoryStore:
     """TrackingStore over an in-process dict - a fast, dependency-free test double
@@ -319,3 +332,6 @@ class InMemoryStore:
     def write_review(self, slug: str, doc: dict) -> None:
         validate_entity("discovery", doc)
         self._docs[("@review", slug)] = copy.deepcopy(doc)
+
+    def list_reviews(self) -> list[str]:
+        return sorted(slug for (id, slug) in self._docs if id == "@review")

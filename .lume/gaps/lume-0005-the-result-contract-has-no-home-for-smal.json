@@ -3,9 +3,13 @@
   "source": "lume",
   "title": "The Result contract has no home for small direct fixes: a one-line stale-doc correction must be wrapped into a full proposed_workstream to be queued, which is heavier than the finding warrants and discourages recording small findings.",
   "context": "review/2026-06-11-01: missed because The contract maps findings only to workstream/decision/gap, mirroring lume's existing verbs; no lighter-weight finding type was designed.; proposed: Either document the convention that small fixes are chore plan items proposed against an existing or housekeeping workstream, or extend review_result with a 'fixes' list that ingest maps to a single emitted chore-bundle workstream.",
-  "status": "open",
+  "status": "resolved",
   "created": "2026-06-11",
-  "resolution": null,
+  "resolution": {
+    "kind": "implemented",
+    "note": "Implemented by 0021: optional 'fixes' list in review_result; ingest renders them and queues a single operator-gated chore-bundle workstream proposal",
+    "workstream": "0021"
+  },
   "workstreams": [
     "0021"
   ]

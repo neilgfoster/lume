@@ -183,6 +183,14 @@ class Repository:
         """Persist a structured review result through the Tracking contract."""
         self._store(self._require_lume_dir()).write_review(slug, doc)
 
+    def read_review(self, slug: str) -> dict | None:
+        """A stored review result by slug, or None."""
+        return self._store(self._require_lume_dir()).read_review(slug)
+
+    def list_reviews(self) -> list[str]:
+        """All stored review slugs, sorted (dated slugs sort chronologically)."""
+        return self._store(self._require_lume_dir()).list_reviews()
+
     def children(self, parent_id: str) -> list[Workstream]:
         """Workstreams whose parent == parent_id, derived by scan (no stored list)."""
         lume_dir = self._require_lume_dir()

@@ -49,10 +49,16 @@
       "dod_artifact": "iterations/0004-p3-closeout-dogfood-the-lifecycle-on-a-real-review-resolve-g2-g6-retro-close.json",
       "id": 4,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P3: closeout - dogfood the lifecycle on a real review, resolve G2+G6, retro, close",
       "type": "closeout",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -82,7 +88,7 @@
     "id": "0020",
     "objective_artifact": "objective.json",
     "slug": "review-output-lifecycle",
-    "status": "active",
+    "status": "closed",
     "title": "Review output is born in a workstream; review_gaps auto-captured on ingest"
   }
 }

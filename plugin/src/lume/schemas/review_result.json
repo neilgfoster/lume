@@ -2,17 +2,32 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "review_result",
   "type": "object",
-  "required": ["direction_decisions", "proposed_workstreams", "review_gaps", "provenance"],
+  "required": [
+    "direction_decisions",
+    "proposed_workstreams",
+    "review_gaps",
+    "provenance"
+  ],
   "properties": {
     "direction_decisions": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["context", "decision", "rationale"],
+        "required": [
+          "context",
+          "decision",
+          "rationale"
+        ],
         "properties": {
-          "context":   {"type": "string"},
-          "decision":  {"type": "string"},
-          "rationale": {"type": "string"}
+          "context": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          }
         }
       }
     },
@@ -20,23 +35,63 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["slug", "title", "serves_goal", "objective", "critical_path", "plan_items"],
+        "required": [
+          "slug",
+          "title",
+          "serves_goal",
+          "objective",
+          "critical_path",
+          "plan_items"
+        ],
         "properties": {
-          "slug":          {"type": "string"},
-          "title":         {"type": "string"},
-          "serves_goal":   {"type": "string"},
-          "objective":     {"type": "string"},
-          "critical_path": {"type": "boolean"},
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "serves_goal": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          },
+          "critical_path": {
+            "type": "boolean"
+          },
           "plan_items": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["sketch", "type", "tag", "evidence"],
+              "required": [
+                "sketch",
+                "type",
+                "tag",
+                "evidence"
+              ],
               "properties": {
-                "sketch":   {"type": "string"},
-                "type":     {"enum": ["epic", "slice", "spike", "chore"], "type": "string"},
-                "tag":      {"enum": ["committed", "optional"], "type": "string"},
-                "evidence": {"type": "string"}
+                "sketch": {
+                  "type": "string"
+                },
+                "type": {
+                  "enum": [
+                    "epic",
+                    "slice",
+                    "spike",
+                    "chore"
+                  ],
+                  "type": "string"
+                },
+                "tag": {
+                  "enum": [
+                    "committed",
+                    "optional"
+                  ],
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -47,21 +102,63 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["gap", "why_missed", "proposed_change"],
+        "required": [
+          "gap",
+          "why_missed",
+          "proposed_change"
+        ],
         "properties": {
-          "gap":             {"type": "string"},
-          "why_missed":      {"type": "string"},
-          "proposed_change": {"type": "string"}
+          "gap": {
+            "type": "string"
+          },
+          "why_missed": {
+            "type": "string"
+          },
+          "proposed_change": {
+            "type": "string"
+          }
         }
       }
     },
     "provenance": {
       "type": "object",
-      "required": ["source", "date", "note"],
+      "required": [
+        "source",
+        "date",
+        "note"
+      ],
       "properties": {
-        "source": {"type": "string"},
-        "date":   {"type": "string"},
-        "note":   {"type": "string"}
+        "source": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "fixes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "description",
+          "evidence",
+          "suggested_change"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "suggested_change": {
+            "type": "string"
+          }
+        }
       }
     }
   }

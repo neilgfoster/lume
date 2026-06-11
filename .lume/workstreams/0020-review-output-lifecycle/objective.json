@@ -1,6 +1,6 @@
 {
   "slug": "review-output-lifecycle",
-  "status": "active",
+  "status": "closed",
   "text": "Answer gaps G2 and G6: review output is born with a workstream to land it, and the review's own self-improvement gaps are captured mechanically. (G2) Per operator direction, lume review should only execute within a workstream, or running an ad-hoc review triggers an automatic spawn of a workstream to capture the findings and gaps - so review artifacts (findings.md, result.json, gap records) are never orphaned with nothing to commit them. (G6) lume review ingest writes review_gaps directly as open gap records tagged with the review slug (mechanical capture, like the review folder itself and lume decide), while proposed_workstreams and direction_decisions stay print-only behind the operator gate; supersedes the 0015 uniform-emit rule for review_gaps only. Done when: both behaviours are designed (decisions logged), built, tested, documented, and dogfooded on the next real review.",
   "title": "Review output is born in a workstream; review_gaps auto-captured on ingest"
 }

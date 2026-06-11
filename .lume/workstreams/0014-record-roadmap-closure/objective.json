@@ -1,7 +1,7 @@
 {
+  "done_when": "The 0011 state.json/objective.json closure flips are committed and merged to main via PR; this workstream is then closed.",
   "slug": "record-roadmap-closure",
-  "status": "active",
+  "status": "closed",
   "text": "Housekeeping: workstream 0011's final loop-state flips (iteration 028 accepted; workstream closed) happened after its last PR merged, so they are uncommitted on main. Land them in history through a proper working iteration, per the repo rule that every change goes through a lume workstream.",
-  "title": "Record workstream 0011's final accepted+closed state in history",
-  "done_when": "The 0011 state.json/objective.json closure flips are committed and merged to main via PR; this workstream is then closed."
+  "title": "Record workstream 0011's final accepted+closed state in history"
 }

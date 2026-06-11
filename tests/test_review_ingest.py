@@ -215,3 +215,40 @@ class ReviewStoreSeamTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FixesContractTest(_IngestBase):
+    """G5: optional 'fixes' list - validated, rendered, queued as one chore bundle."""
+
+    def test_schema_accepts_and_requires_fields(self):
+        ok = dict(VALID_RESULT, fixes=[{"description": "d", "evidence": "e",
+                                        "suggested_change": "s"}])
+        validate_entity("review_result", ok)
+        with self.assertRaises(SchemaError):
+            validate_entity("review_result",
+                            dict(VALID_RESULT, fixes=[{"description": "d"}]))
+
+    def test_fixes_render_and_queue_as_chore_bundle(self):
+        doc = dict(VALID_RESULT, fixes=[
+            {"description": "fix stale test count", "evidence": "README.md:47",
+             "suggested_change": "313 -> 421"}])
+        self.result_path.write_text(json.dumps(doc))
+        code, out = _run(self.root, "--json", "review", "ingest",
+                         str(self.result_path), "--spawn")
+        self.assertEqual(code, 0, out)
+        plan = json.loads(out)["queue_plan"]
+        self.assertIn('lume new review-2026-06-11-01-fixes '
+                      '"Small fixes from review 2026-06-11-01"', plan)
+        self.assertTrue(any("fix stale test count" in c and "plan add" in c
+                            for c in plan))
+        findings = (self.root / ".lume" / "reviews" / "2026-06-11-01"
+                    / "findings.md").read_text()
+        self.assertIn("## Fixes (small direct corrections)", findings)
+        self.assertIn("313 -> 421", findings)
+
+    def test_result_without_fixes_unchanged(self):
+        code, out = _run(self.root, "--json", "review", "ingest",
+                         str(self.result_path), "--spawn")
+        self.assertEqual(code, 0)
+        plan = json.loads(out)["queue_plan"]
+        self.assertFalse(any("fixes" in c for c in plan))

@@ -54,7 +54,10 @@ LENSES: tuple[tuple[str, str], ...] = (
      "Hunt for claims the repo makes about itself that the evidence does not "
      "support: overstated README capabilities, 'done' items that are not done, "
      "caveats that exist in one doc but are dropped in another, tests that "
-     "assert less than their names claim."),
+     "assert less than their names claim. Do not take evidence-tagged claims "
+     "on trust: mechanically re-derive every checkable one BEFORE grading "
+     "(run the test suite and compare the count, count workstreams/adopters, "
+     "check CI status) and treat any mismatch as a finding."),
     ("ecosystem fit",
      "Check redundancy, overlap, AND best-practice conformance against the "
      "CURRENT Claude Code ecosystem at review time - look it up now (web, "
@@ -82,6 +85,14 @@ LENSES: tuple[tuple[str, str], ...] = (
      "other and with the current state? Name contradictions between vision, "
      "constraints, docs, and recorded decisions, including stale 'current "
      "state' claims."),
+    ("trust boundaries",
+     "Enumerate every place the project executes or ingests content it did "
+     "not author at runtime - e.g. DoD command checks (author-supplied "
+     "shell), repo hooks, cloning and reading adopter repos, embedding "
+     "discovered charter docs - and for each, name the trust assumption and "
+     "grade whether it still fits the project's CURRENT adoption and stated "
+     "constraints. A deferral that was right for one user may be wrong for "
+     "ten; say which deferrals to revisit and which still hold."),
     ("META / self-improvement",
      "Turn the review on itself. What might THIS review have missed: lenses "
      "that should exist but do not, evidence this protocol never told you to "
@@ -157,7 +168,40 @@ def gather_charter(repo, charter_globs: list[str] | None) -> dict:
         docs.append({"path": rel.as_posix(), "content": content,
                      "truncated": truncated})
     return {"workstreams": workstreams, "docs": docs, "doc_kind": kind,
-            "dropped_docs": dropped}
+            "dropped_docs": dropped,
+            "previous_review": _previous_review(repo, workstreams)}
+
+
+def _previous_review(repo, workstreams: list[dict]) -> dict | None:
+    """Every stored review's queue plan + adoption status, aggregated (G10).
+
+    Aggregated across ALL stored reviews, not just the latest - a thin delta
+    review with an empty queue plan must not bury an earlier review's pending
+    proposals. Adoption is derived deterministically from current state: a
+    proposed workstream is adopted iff a workstream with its slug exists; a
+    direction decision is adopted iff its decision text appears verbatim in
+    any workstream's decision log. Returns None when no review is stored.
+    """
+    slugs = repo.list_reviews()
+    if not slugs:
+        return None
+    ws_slugs = {w["slug"] for w in workstreams}
+    decision_texts = {e["decision"] for w in workstreams for e in w["decisions"]}
+    items = []
+    for slug in slugs:
+        doc = repo.read_review(slug)
+        if doc is None:
+            continue
+        sections = {sec["heading"]: sec["body"] for sec in doc.get("sections", [])}
+        for w in json.loads(sections.get("proposed_workstreams", "[]")):
+            items.append({"kind": "workstream", "review": slug, "name": w["slug"],
+                          "title": w["title"], "adopted": w["slug"] in ws_slugs})
+        for d in json.loads(sections.get("direction_decisions", "[]")):
+            items.append({"kind": "decision", "review": slug,
+                          "name": d["decision"][:120],
+                          "title": d["context"][:120],
+                          "adopted": d["decision"] in decision_texts})
+    return {"slug": slugs[-1], "reviews": slugs, "items": items}
 
 
 def charter_sources(charter: dict) -> list[dict]:
@@ -166,6 +210,10 @@ def charter_sources(charter: dict) -> list[dict]:
                for w in charter["workstreams"]]
     sources += [{"source": d["path"], "kind": charter["doc_kind"]}
                 for d in charter["docs"]]
+    prev = charter.get("previous_review")
+    if prev:
+        sources.append({"source": f"review {prev['slug']} (queue-plan adoption)",
+                        "kind": "previous-review"})
     return sources
 
 
@@ -182,6 +230,8 @@ def result_contract_skeleton() -> dict:
                   "tag": "committed|optional", "evidence": "..."}]}],
         "review_gaps": [
             {"gap": "...", "why_missed": "...", "proposed_change": "..."}],
+        "fixes": [
+            {"description": "...", "evidence": "...", "suggested_change": "..."}],
         "provenance": {
             "source": "lume review", "date": "YYYY-MM-DD",
             "note": "automated self-review, not external validation"},
@@ -242,6 +292,23 @@ def build_protocol(charter: dict) -> str:
             "itself a finding.",
             "",
         ]
+    prev = charter.get("previous_review")
+    if prev:
+        out += [f"## Previous review follow-up ({len(prev['reviews'])} stored "
+                f"review(s), latest {prev['slug']})", ""]
+        if prev["items"]:
+            out += ["Adoption status of prior reviews' queue plans, derived "
+                    "from current state:", ""]
+            for item in prev["items"]:
+                mark = "ADOPTED" if item["adopted"] else "UNADOPTED"
+                out.append(f"- [{mark}] {item['kind']} (review {item['review']}): "
+                           f"{item['name']} - {item['title']}")
+            out += ["",
+                    "Report each UNADOPTED item as a standing finding (confirm it "
+                    "still applies, or mark it superseded with evidence) rather "
+                    "than re-proposing it as new or silently dropping it.", ""]
+        else:
+            out += ["No stored review proposed workstreams or decisions.", ""]
     out += ["## Lenses", ""]
     for i, (name, instruction) in enumerate(LENSES, 1):
         out += [f"{i}. {name}", f"   {instruction}", ""]
@@ -266,7 +333,9 @@ def build_protocol(charter: dict) -> str:
         "(mechanical capture, tagged with the review slug; triage stays the "
         "operator's). The direction-shaping items are emitted as commands for "
         "the operator, never executed by lume: proposed_workstreams -> "
-        "lume new + lume plan add; direction_decisions -> lume decide. "
+        "lume new + lume plan add; direction_decisions -> lume decide; "
+        "fixes (optional - small one-line corrections too light for a full "
+        "workstream) -> one chore-bundle workstream proposal. "
         "provenance.note must state this is an automated self-review, not "
         "external validation.",
     ]
@@ -338,6 +407,13 @@ def build_findings_md(result: dict, review_slug: str) -> str:
             out.append("")
     else:
         out += ["(none)", ""]
+    if result.get("fixes"):
+        out += ["## Fixes (small direct corrections)", ""]
+        for f in result["fixes"]:
+            out += [f"- {f['description']}",
+                    f"  - evidence: {f['evidence']}",
+                    f"  - suggested: {f['suggested_change']}"]
+        out.append("")
     out += ["## Review gaps (META lens - gaps in this review itself)", ""]
     if result["review_gaps"]:
         for g in result["review_gaps"]:
@@ -383,6 +459,15 @@ def queue_commands(result: dict, review_slug: str) -> list[str]:
                 f'-g {item["tag"]} "{item["sketch"]}"')
     for d in result["direction_decisions"]:
         commands.append(f'lume decide -c "{d["context"]}" "{d["decision"]}" "{d["rationale"]}"')
+    fixes = result.get("fixes", [])
+    if fixes:
+        bundle = f"review-{review_slug}-fixes"
+        commands.append(f'lume new {bundle} "Small fixes from review {review_slug}"')
+        for f in fixes:
+            commands.append(
+                f'lume plan add -w {bundle} -t execution -g committed '
+                f'"{f["description"]} (evidence: {f["evidence"]}; suggested: '
+                f'{f["suggested_change"]})"')
     return commands
 
 

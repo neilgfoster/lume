@@ -88,8 +88,12 @@ A new iteration can only be opened once the latest one is `accepted`.
 - Adversarial self-review: `lume review` (alias `review emit`) prints a review
   protocol seeded from lume state (all objectives, decisions, plans, retros)
   plus discovered charter docs (`--charter <glob>` overrides discovery). You do
-  the review across its seven lenses - the ecosystem lens requires looking up
-  the CURRENT Claude Code features/marketplace/best practices at review time -
+  the review across its eight lenses - the ecosystem lens requires looking up
+  the CURRENT Claude Code features/marketplace/best practices at review time,
+  the honesty lens requires mechanically re-deriving checkable evidence
+  claims, and the trust-boundaries lens re-grades every run-external-content
+  deferral; the protocol also seeds the previous review's queue plan with
+  adoption status so unadopted items surface as standing findings -
   then write the Result-contract JSON and run `lume review ingest <path>
   (-w <ws> | --spawn)`. Ingest needs an owning workstream for its output: `-w`
   attributes the review to an existing active workstream, `--spawn` creates a
