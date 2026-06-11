@@ -64,10 +64,16 @@
       "dod_artifact": "iterations/0005-closeout-verify-done-when-retro-confirm-repo-only-boundary-hand-off-for-operator-accept-merge.json",
       "id": 5,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Closeout - verify done-when, retro, confirm repo-only boundary; hand off for operator accept + merge",
       "type": "closeout",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [
@@ -97,7 +103,7 @@
     "id": "0012",
     "objective_artifact": "objective.json",
     "slug": "enforce-ways-of-working",
-    "status": "active",
+    "status": "closed",
     "title": "Enforce: all repo changes go through a lume workstream (repo-only commit gate)"
   }
 }
