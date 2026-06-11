@@ -1,0 +1,9 @@
+{
+  "id": "G12",
+  "source": "lume",
+  "title": "lume review ingest leaves the input result.json orphaned where it was authored",
+  "context": "Ingest copies the input to .lume/reviews/<date-NN>/result.json (canonical) and writes findings.md, but never relocates or deletes the source file the reviewer authored. This run left .lume/review-2026-06-11-03.json loose at the .lume root as a duplicate of the captured result.json. Reviewers must pick an arbitrary path for the input and then clean up by hand. Proposed: ingest should accept/move the input into the review dir (or delete it after a verified capture), or document a canonical input path so the source does not linger as orphaned clutter.",
+  "status": "open",
+  "created": "2026-06-11",
+  "resolution": null
+}

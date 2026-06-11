@@ -1,0 +1,9 @@
+{
+  "id": "G14",
+  "source": "lume",
+  "title": "lume review runs as a shallow single pass, not the adversarial multi-viewpoint swarm its intent implies",
+  "context": "The review is described as ADVERSARIAL and is meant to give a holistic view of whole project state and value, but the engine emits one protocol and the reviewer runs it once, single-threaded, from one viewpoint. Review 2026-06-11-03 was thin: it largely re-affirmed prior findings and produced few new project-level findings. A genuinely adversarial review would fan out multiple independent viewpoints (e.g. a steelman vs. a skeptic per lens, separate agents per lens, cross-checking each other) and synthesise them, so blind spots in any single pass are caught. Gap: nothing in the protocol or tooling drives a multi-agent / multi-viewpoint swarm or even prompts for independent adversarial passes; depth is left entirely to the reviewer's discretion and defaults to shallow. Proposed: define a swarm review mode (parallel independent lens/viewpoint agents -> adversarial verification -> synthesis), or at minimum have emit instruct and ingest expect multiple independent passes per lens with disagreement recorded, so 'adversarial' is structural rather than aspirational.",
+  "status": "open",
+  "created": "2026-06-11",
+  "resolution": null
+}

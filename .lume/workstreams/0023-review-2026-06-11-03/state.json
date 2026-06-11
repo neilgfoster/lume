@@ -1,0 +1,11 @@
+{
+  "iterations": [],
+  "plan": [],
+  "workstream": {
+    "id": "0023",
+    "objective_artifact": "objective.json",
+    "slug": "review-2026-06-11-03",
+    "status": "closed",
+    "title": "Review 2026-06-11-03: triage and adopt findings"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "preamble": "Commit this session's review artifacts and open a PR. No engine/product code changes - .lume/ state only.",
+    "items": [
+      {
+        "checked": false,
+        "text": "All untracked .lume/ review state is committed: reviews 2026-06-11-03 and -04 (findings.md + result.json), gap records G11-G20, and review workstreams 0023/0024 + this workstream 0025.",
+        "check": { "type": "command", "command": "test -z \"$(git status --porcelain -- .lume/)\"" }
+      },
+      {
+        "checked": false,
+        "text": "No product/engine code changed - the diff touches only .lume/ (and the branch's own metadata).",
+        "check": { "type": "command", "command": "test -z \"$(git diff --name-only origin/main...HEAD -- ':!.lume/')\"" }
+      },
+      {
+        "checked": false,
+        "text": "Test suite still green (nothing code-level changed).",
+        "check": { "type": "command", "command": "python -m pytest -q" }
+      },
+      {
+        "checked": false,
+        "text": "A PR is open against main summarising both reviews and noting the queue plans remain unadopted (operator's call).",
+        "check": { "type": "command", "command": "gh pr view land-session-reviews --json state -q .state | grep -q OPEN" }
+      }
+    ]
+  },
+  "handback": null,
+  "id": 1,
+  "self_review": null
+}

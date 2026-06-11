@@ -1,0 +1,9 @@
+{
+  "id": "G15",
+  "source": "lume",
+  "title": "docs/scope.md line 64 (the 'Reconciliation: plan vs what shipped' section, dated 2026-06-10) asserts 'Decomposition / nesting \u2014 not built (still the first thing cut)', but the engine SHIPS decomposition: plugin/src/lume/cli/handlers/lifecycle.py has handle_spawn, the verb is wired in handlers/__init__.py and catalog.py, workstream.py exposes a parent property, the workstream schema has a parent field, and workstream 0011 iterations P19-P22 (built parent-ref+spawn, rollup, close/reopen guards) were accepted with the suite green. This is a live, misleading inaccuracy in a core scope doc, not a clean logged decision change \u2014 the doc denies the build rather than acknowledging the revision.",
+  "context": "reviews/2026-06-11-04: missed because Goal-fidelity originally framed this as an honest logged decision change (low). Adversarial verification found the opposite: scope.md's own reconciliation still claims the feature was NOT built, contradicting the shipped engine. The original finding's evidence was also largely wrong (claimed .lume/workstreams/0016/state.json has parent:0015 \u2014 false; no workstream has any parent set; and cited an unverifiable 'protocol line 470+').; proposed: Correct docs/scope.md line 64 to acknowledge decomposition (parent field + spawn verb + rollup + close-guards) shipped in workstream 0011 (P19-P22, accepted), re-anchoring the evidence to docs/scope.md:64 and the 0011 retro. Fold this correction into the doc-freshness workstream's doc-currency pass.",
+  "status": "open",
+  "created": "2026-06-11",
+  "resolution": null
+}

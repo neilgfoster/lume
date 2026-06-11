@@ -1,0 +1,9 @@
+{
+  "id": "G11",
+  "source": "lume",
+  "title": "The emitted protocol embeds the full charter context verbatim (this run: ~1294 lines / 188KB, all 22 workstreams' objectives + decisions + plans + retros). It grows unbounded with every closed workstream, so review cost and the reviewer's ability to attend to all of it degrade monotonically as the project matures - the opposite of what a maturing project's review needs.",
+  "context": "reviews/2026-06-11-03: missed because The charter-gathering step was designed when the corpus was small (the first reviews seeded from ~15 workstreams) and optimised for completeness, not for scaling; no lens or emit option bounds or summarises the embedded context.; proposed: Add a relevance/recency bound or a summarisation pass to charter emission (e.g. full text for the last N workstreams + open items, one-line digests for older closed ones), or an emit flag to scope the embedded corpus, so review context stays bounded as the workstream count grows.",
+  "status": "open",
+  "created": "2026-06-11",
+  "resolution": null
+}

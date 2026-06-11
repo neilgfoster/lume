@@ -1,0 +1,21 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-commit-review-artifacts-and-open-pr.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Commit review artifacts and open PR",
+      "type": "execution",
+      "verdicts": []
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0025",
+    "objective_artifact": "objective.json",
+    "slug": "land-session-reviews",
+    "status": "active",
+    "title": "Land 2026-06-11 review artifacts and captured gaps"
+  }
+}
