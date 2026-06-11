@@ -289,8 +289,23 @@
       "dod_artifact": "iterations/0020-p16-adopters-md-parser-git-clone-fetch-worktree-reach-to-read-adopter-gaps-tests.json",
       "id": 20,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P16: ADOPTERS.md parser + git clone/fetch/worktree reach to read adopter gaps/ (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0021-p17-lume-gap-scan-iterate-adopters-ingest-open-gaps-as-acknowledged-idempotent-on-source-id-contract-test.json",
+      "id": 21,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P17: 'lume gap scan' - iterate adopters, ingest open gaps as acknowledged, idempotent on (source,id) (+contract test)",
       "type": "execution",
       "verdicts": []
     }
@@ -410,7 +425,7 @@
     },
     {
       "id": "P17",
-      "iter": null,
+      "iter": 21,
       "sketch": "P2/L1 build step 3 of 4 - INGEST + 'lume gap scan'. Wire scan -> read adopter gaps -> ingest OPEN ones into lume's gaps/ as 'acknowledged' (source+id), idempotent on rerun. DONE-WHEN: 'lume gap scan' ingests open gaps once; a second run adds nothing (idempotent); a CONTRACT TEST covers ingest + dedupe + status transition (open->acknowledged); operator can move ->resolved. ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

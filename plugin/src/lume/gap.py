@@ -16,6 +16,7 @@ import json
 import re
 from pathlib import Path
 
+from .errors import LumeError
 from .validate import validate_entity
 
 _ID_RE = re.compile(r"^G(\d+)$")
@@ -40,7 +41,7 @@ def read_gaps(repo_root) -> list[dict]:
 
 
 def next_id(existing: list[dict]) -> str:
-    """The next 'G<n>' id given existing gap records."""
+    """The next 'G<n>' id given existing gap records (of one source)."""
     highest = 0
     for record in existing:
         m = _ID_RE.match(record.get("id", ""))
@@ -49,23 +50,63 @@ def next_id(existing: list[dict]) -> str:
     return f"G{highest + 1}"
 
 
-def add_gap(repo_root, title: str, source: str, created: str,
-            context: str = "", status: str = "open") -> dict:
-    """Write a new gap record to repo_root/gaps/<id>.json and return it."""
+def _filename(source: str, id: str) -> str:
+    """Source-aware filename so one gaps/ store can hold multiple sources."""
+    safe_source = re.sub(r"[^A-Za-z0-9_.-]+", "-", source).strip("-") or "src"
+    return f"{safe_source}-{id}.json"
+
+
+def _write(repo_root, record: dict) -> dict:
+    validate_entity("gap", record)
     d = gaps_dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
-    record = {
-        "id": next_id(read_gaps(repo_root)),
+    (d / _filename(record["source"], record["id"])).write_text(
+        json.dumps(record, indent=2) + "\n")
+    return record
+
+
+def find_gap(repo_root, source: str, id: str) -> dict | None:
+    """The gap with this (source, id), or None - the dedupe identity."""
+    for r in read_gaps(repo_root):
+        if r["source"] == source and r["id"] == id:
+            return r
+    return None
+
+
+def add_gap(repo_root, title: str, source: str, created: str,
+            context: str = "", status: str = "open") -> dict:
+    """Write a new self-authored gap (id sequenced within `source`)."""
+    same_source = [r for r in read_gaps(repo_root) if r["source"] == source]
+    return _write(repo_root, {
+        "id": next_id(same_source),
         "source": source,
         "title": title,
         "context": context,
         "status": status,
         "created": created,
         "resolution": None,
-    }
-    validate_entity("gap", record)
-    (d / f"{record['id']}.json").write_text(json.dumps(record, indent=2) + "\n")
-    return record
+    })
+
+
+def ingest_gap(repo_root, record: dict) -> bool:
+    """Write `record` only if its (source, id) is not already present.
+
+    Returns True if added, False if a record with that identity already exists
+    (idempotent ingest - never overwrites, so a resolved gap is not reverted).
+    """
+    if find_gap(repo_root, record["source"], record["id"]) is not None:
+        return False
+    _write(repo_root, record)
+    return True
+
+
+def set_status(repo_root, source: str, id: str, status: str) -> dict:
+    """Move a gap's status (e.g. acknowledged->resolved); returns the record."""
+    record = find_gap(repo_root, source, id)
+    if record is None:
+        raise LumeError(f"no gap {source}/{id} to set status on.")
+    record["status"] = status
+    return _write(repo_root, record)
 
 
 def _sorted(records: list[dict]) -> list[dict]:

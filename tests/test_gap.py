@@ -44,7 +44,8 @@ class GapModuleTest(unittest.TestCase):
                       created="2026-06-11", context="because Y")
         self.assertEqual(rec["id"], "G1")
         self.assertEqual(rec["status"], "open")
-        on_disk = json.loads((gaps_dir(self.root) / "G1.json").read_text())
+        # Source-aware filename so one store can hold multiple sources.
+        on_disk = json.loads((gaps_dir(self.root) / "demo-G1.json").read_text())
         self.assertEqual(on_disk, rec)
         self.assertEqual(read_gaps(self.root), [rec])
 

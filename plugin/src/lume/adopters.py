@@ -75,3 +75,40 @@ def reach_gaps(url: str, slug: str, cache_root, ref: str | None = None) -> list[
         return gap.read_gaps(worktree)
     finally:
         _git(["worktree", "remove", "--force", str(worktree)], cwd=clone_dir)
+
+
+def scan_and_ingest(repo_root) -> dict:
+    """Scan every adopter (except self) and ingest their OPEN gaps into lume's gaps/.
+
+    Each ingested gap lands as an 'acknowledged' record keyed by (adopter
+    project, gap id). Idempotent: a gap already present (any status) is left
+    untouched. A failed/unreachable adopter is skipped and reported, never
+    aborting the scan. Returns {ingested, already_present, failed} for display.
+    """
+    root = Path(repo_root)
+    self_name = root.name
+    cache_root = adopter_cache_root(root)
+    report = {"ingested": [], "already_present": [], "failed": []}
+    for adopter in read_adopters(root):
+        project = adopter["project"]
+        if project == self_name:
+            continue  # don't scan lume's own repo for its own gaps
+        try:
+            found = reach_gaps(adopter["url"], project, cache_root)
+        except LumeError as exc:
+            report["failed"].append({"adopter": project, "error": str(exc)})
+            continue
+        for g in found:
+            if g.get("status") != "open":
+                continue
+            record = {
+                "id": g["id"], "source": project, "title": g["title"],
+                "context": g.get("context", ""), "status": "acknowledged",
+                "created": g["created"], "resolution": None,
+            }
+            key = {"adopter": project, "id": g["id"]}
+            if gap.ingest_gap(root, record):
+                report["ingested"].append(key)
+            else:
+                report["already_present"].append(key)
+    return report

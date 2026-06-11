@@ -73,18 +73,42 @@ def handle_retro(ctx: Context) -> int:
 def handle_gap(ctx: Context) -> int:
     """Capture/list cross-repo capability gaps (repo-level, not -w scoped).
 
-    `lume gap add "<title>" [-c <context>]` records gaps/<id>.json in the
-    current repo (source = the project-root dir name, status open, created
-    today). `lume gap list` prints the repo's gaps. The scan/ingest of adopter
-    gaps (P16/P17) builds on the same gaps/ store.
+    `lume gap add "<title>" [-c <context>]` records a gap in the current repo;
+    `lume gap list` prints them; `lume gap scan` ingests adopters' open gaps;
+    `lume gap resolve <source> <id>` moves a gap to resolved.
     """
-    from ...gap import add_gap, read_gaps
+    from ...adopters import scan_and_ingest
+    from ...gap import add_gap, read_gaps, set_status
 
     sub = ctx.arg
-    if sub not in ("add", "list"):
-        ctx.fail("usage", "usage: lume gap <add|list> ...")
+    if sub not in ("add", "list", "scan", "resolve"):
+        ctx.fail("usage", "usage: lume gap <add|list|scan|resolve> ...")
         return 2
     root = ctx.repo.project_root()  # NoLumeDirError -> dispatch maps to exit 1
+
+    if sub == "scan":
+        report = scan_and_ingest(root)  # LumeError -> dispatch maps to exit 1
+        if ctx.json_mode:
+            ctx.out(report)
+            return 0
+        print(f"gap scan: {len(report['ingested'])} ingested, "
+              f"{len(report['already_present'])} already present, "
+              f"{len(report['failed'])} adopter(s) failed")
+        for f in report["failed"]:
+            print(f"  ! {f['adopter']}: {f['error']}")
+        return 0
+
+    if sub == "resolve":
+        source = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
+        gap_id = ctx.rest[4].strip() if len(ctx.rest) > 4 else ""
+        if not source or not gap_id:
+            ctx.fail("usage", "usage: lume gap resolve <source> <id>")
+            return 2
+        rec = set_status(root, source, gap_id, "resolved")  # LumeError -> exit 1
+        ctx.ok({"result": "gap_resolve", "source": rec["source"], "id": rec["id"],
+                "status": rec["status"]},
+               f"gap resolve: {rec['source']}/{rec['id']} -> {rec['status']}")
+        return 0
 
     if sub == "add":
         title = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
