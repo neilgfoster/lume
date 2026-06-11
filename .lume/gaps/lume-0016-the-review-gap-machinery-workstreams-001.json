@@ -1,0 +1,9 @@
+{
+  "id": "G16",
+  "source": "lume",
+  "title": "The review/gap machinery (workstreams 0015-0021: review verb, gaps relocation, review landing, gap linking, gap naming, review-output-lifecycle, review-protocol) consumed ~14 iterations (about 11.5% of the project's ~122 iterations) building deterministic, load-bearing review-and-gap systems, yet every one of the 14 auto-captured gaps (G1-G14) and all three review runs are internal to lume's own development. The two adopters (ADOPTERS.json: lume, tredl) are both the operator's own projects; tredl has filed zero gaps and no external adopter has used the review verb. The investment is defensible but unvalidated on a real external audience.",
+  "context": "reviews/2026-06-11-04: missed because Not a code defect, so the code-focused lenses would not flag it; it is a value-allocation observation that only surfaces when iteration spend is tallied against the (zero external) usage base. The original finding undercounted (said 12 gaps / 10 iters / 8.2%); verification corrected it to 14 gaps (G1-G14) and ~14 iterations (~11.5%), all internal.; proposed: Record this as a standing value-viability watch item (not a defect): the review/gap machinery is sunk, real, and lightweight, but its worth is unproven until an external adopter (or tredl) actually files a gap or runs a review. Tie its validation to the value-signal workstream and to the first external/tredl-originated gap; revisit the allocation if none materialises.",
+  "status": "open",
+  "created": "2026-06-11",
+  "resolution": null
+}

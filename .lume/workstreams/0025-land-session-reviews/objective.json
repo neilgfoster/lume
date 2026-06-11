@@ -1,0 +1,6 @@
+{
+  "slug": "land-session-reviews",
+  "status": "active",
+  "text": "Land the 2026-06-11 self-review activity into git history. Two reviews were run this session: a shallow single-pass review (2026-06-11-03) and a deep adversarial swarm review (2026-06-11-04) that superseded it, prompted by operator feedback that the first run was too basic and skipped the ecosystem overlap audit. Both produced captured findings under .lume/reviews/, auto-captured review gaps (G11-G20), and owning review workstreams (0023, 0024) that have since been closed. This workstream is the vehicle to commit that .lume/ state and open a PR for it; it adds no engine or product code. Done-when: all uncommitted .lume/ review artifacts, gap records, and review-workstream state are committed on the land-session-reviews branch and a PR is opened against main; the test suite is unaffected (no code changed); the PR body summarises the two reviews and notes the queue plans remain unadopted (operator's call).",
+  "title": "Land 2026-06-11 review artifacts and captured gaps"
+}

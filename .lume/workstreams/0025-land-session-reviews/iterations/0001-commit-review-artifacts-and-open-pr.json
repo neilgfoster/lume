@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "preamble": "Commit this session's review artifacts and open a PR. No engine/product code changes - .lume/ state only.",
+    "items": [
+      {
+        "checked": true,
+        "text": "All untracked .lume/ review state is committed: reviews 2026-06-11-03 and -04 (findings.md + result.json), gap records G11-G20, and review workstreams 0023/0024 + this workstream 0025.",
+        "check": {
+          "kind": "command",
+          "cmd": "test -z \"$(git ls-files --others --exclude-standard .lume/reviews .lume/gaps .lume/workstreams)\""
+        }
+      },
+      {
+        "checked": true,
+        "text": "No product/engine code changed - the diff touches only .lume/ (and the branch's own metadata).",
+        "check": {
+          "kind": "command",
+          "cmd": "test -z \"$(git diff --name-only origin/main...HEAD -- ':!.lume/')\""
+        }
+      },
+      {
+        "checked": true,
+        "text": "Test suite still green (nothing code-level changed).",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "A PR is open against main summarising both reviews and noting the queue plans remain unadopted (operator's call).",
+        "check": {
+          "kind": "command",
+          "cmd": "gh pr view land-session-reviews --json state -q .state | grep -q OPEN"
+        }
+      }
+    ]
+  },
+  "handback": "Committed this session's review state on branch land-session-reviews (commits 9bc84be + DoD-checks follow-up) and opened PR #36 against main. Scope was .lume/ only: reviews 2026-06-11-03 (shallow, superseded) and 2026-06-11-04 (deep adversarial swarm), gaps G11-G20, review workstreams 0023/0024 (closed) and this 0025. All four DoD machine-checks pass (git-clean .lume/, no non-.lume diff, pytest 427 green, PR open). The reviews' queue plans remain unadopted by design - that is the operator's gated call.",
+  "id": 1,
+  "self_review": "What holds: the PR is mechanically clean - diff is .lume/-only, the suite is untouched (no code changed), and every DoD item has a passing command-check, so the gate is a real test not an assertion. Honest weak points: (1) this PR bundles two reviews' artifacts across two now-closed workstreams (0023/0024) into one branch, a deliberate bend of one-PR-per-workstream justified by their being a single session's no-code review output - flagged to the operator before proceeding. (2) The DoD-check shape was authored wrong first pass (type/command instead of kind/cmd) and caught only by lume check; minor process friction, no impact on the result. (3) Nothing here fixes the findings the reviews surfaced - it only lands the record; the doc-freshness and value-signal work stays open."
+}

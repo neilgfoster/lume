@@ -1,0 +1,9 @@
+{
+  "id": "G18",
+  "source": "lume",
+  "title": "STANDING (re-confirmed): the structural opportunity to ship an agents/ directory or an MCP server remains open and unjustified. The plugins-reference confirms plugins MAY bundle agents/, hooks/, .mcp.json, and monitors/; lume ships none (verified absent: plugin/agents, plugin/hooks, plugin/commands, .mcp.json). No gap record (G1-G14) demonstrates demand. This re-affirms the second UNADOPTED ecosystem decision from review 2026-06-11-01 (also re-affirmed -03), surfaced via the prior-review follow-up loop (gap G10).",
+  "context": "reviews/2026-06-11-04: missed because Not missed \u2014 a deliberate restraint re-confirmed each cycle per the standing-findings instruction. Fresh evidence: find on plugin/ confirms the four surfaces are still absent; grep for agent/mcp/subagent in .lume/gaps/ returns nothing, so no demand has materialised.; proposed: Re-affirm STANDING; do not schedule. Building speculatively would violate lume's anti-scope-creep discipline (protocol ~line 1060, P6 'DO NOT SCHEDULE') and the deterministic-non-LLM wedge. Revisit only if a gap record demonstrates concrete demand.",
+  "status": "open",
+  "created": "2026-06-11",
+  "resolution": null
+}
