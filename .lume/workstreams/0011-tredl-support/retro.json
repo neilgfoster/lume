@@ -1,5 +1,5 @@
 {
-  "overall_verdict": "MET (three big pieces in one workstream). P3/L2 - machine-evaluable DoD read at accept - is delivered and dogfooded (lume accept refuses on a failed check). P5/L4 - delivery hardening - is MET for the agent-buildable parts (CI on push/PR across py 3.11-3.13; pyproject with a CI-enforced single-version guard; release-tag check + RELEASING.md; live '/plugin install' verified by a human in the tredl adopter repo) and PENDING two operator actions (enable the required CI check; cut the v0.1.0 tag/release). The workstream stays OPEN for P2 (L1 discoveries) and P4 (L3 hierarchy). P2/L1 (cross-repo discovery): the INGEST mechanism is MET - capture (lume gap add), git-worktree reach over ADOPTERS.json, scan + idempotent ingest, contract-tested and exercised against the real github tredl remote; the full feedback CYCLE is NOT closed (resolution round-trip to the adopter deferred past v0.1). Workstream remains OPEN for P4 (L3 hierarchy).",
+  "overall_verdict": "MET (three big pieces in one workstream). P3/L2 - machine-evaluable DoD read at accept - is delivered and dogfooded (lume accept refuses on a failed check). P5/L4 - delivery hardening - is MET for the agent-buildable parts (CI on push/PR across py 3.11-3.13; pyproject with a CI-enforced single-version guard; release-tag check + RELEASING.md; live '/plugin install' verified by a human in the tredl adopter repo) and PENDING two operator actions (enable the required CI check; cut the v0.1.0 tag/release). The workstream stays OPEN for P2 (L1 discoveries) and P4 (L3 hierarchy). P2/L1 (cross-repo discovery): the INGEST mechanism is MET - capture (lume gap add), git-worktree reach over ADOPTERS.json, scan + idempotent ingest, contract-tested and exercised against the real github tredl remote; the full feedback CYCLE is NOT closed (resolution round-trip to the adopter deferred past v0.1). Workstream remains OPEN for P4 (L3 hierarchy). P4/L3 (hierarchical workstreams): MET - optional parent ref + children-by-scan, 'lume spawn', status rollup (parent detail + queue annotation), and refuse-not-cascade close/reopen guards, all tested. WHOLE OBJECTIVE ('Enable autonomous operation (tredl support) and delivery hardening'): the COMMITTED roadmap P1-P5 is delivered - L0 inventory, L1 cross-repo discovery (ingest), L2 the machine-evaluable DoD keystone, L3 hierarchy, L4 delivery (CI/pyproject/release/verified install). P6/L5 (declarative pattern instantiation) stays DEFERRED by design (discovery-triggered, not scheduled). Honest residuals: the discovery resolution round-trip and tredl actually DRIVING the loop autonomously are downstream of lume; and two P5 completions (required-CI-check, cutting v0.1.0) are operator actions. RECOMMENDATION: workstream 0011's committed scope is complete - it is reasonable for the operator to 'lume close' 0011 now, leaving P6 to a future discovery-triggered workstream; the close is the operator's call.",
   "done_when": [
     {
       "clause": "P3.1 Discovery confirms or refutes Premise A (DoD write-only, not read at accept).",
@@ -75,6 +75,31 @@
       "clause": "P2 (overall) the lume<->adopter feedback CYCLE is closed.",
       "verdict": "NOT met (deferred by design)",
       "evidence": "v0.1 ships ingest only; signalling a resolved gap back to the adopter (so it drops its workaround) is deferred, discovery-triggered. The cycle is half-built on purpose."
+    },
+    {
+      "clause": "P4.1 Workstream schema gains an optional parent ref; children discoverable from a parent (confirms Premise B).",
+      "verdict": "met",
+      "evidence": "schemas/workstream.json optional 'parent' (P19); Repository.children() derives children by scan; Premise B confirmed (no parent existed before)."
+    },
+    {
+      "clause": "P4.2 A verb spawns a child workstream linked to its parent.",
+      "verdict": "met",
+      "evidence": "'lume spawn <slug> \"<title>\"' (P19) creates a child of the -w target; tests cover spawn + link + missing-parent error."
+    },
+    {
+      "clause": "P4.3 status/snapshot rolls up child state to the parent.",
+      "verdict": "met",
+      "evidence": "P20: parent 'lume status -w' lists children+phase; the queue annotates child rows; read-only, backward-compatible for root-only repos."
+    },
+    {
+      "clause": "P4.4 Closing a parent is refused while children are open (explicit behaviour).",
+      "verdict": "met",
+      "evidence": "P21: handle_close refuses with the open-children list; reopen-child-under-closed-parent also refused; neither cascades; tested."
+    },
+    {
+      "clause": "P4.5 Tests cover spawn, rollup, and the close guard.",
+      "verdict": "met",
+      "evidence": "tests/test_hierarchy.py covers spawn/link/missing-parent, detail+queue rollup, and both guards (+allowed paths)."
     }
   ],
   "carry_forwards": [
@@ -89,7 +114,10 @@
     "P2 ROUND-TRIP (deferred, discovery-triggered): lume ingests adopter gaps but does not yet signal a resolution back; build the publish/notify half when a real tredl need recurs.",
     "P2 PRIVATE-REPO AUTH: the git reach is proven against local + public remotes only; private adopter repos need credential handling not yet built.",
     "P2 CACHE PRUNING: .lume/cache/adopters/ grows unbounded (no eviction); fine for a few adopters, revisit at scale.",
-    "P2 SOURCE NORMALISATION: scan keys ingested gaps by the ADOPTERS project name, overriding the gap's own 'source' field - stable for dedupe, documented, but means stored source can differ from the origin's self-label."
+    "P2 SOURCE NORMALISATION: scan keys ingested gaps by the ADOPTERS project name, overriding the gap's own 'source' field - stable for dedupe, documented, but means stored source can differ from the origin's self-label.",
+    "P4 DERIVED-CHILDREN COST: children() scans + parses every workstream's state per call (O(n)); fine at lume's scale, revisit if workstream counts grow large.",
+    "P4 RE-PARENT CYCLE GUARD: only self-parent is guarded today (spawn makes fresh children that cannot cycle); a future re-parent verb must add a full ancestor-cycle check.",
+    "WHOLE: P6/L5 (declarative pattern instantiation) remains deferred/discovery-triggered - build only when a real recurring tredl workaround justifies it."
   ],
   "sections": [
     {
@@ -107,6 +135,10 @@
     {
       "heading": "P2/L1 cross-repo discovery - did it buy back its cost?",
       "body": "Yes for the integration boundary it builds. Six iterations (017 discovery, 018 planning, P15 capture, P16 reach, P17 scan, P18 closeout) produced the lume<->adopter channel: a gap entity, ADOPTERS.json as a deterministic source of truth with a generated md view, git-worktree reach, and idempotent ingest - all contract-tested and dogfooded (every execution iteration's DoD ran machine checks; a live scan hit the real tredl remote). The naming collision (gap vs discovery) was resolved up front so it never bit the build. Honest limit: this is the INGEST half; the cycle only closes when the resolution round-trip lands, which is deferred. Two operator/ops concerns (private auth, cache pruning) are named, not solved."
+    },
+    {
+      "heading": "P4/L3 + whole-workstream - did it buy back its cost?",
+      "body": "Yes. P4 (017... no - iterations 023 discovery, 024 planning, P19 spawn, P20 rollup, P21 guards, P22 closeout) gave lume the 'sprint' structure tredl needs: a workstream that decomposes into child workstreams, with rollup so a parent shows its children and guards so the tree stays consistent. Across the whole workstream (0011), lume went from 'an accept gate that never read the DoD' to: a machine-evaluable DoD read at accept (the keystone), a cross-repo gap ingest channel, hierarchical workstreams, and real delivery (CI on 3.11-3.13, pyproject with a version guard, a pinnable release, a human-verified install). Every execution iteration dogfooded the keystone (its own DoD ran machine checks at accept). The committed scope (P1-P5) is done; P6 is deferred by demonstrated-need rule. The honest frame: lume now PROVIDES what tredl needs; whether tredl actually drives it autonomously - and whether the discovery round-trip closes the loop - is the next chapter, downstream of this workstream."
     }
   ]
 }

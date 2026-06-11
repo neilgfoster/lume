@@ -1,0 +1,43 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Docs: plugin/README.md (a 'Hierarchical workstreams' section + a 'spawn' commands row) and SKILL.md document spawn, the parent/children rollup in status, and the close/reopen guards.",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q 'spawn' plugin/README.md && grep -q 'spawn' plugin/skills/lume/SKILL.md"
+        }
+      },
+      {
+        "checked": true,
+        "text": "retro.json EXTENDED (P3+P5+P2 retros preserved) with a P4/L3 assessment: each P4 DONE-WHEN clause (parent ref/children discoverable; spawn verb; status/snapshot rollup; close-guard) gets a verdict + evidence; carry_forwards capture derived-children O(n) cost and the re-parent cycle-guard.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "retro",
+          "path": ".lume/workstreams/0011-tredl-support/retro.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "WHOLE-OBJECTIVE assessment recorded (in the retro or a decision): the workstream objective 'Enable autonomous operation (tredl support) and delivery hardening' assessed against P1-P5 - what is met, what is deferred (P6/L5), and the honest residual (round-trip, operator actions). A recommendation on whether to lume close 0011."
+      },
+      {
+        "checked": true,
+        "text": "Full suite green; docs + .lume only, no engine code.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; committed. NOTE: the actual 'lume close' of workstream 0011 is left as the operator's call - this iteration assesses + recommends, it does not close."
+      }
+    ],
+    "preamble": "P4/L3 build step 4 of 4 (plan item P22), and the workstream's final closeout: document hierarchical workstreams (spawn/rollup/guards), extend the retro with the P4 assessment, and assess the WHOLE workstream objective (P1-P5 done, P6/L5 deferred). Recommend whether to close 0011 but leave the actual close to the operator. DOGFOOD: DoD carries command + schema-valid checks."
+  },
+  "handback": "P22 done - P4/L3 closed out AND the whole workstream assessed. CHANGES: (1) docs - plugin/README.md gains a 'Hierarchical workstreams' section + a 'spawn' commands row; SKILL.md a bullet (spawn, rollup, close/reopen guards). (2) retro.json EXTENDED (P3+P5+P2 retros preserved) with five P4 done-when assessments (all met) + 3 carry_forwards (O(n) children, re-parent cycle guard, deferred P6). (3) WHOLE-OBJECTIVE assessment in the retro overall_verdict: the COMMITTED roadmap P1-P5 is delivered (L0 inventory, L1 ingest, L2 DoD keystone, L3 hierarchy, L4 delivery); P6/L5 stays deferred; residuals named (discovery round-trip, tredl actually driving the loop, two operator actions). RECOMMENDATION: 0011's committed scope is complete - reasonable to 'lume close' it now, leaving P6 to a future discovery-triggered workstream; the close is the OPERATOR's call (not done here). Docs + .lume only; suite 373 green. NEXT: push branch workstream/hierarchical-workstreams + open the P4 PR (023-028); after merge, the operator decides whether to close 0011.",
+  "id": 28,
+  "self_review": "Holds: the closeout assesses BOTH P4 (clause-by-clause, all met with evidence) and the whole workstream honestly - it states what is delivered, what is deferred by design (P6), and what is genuinely NOT done by lume (the round-trip, tredl driving the loop) rather than declaring victory; and it leaves the master-workstream close to the operator rather than self-closing a strategic decision. Docs match what shipped. Weak / watch: (1) the 'whole objective MET' verdict is scoped to the COMMITTED plan items - an adversarial reader should note the workstream's TITLE ('enable autonomous operation') is only ENABLED, not demonstrated: lume now provides the primitives, but no tredl run has yet proven autonomous operation end to end - I stated this as the headline residual. (2) the retro is now large (20 done-when clauses, 4 keystones in one artifact); it is accurate but dense - a reader wanting just P4 must scan. (3) I recommend closing 0011 but P6/L5 remains an OPTIONAL plan item on it; closing leaves P6 unaddressed-by-design, which is correct per the demonstrated-need rule but means 'closed' here is 'committed scope done', not 'every plan row done'. Nothing deferred silently."
+}

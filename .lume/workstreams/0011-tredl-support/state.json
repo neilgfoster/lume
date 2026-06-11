@@ -394,9 +394,24 @@
       "dod_artifact": "iterations/0027-p21-close-reopen-guards-refuse-closing-a-parent-with-active-children-refuse-reopening-a-child-under-a-closed-parent-tests.json",
       "id": 27,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P21: close/reopen guards - refuse closing a parent with active children; refuse reopening a child under a closed parent (+tests)",
       "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0028-p22-docs-spawn-rollup-guards-p4-l3-closeout-retro-whole-objective-assessment.json",
+      "id": 28,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P22: docs (spawn/rollup/guards) + P4/L3 closeout retro + whole-objective assessment",
+      "type": "closeout",
       "verdicts": []
     }
   ],
@@ -550,7 +565,7 @@
     },
     {
       "id": "P22",
-      "iter": null,
+      "iter": 28,
       "sketch": "P4/L3 build step 4 of 4 - DOCS + CLOSEOUT. Document spawn/rollup/guards (README/skill); assess P4 done-when; closeout retro; assess whether the workstream's whole objective (P1-P5 + P4) is now met and the workstream can close. DONE-WHEN: docs describe hierarchical workstreams; P4 done-when assessed; retro records derived-children cost + re-parent cycle-guard carry-forwards; objective assessment recorded. ITERATION: closeout.",
       "tag": "committed",
       "type": "closeout"

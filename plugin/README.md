@@ -113,6 +113,20 @@ status `open|acknowledged|resolved`, created, resolution).
 This is the lume↔adopter feedback channel. v0.1 delivers the **ingest** half;
 signalling a resolution back to the adopter is a deliberate later step.
 
+## Hierarchical workstreams
+
+A workstream can **spawn** child workstreams - a "sprint" that decomposes into
+sub-work. `lume spawn <slug> "<title>"` creates a child of the `-w` target; the
+child stores an optional `parent` (the parent's id) and children are discovered
+by scan (no duplicated list).
+
+- `lume status -w <parent>` lists the parent's children with each child's phase.
+- `lume status` (the queue) indents a child row under a `(child of <parent>)`
+  annotation within its review bucket.
+- Closing a parent that still has **active** children is refused (close them
+  first); reopening a child whose parent is closed is refused (reopen the parent
+  first). Neither cascades - a parent's close never silently ends child work.
+
 ## Commands
 
 lume is self-describing - `lume verbs` lists them all and `lume verbs <name>`
@@ -123,6 +137,7 @@ explains one; add `--json` to any verb for machine-readable output.
 | `status` | review queue (no `-w`), or one workstream's detail (`-w`) |
 | `seed` | bootstrap `.lume/` + the seed workstream (your first step) |
 | `new` | create a new workstream |
+| `spawn` | create a child workstream of the `-w` target |
 | `open` | open the next iteration |
 | `approve` / `start` / `handback` / `accept` / `reject` / `redo` | move an iteration through its phases |
 | `plan` | add or link a plan item |
