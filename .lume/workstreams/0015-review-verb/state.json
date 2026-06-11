@@ -4,10 +4,16 @@
       "dod_artifact": "iterations/0001-discovery-gap-mechanic-constraints-and-design-decisions-for-lume-review.json",
       "id": 1,
       "opened": "2026-06-11",
-      "phase": "handback",
+      "phase": "working",
       "title": "Discovery: gap mechanic, constraints, and design decisions for lume review",
       "type": "discovery",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": "Gaps relocated to .lume/gaps/ by child workstream 0016 - the discovery record describes the old repo-root gaps/ convention and must be redone against the new location",
+          "verdict": "rejected"
+        }
+      ]
     }
   ],
   "plan": [],

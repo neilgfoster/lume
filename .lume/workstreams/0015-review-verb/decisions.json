@@ -41,6 +41,12 @@
       "date": "2026-06-11",
       "decision": "review_result.json must stay inside lume's validator subset (type, enum, required, properties, items - no oneOf/patterns/conditionals); malformed ingest input maps to a usage error (exit 2, code=usage), not a stack trace",
       "rationale": "validate.py is deliberately a draft-2020-12 subset; the contract (direction_decisions, proposed_workstreams with plan_items type epic|slice|spike|chore and tag committed|optional, review_gaps with gap/why_missed/proposed_change, provenance) fits it with enum + required alone. Schema lands in plugin/src/lume/schemas/ and auto-surfaces via lume entities / lume schema."
+    },
+    {
+      "context": "gap-mechanic",
+      "date": "2026-06-11",
+      "decision": "Supersedes the earlier gap-mechanic decision's location detail: gaps now live under .lume/gaps/<source>-G<n>.json (child workstream 0016 relocated them; no legacy repo-root fallback)",
+      "rationale": "The review_gaps mapping is unchanged - ingest still emits 'lume gap add' commands, and gap add writes wherever gap.gaps_dir points, so the relocation is transparent to the lume review design. Only the discovery record's description of the storage location needed correcting."
     }
   ]
 }
