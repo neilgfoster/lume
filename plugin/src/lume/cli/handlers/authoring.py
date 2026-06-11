@@ -172,8 +172,9 @@ def handle_review_ingest(ctx: Context) -> int:
     from pathlib import Path
 
     from ...errors import SchemaError
-    from ...review import (build_findings_md, next_review_slug, queue_commands,
-                           result_to_store_doc)
+    from ...gap import add_gap
+    from ...review import (build_findings_md, gap_context, next_review_slug,
+                           queue_commands, result_to_store_doc)
     from ...validate import validate_entity
 
     path_arg = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
@@ -205,13 +206,24 @@ def handle_review_ingest(ctx: Context) -> int:
     (folder / "findings.md").write_text(findings + "\n")
     ctx.repo.save_review(slug, result_to_store_doc(result, slug))
 
+    # review_gaps are mechanical capture (F3, workstream 0020): written as
+    # open gap records now, not proposed as commands. Triage (linking them to
+    # workstreams) stays the operator's.
+    captured = [add_gap(root, title=g["gap"], source=root.name,
+                        created=ctx.repo.today(), context=gap_context(g, slug))
+                for g in result["review_gaps"]]
+
     commands = queue_commands(result, slug)
     if ctx.json_mode:
         ctx.out({"result": "review_ingest", "review": slug,
                  "findings": f".lume/reviews/{slug}/findings.md",
+                 "captured_gaps": [g["id"] for g in captured],
                  "queue_plan": commands})
         return 0
     print(f"review ingest: captured {path_arg} -> .lume/reviews/{slug}/findings.md")
+    if captured:
+        print(f"review gaps captured as open gap records: "
+              f"{', '.join(g['id'] for g in captured)}")
     print("queue plan (run these to adopt the results - lume did NOT run them):")
     for cmd in commands:
         print(f"  {cmd}")

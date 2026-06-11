@@ -1,0 +1,58 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": false,
+        "text": "lume review ingest writes each review_gap as an OPEN gap record via gap.add_gap at ingest time (source = repo name, context = review slug + why_missed + proposed_change, created from the clock seam); proposed_workstreams and direction_decisions remain print-only",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q tests/test_review_ingest.py 2>/dev/null | tail -1 | grep -q passed"
+        }
+      },
+      {
+        "checked": false,
+        "text": "The printed queue plan no longer contains 'lume gap add' lines (they are executed, not proposed); the human output reports the captured gap ids, and --json carries a captured_gaps list (id per review_gap)",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -rq 'captured_gaps' plugin/src/lume/ && ! grep -q 'lume gap add' plugin/src/lume/review.py"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Captured gaps are NOT auto-linked to any workstream (triage stays the operator's); a re-ingest captures its own new records (no rerun dedupe in v0.1, per the F3 decision)",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q tests/test_review_ingest.py 2>/dev/null | tail -1 | grep -q passed"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Tests cover: gaps created on ingest with the review-slug context, empty review_gaps creates none, queue plan contains no gap add lines, --json captured_gaps shape; full suite green with no assertion weakened",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Docs updated: SKILL.md and plugin/README describe auto-captured review_gaps (and that workstreams/decisions stay print-only); the F3 supersession is reflected, not contradicted",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -qi 'auto-captur' plugin/skills/lume/SKILL.md && grep -qi 'auto-captur' plugin/README.md"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Loop residue (0019 close flips, 0020 planning acceptance) committed; .lume/gaps and .lume/reviews clean at handback",
+        "check": {
+          "kind": "command",
+          "cmd": "test -z \"$(git status --porcelain .lume/gaps .lume/reviews)\""
+        }
+      }
+    ],
+    "preamble": "P1 of the 0020 plan (G6): review_gaps become real open gap records at ingest time via the existing gap mechanic; the queue plan slims to the still-gated items (workstreams, decisions)."
+  },
+  "handback": null,
+  "id": 2,
+  "self_review": null
+}

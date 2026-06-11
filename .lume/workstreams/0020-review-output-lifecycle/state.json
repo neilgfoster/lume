@@ -4,16 +4,31 @@
       "dod_artifact": "iterations/0001-plan-the-review-output-lifecycle-resolve-the-require-vs-spawn-fork-slice-g2-g6-execution.json",
       "id": 1,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Plan the review output lifecycle: resolve the require-vs-spawn fork, slice G2+G6 execution",
       "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0002-p1-g6-ingest-auto-captures-review-gaps-as-open-gap-records.json",
+      "id": 2,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P1 (G6): ingest auto-captures review_gaps as open gap records",
+      "type": "execution",
       "verdicts": []
     }
   ],
   "plan": [
     {
       "id": "P1",
-      "iter": null,
+      "iter": 2,
       "sketch": "P1 (G6): ingest auto-captures review_gaps as open gap records via gap.add_gap (context = review slug + why_missed + proposed_change); the printed queue plan drops its 'lume gap add' lines; --json carries the captured gap ids; tests cover capture, context tagging, and the slimmer queue plan; docs (SKILL.md, plugin/README) updated",
       "tag": "committed",
       "type": "execution"

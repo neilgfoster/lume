@@ -144,11 +144,12 @@ clock seam):
 - `lume review ingest <path>` validates the agent's filled-in result against
   the `review_result` schema, writes the human-readable report to
   `.lume/reviews/<date>-NN/findings.md` (NN = that day's sequence, from 01),
-  persists the structured result through the store seam, and **prints - never
-  runs -** the queue plan: `lume new`/`plan add` for proposed workstreams,
-  `lume decide` for direction decisions, and `lume gap add` for the review's
-  own self-improvement gaps (the META lens feeding the gap mechanic, so the
-  review gets better over time). Adopting any of it stays behind the
+  persists the structured result through the store seam, auto-captures the
+  review's own self-improvement gaps (the META lens) as **open gap records**
+  tagged with the review slug - mechanical capture; linking them to work stays
+  the operator's triage - and **prints - never runs -** the queue plan for the
+  direction-shaping items: `lume new`/`plan add` for proposed workstreams,
+  `lume decide` for direction decisions. Adopting those stays behind the
   operator's gate.
 
 ## Hierarchical workstreams

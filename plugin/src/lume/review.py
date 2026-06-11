@@ -262,9 +262,11 @@ def build_protocol(charter: dict) -> str:
         json.dumps(result_contract_skeleton(), indent=2),
         "```",
         "",
-        "Mapping on ingest (emitted as commands for the operator, never "
-        "executed by lume): proposed_workstreams -> lume new + lume plan add; "
-        "direction_decisions -> lume decide; review_gaps -> lume gap add. "
+        "Mapping on ingest: review_gaps are auto-captured as open gap records "
+        "(mechanical capture, tagged with the review slug; triage stays the "
+        "operator's). The direction-shaping items are emitted as commands for "
+        "the operator, never executed by lume: proposed_workstreams -> "
+        "lume new + lume plan add; direction_decisions -> lume decide. "
         "provenance.note must state this is an automated self-review, not "
         "external validation.",
     ]
@@ -363,7 +365,12 @@ def result_to_store_doc(result: dict, review_slug: str) -> dict:
 
 def queue_commands(result: dict, review_slug: str) -> list[str]:
     """The deterministic command plan that queues the results - emitted for the
-    operator, NEVER executed by lume (the gates stay the operator's)."""
+    operator, NEVER executed by lume (the gates stay the operator's).
+
+    review_gaps are absent here: they are mechanical capture, written as open
+    gap records at ingest time (F3 decision, workstream 0020) - only the
+    direction-shaping items (workstreams, decisions) stay behind the gate.
+    """
     commands: list[str] = []
     for w in result["proposed_workstreams"]:
         commands.append(f'lume new {w["slug"]} "{w["title"]}"')
@@ -373,8 +380,10 @@ def queue_commands(result: dict, review_slug: str) -> list[str]:
                 f'-g {item["tag"]} "{item["sketch"]}"')
     for d in result["direction_decisions"]:
         commands.append(f'lume decide -c "{d["context"]}" "{d["decision"]}" "{d["rationale"]}"')
-    for g in result["review_gaps"]:
-        commands.append(
-            f'lume gap add "{g["gap"]}" -c "reviews/{review_slug}: missed because '
-            f'{g["why_missed"]}; proposed: {g["proposed_change"]}"')
     return commands
+
+
+def gap_context(gap: dict, review_slug: str) -> str:
+    """The context string a captured review_gap record carries."""
+    return (f"reviews/{review_slug}: missed because {gap['why_missed']}; "
+            f"proposed: {gap['proposed_change']}")

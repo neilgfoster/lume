@@ -110,11 +110,25 @@ class IngestCaptureTest(_IngestBase):
         self.assertEqual(
             (self.root / ".lume" / "reviews" / "2026-06-11-01" / "findings.md").read_text(), first)
 
-    def test_ingest_never_creates_workstreams_or_gaps(self):
+    def test_ingest_never_creates_workstreams_but_captures_gaps(self):
         _run(self.root, "review", "ingest", str(self.result_path))
         ws_dirs = list((self.root / ".lume" / "workstreams").iterdir())
         self.assertEqual(ws_dirs, [])  # no 'fix-drift' workstream created
-        self.assertFalse((self.root / ".lume" / "gaps").exists())  # no gap recorded
+        # review_gaps ARE captured as open records (F3, workstream 0020).
+        from lume.gap import read_gaps
+        gaps = read_gaps(self.root)
+        self.assertEqual(len(gaps), 1)
+        self.assertEqual(gaps[0]["status"], "open")
+        self.assertEqual(gaps[0]["title"], "no performance lens")
+        self.assertIn("reviews/2026-06-11-01: missed because protocol omits it",
+                      gaps[0]["context"])
+        self.assertNotIn("workstreams", gaps[0])  # not auto-linked - triage is the operator's
+
+    def test_reingest_captures_its_own_records_no_dedupe(self):
+        _run(self.root, "review", "ingest", str(self.result_path))
+        _run(self.root, "review", "ingest", str(self.result_path))
+        from lume.gap import read_gaps
+        self.assertEqual(len(read_gaps(self.root)), 2)  # per F3: no rerun dedupe
 
 
 class QueuePlanTest(_IngestBase):
@@ -132,11 +146,9 @@ class QueuePlanTest(_IngestBase):
         self.assertEqual(plan[2],
                          'lume plan add -w fix-drift -t discovery -g optional "investigate overlap"')
         self.assertEqual(plan[3], 'lume decide -c "scope" "stay small" "charter says so"')
-        # Review gaps map to the gap mechanic, tagged with the review slug.
-        self.assertEqual(plan[4],
-                         'lume gap add "no performance lens" -c "reviews/2026-06-11-01: '
-                         'missed because protocol omits it; proposed: add lens 8"')
-        self.assertEqual(len(plan), 5)
+        # review_gaps are NOT in the plan - captured as records at ingest (F3).
+        self.assertEqual(len(plan), 4)
+        self.assertEqual(doc["captured_gaps"], ["G1"])
 
     def test_empty_collections_emit_no_commands(self):
         empty = {"direction_decisions": [], "proposed_workstreams": [],
