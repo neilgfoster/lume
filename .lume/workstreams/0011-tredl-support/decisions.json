@@ -149,6 +149,12 @@
       "date": "2026-06-11",
       "decision": "Status: 'lume gap scan' sets ingested gaps to 'acknowledged' (idempotent on source+id); operator moves a gap to 'resolved'. The resolution ROUND-TRIP back to the adopter is OUT of v0.1 (deferred, discovery-triggered) - v0.1 delivers capture + scan + idempotent ingest only.",
       "rationale": "Ingest is the high-value half and is cleanly testable; the round-trip (lume signalling resolution back so the adopter drops its workaround) needs a publish/notify channel that should be demand-driven, not built speculatively. Shipping ingest first is honest and unblocks tredl's emit side."
+    },
+    {
+      "context": "P2/L1 execution (iter 020, P16)",
+      "date": "2026-06-11",
+      "decision": "ADOPTERS.json (root) is the deterministic source of truth for adopters; ADOPTERS.md's table is GENERATED from it via tools/render_adopters.py (--check guards sync in CI). lume's scan reads ADOPTERS.json, never parses markdown.",
+      "rationale": "Operator decision: parsing a hand-maintained markdown table is fragile; a validated JSON source + generated md table is deterministic and mirrors the plugin.json/pyproject version-consistency guard already in the repo. The md stays the human view; the JSON is what the machine reads."
     }
   ]
 }

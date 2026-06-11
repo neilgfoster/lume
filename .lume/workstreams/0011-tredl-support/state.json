@@ -274,8 +274,23 @@
       "dod_artifact": "iterations/0019-p15-gap-entity-schema-lume-gap-add-list-gaps-id-json-capture-tests.json",
       "id": 19,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P15: gap entity schema + lume gap add/list (gaps/<id>.json capture) (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0020-p16-adopters-md-parser-git-clone-fetch-worktree-reach-to-read-adopter-gaps-tests.json",
+      "id": 20,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P16: ADOPTERS.md parser + git clone/fetch/worktree reach to read adopter gaps/ (+tests)",
       "type": "execution",
       "verdicts": []
     }
@@ -388,7 +403,7 @@
     },
     {
       "id": "P16",
-      "iter": null,
+      "iter": 20,
       "sketch": "P2/L1 build step 2 of 4 - GIT SCAN/REACH. Add the ADOPTERS.md parser (repo URLs from the table) and the git reach: clone-if-absent/fetch-if-present under gitignored .lume/cache/adopters/<slug>/, ephemeral worktree at default ref, read gaps/*.json, prune worktree; unreachable repo => skip+report. DONE-WHEN: ADOPTERS table parsed; reach works against a LOCAL git repo fixture (clone+worktree+read); worktree pruned; failure is non-fatal; tests cover parse + reach + cleanup + missing-repo. ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

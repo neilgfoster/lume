@@ -7,13 +7,14 @@ from lume.validate import entity_kinds, validate_entity
 
 
 class EntityKindsTest(unittest.TestCase):
-    def test_nine_kinds_present(self):
+    def test_ten_kinds_present(self):
         kinds = entity_kinds()
-        self.assertEqual(len(kinds), 9)
+        self.assertEqual(len(kinds), 10)
 
     def test_new_kinds_in_list(self):
         kinds = entity_kinds()
-        for name in ("objective", "iteration_content", "decisions", "retro", "discovery", "gap"):
+        for name in ("objective", "iteration_content", "decisions", "retro",
+                     "discovery", "gap", "adopters"):
             self.assertIn(name, kinds)
 
     def test_kinds_sorted(self):

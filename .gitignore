@@ -1,2 +1,4 @@
 __pycache__/
 *.py[cod]
+# cached adopter clones for the cross-repo gap scan (never committed)
+.lume/cache/

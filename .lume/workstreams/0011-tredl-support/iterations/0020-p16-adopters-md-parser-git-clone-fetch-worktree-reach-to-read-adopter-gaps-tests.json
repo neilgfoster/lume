@@ -1,0 +1,55 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "ADOPTERS.json is the SOURCE OF TRUTH: a new 'adopters' entity schema (schemas/adopters.json) - {adopters: [{project, adopter, url, since}]}; ADOPTERS.json created at repo root from the current two rows (lume, tredl) and validated.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "adopters",
+          "path": "ADOPTERS.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "tools/render_adopters.py regenerates ADOPTERS.md's table from ADOPTERS.json (rewriting only a marker-delimited region so the curated prose is preserved) and has a --check mode that exits non-zero if the rendered table differs from ADOPTERS.md. The committed ADOPTERS.md matches the JSON.",
+        "check": {
+          "kind": "command",
+          "cmd": "python tools/render_adopters.py --check"
+        }
+      },
+      {
+        "checked": true,
+        "text": "plugin/src/lume/adopters.py: read_adopters(repo_root) reads + validates ADOPTERS.json (deterministic; NO markdown parsing) and returns adopter records {project, adopter, url, since}; tested on the real file."
+      },
+      {
+        "checked": true,
+        "text": "Git reach in adopters.py: reach_gaps(url, slug, cache_root, ref=default) clones-if-absent / fetches-if-present under cache_root/<slug>/, adds an EPHEMERAL detached git worktree at the default ref, reads gaps via gap.read_gaps(worktree), and ALWAYS prunes the worktree (even on error). adopter_cache_root(repo_root) -> .lume/cache/adopters; .lume/cache/ added to .gitignore."
+      },
+      {
+        "checked": true,
+        "text": "Failure is clean and signalled (not swallowed here): an unreachable/bad repo URL raises a clear error reach_gaps can be caught on (skip-and-continue orchestration is P17); verified by a test.",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q 'cache' .gitignore"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Tests (tests/test_adopters.py): read_adopters on the real ADOPTERS.json; render --check passes and a deliberate JSON edit makes it fail; reach_gaps against a LOCAL git fixture (git init + gaps/G1.json commit) clones+worktrees+reads then prunes the worktree (none left); a missing repo raises. Full suite green.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P2/L1 build step 2 of 4 (plan item P16), REVISED per operator decision: make ADOPTERS.json the deterministic source of truth and GENERATE ADOPTERS.md's table from it (rather than parsing markdown). Deliver the adopters schema + ADOPTERS.json + a render/--check tool (mirroring the version-consistency guard) + a deterministic read_adopters, plus the git clone/fetch/worktree reach to read an adopter's gaps/. The scan orchestration (iterate, skip failures, ingest+dedupe) is P17. DOGFOOD: DoD carries schema-valid + command checks."
+  },
+  "handback": "P16 done (P2/L1 build step 2 of 4), REVISED per operator decision to make ADOPTERS.json the source of truth. CHANGES: (1) schemas/adopters.json + ADOPTERS.json (root, 2 rows migrated) - the deterministic source the scan reads. (2) tools/render_adopters.py regenerates ADOPTERS.md's marker-delimited table from the JSON, with --check (mirrors the version-consistency guard); ADOPTERS.md prose preserved, 'discoveries/*.json' note reconciled to 'gaps/*.json'. (3) plugin/src/lume/adopters.py: read_adopters (validated JSON read, no markdown parsing) + reach_gaps (git clone-if-absent/fetch-if-present under .lume/cache/adopters/<slug>/, ephemeral detached worktree at the default ref, read gaps, ALWAYS prune; LumeError on git failure). (4) .lume/cache/ gitignored. (5) tests/test_adopters.py (5): read real ADOPTERS.json, reach against a LOCAL git fixture incl. worktree-pruned + fetch-cached + missing-repo-raises; entity-count test 9->10. Suite: 361 passed (was 356). Per-repo reach only - the iterate/skip/ingest scan is P17. RECOMMEND next: P17.",
+  "id": 20,
+  "self_review": "Holds: the source-of-truth pivot is clean - the scan reads validated JSON, ADOPTERS.md is generated and kept honest by a --check guard wired like the version-consistency one (so drift fails CI once render --check is added to the workflow). The git reach is exercised against a REAL local git repo (init+commit), not mocked, and proves the load-bearing behaviours: clone, fetch-cached, detached worktree read, worktree pruned (verified via 'git worktree list'), and clean LumeError on a missing repo. The worktree is removed in a finally, so a read error cannot leak a worktree. Weak / watch: (1) render --check is NOT yet wired into ci.yml - the guard exists but CI won't enforce ADOPTERS sync until P18/docs adds the step; flagged. (2) _default_ref relies on origin/HEAD symbolic-ref with a fallback to literal 'HEAD' - it worked for the local fixture (clone sets origin/HEAD), but a repo with an unusual default-branch setup or a bare/odd remote could resolve differently; only real adopter scans will fully prove it. (3) the reach was tested against a LOCAL path, not a real remote/https or PRIVATE repo - auth and network failure modes remain unproven until run against actual tredl (carried from 018). (4) disk growth of .lume/cache/ is unbounded (no prune of old clones) - acceptable for two adopters, noted for scale. Nothing deferred silently."
+}

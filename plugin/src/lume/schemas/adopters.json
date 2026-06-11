@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "adopters",
+  "type": "object",
+  "required": ["adopters"],
+  "properties": {
+    "adopters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["project", "adopter", "url", "since"],
+        "properties": {
+          "project": {"type": "string"},
+          "adopter": {"type": "string"},
+          "url":     {"type": "string"},
+          "since":   {"type": "string"}
+        }
+      }
+    }
+  }
+}

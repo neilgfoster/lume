@@ -1,0 +1,16 @@
+{
+  "adopters": [
+    {
+      "project": "lume",
+      "adopter": "Neil Foster",
+      "url": "https://github.com/neilgfoster/lume",
+      "since": "2026-06"
+    },
+    {
+      "project": "tredl",
+      "adopter": "Neil Foster",
+      "url": "https://github.com/neilgfoster/tredl",
+      "since": "2026-06"
+    }
+  ]
+}
