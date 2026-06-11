@@ -1,0 +1,41 @@
+{
+  "title": "tredl-support - discovery (strategic direction)",
+  "sections": [
+    {
+      "heading": "0. Frame",
+      "body": "lume's first real consumer is tredl, an autonomous-operator layer built ON TOP OF lume. This workstream is a roadmap/planning record under a human operator: it captures the direction and reasoning so an adversarial reviewer can see that lume's unbuilt capability is staged roadmap serving demonstrated demand (tredl), not scope creep or waste. This discovery iteration records direction only - it itemises no backlog (that is the planning iteration) and builds nothing. The full reasoning and the L0-L5 backlog originate in an external seed brief (lume-backlog.seed.md / README.md, captured 2026-06-11)."
+    },
+    {
+      "heading": "1. What tredl is (naming and the ladder)",
+      "body": "Names follow lume's weaving lineage (loom -> lume). lume = the loom (the machine that weaves one piece); the human operates each iteration gate. tredl = the treadle (the control the weaver works, over and over, to drive the loom); it is the autonomous-operator layer - the SAME lume loop with Claude Code as the operator for the per-iteration gates. Automating the treadling is exactly removing the repetitive operator overhead, which is tredl's whole purpose: tredl decides which workstreams advance and drives the gates (approve -> start -> handback -> accept). Jaqard = the Jacquard head (the programmable automation of the loom's pattern control); reserved for a parked TOP layer (full autonomy / confidence-based acceptance), NOT built now. The ladder loom -> tredl -> Jaqard maps onto a strict -> confidence autonomy progression."
+    },
+    {
+      "heading": "2. Vision and hard rules",
+      "body": "lume is a deterministic, operator-gated iteration loop: an operator approves and accepts each iteration before/after work; today the operator is a human. tredl is that same loop with Claude Code as the per-iteration operator, demoting the human to the SPRINT boundaries (define the goal at the start, review the delivered PR(s) at the end). A 'sprint' is a lume workstream that decomposes into and spawns child workstreams, which tredl drives autonomously. HARD RULES: (1) tredl uses lume; tredl NEVER modifies lume - that would break lume's operator-in-the-loop contract. Instead tredl emits discoveries (capability gaps found in real use). (2) lume's principle holds: an operator is always in the loop; tredl just proves the operator need not be human at the iteration level. (3) tredl dogfoods - it builds other repos and builds itself."
+    },
+    {
+      "heading": "3. The feedback cycle (discovery-driven)",
+      "body": "1) lume helps build tredl (human-supervised lume loop). 2) tredl, in use, hits a lume capability gap, records a discovery in its repo (discoveries/*.json), then works around the gap locally so it is not hard-blocked. 3) lume scans adopter repos (via ADOPTERS) for discoveries and pulls them into its backlog. 4) A human supervises lume closing the discovery and shipping a release. 5) tredl detects the resolved discovery, adopts the new capability, removes its workaround. 6) tredl advances, finds new gaps, and the cycle repeats. Discoveries are first-class in lume: lume ALSO captures discoveries on ITSELF from its own operator's feedback, so the same channel grows lume's backlog whether the source is lume's operator or an adopter. One schema, one scan, two sources. The discovery is therefore an API between repos - design its schema and scan with the rigor lume applied to its store seam."
+    },
+    {
+      "heading": "4. UNVERIFIED PREMISES - assumptions to confirm in source (NOT confirmed here)",
+      "body": "Two premises are inherited from external assessment, not yet confirmed against lume's source. They are recorded as ASSUMPTIONS to verify, each inside the relevant L-item's own discovery iteration before any build - not as established fact. (A) 'DoD is write-only': assessment indicates dod_artifact is persisted but not EVALUATED by any verb - in particular not read at the accept gate. If true, the accept gate for an autonomous operator is only an assertion, not a check. This is L2's first task to confirm or refute. (B) 'No parent field on workstreams': assessment indicates the workstream schema has no parent reference, so a sprint that spawns child workstreams is not representable. This is L3's first task to confirm or refute. NOTE: premise (B) is trivially checkable (the workstream entity schema exposes slug/title/status/objective_artifact and no parent property) and looks true on inspection, but per the operator's instruction it is carried as an assumption to confirm inside L3's discovery rather than struck here, so the strategy stays auditable and no build proceeds on an unverified gap."
+    },
+    {
+      "heading": "5. Decisions locked (recorded here, logged via lume decide)",
+      "body": "(1) DISCOVERY CHANNEL: in-repo discoveries/*.json - it matches lume's 'state as JSON in the repo' philosophy, is contract-testable, and adds no external coupling. NOT GitHub issues. (2) AUTONOMOUS ACCEPTANCE, v0.1: STRICT. tredl auto-accepts only when the Definition of Done is machine-verifiable (tests pass, build green, lint clean, schema validates); anything subjective escalates to the human. No confidence thresholds in v0.1 - that is how autonomous agents ship confident garbage. (3) TEMPLATE SPLIT: lume owns the MECHANISM to instantiate a workstream/phase structure from a declarative pattern definition; the consumer (tredl) owns the INTELLIGENCE of choosing/authoring a pattern. Built-in named templates are content on top - grow that library only by demonstrated need, never speculatively."
+    },
+    {
+      "heading": "6. The autonomy ladder (each layer lifts the human one rung)",
+      "body": "lume: human operates each ITERATION gate. tredl: human operates each SPRINT boundary; tredl operates iterations (strict-verifiable only). Jaqard (PARKED): human operates at the PORTFOLIO/GOAL level; confidence-based subjective acceptance lives here, quarantined behind the most oversight per unit of work. Jaqard is explicitly NOT built now and may turn out to be the same engine as tredl at a higher altitude with one flag flipped (strict vs confidence). Do not design three codebases for what might be one engine at three altitudes; decide only after tredl v0.1 exists."
+    },
+    {
+      "heading": "7. Soft spots to keep watching (for the adversarial reviewer)",
+      "body": "1) REPLACING THE TRUST GATE WITH THE THING IT GUARDED: tredl-as-operator only has value if its acceptance is independent and verifiable - hence the keystone is making lume's DoD machine-evaluable and actually read at accept (premise A; verify and fix in lume FIRST). 2) AUTONOMY BOUNDED BY VERIFIABILITY, NOT AMBITION: verifiable DoD -> tredl accepts; non-verifiable -> human escalation. A constraint, not a preference. 3) BOOTSTRAPPING: lume cannot yet support tredl and tredl cannot discover its own prerequisites before it runs; the human hand-seeds the minimum capability for iteration one - the discovery loop is the steady state, not the bootstrap. 4) DEADLOCK RISK: if tredl hard-blocks on a lume gap it stalls; tredl must always have a local workaround so a discovery is the 'do it properly later' track. 5) DISCOVERY IS AN API BETWEEN REPOS: design its schema and scan rigorously; this boundary is where clean separation rots if sloppy. 6) SCOPE CREEP: an orchestration layer is the highest-risk category for sprawl - hold the v0.1 line hard and keep the template library demonstrated-need-only."
+    },
+    {
+      "heading": "8. Scope held / deferred",
+      "body": "This iteration produces discovery.json only. No engine code; no lume behaviour change. DEFERRED to the PLANNING iteration: itemise the backlog L0 -> L1/L2/L3 (capability prerequisites, L2 the keystone) -> L4 (delivery), with L5 (declarative pattern instantiation) recorded as DEFERRED / discovery-triggered and NOT scheduled. DEFERRED to each L-item's OWN future workstream: building anything, and verifying that item's assumptions in source via its own lead discovery iteration. lume's focus and operator-in-the-loop principle are unchanged by recording this roadmap."
+    }
+  ]
+}

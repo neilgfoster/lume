@@ -1,0 +1,30 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Decisions recorded: the three locked decisions (in-repo discoveries/*.json channel; strict machine-verifiable autonomous acceptance for tredl, no confidence thresholds in v0.1; lume-owns-mechanism / tredl-owns-intelligence template split) are logged via lume decide with rationale."
+      },
+      {
+        "checked": true,
+        "text": "Plan: L0-L5 recorded as plan items in dependency order (L0 -> L1/L2/L3 -> L4, L2 the keystone), each with its objective, a binary done-when, and a suggested iteration breakdown."
+      },
+      {
+        "checked": true,
+        "text": "L5 status preserved: recorded as DEFERRED / discovery-triggered (tagged optional, sketch states 'DO NOT SCHEDULE' and the empirical trigger), so it reads as parked-by-design, not dropped."
+      },
+      {
+        "checked": true,
+        "text": "Unverified premises carried into the plan: L2 and L3's done-when each name the assumption (DoD write-only / no parent field) as the first thing their own discovery iteration confirms or refutes."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code; no lume behaviour change; no L-item built. Each L-item is a future workstream led by its own discovery iteration."
+      }
+    ],
+    "preamble": "Planning for the tredl-support roadmap. Resolve the direction captured in discovery into an ordered, inspectable backlog (L0-L5) and log the locked decisions. This iteration records the plan and decisions only - it builds nothing and changes no lume behaviour. Each L-item will be driven as its own future workstream when scheduled (L5 only when its empirical trigger fires)."
+  },
+  "handback": "Recorded the backlog as six ordered plan items P1-P6 = L0-L5 (L0 inventory; L1 discoveries-as-cross-repo mechanism; L2 KEYSTONE machine-evaluable DoD read at accept; L3 hierarchical workstreams; L4 delivery/CI/release/packaging; L5 declarative pattern instantiation). Order encodes dependencies (L0 -> L1/L2/L3 -> L4). L0-L4 tagged committed; L5 tagged optional with its sketch marking it DEFERRED / discovery-triggered / DO NOT SCHEDULE and stating the empirical trigger. L2 and L3 sketches carry the two unverified premises as the first item their own discovery confirms or refutes. Logged the three locked decisions (in-repo discovery channel; strict machine-verifiable autonomous acceptance, no v0.1 confidence thresholds; lume-owns-mechanism / tredl-owns-intelligence template split) via lume decide with rationale. No engine code; no lume behaviour change; no L-item built.",
+  "id": 2,
+  "self_review": "Holds: all six L-items are recorded in dependency order with objective + binary done-when + iteration breakdown, the decisions are logged with rationale, and L5's deferred/do-not-schedule status is preserved in both its tag (optional) and its sketch text so it cannot be mistaken for active scope. The keystone (L2) and the parent-field gap (L3) keep their unverified premises visible, so a reviewer sees the plan does not build on unconfirmed assumptions. Weak/honest notes: plan_item type is constrained to the iteration-type enum (discovery/planning/execution/closeout), so each L-item - really a whole future workstream - is typed 'execution' as a least-bad fit and its true discovery->planning->execution->closeout breakdown lives in the sketch; ordering is encoded as 'order N' text in each sketch since plan items carry no explicit priority field. Scope held: no engine code, no behaviour change, nothing built."
+}
