@@ -132,7 +132,7 @@ clock seam):
   practices at review time - lume bakes in no such list.
 - `lume review ingest <path>` validates the agent's filled-in result against
   the `review_result` schema, writes the human-readable report to
-  `.lume/review/<date>-NN/findings.md` (NN = that day's sequence, from 01),
+  `.lume/reviews/<date>-NN/findings.md` (NN = that day's sequence, from 01),
   persists the structured result through the store seam, and **prints - never
   runs -** the queue plan: `lume new`/`plan add` for proposed workstreams,
   `lume decide` for direction decisions, and `lume gap add` for the review's

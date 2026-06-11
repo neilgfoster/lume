@@ -293,11 +293,11 @@ _PLAN_TYPE_MAP = {"spike": "discovery", "epic": "planning",
 
 
 def next_review_slug(lume_dir: Path, today: str) -> str:
-    """The dated review folder name under .lume/review/: <today>-NN, NN the
+    """The dated review folder name under .lume/reviews/: <today>-NN, NN the
     first free zero-padded daily sequence (01, 02, ...) given the folders
     already present. Deterministic in (existing folders, clock date); never
     reuses a taken NN."""
-    existing = {p.name for p in (Path(lume_dir) / "review").glob(f"{today}-*")
+    existing = {p.name for p in (Path(lume_dir) / "reviews").glob(f"{today}-*")
                 if p.is_dir()}
     n = 1
     while f"{today}-{n:02d}" in existing:
@@ -375,6 +375,6 @@ def queue_commands(result: dict, review_slug: str) -> list[str]:
         commands.append(f'lume decide -c "{d["context"]}" "{d["decision"]}" "{d["rationale"]}"')
     for g in result["review_gaps"]:
         commands.append(
-            f'lume gap add "{g["gap"]}" -c "review/{review_slug}: missed because '
+            f'lume gap add "{g["gap"]}" -c "reviews/{review_slug}: missed because '
             f'{g["why_missed"]}; proposed: {g["proposed_change"]}"')
     return commands

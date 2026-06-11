@@ -85,7 +85,7 @@ A new iteration can only be opened once the latest one is `accepted`.
   the review across its seven lenses - the ecosystem lens requires looking up
   the CURRENT Claude Code features/marketplace/best practices at review time -
   then write the Result-contract JSON and run `lume review ingest <path>`.
-  Ingest captures the report under `.lume/review/<date>-NN/findings.md` and
+  Ingest captures the report under `.lume/reviews/<date>-NN/findings.md` and
   PRINTS the queue plan (`lume new`/`plan add`/`decide`/`gap add`); it executes
   nothing - adopting findings is the operator's call, like any gate.
 - A workstream can spawn children: `lume spawn <slug> "<title>"` creates a child
