@@ -60,7 +60,7 @@ class VerbsTest(unittest.TestCase):
     def test_declared_flags_are_real(self):
         # Every flag a catalog entry declares must be one the parser accepts.
         accepted = {"--json", "-w/--workstream", "-t/--type", "-c/--context", "-g/--tag",
-                    "--new", "--existing", "--charter"}
+                    "--new", "--existing", "--spawn", "--charter"}
         for e in _CATALOG:
             for i in e["inputs"]:
                 if i["kind"] == "flag":

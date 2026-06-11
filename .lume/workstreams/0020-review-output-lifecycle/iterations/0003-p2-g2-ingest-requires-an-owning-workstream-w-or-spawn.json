@@ -1,0 +1,58 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": false,
+        "text": "lume review ingest REFUSES with a named error (exit 1, not a traceback; structured code under --json) when given neither -w <active-workstream> nor --spawn; emit stays ungated and byte-identical",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q tests/test_review_ingest.py 2>/dev/null | tail -1 | grep -q passed"
+        }
+      },
+      {
+        "checked": false,
+        "text": "With -w <ws>: the review is attributed to that existing ACTIVE workstream (a closed or unknown workstream is a named error); the review store doc and --json output carry the owning workstream id",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q '\"workstream\"' plugin/src/lume/review.py"
+        }
+      },
+      {
+        "checked": false,
+        "text": "With --spawn: a dedicated workstream is created (slug review-<date>-NN matching the review folder, objective derived from provenance + finding counts, status active, NO iteration opened - nothing self-approves); captured gaps remain unlinked (triage is the operator's)",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q tests/ -k 'review' 2>/dev/null | tail -1 | grep -q passed"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Tests cover: refusal without -w/--spawn, -w happy path + closed/unknown errors, --spawn creates the workstream with no iterations and the review attributed, --json shapes; full suite green",
+        "check": {
+          "kind": "command",
+          "cmd": "python3 -m pytest -q"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Docs updated: SKILL.md and plugin/README describe the ownership requirement (-w / --spawn) and the no-self-approve property of the spawned workstream; catalog/usage text for the review verb updated",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q 'spawn' plugin/skills/lume/SKILL.md && grep -q 'spawn' plugin/README.md && plugin/bin/lume verbs review | grep -q 'spawn'"
+        }
+      },
+      {
+        "checked": false,
+        "text": "Loop residue (002 acceptance flips) committed; .lume/gaps and .lume/reviews clean at handback",
+        "check": {
+          "kind": "command",
+          "cmd": "test -z \"$(git status --porcelain .lume/gaps .lume/reviews)\""
+        }
+      }
+    ],
+    "preamble": "P2 of the 0020 plan (G2): review output is born with an owning workstream - ingest requires -w <active-ws> or --spawn (an empty review-<date>-NN workstream; the operator gate is never self-passed). Resolves the orphaned-artifacts problem at its source."
+  },
+  "handback": null,
+  "id": 3,
+  "self_review": null
+}

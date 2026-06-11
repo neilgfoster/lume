@@ -19,8 +19,23 @@
       "dod_artifact": "iterations/0002-p1-g6-ingest-auto-captures-review-gaps-as-open-gap-records.json",
       "id": 2,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P1 (G6): ingest auto-captures review_gaps as open gap records",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0003-p2-g2-ingest-requires-an-owning-workstream-w-or-spawn.json",
+      "id": 3,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P2 (G2): ingest requires an owning workstream (-w or --spawn)",
       "type": "execution",
       "verdicts": []
     }
@@ -35,7 +50,7 @@
     },
     {
       "id": "P2",
-      "iter": null,
+      "iter": 3,
       "sketch": "P2 (G2): ingest requires an owning workstream - '-w <active-ws>' attributes the review to it, '--spawn' creates review-<date>-NN (objective from provenance + finding counts, no iteration opened); refuses with a named error when neither is given; the review store doc and --json carry the workstream id; tests cover -w, --spawn, refusal, and no-self-approve; docs updated",
       "tag": "committed",
       "type": "execution"

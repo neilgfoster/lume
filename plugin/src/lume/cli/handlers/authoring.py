@@ -200,11 +200,35 @@ def handle_review_ingest(ctx: Context) -> int:
     lume_dir = root / ".lume"
     slug = next_review_slug(lume_dir, ctx.repo.today())
 
+    # G2 (workstream 0020): review output is born with an owning workstream -
+    # an explicit active -w target, or --spawn for a dedicated empty one
+    # (no iteration is opened; the approve gate is never self-passed).
+    if ctx.opt_spawn:
+        counts = (f"{len(result['proposed_workstreams'])} proposed workstream(s), "
+                  f"{len(result['direction_decisions'])} direction decision(s), "
+                  f"{len(result['review_gaps'])} review gap(s)")
+        owner = ctx.repo.create_workstream(f"review-{slug}", f"Review {slug}: triage and adopt findings")
+        owner.set_objective_text(
+            f"Own the output of review {slug} ({result['provenance']['source']}, "
+            f"{result['provenance']['date']}): land .lume/reviews/{slug}/ and the "
+            f"captured gap records in history, and triage the findings - {counts}. "
+            f"{result['provenance']['note']}.")
+    elif ctx.target is not None:
+        owner = ctx.require_ws()  # unknown -> LumeError -> exit 1
+        if owner.is_closed:
+            ctx.fail("gate", f"workstream '{owner.name}' is closed; reviews need an "
+                             "ACTIVE owning workstream.")
+            return 1
+    else:
+        ctx.fail("gate", "review ingest needs an owning workstream for its output: "
+                         "pass -w <active-workstream> or --spawn.")
+        return 1
+
     findings = build_findings_md(result, slug)
     folder = lume_dir / "reviews" / slug
     folder.mkdir(parents=True, exist_ok=False)  # slug is the next free one
     (folder / "findings.md").write_text(findings + "\n")
-    ctx.repo.save_review(slug, result_to_store_doc(result, slug))
+    ctx.repo.save_review(slug, result_to_store_doc(result, slug, owner.id))
 
     # review_gaps are mechanical capture (F3, workstream 0020): written as
     # open gap records now, not proposed as commands. Triage (linking them to
@@ -216,11 +240,15 @@ def handle_review_ingest(ctx: Context) -> int:
     commands = queue_commands(result, slug)
     if ctx.json_mode:
         ctx.out({"result": "review_ingest", "review": slug,
+                 "workstream": owner.id,
                  "findings": f".lume/reviews/{slug}/findings.md",
                  "captured_gaps": [g["id"] for g in captured],
                  "queue_plan": commands})
         return 0
     print(f"review ingest: captured {path_arg} -> .lume/reviews/{slug}/findings.md")
+    print(f"owning workstream: {owner.name} [{owner.id}]"
+          + (" (spawned; open its first iteration to land the artifacts)"
+             if ctx.opt_spawn else ""))
     if captured:
         print(f"review gaps captured as open gap records: "
               f"{', '.join(g['id'] for g in captured)}")

@@ -90,7 +90,11 @@ A new iteration can only be opened once the latest one is `accepted`.
   plus discovered charter docs (`--charter <glob>` overrides discovery). You do
   the review across its seven lenses - the ecosystem lens requires looking up
   the CURRENT Claude Code features/marketplace/best practices at review time -
-  then write the Result-contract JSON and run `lume review ingest <path>`.
+  then write the Result-contract JSON and run `lume review ingest <path>
+  (-w <ws> | --spawn)`. Ingest needs an owning workstream for its output: `-w`
+  attributes the review to an existing active workstream, `--spawn` creates a
+  dedicated empty `review-<date>-NN` one (no iteration opened - nothing
+  self-approves; you then open its first iteration to land the artifacts).
   Ingest captures the report under `.lume/reviews/<date>-NN/findings.md`,
   auto-captures the review_gaps as open gap records (mechanical capture,
   tagged with the review slug - triage stays the operator's), and PRINTS the

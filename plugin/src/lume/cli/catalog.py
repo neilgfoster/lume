@@ -55,11 +55,14 @@ _CATALOG: list[dict] = [
            _pos("arg", False, "add: title; link/resolve: source then id "
                 "(resolve also takes an optional note)."), _F_CONTEXT], False),
     _verb("review", "Emit the adversarial self-review protocol, or ingest a review result.",
-          "[emit] [--charter <glob>]... | ingest <path>",
+          "[emit] [--charter <glob>]... | ingest <path> (-w <ws> | --spawn)",
           [_pos("subcommand", False, "emit (default) | ingest."),
            _pos("path", False, "ingest: path to the review-result JSON."),
            {"name": "charter", "kind": "flag", "flag": "--charter", "required": False,
-            "description": "Explicit charter file glob (repeatable); overrides doc discovery."}],
+            "description": "Explicit charter file glob (repeatable); overrides doc discovery."},
+           {"name": "spawn", "kind": "flag", "flag": "--spawn", "required": False,
+            "description": "ingest: spawn a dedicated review-<date>-NN workstream to own "
+                           "the output (no iteration opened); alternative to -w."}],
           False),
     _verb("migrate", "Migrate legacy markdown workstreams to JSON.", "", [], False),
     _verb("entities", "List the entity kinds.", "", [], False),

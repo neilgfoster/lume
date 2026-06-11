@@ -349,12 +349,15 @@ def build_findings_md(result: dict, review_slug: str) -> str:
     return "\n".join(out)
 
 
-def result_to_store_doc(result: dict, review_slug: str) -> dict:
+def result_to_store_doc(result: dict, review_slug: str,
+                        workstream_id: str | None = None) -> dict:
     """The structured result in the discovery artifact shape ({title, sections})
-    so it persists through the store seam against the existing schema."""
+    so it persists through the store seam against the existing schema. The
+    owning workstream (G2: every review is born with one) rides as a section."""
     return {
         "title": f"Review result - {review_slug}",
-        "sections": [
+        "sections": ([{"heading": "workstream", "body": workstream_id}]
+                     if workstream_id else []) + [
             {"heading": "provenance", "body": json.dumps(result["provenance"], indent=2, sort_keys=True)},
             {"heading": "direction_decisions", "body": json.dumps(result["direction_decisions"], indent=2, sort_keys=True)},
             {"heading": "proposed_workstreams", "body": json.dumps(result["proposed_workstreams"], indent=2, sort_keys=True)},
