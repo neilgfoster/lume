@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "F1 resolved: does lume review (emit and/or ingest) REFUSE to run without an active workstream, or does an ad-hoc run AUTO-SPAWN one to capture the findings? Decision logged with rationale, including whether emit (read-only, writes nothing) is gated at all or only ingest (which writes files)."
+      },
+      {
+        "checked": true,
+        "text": "F2 resolved (if spawn): the shape of the spawned/required workstream - slug convention (e.g. review-<date>-NN), objective content, how the review folder, captured gaps, and queue-plan adoption relate to it; and how its first iteration reaches the working phase given approve is the operator's gate (the spawned workstream must not self-approve)."
+      },
+      {
+        "checked": true,
+        "text": "F3 resolved (G6): ingest writes review_gaps directly as open gap records (status, context/review-slug tagging, whether they auto-link to the review workstream), while proposed_workstreams and direction_decisions stay print-only behind the operator gate; the 0015 uniform-emit decision is explicitly superseded for review_gaps only, logged via lume decide."
+      },
+      {
+        "checked": true,
+        "text": "Plan recorded via lume plan add: the execution iterations to reach the objective, each a binary DoD sketch with committed/optional tag; the first execution iteration is concrete enough to open next."
+      },
+      {
+        "check": {
+          "cmd": "test -z \"$(git status --porcelain plugin/ tests/)\"",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Scope held: no engine/product code in this planning iteration - only .lume/ state changes (decisions, plan, iteration content)."
+      }
+    ],
+    "preamble": "Planning for G2+G6: resolve the require-workstream-vs-auto-spawn fork (F1), the spawned-workstream shape and its gate interaction (F2), and the G6 auto-capture semantics (F3); then slice execution into plan items."
+  },
+  "handback": "Planning complete: 3 decisions (gate ingest only; --spawn an empty review workstream / -w an existing one, no self-approval; auto-capture review_gaps via the gap mechanic, workstreams+decisions stay gated), 3 plan items (P1 G6 capture, P2 G2 ownership, P3 closeout+dogfood). First execution iteration (P1) is concrete and ready to open on accept.",
+  "id": 1,
+  "self_review": "Planning only - no engine code touched (machine-checked: plugin/ and tests/ clean). All three forks resolved and logged via lume decide: F1 gates ingest only (emit is a pure read), F2's --spawn creates an empty review-<date>-NN workstream so nothing self-approves (and -w attributes to an existing one), F3 supersedes the 0015 uniform-emit rule for review_gaps only, with the no-rerun-dedupe limitation stated rather than hidden. The plan is three items: P1 (G6 auto-capture), P2 (G2 workstream ownership), P3 (closeout + dogfood on the next real review). Weaknesses owned: the spawn objective's exact wording is left to P2 (sketch level, not a fork); whether the repo commit-hook interplay needs anything beyond the spawned workstream (it does not - the hook needs a WORKING iteration, which stays operator-gated and is the same residue pattern as today, just with a designated home) is reasoned, not yet dogfooded - P3 tests it for real."
+}
