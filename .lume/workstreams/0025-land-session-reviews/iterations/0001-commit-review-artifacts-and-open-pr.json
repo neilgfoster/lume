@@ -7,7 +7,7 @@
         "text": "All untracked .lume/ review state is committed: reviews 2026-06-11-03 and -04 (findings.md + result.json), gap records G11-G20, and review workstreams 0023/0024 + this workstream 0025.",
         "check": {
           "kind": "command",
-          "cmd": "test -z \"$(git status --porcelain -- .lume/)\""
+          "cmd": "test -z \"$(git ls-files --others --exclude-standard .lume/reviews .lume/gaps .lume/workstreams)\""
         }
       },
       {
