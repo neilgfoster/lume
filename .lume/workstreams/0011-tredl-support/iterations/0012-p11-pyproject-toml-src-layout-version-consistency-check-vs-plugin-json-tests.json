@@ -1,0 +1,47 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "pyproject.toml added at the repo root: [project] name=lume, version=0.1.0 (== plugin.json), requires-python >= 3.11, license/authors/description/readme; src-layout via setuptools package-dir/packages.find on plugin/src; minimal [tool.pytest.ini_options] testpaths=tests. Parseable TOML.",
+        "check": {
+          "kind": "file-exists",
+          "path": "pyproject.toml"
+        }
+      },
+      {
+        "checked": true,
+        "text": "plugin.json stays the single version of record: pyproject does NOT introduce an independent version - equality is enforced by a test, not by trusting a manual sync.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "iteration_content",
+          "path": ".lume/workstreams/0011-tredl-support/iterations/0012-p11-pyproject-toml-src-layout-version-consistency-check-vs-plugin-json-tests.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "tests/test_version_consistency.py asserts pyproject [project].version == plugin/.claude-plugin/plugin.json version (via stdlib tomllib, hence the 3.11 floor); it fails on a deliberate mismatch and passes when aligned.",
+        "check": {
+          "kind": "file-exists",
+          "path": "tests/test_version_consistency.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Test discovery still works (conftest path-injection unchanged); full suite green including the new consistency test.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P5/L4 build step 1 of 4 (plan item P11): add pyproject.toml over the src-layout (plugin/src/lume) for package metadata + dev/tooling, and a consistency test guaranteeing it never becomes a second version source - plugin.json remains the version of record and the test fails CI on drift. Python floor is 3.11 (operator-approved) so the check uses stdlib tomllib with no dependency. The marketplace plugin remains the install path; PyPI is not introduced. DOGFOOD: this DoD carries file-exists + command checks."
+  },
+  "handback": "P11 done (P5/L4 build step 1 of 4): pyproject + the single-source guard. CHANGES: (1) pyproject.toml at repo root - [project] name=lume, version=0.1.0, requires-python>=3.11, license/authors/readme; src-layout via setuptools package-dir/packages.find on plugin/src; [tool.pytest.ini_options] testpaths=tests. (2) tests/test_version_consistency.py - asserts pyproject [project].version == plugin/.claude-plugin/plugin.json version via stdlib tomllib (the reason for the 3.11 floor); fails on drift. Suite: 345 passed (was 344); test discovery unchanged (conftest still injects plugin/src). DELIBERATE OMISSION: no [project.scripts] console entry - the install path is the plugin's bin/lume, and main(argv) takes argv positionally so a 'lume=lume.cli:main' script would TypeError; documented in the pyproject rather than ship a broken entry point. Logged: 3.11 floor decision. plugin.json remains the version of record; the test makes drift unmergeable. RECOMMEND next: P12 - the GitHub Actions CI workflow (pytest matrix 3.11-3.13 + this consistency check).",
+  "id": 12,
+  "self_review": "Holds: the single-source risk the operator's pyproject introduced is closed by an enforced test, not a convention - a deliberate version mismatch makes the suite red, so CI (P12) will block drift. The pyproject is honest about lume's actual distribution (comment: install is the marketplace plugin, not PyPI) and I refused to ship a broken console script, documenting why. The 3.11 floor is logged and matches the tomllib dependency. Weak / watch: (1) The pyproject is UNBUILT - I validated it parses and maps the src-layout, but did not run 'python -m build' / 'pip install -e .' to prove an actual wheel/editable install works; for a metadata+dev-tooling file that is arguably fine, but if editable installs are a real goal, P12/P14 should add a build smoke step. (2) requires-python>=3.11 is now asserted in pyproject but NOT yet enforced anywhere (no CI, and the floor was chosen for tomllib, not verified against every module's syntax beyond the earlier future-annotations/no-match check); P12's matrix is what will actually prove 3.11-3.13. (3) testpaths in pyproject + the conftest path-injection now both influence test runs; they are compatible (count rose by exactly the new test) but it is a second place pytest config lives - worth keeping minimal. Nothing deferred silently."
+}

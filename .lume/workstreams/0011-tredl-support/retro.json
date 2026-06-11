@@ -1,5 +1,5 @@
 {
-  "overall_verdict": "MET. The P3/L2 keystone - make the Definition of Done machine-evaluable and read at accept - is delivered and dogfooded: lume accept now refuses on a failed verifiable check, lume check dry-runs the same evaluation, and iterations 007/008/009 were themselves gated by their own DoD checks. The ceremony (discovery 004, planning 005, three build iterations 006-008, this closeout) bought back a real, reusable capability and closed the long-standing Premise A gap, not just paperwork.",
+  "overall_verdict": "MET (two keystones in one workstream). P3/L2 - machine-evaluable DoD read at accept - is delivered and dogfooded (lume accept refuses on a failed check). P5/L4 - delivery hardening - is MET for the agent-buildable parts (CI on push/PR across py 3.11-3.13; pyproject with a CI-enforced single-version guard; release-tag check + RELEASING.md; live '/plugin install' verified by a human in the tredl adopter repo) and PENDING two operator actions (enable the required CI check; cut the v0.1.0 tag/release). The workstream stays OPEN for P2 (L1 discoveries) and P4 (L3 hierarchy).",
   "done_when": [
     {
       "clause": "P3.1 Discovery confirms or refutes Premise A (DoD write-only, not read at accept).",
@@ -25,13 +25,42 @@
       "clause": "P3.5 Tests cover the pass, fail, and non-verifiable paths.",
       "verdict": "met",
       "evidence": "tests/test_dod_checks.py (18), test_accept_veto.py (6), test_check_verb.py (7) cover pass/fail/timeout/not-found/missing-field/prose-only/back-compat/CLI. Suite grew 313 -> 344, all green."
+    },
+    {
+      "clause": "P5.1 CI runs the full suite on push/PR (required check).",
+      "verdict": "met (required-flag pending operator)",
+      "evidence": "Iteration 013 (P12): .github/workflows/ci.yml runs pytest on push+PR across py 3.11-3.13; tools/check_ci_workflow.py guards its shape. Making it a REQUIRED status check is the operator's branch-protection setting - noted pending."
+    },
+    {
+      "clause": "P5.2 A pyproject declares the package and version (without a second version source).",
+      "verdict": "met (refined)",
+      "evidence": "Iteration 012 (P11): pyproject.toml added (operator decision); plugin.json stays the single version of record and tests/test_version_consistency.py fails on drift. PyPI is not introduced as the install path."
+    },
+    {
+      "clause": "P5.3 A tagged, semver release matching the declared version.",
+      "verdict": "met (mechanism); tag pending operator",
+      "evidence": "Iteration 014 (P13): tools/check_release_tag.py asserts tag == v+plugin.json version; RELEASING.md documents the flow. Cutting the actual v0.1.0 tag/release is the operator's action - pending."
+    },
+    {
+      "clause": "P5.4 The plugin install path verified end to end from a clean state.",
+      "verdict": "met",
+      "evidence": "Automated: tests/test_smoke_install.py drives bin/lume end to end. Live: a human ran '/plugin marketplace add' + '/plugin install' then lume seed/status/check in the tredl adopter repo on 2026-06-11 (Option A) - the prior [U] caveat is now flipped to verified in the README."
+    },
+    {
+      "clause": "P5.5 A release produces an artifact an adopter can pin to.",
+      "verdict": "met (refined)",
+      "evidence": "For a git-repo marketplace the pinnable artifact is a git tag/ref (no built archive); RELEASING.md documents pinning via the marketplace at a tagged ref, and check_release_tag guarantees the tag matches the version."
     }
   ],
   "carry_forwards": [
     "COMMAND-CHECK TRUST (discovery-triggered follow-up, NOT scheduled): both `lume accept` and `lume check` execute author-supplied shell (shell=True) with the test-suite trust model. Acceptable for a human operator; a genuine code-execution surface for unattended tredl accept. A sandbox/allowlist should be promoted only when a real tredl workaround recurs (per the L5/P6 demand-driven rule). Until then, `has_command_checks` only WARNS - it does not prevent execution.",
     "repo_root=None silently skips check evaluation in transition() (deliberate back-compat); only the CLI accept path passes a root. If more programmatic callers appear, add a guard so the veto cannot be bypassed by omission.",
     "Command output tails are discarded (only exit-code reasons surface); a future refinement could surface stdout/stderr tails in `lume check` for debuggability.",
-    "Placement note: verifiability is surfaced on `lume status -w` detail, not the raw `lume get` state passthrough - revisit if consumers expect it on get."
+    "Placement note: verifiability is surfaced on `lume status -w` detail, not the raw `lume get` state passthrough - revisit if consumers expect it on get.",
+    "OPERATOR ACTION pending: enable the CI workflow as a REQUIRED status check via GitHub branch protection (the agent cannot set branch protection).",
+    "OPERATOR ACTION pending: cut the v0.1.0 git tag + GitHub release per RELEASING.md (verify with tools/check_release_tag.py first). Until then the release mechanism is ready but no published release exists.",
+    "pyproject is unbuilt (validated by parse + the consistency test, not by 'python -m build'/'pip install -e .'); add a build smoke step only if editable/wheel installs become a real need.",
+    "The marketplace pin SYNTAX is not asserted in RELEASING.md (uncertain whether Claude Code supports an @tag form); replace the hedge with the canonical syntax once confirmed."
   ],
   "sections": [
     {
@@ -41,6 +70,10 @@
     {
       "heading": "Scope held",
       "body": "Keystone only. P2 (L1 cross-repo discoveries), P4 (L3 hierarchical workstreams), and P5 (L4 delivery/CI/packaging) remain open in the plan; the workstream is intentionally NOT closed. The v0.1 STRICT line held: three predicate kinds, no confidence thresholds, no arbitrary predicate language, sandbox deferred by demand."
+    },
+    {
+      "heading": "P5/L4 delivery - did it buy back its cost?",
+      "body": "Yes, and it dogfooded P3 throughout: every P5 iteration (010-015) carried machine-verifiable DoD checks, so accept ran pytest/file/grep predicates against the very delivery work it was gating. Delivery went discovery (010) -> planning (011) -> pyproject+guard (012/P11) -> CI (013/P12) -> release-tag+docs (014/P13) -> this closeout (015/P14). Net: lume now has CI on 3.11-3.13, a drift-proof single version source, a documented pinnable release, and a human-verified install - the things an adopter (tredl) needed to depend on lume. Honest residual: two completions are the operator's (required-check enforcement; cutting the tag), so delivery is 'mechanism complete, two human actions pending', not 'shipped'."
     }
   ]
 }

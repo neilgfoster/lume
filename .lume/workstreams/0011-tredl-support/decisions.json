@@ -71,6 +71,42 @@
       "date": "2026-06-11",
       "decision": "The accept veto refuses with a clear multi-line GateError message (each failed item -> reason); the STRUCTURED machine-readable failures list is delivered by P9's 'lume check', not by extending the shared accept error plumbing.",
       "rationale": "Routing structured results to 'lume check' is better design than overloading the {error:{code,message}} shape used by every verb: an autonomous operator runs 'lume check' to read per-item pass/fail BEFORE attempting accept, and the human-facing accept error stays a clear message. Keeps P8 to the veto and avoids touching shared error plumbing for marginal gain."
+    },
+    {
+      "context": "P5/L4 discovery (iteration 010)",
+      "date": "2026-06-11",
+      "decision": "Keep plugin.json as the SINGLE version source and make the pinnable release artifact a git tag equal to that version; do NOT add a pyproject.toml merely to satisfy P5's packaging clause.",
+      "rationale": "lume ships as a Claude Code marketplace plugin (source ./plugin), stdlib-only, never pip-installed. A pyproject would declare a package nobody installs and duplicate the version, risking drift. For a git-repo marketplace the pin IS a tag/ref, so a semver tag == plugin.json version is the real packaging for this channel. P5 DONE-WHEN clause 2 is refined accordingly (recorded in discovery, not silently changed)."
+    },
+    {
+      "context": "P5/L4 planning (iter 011) FORK A - CI",
+      "date": "2026-06-11",
+      "decision": "CI = a GitHub Actions workflow running 'python -m pytest -q' on push and pull_request, matrix python 3.10/3.11/3.12/3.13; making it a REQUIRED status check is the operator's branch-protection setting, not an agent action.",
+      "rationale": "future-annotations is in all 25 modules and there are no match statements, so the syntax floor is low; 3.10 is a safe, widely-available minimum and the matrix proves the upper range. Required-check enforcement belongs to the human per lume's gate rule."
+    },
+    {
+      "context": "P5/L4 planning (iter 011) PYPROJECT + FORK B - version",
+      "date": "2026-06-11",
+      "decision": "Add pyproject.toml (operator decision) for package metadata + dev/tooling over the src-layout (plugin/src/lume); plugin.json stays the single version of record; a consistency check asserts pyproject.version == plugin.json.version and the release tag == that version, failing CI on drift.",
+      "rationale": "Operator wants a pyproject; the risk it introduces is a second version source, so the mitigation is a hard consistency check rather than trusting humans to sync three places. PyPI is not made the primary channel - the marketplace plugin remains the install path."
+    },
+    {
+      "context": "P5/L4 planning (iter 011) FORK C - release",
+      "date": "2026-06-11",
+      "decision": "Release = a git tag vX.Y.Z (== plugin.json version) plus a GitHub release; the tag/ref IS the pinnable artifact for the marketplace plugin; attaching a built archive is optional and not required for v0.1.",
+      "rationale": "For a git-repo marketplace, an adopter pins by tag/ref, so the tag is the deliverable; a built archive adds little for a stdlib-only directory-source plugin. Keep the release flow minimal."
+    },
+    {
+      "context": "P5/L4 planning (iter 011) FORK D - install verification",
+      "date": "2026-06-11",
+      "decision": "Close the [U] live-install caveat with a documented, reproduced manual verification (steps from a clean state via '/plugin marketplace add' + '/plugin install'), recorded in the repo; an automated live-install CI job is OUT of v0.1 because it needs the Claude CLI in CI.",
+      "rationale": "test_smoke_install already covers the entry point automatically; the residual gap is the live Claude Code path, which cannot be automated without the Claude CLI in CI. A documented human-reproduced verification is the honest v0.1 close; automating it is a later option, not a v0.1 blocker."
+    },
+    {
+      "context": "P5/L4 execution (iter 012, P11)",
+      "date": "2026-06-11",
+      "decision": "Python floor is 3.11 (operator-approved), so the version-consistency check uses stdlib tomllib with no third-party dependency; CI matrix becomes 3.11-3.13.",
+      "rationale": "Reading pyproject's version to compare against plugin.json needs a TOML parser; tomllib is stdlib from 3.11. Raising the floor from the proposed 3.10 to 3.11 avoids a tomli dependency or a vendored parser, keeping lume dependency-free."
     }
   ]
 }

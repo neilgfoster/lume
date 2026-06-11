@@ -1,0 +1,54 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "tools/check_release_tag.py: given a tag (CLI arg or GITHUB_REF_NAME env, accepting a refs/tags/ prefix), exits 0 iff the tag equals 'v' + plugin/.claude-plugin/plugin.json version, else non-zero with a clear message. Stdlib-only.",
+        "check": {
+          "kind": "file-exists",
+          "path": "tools/check_release_tag.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "It agrees with the current version of record: 'python tools/check_release_tag.py v0.1.0' exits 0.",
+        "check": {
+          "kind": "command",
+          "cmd": "python tools/check_release_tag.py v0.1.0"
+        }
+      },
+      {
+        "checked": true,
+        "text": "A mismatched tag is rejected (non-zero) - proven by a test, not just asserted.",
+        "check": {
+          "kind": "file-exists",
+          "path": "tests/test_release_tag.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "RELEASING.md documents the release flow: bump plugin.json version -> run suite (incl. version-consistency) -> tag vX.Y.Z (== version) -> push tag -> create GitHub release; plus how an adopter PINS via '/plugin marketplace add' at a tag/ref. States that cutting the tag/release is the operator's action.",
+        "check": {
+          "kind": "file-exists",
+          "path": "RELEASING.md"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Full suite green (including the new release-tag test).",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P5/L4 build step 3 of 4 (plan item P13): make the release pinnable and drift-proof. A reusable checker asserts a release tag equals 'v' + the plugin.json version of record, and RELEASING.md documents the minimal tag -> GitHub release flow plus how an adopter pins via the marketplace at a tag. Per the iter-010/011 decisions the tag/ref IS the pinnable artifact (no built archive needed); cutting the actual tag/release is the operator's action. DOGFOOD: DoD runs the checker against the current version."
+  },
+  "handback": "P13 done (P5/L4 build step 3 of 4): the release is pinnable and drift-proof. CHANGES: (1) tools/check_release_tag.py - asserts a tag (arg or GITHUB_REF_NAME, refs/tags/ prefix tolerated) equals 'v'+plugin.json version; stdlib-only, exits 0/1 with a clear message. (2) tests/test_release_tag.py - 5 tests: match, refs/tags/ prefix, mismatch, missing tag, missing-v-prefix. (3) RELEASING.md - documents the operator release flow (bump plugin.json -> pytest -> check_release_tag -> tag vX.Y.Z -> push -> GitHub release) and how an adopter pins via the marketplace at a tagged ref; the tag/ref is the pinnable artifact, no archive. Verified live: check_release_tag v0.1.0 -> exit 0, v9.9.9 -> exit 1. Suite: 350 passed (was 345). OPERATOR ACTION (noted, not done): actually cutting the v0.1.0 tag + GitHub release. RECOMMEND next: P14 - install-verification doc + P5 closeout retro (the final keystone-style step for delivery).",
+  "id": 14,
+  "self_review": "Holds: the tag check mirrors the pyproject consistency guard, so version-of-record drift is now caught at BOTH the pyproject layer (test) and the release layer (tag check), with plugin.json the single truth; the checker is reusable in a future release workflow (reads GITHUB_REF_NAME) without being one. RELEASING.md is honest that cutting the tag/release is the operator's action. Weak / watch: (1) I deliberately did NOT assert the exact '/plugin marketplace add <ref>' pin SYNTAX in the docs - I am not certain Claude Code supports an @tag form, so I pointed to '/plugin marketplace --help' / the plugin docs rather than fabricate a flag; if there IS a canonical pin syntax it should replace that hedge. (2) check_release_tag is NOT wired into any release automation yet - it is a script the operator (or a future release.yml) must invoke; P5's done-when is satisfied by 'a check/script verifies tag==version', but enforcement at tag-push time would need a release workflow, which I left out as beyond v0.1-minimal. (3) The whole release path is unproven end-to-end until a real v0.1.0 tag is cut (operator action), so 'pinnable release exists' will be 'mechanism ready, release pending operator'. Nothing deferred silently."
+}

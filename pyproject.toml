@@ -1,0 +1,35 @@
+# Package metadata + dev tooling for lume.
+#
+# lume's INSTALL path is the Claude Code plugin marketplace (see README), not
+# PyPI; this file exists for package metadata, editable dev installs, and tool
+# config over the src-layout at plugin/src/lume. The version of record is
+# plugin/.claude-plugin/plugin.json - tests/test_version_consistency.py fails
+# if the value below drifts from it, so this is an echo, not a second source.
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lume"
+version = "0.1.0"
+description = "A deterministic, operator-driven iteration loop: workstreams, gated iterations, and JSON state you can inspect. The machine does not act without the operator."
+readme = "plugin/README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Neil Foster" }]
+keywords = ["workflow", "iteration", "planning", "agent", "deterministic"]
+
+# No [project.scripts] entry: the install path is the plugin's bin/lume, not a
+# pip console script (and main(argv) takes argv positionally). Kept out
+# deliberately rather than shipping a broken entry point.
+[project.urls]
+Repository = "https://github.com/neilgfoster/lume"
+
+[tool.setuptools]
+package-dir = { "" = "plugin/src" }
+
+[tool.setuptools.packages.find]
+where = ["plugin/src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
