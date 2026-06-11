@@ -155,6 +155,18 @@
       "date": "2026-06-11",
       "decision": "ADOPTERS.json (root) is the deterministic source of truth for adopters; ADOPTERS.md's table is GENERATED from it via tools/render_adopters.py (--check guards sync in CI). lume's scan reads ADOPTERS.json, never parses markdown.",
       "rationale": "Operator decision: parsing a hand-maintained markdown table is fragile; a validated JSON source + generated md table is deterministic and mirrors the plugin.json/pyproject version-consistency guard already in the repo. The md stays the human view; the JSON is what the machine reads."
+    },
+    {
+      "context": "P4/L3 discovery (iter 023) - model",
+      "date": "2026-06-11",
+      "decision": "Add an OPTIONAL 'parent' (parent workstream id) to the workstream section; children are DERIVED by scanning workstreams for parent==this - no stored children list. Parent must exist; no self-parent; parent chain must be acyclic.",
+      "rationale": "Single source of truth avoids a children array drifting from reality (mirrors iter/plan linking and gap source). Optional => backward-compatible; existing workstreams are roots."
+    },
+    {
+      "context": "P4/L3 discovery (iter 023) - verbs + close",
+      "date": "2026-06-11",
+      "decision": "Spawn via a new verb 'lume spawn <slug> \"<title>\"' (parent = the -w target), keeping 'lume new' for roots. Closing a parent with active children is REFUSED with a clear error (not a cascade). Rollup is read-only: parent detail lists children+phase and the queue nests children under parents, one level for v0.1.",
+      "rationale": "A dedicated spawn verb reads as the sprint-decomposition intent without overloading new; refuse-not-cascade preserves operator-in-the-loop (no silent ending of child work); one-level read-only rollup is the useful minimum, deeper metrics deferred."
     }
   ]
 }

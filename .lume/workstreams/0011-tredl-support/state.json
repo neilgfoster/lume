@@ -319,9 +319,24 @@
       "dod_artifact": "iterations/0022-p18-docs-gap-add-scan-list-resolve-wire-render-adopters-check-into-ci-p2-l1-closeout-retro.json",
       "id": 22,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P18: docs (gap add/scan/list/resolve) + wire render_adopters --check into CI + P2/L1 closeout retro",
       "type": "closeout",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0023-p4-l3-discovery-design-parent-child-workstreams-schema-parent-ref-spawn-verb-rollup-close-guard.json",
+      "id": 23,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P4/L3 discovery: design parent/child workstreams - schema parent ref, spawn verb, rollup, close-guard",
+      "type": "discovery",
       "verdicts": []
     }
   ],
@@ -349,7 +364,7 @@
     },
     {
       "id": "P4",
-      "iter": null,
+      "iter": 23,
       "sketch": "L3 (order 4) - Hierarchical workstreams (a workstream that spawns workstreams). OBJECTIVE: the workstream schema has no parent reference, so a 'sprint' (a workstream that decomposes into and spawns child workstreams) is not representable. Add parent/child relationships and verb support to spawn and roll up children. DONE-WHEN: (1) workstream schema gains an optional parent reference and children are discoverable from a parent [confirms UNVERIFIED PREMISE B in its discovery]; (2) a verb spawns a child workstream linked to its parent; (3) status/snapshot can roll up child state to the parent; (4) closing a parent is refused while children are open (or defines explicit behaviour); (5) tests cover spawn, rollup, and the close guard. ITERATIONS: discovery, planning, execution, closeout.",
       "tag": "committed",
       "type": "execution"

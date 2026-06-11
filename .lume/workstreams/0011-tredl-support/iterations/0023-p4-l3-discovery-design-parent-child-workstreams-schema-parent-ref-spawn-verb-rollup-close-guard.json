@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "PARENT REF design: confirm Premise B (workstream schema has no parent today - already TRUE per L0) and design the addition - an OPTIONAL 'parent' (parent workstream id) on the workstream section; children DERIVED by scanning all workstreams for parent==this (single source of truth, no duplicated children list)."
+      },
+      {
+        "checked": true,
+        "text": "SPAWN design: how a child is created and linked - the verb shape (e.g. 'lume spawn <slug> \"<title>\"' with parent = the -w target, vs 'lume new --parent <id> ...'); validation that the parent exists; cycle/self-parent prevention."
+      },
+      {
+        "checked": true,
+        "text": "ROLLUP design: how a parent's status/snapshot reflects children - e.g. parent detail lists child workstreams + their current phase, and/or the cross-workstream queue nests children under parents; how much rollup is v0.1 vs deferred."
+      },
+      {
+        "checked": true,
+        "text": "CLOSE-GUARD design: define what happens when closing a parent with open (active) children - refuse with a clear error (recommended) vs cascade; and whether reopen interacts."
+      },
+      {
+        "checked": true,
+        "text": "Open forks for planning listed (decided vs deferred): verb shape, rollup depth, close-guard behaviour, and how this maps onto the 'sprint' concept tredl needs (a workstream decomposing into child workstreams it drives)."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: discovery only - no engine code; findings + decisions recorded in discovery.json and via lume decide.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      }
+    ],
+    "preamble": "P4/L3 lead discovery: design hierarchical workstreams - a 'sprint' is a workstream that decomposes into and spawns child workstreams (the structure tredl needs to drive a goal autonomously). Premise B (no parent ref) is already confirmed TRUE (L0), so this is design: an optional parent ref with children derived by scan, a spawn verb, status/snapshot rollup, and a close-guard. Design + decisions only - no engine code; the build is later iterations. This is the LAST committed plan item (P6/L5 stays deferred)."
+  },
+  "handback": "P4/L3 discovery done: hierarchical workstreams designed (discovery.json P4.1-P4.4 + 2 decisions). MODEL: optional 'parent' (parent workstream id) on the workstream section; children DERIVED by scanning workstreams for parent==this (no stored children list); parent must exist, no self-parent, acyclic chain; backward-compatible (existing = roots). SPAWN: a new verb 'lume spawn <slug> \"<title>\"' (parent = the -w target), keeping 'lume new' for roots. ROLLUP (v0.1): read-only - parent detail lists children + their phase; the cross-workstream queue nests children under parents, one level; deeper metrics deferred. CLOSE-GUARD: closing a parent with active children is REFUSED with a clear error (not a cascade - cascading would silently end child work, breaking operator-in-the-loop). FORKS for planning: verb shape (recommended spawn), rollup depth, close-guard (recommended refuse), child-reopen-under-closed-parent, deep-tree rendering. No engine code. RECOMMEND next: open the P4 PLANNING iteration. This is the LAST committed item (P6/L5 stays deferred).",
+  "id": 23,
+  "self_review": "Holds: the model reuses lume's established derive-don't-duplicate pattern (children by scan, like iter/plan links and gap source), so there is no children-array to drift; refuse-not-cascade on close is the choice that keeps the operator-in-the-loop contract intact (a parent close can't silently kill child work); rollup is read-only derivation, adding no stored state. Premise B is confirmed, not re-litigated. Weak / watch: (1) DERIVED CHILDREN COST - finding a parent's children means scanning ALL workstreams' state each time; fine at lume's scale (a dozen) but O(n) per query, noted for scale. (2) ACYCLIC GUARD - spawn creates fresh children so cycles are impossible there, but IF a later verb can re-parent an existing workstream, the cycle check becomes load-bearing and must be built then; flagged so it is not forgotten. (3) QUEUE NESTING changes 'lume status' output shape - existing snapshot/queue tests may need updating in execution; expected, noted. (4) the 'sprint' that tredl drives is the parent workstream, but tredl actually DRIVING children autonomously is tredl's job, not lume's - lume only provides the structure; I kept that boundary clear. Nothing deferred silently."
+}
