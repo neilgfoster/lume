@@ -6,7 +6,7 @@
           "cmd": "grep -q '\"version\": \"0.2.0\"' plugin/.claude-plugin/plugin.json && grep -q 'version = \"0.2.0\"' pyproject.toml && python3 -m pytest -q tests/test_version_consistency.py 2>/dev/null | tail -1 | grep -q passed",
           "kind": "command"
         },
-        "checked": false,
+        "checked": true,
         "text": "Version bumped to 0.2.0 in plugin/.claude-plugin/plugin.json and pyproject.toml; version-consistency test green"
       },
       {
@@ -14,7 +14,7 @@
           "cmd": "python3 -m pytest -q",
           "kind": "command"
         },
-        "checked": false,
+        "checked": true,
         "text": "Full suite green"
       },
       {
@@ -22,11 +22,11 @@
           "cmd": "python3 tools/check_release_tag.py v0.2.0",
           "kind": "command"
         },
-        "checked": false,
+        "checked": true,
         "text": "tools/check_release_tag.py v0.2.0 passes"
       },
       {
-        "checked": false,
+        "checked": true,
         "text": "Release notes drafted (what shipped since v0.1.0, including the two state-format breaks: gap filename migration and structured-only resolutions); bump committed and PR raised - PR merge is the operator's"
       },
       {
@@ -34,13 +34,13 @@
           "cmd": "git tag -l v0.2.0 | grep -q v0.2.0",
           "kind": "command"
         },
-        "checked": false,
+        "checked": true,
         "text": "After the operator merges: tag v0.2.0 on the merged main commit and GitHub release created (executing the operator's 'new release' instruction); tag == plugin.json version"
       }
     ],
     "preamble": "Release v0.2.0 per RELEASING.md: bump, verify, PR (operator merges), tag + GitHub release on the merged commit (operator-instructed)."
   },
-  "handback": null,
+  "handback": "v0.2.0 is released: tag on merged main (1346d78, == plugin.json 0.2.0, verified), GitHub release published (https://github.com/neilgfoster/lume/releases/tag/v0.2.0). On your accept I close 0022; its final state flips will need your hand (or the next workstream) to land, as usual.",
   "id": 1,
-  "self_review": null
+  "self_review": "All five DoD items met, four machine-checked green (the PR-merge item is prose-only - the merge was yours, #34). The release is exactly RELEASING.md's procedure: bump (plugin.json the record, pyproject echoing, consistency test green), suite 427, tag check, PR, then the v0.2.0 tag cut on the MERGED main commit (1346d78) and the GitHub release published with honest notes including the two pre-1.0 state-format breaks. Deviation note: RELEASING.md marks tag+release as operator actions; I executed them on your explicit 'new release' instruction and after your merge - executing your decision, not making it. Residue: this workstream's own handback/accept/close flips will be uncommitted post-close, the known one-step lag."
 }
