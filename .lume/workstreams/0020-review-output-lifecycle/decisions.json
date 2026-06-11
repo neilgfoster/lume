@@ -17,6 +17,12 @@
       "date": "2026-06-11",
       "decision": "Ingest WRITES review_gaps directly as open gap records via the existing gap mechanic (status open, context carrying the review slug + why_missed + proposed_change), and drops them from the printed queue plan; proposed_workstreams and direction_decisions remain print-only behind the operator gate. Captured gaps are NOT auto-linked to any workstream (linking = triage = operator). No rerun dedupe in v0.1: each ingest run captures its own gaps (a re-ingest of the same file is a new review folder and new gap records) - noted, not hidden",
       "rationale": "A gap record is mechanical capture that commissions no work - the same class as the review folder and 'lume decide', which ingest already performs ungated; print-only review_gaps demonstrably evaporate (G6's evidence). Workstreams and decisions shape direction, so they keep the gate. Rerun-dedupe needs a content identity for gaps that does not exist yet - deferred until demanded."
+    },
+    {
+      "context": "P3 closeout - objective done-when assessment",
+      "date": "2026-06-11",
+      "decision": "Objective MET on both clauses: (G2) review ingest requires/spawns an owning workstream - designed (F1/F2 decisions), built (P2), tested (refusal/-w/--spawn/no-self-approve), documented (SKILL.md, plugin/README, verb catalog), dogfooded (review 2026-06-11-02 ingested under -w 0020); (G6) review_gaps auto-captured as open gap records - designed (F3, superseding 0015's uniform-emit for review_gaps only), built (P1), tested, documented, dogfooded (G10 captured live). G2+G6 resolved with structured resolutions linked to 0020",
+      "rationale": "Each clause traced to its decision, plan item, tests, and the live dogfood; the residual caveats (spawn not live-exercised, no prior-review follow-up) are carried in the retro and G10 rather than glossed."
     }
   ]
 }

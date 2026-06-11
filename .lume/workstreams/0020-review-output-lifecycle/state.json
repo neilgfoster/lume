@@ -34,9 +34,24 @@
       "dod_artifact": "iterations/0003-p2-g2-ingest-requires-an-owning-workstream-w-or-spawn.json",
       "id": 3,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P2 (G2): ingest requires an owning workstream (-w or --spawn)",
       "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0004-p3-closeout-dogfood-the-lifecycle-on-a-real-review-resolve-g2-g6-retro-close.json",
+      "id": 4,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P3: closeout - dogfood the lifecycle on a real review, resolve G2+G6, retro, close",
+      "type": "closeout",
       "verdicts": []
     }
   ],
@@ -57,7 +72,7 @@
     },
     {
       "id": "P3",
-      "iter": null,
+      "iter": 4,
       "sketch": "P3: dogfood on the next real 'lume review' run (ingest under a spawned workstream, gaps auto-captured), resolve G2+G6 via gap resolve -w 0020, retro (did the lifecycle change buy its cost?), lume close",
       "tag": "committed",
       "type": "closeout"
