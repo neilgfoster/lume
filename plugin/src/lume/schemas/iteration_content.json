@@ -17,7 +17,17 @@
             "required": ["text", "checked"],
             "properties": {
               "text":    {"type": "string"},
-              "checked": {"type": "boolean"}
+              "checked": {"type": "boolean"},
+              "check": {
+                "type": "object",
+                "required": ["kind"],
+                "properties": {
+                  "kind":   {"type": "string", "enum": ["command", "file-exists", "schema-valid"]},
+                  "cmd":    {"type": "string"},
+                  "path":   {"type": "string"},
+                  "entity": {"type": "string"}
+                }
+              }
             }
           }
         }

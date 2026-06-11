@@ -44,6 +44,7 @@ _CATALOG: list[dict] = [
     _verb("reopen", "Reopen a closed workstream.", "<slug>",
           [_pos("slug", True, "Workstream slug to reopen.")], False),
     _verb("snapshot", "Print the derived Done/Now/Next snapshot.", "", [], True),
+    _verb("check", "Dry-run the current iteration's DoD machine-checks (read-only).", "", [], True),
     _verb("migrate", "Migrate legacy markdown workstreams to JSON.", "", [], False),
     _verb("entities", "List the entity kinds.", "", [], False),
     _verb("schema", "Print an entity's JSON Schema.", "<entity>",

@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Inventory note (discovery.json findings) documents, per primitive (seed, workstream, iteration, discovery, plan, decide, snapshot): its on-disk artifact path/shape, and which verb(s) READ it vs only WRITE it."
+      },
+      {
+        "checked": true,
+        "text": "Current iteration type enum and phase enum are recorded verbatim from source/schema."
+      },
+      {
+        "checked": true,
+        "text": "UNVERIFIED PREMISE A (dod_artifact is persisted but write-only / not evaluated by any verb) is confirmed TRUE or STRUCK, citing the reading code path or its absence."
+      },
+      {
+        "checked": true,
+        "text": "UNVERIFIED PREMISE B (workstream schema has no parent reference; children not representable) is confirmed TRUE or STRUCK, citing the schema."
+      },
+      {
+        "checked": true,
+        "text": "Each remaining gap assumed by L1/L4 (no discoveries/*.json cross-repo mechanism; no CI/pyproject/tagged release/packaging) is confirmed TRUE or STRUCK against the repo."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine/product code changed in this discovery iteration; anything deferred to planning/execution is listed."
+      }
+    ],
+    "preamble": "Establish ground truth on what the existing lume primitives do and what their JSON artifacts contain on disk, before extending anything (plan item P1 / L0). Read the modules; confirm or strike the premises L1-L5 depend on."
+  },
+  "handback": "L0 inventory complete and recorded as discovery.json sections L0.1-L0.3 (the engine produced no code changes; only .lume/ state was authored, so no commit is gated by this iteration). Findings: (1) Per-primitive read/write inventory for all seven primitives with source citations. (2) PREMISE A CONFIRMED TRUE - the DoD content file is never read by any verb; transition()/accept gate purely on the fixed phase-tuple table in iteration.py and never inspect dod.items[].checked. The accept gate is an assertion, not a machine check. This is the empirical justification for the P3/L2 keystone. (3) PREMISE B CONFIRMED TRUE - workstream schema has no parent/child field; sprints-that-spawn-workstreams are not representable (P4/L3). (4) GAP L1 CONFIRMED TRUE - no cross-repo discovery scan; 'ADOPTERS' appears nowhere in the engine. (5) GAP L4 CONFIRMED TRUE - no .github CI, no pyproject.toml, no packaging/release. (6) Enums recorded verbatim. No assumed gap was struck; all four premises held. Recommend next: P2/L1 (discoveries/*.json mechanism) or P3/L2 keystone, opened as their own discovery-led iterations.",
+  "id": 3,
+  "self_review": "Holds: every premise was checked against source, not memory - PREMISE A was independently re-verified with a direct grep (only writes of dod/checked/iteration_content exist; the accept verb is the phase tuple ('handback','accepted') with no content read) and the delivery gaps were re-confirmed by listing the repo root (NO .github, no pyproject/setup). Citations point at real files/symbols. Weak/transparent: the per-primitive shapes were gathered partly via a sub-agent exploration; I spot-checked the load-bearing claims (Premise A, L4) directly but did not re-read every line behind every secondary shape claim (e.g. the exact snapshot derivation), so a reader should treat the non-load-bearing shape details as high-confidence-but-agent-sourced. Deferred (correctly, per scope): no engine code; building any L-item and each item's own deeper assumption-verification remain in their future workstreams. Nothing was papered over - all four premises came back TRUE, which is the result that most favors the downstream plan, so it deserves the extra skepticism it received."
+}

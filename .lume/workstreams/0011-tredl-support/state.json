@@ -29,12 +29,111 @@
           "verdict": "accepted"
         }
       ]
+    },
+    {
+      "dod_artifact": "iterations/0003-inventory-the-existing-primitives-l0-on-disk-artifact-shapes-and-which-verbs-read-vs-write-them.json",
+      "id": 3,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Inventory the existing primitives (L0): on-disk artifact shapes and which verbs read vs write them",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0004-p3-l2-keystone-discovery-confirm-dod-is-write-only-and-design-machine-evaluable-dod-checks-read-at-accept.json",
+      "id": 4,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P3/L2 keystone (discovery): confirm DoD is write-only and design machine-evaluable DoD checks read at accept",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0005-p3-l2-planning-resolve-the-surface-command-execution-audit-and-error-shape-forks-into-an-ordered-build-plan.json",
+      "id": 5,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P3/L2 planning: resolve the surface, command-execution, audit, and error-shape forks into an ordered build plan",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0006-p7-machine-verifiable-dod-optional-check-field-in-iteration-content-schema-pure-evaluate-dod-evaluator-unit-tests.json",
+      "id": 6,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P7: machine-verifiable DoD - optional 'check' field in iteration_content schema + pure evaluate_dod evaluator (+unit tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0007-p8-wire-evaluate-dod-into-transition-as-the-accept-veto-refuse-accept-on-any-failed-check-tests.json",
+      "id": 7,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P8: wire evaluate_dod into transition() as the accept veto - refuse accept on any failed check (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0008-p9-lume-check-dry-run-verb-verifiability-status-on-lume-get-cli-tests.json",
+      "id": 8,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P9: 'lume check' dry-run verb + verifiability status on 'lume get' (+CLI/tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0009-p10-document-machine-verifiable-dod-closeout-retro-for-the-p3-l2-keystone.json",
+      "id": 9,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P10: document machine-verifiable DoD + closeout retro for the P3/L2 keystone",
+      "type": "closeout",
+      "verdicts": []
     }
   ],
   "plan": [
     {
       "id": "P1",
-      "iter": null,
+      "iter": 3,
       "sketch": "L0 (order 1) - Inventory the existing primitives. OBJECTIVE: establish ground truth on what seed/workstream/iteration/discovery/plan/decide/snapshot already do and what their JSON artifacts actually contain on disk, before extending anything. DONE-WHEN: a short inventory note exists documenting, per primitive, the on-disk artifact shape, which verb(s) read vs only write it, and the current iteration type/phase enums; the gaps assumed in L1-L5 are each confirmed true or struck. ITERATIONS: discovery (read the modules) + closeout (write the inventory note).",
       "tag": "committed",
       "type": "execution"
@@ -48,7 +147,7 @@
     },
     {
       "id": "P3",
-      "iter": null,
+      "iter": 4,
       "sketch": "L2 (order 3, KEYSTONE) - Make the Definition of Done machine-evaluable and read at accept. OBJECTIVE: assessment indicates dod_artifact is persisted but not evaluated by any verb (write-only); for an autonomous operator the accept gate is only meaningful if the DoD can be CHECKED, not just asserted. Make DoD support machine-verifiable checks and have accept evaluate them. DONE-WHEN: (1) discovery confirms or refutes the 'DoD is write-only' claim [UNVERIFIED PREMISE A]; (2) a DoD can carry verifiable checks (command-exit-zero / file-exists / schema-valid predicates) alongside prose; (3) lume accept evaluates the verifiable checks and refuses if any fail; (4) prose-only DoD is flagged non-verifiable so a caller can route it to human escalation; (5) tests cover pass, fail, and non-verifiable paths. ITERATIONS: discovery, planning, execution, closeout.",
       "tag": "committed",
       "type": "execution"
@@ -73,6 +172,34 @@
       "sketch": "L5 (order 6, DEFERRED / discovery-triggered - DO NOT SCHEDULE) - Declarative workstream/phase pattern instantiation. OBJECTIVE: lume's planned operator-selectable workstream/phase templates. SPLIT: lume owns the MECHANISM to instantiate a workstream/phase structure from a declarative pattern definition; the INTELLIGENCE of choosing/authoring a pattern lives in the consumer (tredl). A custom pattern is tredl's no-lume-code escape hatch for composition gaps. STATUS: deferred on purpose. Do NOT schedule. TRIGGER is empirical: when tredl's ad-hoc custom patterns recur, they arrive as discoveries that justify promoting the mechanism. Build the mechanism (one) when demanded; grow any built-in template library by demonstrated need only, never speculatively (a speculative template library is the scope-creep trap to avoid). DONE-WHEN (when triggered): (1) a documented declarative pattern definition format; (2) a verb instantiates a workstream/phase structure from a pattern; (3) at least one pattern promoted from a real recurring tredl workaround; (4) tests cover instantiation and validation. ITERATIONS (when triggered): discovery, planning, execution, closeout.",
       "tag": "optional",
       "type": "execution"
+    },
+    {
+      "id": "P7",
+      "iter": 6,
+      "sketch": "P3/L2 build step 1 of 4 - SCHEMA + EVALUATOR. Add an optional 'check' object to each dod item in schemas/iteration_content.json (kinds: command{cmd}, file-exists{path}, schema-valid{entity,path}) and implement a pure evaluator (e.g. plugin/src/lume/dod_checks.py) evaluate_dod(content, repo_root)->per-item results {verifiable, passed, reason}. DONE-WHEN: schema accepts an item with/without check and existing docs still validate; evaluator handles all three kinds incl. failed-to-run; unit tests cover pass/fail/non-verifiable/missing-file/nonzero-exit/bad-schema. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P8",
+      "iter": 7,
+      "sketch": "P3/L2 build step 2 of 4 - ACCEPT VETO. Wire the evaluator into Workstream.transition(): on verb=='accept', before the phase mutation, evaluate the current iteration's DoD checks and raise GateError (per FORK 4 shape) if any fail/fail-to-run. DONE-WHEN: accept refuses with exit 1 + structured --json failures when a check fails; accept proceeds when all checks pass or none exist; prose-only DoDs accept exactly as today; tests cover refuse/pass/prose-only/back-compat. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P9",
+      "iter": 8,
+      "sketch": "P3/L2 build step 3 of 4 - DRY-RUN + STATUS SURFACE. Add a 'lume check' verb that runs the evaluator without transitioning and prints per-item pass/fail + verifiable/prose-only, and surface verifiability status (and command-check presence flag) on 'lume get'. DONE-WHEN: 'lume check' exits 0/non-zero by aggregate result, --json carries results; 'lume get' exposes the status; CLI catalog/help/usage updated; tests cover the verb + status. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P10",
+      "iter": 9,
+      "sketch": "P3/L2 build step 4 of 4 - DOCS + CLOSEOUT. Document machine-verifiable DoD (README + lume skill), assess the objective done-when for the keystone, log decisions, and run the closeout retro. DONE-WHEN: docs describe the 'check' format + accept veto + 'lume check'; retro verdict recorded; command-check trust soft spot reviewed (kept open as discovery-triggered or resolved). ITERATION: closeout.",
+      "tag": "committed",
+      "type": "closeout"
     }
   ],
   "workstream": {

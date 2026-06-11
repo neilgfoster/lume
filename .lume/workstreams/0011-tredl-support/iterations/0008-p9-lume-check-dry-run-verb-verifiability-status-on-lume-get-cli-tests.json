@@ -1,0 +1,50 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "A read-only 'lume check' verb (scoped, --json) evaluates the CURRENT iteration's DoD via evaluate_dod without transitioning: human output lists each item as pass/fail/prose-only with its reason; --json returns the structured per-item results (the FORK-4 machine-readable list). Registered in catalog.py + HANDLERS."
+      },
+      {
+        "checked": true,
+        "text": "'lume check' exit code reflects the aggregate: 0 when no verifiable check fails, non-zero when any fails (so it is usable as a gate/dry-run); prose-only-only DoDs exit 0.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q tests/test_check_verb.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Verifiability status surfaced on 'lume get' detail: per-DoD summary (counts of verifiable vs prose-only, and whether any command-bearing checks are present so an autonomous operator can apply its trust policy).",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -rq verifiab plugin/src/lume/cli/io.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Tests cover the verb (pass/fail/prose-only aggregate + --json shape) and the get-status surface; CLI catalog/'lume verbs check' describes it.",
+        "check": {
+          "kind": "file-exists",
+          "path": "tests/test_check_verb.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Full suite green.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; change committed on the workstream branch through this working iteration."
+      }
+    ],
+    "preamble": "P3/L2 build step 3 of 4 (plan item P9): give operators (human and tredl) a dry-run. 'lume check' runs the same evaluator the accept veto uses, but read-only and without transitioning, returning per-item pass/fail (structured under --json - this is FORK 4's machine-readable failures list home). 'lume get' gains a verifiability summary so a caller can decide auto-accept vs escalate and see whether command checks are present. No change to the accept veto itself (P8). DOGFOOD: this DoD again carries real checks."
+  },
+  "handback": "P9 done (P3/L2 build step 3 of 4): operators now have a read-only dry-run and a verifiability surface. CHANGES: (1) new 'lume check' verb (scoped, --json; catalog + HANDLERS) runs the SAME evaluate_dod the accept veto uses, without transitioning - human output marks each item PASS/FAIL/prose with its reason, --json emits {iteration, failed, results} (FORK 4's machine-readable list); exit 0 when no verifiable check fails, 1 otherwise, so it doubles as a pre-accept gate. (2) Workstream.current_iteration_content() - the content read Premise A noted was missing; the veto was refactored to use it (no duplication). (3) dod_checks.verifiability_summary() - static counts {total, verifiable, prose_only, has_command_checks}, no predicate executed. (4) 'lume status -w' detail (io.py _detail_data + _render_detail) now shows the verifiability summary; placed on the status DETAIL view rather than the raw 'lume get' state dump (get stays a passthrough) - a sensible placement refinement, the DoD's io.py check still holds. (5) tests/test_check_verb.py - CLI pass/fail/prose/--json + summary unit + detail-surface (7 tests). Suite: 344 passed (was 337). Verified live: 'lume check -w tredl-support' on iter 008 shows 4 PASS + 2 prose, exit 0; status shows 'DoD: 4/6 verifiable, 2 prose-only, has command checks'. RECOMMEND next: P10 - docs + closeout retro, then the keystone (P3/L2) is complete.",
+  "id": 8,
+  "self_review": "Holds: 'lume check' and the accept veto now share ONE evaluator and ONE content-read path (current_iteration_content), so the dry-run cannot drift from what accept enforces - the property that makes the dry-run trustworthy for an autonomous operator. The verifiability summary is static (counts only, no execution), so it is safe in read views and on 'lume status'. Verified live, not just unit-tested. Weak / watch: (1) PLACEMENT - I surfaced verifiability on 'lume status -w' detail (io.py) rather than 'lume get' as the DoD text literally said; get is a raw state passthrough and a derived summary belongs on the detail view, but this is a deviation from the DoD wording and is called out, not hidden. (2) COMMAND-CHECK TRUST - 'lume check' EXECUTES command checks too (it must, to report pass/fail), so the dry-run is itself a code-execution surface; the has_command_checks flag is the signal an autonomous operator uses to gate that, but the flag only WARNS - it does not prevent execution; a real allowlist/sandbox remains the named discovery-triggered follow-up. (3) 'lume check' reports the current iteration only (by design); no batch/all-iterations mode. (4) command output tails are still discarded (only exit-code reasons surface) - acceptable for a gate; richer debug output is a possible later refinement. Nothing dropped silently."
+}

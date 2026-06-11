@@ -4,6 +4,7 @@ All read-only views and queries; each is `handle_<verb>(ctx) -> int`.
 """
 from __future__ import annotations
 
+from ...dod_checks import evaluate_dod
 from ...validate import entity_kinds, load_schema
 from ..catalog import _CATALOG
 from ..context import Context
@@ -129,3 +130,29 @@ def handle_get(ctx: Context) -> int:
         return 1
     ctx.out(found)
     return 0
+
+
+def handle_check(ctx: Context) -> int:
+    """Dry-run the current iteration's DoD checks (read-only; no transition).
+
+    Runs the same evaluator the accept veto uses, but never mutates state.
+    Exit 0 when no verifiable check fails, 1 when any does - so it doubles as a
+    pre-accept gate an operator (human or autonomous) can read first. Under
+    --json, emits the structured per-item results (the machine-readable list).
+    """
+    ws = ctx.require_ws()
+    it = ws.current_iteration()
+    content = ws.current_iteration_content()
+    if it is None or content is None:
+        ctx.fail("not_found", "no current iteration to check.")
+        return 1
+    results = evaluate_dod(content, ctx.repo.project_root())
+    failed = [r for r in results if r["verifiable"] and not r["passed"]]
+    if ctx.json_mode:
+        ctx.out({"iteration": it.id, "failed": len(failed), "results": results})
+        return 0 if not failed else 1
+    for r in results:
+        mark = "prose" if not r["verifiable"] else ("PASS" if r["passed"] else "FAIL")
+        print(f"[{mark}] {r['text']} - {r['reason']}")
+    print(f"{len(failed)} failed / {len(results)} items (iteration {it.id:03d})")
+    return 0 if not failed else 1

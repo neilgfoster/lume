@@ -233,11 +233,16 @@ class Workstream:
         """The retro artifact through the store, or None if not yet written."""
         return self._store.read(self._id, "retro")
 
-    def transition(self, verb: str, note: str | None = None) -> Iteration:
+    def transition(self, verb: str, note: str | None = None, repo_root=None) -> Iteration:
         """Apply a named phase transition to the current iteration.
 
         Validates the move against the transition table. State is the only
         artifact mutated (JSON-only; no derived markdown views).
+
+        When `verb` is 'accept' and `repo_root` is given, the iteration's DoD
+        machine-checks are evaluated first; a failed check raises GateError and
+        refuses the accept (phase unchanged). With no `repo_root` (direct
+        callers/non-filesystem backings) no checks run - behaviour as before.
         """
         if verb not in TRANSITIONS:
             raise GateError(f"unknown transition '{verb}'.")
@@ -250,6 +255,8 @@ class Workstream:
                 f"cannot {verb} - iteration {iteration.id:03d} is phase "
                 f"'{iteration.phase}', not '{source}'."
             )
+        if verb == "accept" and repo_root is not None:
+            self._refuse_on_failed_checks(repo_root)
         # Mutate state.
         entity = self._state["iterations"][-1]
         entity["phase"] = target
@@ -262,3 +269,39 @@ class Workstream:
             entity["verdicts"].append(stamp)
         self._save_state()
         return Iteration.from_entity(entity)
+
+    def current_iteration_content(self) -> dict | None:
+        """The current iteration's content doc (dod/self_review/handback), or None.
+
+        Reads it symmetrically to _save_iter_content - the stem of the latest
+        iteration's dod_artifact. This is the read that Premise A noted was
+        missing; the accept veto and `lume check` both go through it.
+        """
+        from pathlib import PurePosixPath
+
+        if not self._state["iterations"]:
+            return None
+        entity = self._state["iterations"][-1]
+        stem = PurePosixPath(entity["dod_artifact"]).stem
+        return self._store.read(self._id, f"iteration:{stem}")
+
+    def _refuse_on_failed_checks(self, repo_root) -> None:
+        """Evaluate the current iteration's DoD checks; GateError if any fail.
+
+        Only VERIFIABLE items (those carrying a `check`) can refuse; prose-only
+        items are left to the operator.
+        """
+        from .dod_checks import evaluate_dod
+
+        content = self.current_iteration_content()
+        if content is None:
+            return
+        failures = [
+            r for r in evaluate_dod(content, repo_root)
+            if r["verifiable"] and not r["passed"]
+        ]
+        if failures:
+            detail = "\n".join(f"  - {r['text']} -> {r['reason']}" for r in failures)
+            raise GateError(
+                f"cannot accept - {len(failures)} DoD check(s) failed:\n{detail}"
+            )

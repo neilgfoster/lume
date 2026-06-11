@@ -9,8 +9,19 @@ from __future__ import annotations
 import json
 import sys
 
+from ..dod_checks import verifiability_summary
 from ..errors import GateError, NoLumeDirError, NoWorkstreamError, SchemaError
 from ..workstream import Workstream
+
+
+def _dod_verifiability(ws: Workstream) -> dict | None:
+    """Static DoD-verifiability summary for the current iteration, or None.
+
+    Counts only (no predicate executed) - safe in a read view; lets a caller
+    see whether the current DoD is fully machine-checkable before accept.
+    """
+    content = ws.current_iteration_content()
+    return verifiability_summary(content) if content else None
 
 # Exception type -> stable machine-readable error code (decision F3).
 _ERR_CODES: tuple[tuple[type, str], ...] = (
@@ -67,6 +78,13 @@ def _render_detail(ws: Workstream) -> None:
     print(f"# {ws.name}{id_suffix}")
     print(f"objective: {ws.objective_line()}")
     print(iteration_line)
+    v = _dod_verifiability(ws)
+    if v is not None and v["total"]:
+        cmd_note = ", has command checks" if v["has_command_checks"] else ""
+        print(
+            f"DoD: {v['verifiable']}/{v['total']} verifiable, "
+            f"{v['prose_only']} prose-only{cmd_note}"
+        )
     print()
     print(ws.snapshot_done_now_next())
 
@@ -126,6 +144,7 @@ def _detail_data(ws: Workstream) -> dict:
         "status": ws.status,
         "objective": ws.objective_line(),
         "current_iteration": _iteration_summary(ws.current_iteration()),
+        "dod_verifiability": _dod_verifiability(ws),
     }
 
 

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from .authoring import handle_decide, handle_plan, handle_retro
 from .discovery import (
+    handle_check,
     handle_entities,
     handle_get,
     handle_schema,
@@ -40,6 +41,7 @@ HANDLERS = {
     "status": handle_status,
     "close": handle_close,
     "snapshot": handle_snapshot,
+    "check": handle_check,
     "open": handle_open,
     "get": handle_get,
     "plan": handle_plan,

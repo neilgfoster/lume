@@ -65,5 +65,12 @@ A new iteration can only be opened once the latest one is `accepted`.
   engine/product code in those phases. Record decisions with `lume decide` and
   build the plan with `lume plan add` / `lume plan link`.
 - Keep changes behaviour-preserving and run the project's tests before handback.
+- A DoD item may carry a machine-checkable `check` (`command` exit-0,
+  `file-exists`, or `schema-valid`) beside its prose. `lume accept` evaluates
+  the current iteration's checks and **refuses** if any fail; `lume check`
+  dry-runs them read-only (no transition). Prefer a `check` wherever a DoD item
+  is mechanically verifiable, so the gate is a real test, not just an assertion;
+  leave genuinely subjective items prose-only for the operator to judge. Command
+  checks run author-supplied shell - trust them as you would the test suite.
 
 When in doubt about a verb's exact arguments, ask lume: `lume verbs <verb>`.
