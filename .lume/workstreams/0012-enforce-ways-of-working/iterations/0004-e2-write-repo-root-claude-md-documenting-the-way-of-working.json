@@ -1,0 +1,26 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Repo-root CLAUDE.md exists and states the core rule: every change to THIS repo goes through a lume workstream."
+      },
+      {
+        "checked": true,
+        "text": "It documents how to satisfy the rule: start/continue a workstream and reach the `working` phase before committing (lume status -> open -> approve -> start), and that driving the loop / editing .lume needs no commit so there is no deadlock."
+      },
+      {
+        "checked": true,
+        "text": "It explains the enforcement: the commit-only PreToolUse hook (what it gates, the deny reason), that it targets the agent's tool calls not the operator's manual edits, and that it is repo-local - NOT part of the lume plugin shipped to users."
+      },
+      {
+        "checked": true,
+        "text": "Scope held: documentation only; nothing under plugin/; no engine code."
+      }
+    ],
+    "preamble": "E2: write the repo-root CLAUDE.md so the way of working is stated in prose for the agent, alongside the hard hook from E1."
+  },
+  "handback": "Wrote repo-root CLAUDE.md. States the core rule (every change goes through a lume workstream), the how-to (lume status -> open -> approve -> start -> commit -> handback, with the no-deadlock note that loop/.lume edits need no commit), and the enforcement (the commit-only PreToolUse hook, its deny behaviour, that it gates the agent not the operator's manual edits, and that it is repo-local and not shipped in the plugin). Also restated that accept and PR merge are the operator's gates. Documentation only; nothing under plugin/; no engine code.",
+  "id": 4,
+  "self_review": "Holds: CLAUDE.md is the agent-facing surface and now carries the rule, the satisfy-path, and the enforcement explanation that pair with the E1 hook; it also reasserts the operator-only accept/merge gates, reinforcing the lesson from earlier this session. Honest note: CLAUDE.md is guidance loaded into agent context, not itself enforcement - the hard stop is the hook; the two are intended to work together. Scope held: docs only, nothing under plugin/, no engine code."
+}
