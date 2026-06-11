@@ -23,6 +23,20 @@ def handle_new(ctx: Context) -> int:
     return 0
 
 
+def handle_spawn(ctx: Context) -> int:
+    """Create a child workstream of the -w target (the 'sprint' decomposition)."""
+    if not ctx.arg or not (len(ctx.rest) > 3 and ctx.rest[3].strip()):
+        ctx.fail("usage", 'usage: lume spawn <slug> "<title>"  (parent = the -w target)')
+        return 2
+    parent = ctx.require_ws()  # the parent; closed/unknown -> named error, exit 1
+    child = ctx.repo.create_workstream(ctx.arg, ctx.rest[3].strip(), parent=parent.id)
+    ctx.ok({"result": "spawn", "id": child.id, "workstream": child.name,
+            "parent": parent.id, "status": "active"},
+           f"spawned '{child.name}' [{child.id}] as a child of '{parent.name}' [{parent.id}].",
+           'next: edit its objective.json, then: lume open "<first iteration>".')
+    return 0
+
+
 def handle_reopen(ctx: Context) -> int:
     if not ctx.arg:
         ctx.fail("usage", "usage: lume reopen <slug>")

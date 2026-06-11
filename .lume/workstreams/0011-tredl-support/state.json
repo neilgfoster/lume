@@ -349,9 +349,24 @@
       "dod_artifact": "iterations/0024-p4-l3-planning-resolve-verb-shape-rollup-depth-close-guard-reopen-forks-into-an-ordered-build-plan.json",
       "id": 24,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P4/L3 planning: resolve verb-shape, rollup depth, close-guard, reopen forks into an ordered build plan",
       "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0025-p19-workstream-parent-ref-lume-spawn-child-of-w-target-children-by-scan-tests.json",
+      "id": 25,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P19: workstream parent ref + lume spawn (child of -w target) + children-by-scan (+tests)",
+      "type": "execution",
       "verdicts": []
     }
   ],
@@ -484,7 +499,7 @@
     },
     {
       "id": "P19",
-      "iter": null,
+      "iter": 25,
       "sketch": "P4/L3 build step 1 of 4 - PARENT REF + SPAWN. Add optional 'parent' to schemas/workstream.json; Repository.create_workstream gains an optional parent (validated: parent exists, no self-parent); 'lume spawn <slug> \"<title>\"' creates a child of the -w target; Workstream exposes parent + a children-by-scan helper. DONE-WHEN: schema accepts parent + existing workstreams still validate; spawn creates a linked child; children(parent) returns it; spawning under a missing parent errors; tests cover spawn + link + validation. ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

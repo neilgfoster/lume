@@ -9,6 +9,7 @@
     "slug": {"type": "string"},
     "title": {"type": "string"},
     "status": {"type": "string", "enum": ["active", "closed"]},
-    "objective_artifact": {"type": "string"}
+    "objective_artifact": {"type": "string"},
+    "parent": {"type": "string"}
   }
 }
