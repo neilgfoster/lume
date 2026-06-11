@@ -1,0 +1,9 @@
+{
+  "id": "G3",
+  "source": "lume",
+  "title": "The protocol embeds charter docs verbatim but never instructs the reviewer to mechanically verify the repo's own evidence-tagged claims against current reality (run the test suite, count workstreams/adopters). The stale-313-tests finding was caught only because the reviewer ran pytest unprompted.",
+  "context": "review/2026-06-11-01: missed because The emit verb gathers text deterministically; the protocol's honesty lens asks for unsupported claims but assumes reading, not executing, is the verification method.; proposed: Add an explicit instruction to the honesty lens: re-derive every mechanically checkable [E]-tagged claim (test count, workstream/adopter counts, CI status) before grading, and treat any mismatch as a finding.",
+  "status": "open",
+  "created": "2026-06-11",
+  "resolution": null
+}

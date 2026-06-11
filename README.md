@@ -96,7 +96,7 @@ lume accept                 # operator: done   (or: lume reject "<reason>" -> lu
 ```
 
 Beyond the loop, `lume review` emits an adversarial self-review protocol for the
-agent and `lume review ingest` captures the result under `.lume/review-<date>-NN/`,
+agent and `lume review ingest` captures the result under `.lume/reviews/<date>-NN/`,
 printing (never running) the commands that would queue its findings — see the
 [plugin README](plugin/README.md) for the full guide.
 

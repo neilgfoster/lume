@@ -1,0 +1,9 @@
+{
+  "id": "G7",
+  "source": "lume",
+  "title": "Gap record naming does not follow the workstream convention: files are <source>-G<n>.json (e.g. lume-G2.json) with bare sequential ids, whereas workstreams use <id>-<stub> (e.g. 0017-review-dir-and-landing) so listings sort sequentially and the name carries a human-readable hint",
+  "context": "Operator direction 2026-06-11: align gap naming with the workstream convention, i.e. <id>-<stub> (id zero-padded for ordering, stub a slugified title hint). Touches gap.py id minting/filenames, the adopter scan's dedupe key parsing, lume gap resolve addressing, docs, and a migration of the existing .lume/gaps/ records.",
+  "status": "open",
+  "created": "2026-06-11",
+  "resolution": null
+}

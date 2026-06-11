@@ -138,7 +138,7 @@ def handle_gap(ctx: Context) -> int:
 def handle_review_ingest(ctx: Context) -> int:
     """Ingest a review result: validate, capture, and emit the queue plan.
 
-    Writes findings.md into the dated .lume/review-<date>-NN/ folder (the one
+    Writes findings.md into the dated .lume/reviews/<date>-NN/ folder (the one
     sanctioned raw file write) and persists the structured result through the
     store seam. The queue-command plan is PRINTED, never executed - creating
     workstreams, decisions, and gaps stays behind the operator's gate.
@@ -175,7 +175,7 @@ def handle_review_ingest(ctx: Context) -> int:
     slug = next_review_slug(lume_dir, ctx.repo.today())
 
     findings = build_findings_md(result, slug)
-    folder = lume_dir / slug
+    folder = lume_dir / "reviews" / slug
     folder.mkdir(parents=True, exist_ok=False)  # slug is the next free one
     (folder / "findings.md").write_text(findings + "\n")
     ctx.repo.save_review(slug, result_to_store_doc(result, slug))
@@ -183,10 +183,10 @@ def handle_review_ingest(ctx: Context) -> int:
     commands = queue_commands(result, slug)
     if ctx.json_mode:
         ctx.out({"result": "review_ingest", "review": slug,
-                 "findings": f".lume/{slug}/findings.md",
+                 "findings": f".lume/reviews/{slug}/findings.md",
                  "queue_plan": commands})
         return 0
-    print(f"review ingest: captured {path_arg} -> .lume/{slug}/findings.md")
+    print(f"review ingest: captured {path_arg} -> .lume/reviews/{slug}/findings.md")
     print("queue plan (run these to adopt the results - lume did NOT run them):")
     for cmd in commands:
         print(f"  {cmd}")

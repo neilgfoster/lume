@@ -1,0 +1,9 @@
+{
+  "context": "Operator note after review-2026-06-11-01: the repo rule is every change lands through a workstream, but the review verb creates landable state with no workstream linkage - nothing carries the commit. Proposed: define how review output enters history, e.g. ingest is run inside (or proposes) a review-adoption workstream, or the queue plan includes the workstream that commits the artifacts. | Operator direction 2026-06-11: the no-commit-without-workstream rule implies lume review should only execute within a workstream, OR running an ad-hoc review triggers an automatic spawn of a workstream to capture the findings and gaps - so the review artifacts are born with a workstream to land them, never orphaned.",
+  "created": "2026-06-11",
+  "id": "G2",
+  "resolution": null,
+  "source": "lume",
+  "status": "open",
+  "title": "lume review ingest writes repo files (findings.md, result.json) outside any workstream, so review artifacts are orphaned until some workstream commits them"
+}

@@ -164,8 +164,8 @@ class FilesystemStore:
             path.write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
 
     def _review_path(self, slug: str) -> Path:
-        # Reviews live beside workstreams/, directly under .lume/.
-        return self._root.parent / slug / "result.json"
+        # Reviews live under .lume/reviews/, beside workstreams/ and gaps/.
+        return self._root.parent / "reviews" / slug / "result.json"
 
     def read_review(self, slug: str) -> dict | None:
         path = self._review_path(slug)
