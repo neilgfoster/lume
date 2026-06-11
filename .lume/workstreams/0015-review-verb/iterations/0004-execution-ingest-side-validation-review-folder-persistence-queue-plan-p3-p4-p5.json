@@ -1,0 +1,34 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "lume review ingest <path> validates the file against review_result.json; malformed JSON, missing file, or schema violation -> usage error exit 2 (code=usage), never a stack trace."
+      },
+      {
+        "checked": true,
+        "text": "Ingest computes .lume/review-<YYYY-MM-DD>-NN/ (date from the clock seam, NN the next-free zero-padded daily sequence starting 01 from a scan of existing folders) and writes findings.md there - the full human-readable report: charter summary, findings by lens with severity/verdict/evidence, META review-gaps section, proposed workstreams + direction decisions. This is the one sanctioned raw file write."
+      },
+      {
+        "checked": true,
+        "text": "The structured result is persisted through the TrackingStore seam (read_review/write_review on FilesystemStore AND SQLiteStore), reusing the discovery artifact shape - no raw file I/O for the store artifact."
+      },
+      {
+        "checked": true,
+        "text": "Ingest emits (never executes) the queue-command plan: proposed_workstreams -> lume new + lume plan add (taxonomy mapped spike->discovery, epic->planning, slice/chore->execution), direction_decisions -> lume decide, review_gaps -> lume gap add; printed as text, structured under --json. Ingest itself never creates/opens/transitions a workstream and never records a gap."
+      },
+      {
+        "check": {
+          "cmd": "python -m pytest -q",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Tests: FixedClock folder sequencing (first run -01, second same-day run -02 without clobbering -01), schema-validation failures -> exit 2, review_gaps map to the correct gap-add commands when non-empty (and are absent when empty), no-execution property (no workstream/gap created by ingest); full suite green."
+      }
+    ],
+    "preamble": "Execution slice 2 of the review verb: the ingest side (plan items P3+P4+P5). Validation, the dated+sequenced review folder with findings.md, store-seam persistence, and the emitted-not-executed queue plan."
+  },
+  "handback": "Ingest side done (P3+P4+P5): real handle_review_ingest in cli/handlers/authoring.py (replacing the stub), next_review_slug/build_findings_md/result_to_store_doc/queue_commands in review.py, read_review/write_review on the TrackingStore protocol + all three backings, Repository.save_review. Validation failures are usage errors (exit 2); the folder is clock-dated with first-free NN; findings.md is the one raw write; the queue plan is printed never executed. 14 new tests, suite 401 passed, machine checks green. Remaining: P6 docs + sweep (final slice).",
+  "id": 4,
+  "self_review": "Holds: ingest validates against review_result.json with every failure mode (missing arg, missing file, malformed JSON, schema violation) mapped to a usage error exit 2 - tested, no stack traces. The dated folder comes from next_review_slug (clock date + first-free zero-padded NN from a folder scan); FixedClock tests prove -01 then -02 without clobbering. findings.md renders provenance, direction decisions, proposed workstreams with plan items + evidence, and the META review-gaps section, and is the single raw write (the folder mkdir + one write_text in the handler). The structured result goes through the store seam as a discovery-shaped doc - read_review/write_review added to the TrackingStore protocol and implemented in FilesystemStore, SQLiteStore, AND the InMemoryStore test double, with round-trip + shape-rejection tests. The queue plan maps taxonomy per decision (spike->discovery, epic->planning, slice/chore->execution) and review_gaps -> 'lume gap add' with the review slug in context; a no-execution test proves ingest creates no workstream and records no gap. 14 new tests; suite 401 green; all DoD checks pass. Weak/honest: (1) The Result contract (spec-fixed) has no per-finding lens/severity fields, so findings.md derives its detail from serves_goal/evidence/context rather than a dedicated findings array - flagged as a candidate first review_gap when the verb is first used for real. (2) Command strings use naive double-quoting; a title containing a double quote would need manual escaping when the operator runs the plan. (3) findings.md content itself is godlen-untested beyond key markers; markers cover every section."
+}

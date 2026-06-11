@@ -280,3 +280,98 @@ def emit_json(charter: dict, protocol: str) -> dict:
         "result_schema": load_schema("review_result"),
         "protocol": protocol,
     }
+
+
+# ---------------------------------------------------------------------------
+# Ingest half: deterministic conversion of a validated review result into
+# lume artifacts. The clock enters here (folder date); emit never reads it.
+
+_PLAN_TYPE_MAP = {"spike": "discovery", "epic": "planning",
+                  "slice": "execution", "chore": "execution"}
+
+
+def next_review_slug(lume_dir: Path, today: str) -> str:
+    """The dated review folder name: review-<today>-NN, NN the first free
+    zero-padded daily sequence (01, 02, ...) given the folders already present.
+    Deterministic in (existing folders, clock date); never reuses a taken NN."""
+    existing = {p.name for p in Path(lume_dir).glob(f"review-{today}-*")
+                if p.is_dir()}
+    n = 1
+    while f"review-{today}-{n:02d}" in existing:
+        n += 1
+    return f"review-{today}-{n:02d}"
+
+
+def build_findings_md(result: dict, review_slug: str) -> str:
+    """The human-readable report - the primary captured record of the review."""
+    p = result["provenance"]
+    out = [
+        f"# Review findings - {review_slug}",
+        "",
+        f"Provenance: {p['source']} | {p['date']} | {p['note']}",
+        "",
+        "## Direction decisions",
+        "",
+    ]
+    if result["direction_decisions"]:
+        for d in result["direction_decisions"]:
+            out += [f"### {d['context']}", "",
+                    f"**Decision:** {d['decision']}", "",
+                    f"**Rationale:** {d['rationale']}", ""]
+    else:
+        out += ["(none)", ""]
+    out += ["## Proposed workstreams", ""]
+    if result["proposed_workstreams"]:
+        for w in result["proposed_workstreams"]:
+            out += [f"### {w['slug']}: {w['title']}"
+                    f"{' [critical path]' if w['critical_path'] else ''}", "",
+                    f"Serves goal: {w['serves_goal']}", "",
+                    w["objective"], ""]
+            for item in w["plan_items"]:
+                out += [f"- ({item['type']}, {item['tag']}) {item['sketch']}",
+                        f"  - evidence: {item['evidence']}"]
+            out.append("")
+    else:
+        out += ["(none)", ""]
+    out += ["## Review gaps (META lens - gaps in this review itself)", ""]
+    if result["review_gaps"]:
+        for g in result["review_gaps"]:
+            out += [f"### {g['gap']}", "",
+                    f"Why missed: {g['why_missed']}", "",
+                    f"Proposed change: {g['proposed_change']}", ""]
+    else:
+        out += ["(none - the review judged itself thorough)", ""]
+    return "\n".join(out)
+
+
+def result_to_store_doc(result: dict, review_slug: str) -> dict:
+    """The structured result in the discovery artifact shape ({title, sections})
+    so it persists through the store seam against the existing schema."""
+    return {
+        "title": f"Review result - {review_slug}",
+        "sections": [
+            {"heading": "provenance", "body": json.dumps(result["provenance"], indent=2, sort_keys=True)},
+            {"heading": "direction_decisions", "body": json.dumps(result["direction_decisions"], indent=2, sort_keys=True)},
+            {"heading": "proposed_workstreams", "body": json.dumps(result["proposed_workstreams"], indent=2, sort_keys=True)},
+            {"heading": "review_gaps", "body": json.dumps(result["review_gaps"], indent=2, sort_keys=True)},
+        ],
+    }
+
+
+def queue_commands(result: dict, review_slug: str) -> list[str]:
+    """The deterministic command plan that queues the results - emitted for the
+    operator, NEVER executed by lume (the gates stay the operator's)."""
+    commands: list[str] = []
+    for w in result["proposed_workstreams"]:
+        commands.append(f'lume new {w["slug"]} "{w["title"]}"')
+        for item in w["plan_items"]:
+            commands.append(
+                f'lume plan add -w {w["slug"]} -t {_PLAN_TYPE_MAP[item["type"]]} '
+                f'-g {item["tag"]} "{item["sketch"]}"')
+    for d in result["direction_decisions"]:
+        commands.append(f'lume decide -c "{d["context"]}" "{d["decision"]}" "{d["rationale"]}"')
+    for g in result["review_gaps"]:
+        commands.append(
+            f'lume gap add "{g["gap"]}" -c "{review_slug}: missed because '
+            f'{g["why_missed"]}; proposed: {g["proposed_change"]}"')
+    return commands

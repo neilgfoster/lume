@@ -136,6 +136,60 @@ def handle_gap(ctx: Context) -> int:
 
 
 def handle_review_ingest(ctx: Context) -> int:
-    """Ingest a review result (the writing half) - lands in the next slice."""
-    from ...errors import LumeError
-    raise LumeError("review ingest is not implemented yet (next slice of workstream 0015).")
+    """Ingest a review result: validate, capture, and emit the queue plan.
+
+    Writes findings.md into the dated .lume/review-<date>-NN/ folder (the one
+    sanctioned raw file write) and persists the structured result through the
+    store seam. The queue-command plan is PRINTED, never executed - creating
+    workstreams, decisions, and gaps stays behind the operator's gate.
+    """
+    import json
+    from pathlib import Path
+
+    from ...errors import SchemaError
+    from ...review import (build_findings_md, next_review_slug, queue_commands,
+                           result_to_store_doc)
+    from ...validate import validate_entity
+
+    path_arg = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
+    if not path_arg:
+        ctx.fail("usage", "usage: lume review ingest <path>")
+        return 2
+    path = Path(path_arg)
+    if not path.is_file():
+        ctx.fail("usage", f"no review-result file at '{path_arg}'.")
+        return 2
+    try:
+        result = json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        ctx.fail("usage", f"'{path_arg}' is not valid JSON: {exc}.")
+        return 2
+    try:
+        validate_entity("review_result", result)
+    except SchemaError as exc:
+        ctx.fail("usage", f"invalid review result: {exc}")
+        return 2
+
+    root = ctx.repo.project_root()  # NoLumeDirError -> dispatch maps to exit 1
+    lume_dir = root / ".lume"
+    slug = next_review_slug(lume_dir, ctx.repo.today())
+
+    findings = build_findings_md(result, slug)
+    folder = lume_dir / slug
+    folder.mkdir(parents=True, exist_ok=False)  # slug is the next free one
+    (folder / "findings.md").write_text(findings + "\n")
+    ctx.repo.save_review(slug, result_to_store_doc(result, slug))
+
+    commands = queue_commands(result, slug)
+    if ctx.json_mode:
+        ctx.out({"result": "review_ingest", "review": slug,
+                 "findings": f".lume/{slug}/findings.md",
+                 "queue_plan": commands})
+        return 0
+    print(f"review ingest: captured {path_arg} -> .lume/{slug}/findings.md")
+    print("queue plan (run these to adopt the results - lume did NOT run them):")
+    for cmd in commands:
+        print(f"  {cmd}")
+    if not commands:
+        print("  (nothing to queue)")
+    return 0

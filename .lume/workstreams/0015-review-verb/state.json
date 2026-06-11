@@ -39,8 +39,23 @@
       "dod_artifact": "iterations/0003-execution-emit-side-charter-gathering-and-protocol-emission-p1-p2.json",
       "id": 3,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Execution: emit side - charter gathering and protocol emission (P1+P2)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0004-execution-ingest-side-validation-review-folder-persistence-queue-plan-p3-p4-p5.json",
+      "id": 4,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Execution: ingest side - validation, review folder, persistence, queue plan (P3+P4+P5)",
       "type": "execution",
       "verdicts": []
     }
@@ -62,21 +77,21 @@
     },
     {
       "id": "P3",
-      "iter": null,
+      "iter": 4,
       "sketch": "S3 review_result schema + ingest validation: schemas/review_result.json (validator subset), ingest path parsing, malformed/missing input -> usage exit 2; surfaced via lume entities/schema; tests",
       "tag": "committed",
       "type": "execution"
     },
     {
       "id": "P4",
-      "iter": null,
+      "iter": 4,
       "sketch": "S4 Review folder + persistence: clock-dated review-<date>-NN slug with next-free daily sequence, findings.md renderer (the one sanctioned raw write), TrackingStore read_review/write_review in both backends; FixedClock sequencing tests (-01 then -02, no clobber)",
       "tag": "committed",
       "type": "execution"
     },
     {
       "id": "P5",
-      "iter": null,
+      "iter": 4,
       "sketch": "S5 Queue-plan emission: proposed_workstreams -> lume new/plan add (taxonomy mapped), direction_decisions -> lume decide, review_gaps -> lume gap add; text + --json, never executed; handle_review_ingest in cli/handlers/authoring.py; gap-mapping tests",
       "tag": "committed",
       "type": "execution"
