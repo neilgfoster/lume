@@ -24,7 +24,7 @@ iteration gates with Claude Code as the operator — and the source of the
 discovery-driven backlog that shapes lume's roadmap (see workstream 0011).
 
 Note: the cross-repo discovery scan (backlog item L1 — lume reading adopters'
-`gaps/*.json` and ingesting them into its own backlog) is being built in
+`.lume/gaps/*.json` and ingesting them into its own backlog) is being built in
 workstream 0011 (P2). These rows are forward-preparation for that mechanism: the
 honest record of the intended adopters, not a claim that the full scan ships
 today.

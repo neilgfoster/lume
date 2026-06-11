@@ -1,0 +1,6 @@
+{
+  "slug": "gaps-under-lume",
+  "status": "closed",
+  "text": "Done when gap records live under .lume/gaps/ (co-located with all other lume state) instead of repo-root gaps/: gap.py's gaps_dir points at .lume/gaps/, the adopter scan (adopters.py) reads .lume/gaps/ from cloned adopter repos, add/list/scan/resolve all work against the new location, any existing repo-root gaps are migrated or handled with a documented fallback, all docs that describe the gaps/ convention (module docstrings, README, SKILL.md, ADOPTERS-facing text) are updated consistently, and the full test suite is green with tests asserting the new path. Decision logged recording the relocation rationale (state co-location over the original one-file-PR-at-root discoverability argument) and whether a legacy-path fallback is kept.",
+  "title": "Relocate gaps from repo-root gaps/ to .lume/gaps/"
+}

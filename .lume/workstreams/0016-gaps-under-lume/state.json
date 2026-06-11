@@ -1,0 +1,28 @@
+{
+  "iterations": [
+    {
+      "dod_artifact": "iterations/0001-relocate-gap-storage-to-lume-gaps-and-update-scan-docs-tests.json",
+      "id": 1,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "Relocate gap storage to .lume/gaps/ and update scan, docs, tests",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    }
+  ],
+  "plan": [],
+  "workstream": {
+    "id": "0016",
+    "objective_artifact": "objective.json",
+    "parent": "0015",
+    "slug": "gaps-under-lume",
+    "status": "closed",
+    "title": "Relocate gaps from repo-root gaps/ to .lume/gaps/"
+  }
+}

@@ -22,8 +22,8 @@ def _make_adopter_repo(path: Path) -> None:
     _git(["init", "-b", "main"], path)
     _git(["config", "user.email", "t@example.com"], path)
     _git(["config", "user.name", "t"], path)
-    (path / "gaps").mkdir()
-    (path / "gaps" / "G1.json").write_text(json.dumps({
+    (path / ".lume" / "gaps").mkdir(parents=True)
+    (path / ".lume" / "gaps" / "G1.json").write_text(json.dumps({
         "id": "G1", "source": "adopter", "title": "needs a thing",
         "context": "", "status": "open", "created": "2026-06-11",
         "resolution": None}))
