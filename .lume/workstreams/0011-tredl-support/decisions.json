@@ -173,6 +173,12 @@
       "date": "2026-06-11",
       "decision": "Spawn = 'lume spawn <slug> \"<title>\"' (parent = -w target). Rollup is one-level read-only (parent detail lists children+phase; queue nests children under parents via indentation). Close a parent with active children => REFUSE (name them). Reopening a child whose parent is closed => REFUSE (reopen the parent first).",
       "rationale": "Carries the 023 design; refuse-child-reopen-under-closed-parent keeps the tree consistent (a closed sprint shouldn't sprout live children) and is symmetric with the close-guard; both are refusals, not cascades, preserving operator-in-the-loop."
+    },
+    {
+      "context": "P4/L3 execution (iter 026, P20)",
+      "date": "2026-06-11",
+      "decision": "Queue rollup shows a child as an indented row with '(child of <parent>)' WITHIN its existing review bucket (awaiting/in-progress/closed), not a cross-bucket tree; parent detail lists children+phase. Both read-only (children by scan).",
+      "rationale": "The queue's value is review triage grouped by status; a hierarchy tree would cut across those buckets (a parent in-progress, a child awaiting) and bury the review signal. Annotation+indent gives the parentage cue without breaking the buckets. Full hierarchy lives in the parent's detail view."
     }
   ]
 }

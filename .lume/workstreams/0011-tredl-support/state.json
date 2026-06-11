@@ -364,8 +364,23 @@
       "dod_artifact": "iterations/0025-p19-workstream-parent-ref-lume-spawn-child-of-w-target-children-by-scan-tests.json",
       "id": 25,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P19: workstream parent ref + lume spawn (child of -w target) + children-by-scan (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0026-p20-rollup-parent-detail-lists-children-phase-queue-nests-children-under-parents-tests.json",
+      "id": 26,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P20: rollup - parent detail lists children+phase; queue nests children under parents (+tests)",
       "type": "execution",
       "verdicts": []
     }
@@ -506,7 +521,7 @@
     },
     {
       "id": "P20",
-      "iter": null,
+      "iter": 26,
       "sketch": "P4/L3 build step 2 of 4 - ROLLUP. Parent's 'lume status -w <parent>' detail lists child workstreams + each child's current phase; the cross-workstream queue ('lume status') NESTS children under their parent (indented), one level. DONE-WHEN: parent detail shows children+phase (human + --json); queue nests children; root-only repos render unchanged; existing snapshot/queue tests updated for the new shape; tests cover rollup. ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

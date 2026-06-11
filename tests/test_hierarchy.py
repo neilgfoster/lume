@@ -40,6 +40,34 @@ class HierarchyTest(unittest.TestCase):
         with self.assertRaises(GateError):
             self.repo.create_workstream("orphan", "Orphan", parent="9999")
 
+    def test_detail_data_carries_children(self):
+        from lume.cli.io import _detail_data
+        parent = self.repo.create_workstream("sprint", "Sprint")
+        child = self.repo.create_workstream("task-a", "A", parent=parent.id)
+        data = _detail_data(parent, self.repo.children(parent.id))
+        self.assertIsNone(data["parent"])
+        self.assertEqual([c["id"] for c in data["children"]], [child.id])
+
+    def test_queue_data_carries_parent(self):
+        from lume.cli.io import _queue_data
+        parent = self.repo.create_workstream("sprint", "Sprint")
+        child = self.repo.create_workstream("task-a", "A", parent=parent.id)
+        data = _queue_data(self.repo.workstreams(self.repo.find_lume_dir()))
+        entries = {e["id"]: e for e in data["in_progress"]}
+        self.assertEqual(entries[child.id]["parent"], parent.id)
+        self.assertIsNone(entries[parent.id]["parent"])
+
+    def test_queue_render_annotates_child(self):
+        import io as _io
+        from contextlib import redirect_stdout
+        from lume.cli.io import _render_queue
+        parent = self.repo.create_workstream("sprint", "Sprint")
+        self.repo.create_workstream("task-a", "A", parent=parent.id)
+        buf = _io.StringIO()
+        with redirect_stdout(buf):
+            _render_queue(self.repo.workstreams(self.repo.find_lume_dir()))
+        self.assertIn("(child of sprint)", buf.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

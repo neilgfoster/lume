@@ -73,10 +73,11 @@ def handle_status(ctx: Context) -> int:
         _render_queue(workstreams)
         return 0
     ws = ctx.require_ws()
+    children = ctx.repo.children(ws.id)
     if ctx.json_mode:
-        ctx.out(_detail_data(ws))
+        ctx.out(_detail_data(ws, children))
         return 0
-    _render_detail(ws)
+    _render_detail(ws, children)
     return 0
 
 
