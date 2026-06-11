@@ -93,6 +93,26 @@ fully-verifiable, all-green DoD and escalate anything prose-only to a human.
 Command checks run author-supplied shell, so treat a DoD's commands with the
 same trust as running its test suite.
 
+## Cross-repo capability gaps
+
+A **gap** is a capability gap one repo records about lume - lume writes them
+about itself, and adopters write them about lume. They live per-file at a repo
+root in `gaps/<source>-<id>.json` (a small schema: id, source, title, context,
+status `open|acknowledged|resolved`, created, resolution).
+
+- `lume gap add "<title>" [-c <context>]` records a gap in the current repo.
+- `lume gap list` shows them.
+- `lume gap scan` reads the repos in `ADOPTERS.json` (the source of truth;
+  `ADOPTERS.md`'s table is generated from it), reaches each by `git`
+  clone/fetch into a worktree, and ingests their **open** gaps into lume's own
+  `gaps/` as `acknowledged` records. It is idempotent on `(source, id)` and
+  skips an unreachable adopter rather than failing. Ingested gaps take their
+  `source` from the `ADOPTERS.json` project name.
+- `lume gap resolve <source> <id>` marks a gap resolved (a re-scan won't revert it).
+
+This is the lume↔adopter feedback channel. v0.1 delivers the **ingest** half;
+signalling a resolution back to the adopter is a deliberate later step.
+
 ## Commands
 
 lume is self-describing - `lume verbs` lists them all and `lume verbs <name>`
@@ -109,6 +129,7 @@ explains one; add `--json` to any verb for machine-readable output.
 | `decide` | log a decision |
 | `retro` | create or refresh the retro artifact |
 | `check` | dry-run the current iteration's DoD machine-checks (read-only) |
+| `gap` | record / list / scan / resolve cross-repo capability gaps |
 | `snapshot` | print the derived Done / Now / Next snapshot |
 | `get` / `schema` / `entities` | inspect state and its schemas as JSON |
 | `close` / `reopen` | close or reopen a workstream |

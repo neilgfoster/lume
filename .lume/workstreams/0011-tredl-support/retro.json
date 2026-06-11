@@ -1,5 +1,5 @@
 {
-  "overall_verdict": "MET (two keystones in one workstream). P3/L2 - machine-evaluable DoD read at accept - is delivered and dogfooded (lume accept refuses on a failed check). P5/L4 - delivery hardening - is MET for the agent-buildable parts (CI on push/PR across py 3.11-3.13; pyproject with a CI-enforced single-version guard; release-tag check + RELEASING.md; live '/plugin install' verified by a human in the tredl adopter repo) and PENDING two operator actions (enable the required CI check; cut the v0.1.0 tag/release). The workstream stays OPEN for P2 (L1 discoveries) and P4 (L3 hierarchy).",
+  "overall_verdict": "MET (three big pieces in one workstream). P3/L2 - machine-evaluable DoD read at accept - is delivered and dogfooded (lume accept refuses on a failed check). P5/L4 - delivery hardening - is MET for the agent-buildable parts (CI on push/PR across py 3.11-3.13; pyproject with a CI-enforced single-version guard; release-tag check + RELEASING.md; live '/plugin install' verified by a human in the tredl adopter repo) and PENDING two operator actions (enable the required CI check; cut the v0.1.0 tag/release). The workstream stays OPEN for P2 (L1 discoveries) and P4 (L3 hierarchy). P2/L1 (cross-repo discovery): the INGEST mechanism is MET - capture (lume gap add), git-worktree reach over ADOPTERS.json, scan + idempotent ingest, contract-tested and exercised against the real github tredl remote; the full feedback CYCLE is NOT closed (resolution round-trip to the adopter deferred past v0.1). Workstream remains OPEN for P4 (L3 hierarchy).",
   "done_when": [
     {
       "clause": "P3.1 Discovery confirms or refutes Premise A (DoD write-only, not read at accept).",
@@ -50,6 +50,31 @@
       "clause": "P5.5 A release produces an artifact an adopter can pin to.",
       "verdict": "met (refined)",
       "evidence": "For a git-repo marketplace the pinnable artifact is a git tag/ref (no built archive); RELEASING.md documents pinning via the marketplace at a tagged ref, and check_release_tag guarantees the tag matches the version."
+    },
+    {
+      "clause": "P2.1 Documented gaps schema with stable fields (id, source, title, context, status, resolution link).",
+      "verdict": "met",
+      "evidence": "schemas/gap.json (P15); documented in plugin/README.md + SKILL.md (P18). Stored gaps/<source>-<id>.json; identity (source, id)."
+    },
+    {
+      "clause": "P2.2 lume can record a discovery (gap) on itself.",
+      "verdict": "met",
+      "evidence": "'lume gap add' (P15) writes a gap in the current repo; tests/test_gap.py covers add+list."
+    },
+    {
+      "clause": "P2.3 lume can scan ADOPTERS, ingest open discoveries, and not double-ingest on rerun.",
+      "verdict": "met",
+      "evidence": "'lume gap scan' (P17) reads ADOPTERS.json, git-worktree-reaches each repo (P16), ingests OPEN gaps as acknowledged, idempotent on (source,id); a live scan cloned the real github tredl repo. Skips unreachable adopters."
+    },
+    {
+      "clause": "P2.4 A contract test covers ingest + dedupe + status transitions.",
+      "verdict": "met",
+      "evidence": "tests/test_gap_scan.py: open-only ingest, idempotent rerun, failed-adopter skipped, resolve sticks across re-scan."
+    },
+    {
+      "clause": "P2 (overall) the lume<->adopter feedback CYCLE is closed.",
+      "verdict": "NOT met (deferred by design)",
+      "evidence": "v0.1 ships ingest only; signalling a resolved gap back to the adopter (so it drops its workaround) is deferred, discovery-triggered. The cycle is half-built on purpose."
     }
   ],
   "carry_forwards": [
@@ -60,7 +85,11 @@
     "OPERATOR ACTION pending: enable the CI workflow as a REQUIRED status check via GitHub branch protection (the agent cannot set branch protection).",
     "OPERATOR ACTION pending: cut the v0.1.0 git tag + GitHub release per RELEASING.md (verify with tools/check_release_tag.py first). Until then the release mechanism is ready but no published release exists.",
     "pyproject is unbuilt (validated by parse + the consistency test, not by 'python -m build'/'pip install -e .'); add a build smoke step only if editable/wheel installs become a real need.",
-    "The marketplace pin SYNTAX is not asserted in RELEASING.md (uncertain whether Claude Code supports an @tag form); replace the hedge with the canonical syntax once confirmed."
+    "The marketplace pin SYNTAX is not asserted in RELEASING.md (uncertain whether Claude Code supports an @tag form); replace the hedge with the canonical syntax once confirmed.",
+    "P2 ROUND-TRIP (deferred, discovery-triggered): lume ingests adopter gaps but does not yet signal a resolution back; build the publish/notify half when a real tredl need recurs.",
+    "P2 PRIVATE-REPO AUTH: the git reach is proven against local + public remotes only; private adopter repos need credential handling not yet built.",
+    "P2 CACHE PRUNING: .lume/cache/adopters/ grows unbounded (no eviction); fine for a few adopters, revisit at scale.",
+    "P2 SOURCE NORMALISATION: scan keys ingested gaps by the ADOPTERS project name, overriding the gap's own 'source' field - stable for dedupe, documented, but means stored source can differ from the origin's self-label."
   ],
   "sections": [
     {
@@ -74,6 +103,10 @@
     {
       "heading": "P5/L4 delivery - did it buy back its cost?",
       "body": "Yes, and it dogfooded P3 throughout: every P5 iteration (010-015) carried machine-verifiable DoD checks, so accept ran pytest/file/grep predicates against the very delivery work it was gating. Delivery went discovery (010) -> planning (011) -> pyproject+guard (012/P11) -> CI (013/P12) -> release-tag+docs (014/P13) -> this closeout (015/P14). Net: lume now has CI on 3.11-3.13, a drift-proof single version source, a documented pinnable release, and a human-verified install - the things an adopter (tredl) needed to depend on lume. Honest residual: two completions are the operator's (required-check enforcement; cutting the tag), so delivery is 'mechanism complete, two human actions pending', not 'shipped'."
+    },
+    {
+      "heading": "P2/L1 cross-repo discovery - did it buy back its cost?",
+      "body": "Yes for the integration boundary it builds. Six iterations (017 discovery, 018 planning, P15 capture, P16 reach, P17 scan, P18 closeout) produced the lume<->adopter channel: a gap entity, ADOPTERS.json as a deterministic source of truth with a generated md view, git-worktree reach, and idempotent ingest - all contract-tested and dogfooded (every execution iteration's DoD ran machine checks; a live scan hit the real tredl remote). The naming collision (gap vs discovery) was resolved up front so it never bit the build. Honest limit: this is the INGEST half; the cycle only closes when the resolution round-trip lands, which is deferred. Two operator/ops concerns (private auth, cache pruning) are named, not solved."
     }
   ]
 }

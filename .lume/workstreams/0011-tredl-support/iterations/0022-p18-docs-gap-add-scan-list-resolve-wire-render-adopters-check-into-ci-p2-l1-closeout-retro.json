@@ -1,0 +1,51 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "Docs: plugin/README.md (commands table + a short section) and plugin/skills/lume/SKILL.md document the gap mechanism - gaps/<source>-<id>.json, 'lume gap add/list/scan/resolve', ADOPTERS.json as the source of truth, and the note that scan normalises a gap's source to the ADOPTERS project name. The deferred resolution round-trip is stated.",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q 'gap scan' plugin/README.md && grep -q gap plugin/skills/lume/SKILL.md"
+        }
+      },
+      {
+        "checked": true,
+        "text": "CI enforces ADOPTERS sync: .github/workflows/ci.yml runs 'python tools/render_adopters.py --check' (closing the P16 gap that the guard existed but was unwired).",
+        "check": {
+          "kind": "command",
+          "cmd": "grep -q render_adopters .github/workflows/ci.yml"
+        }
+      },
+      {
+        "checked": true,
+        "text": "retro.json EXTENDED (P3 + P5 retros preserved) with a P2/L1 assessment: each P2 DONE-WHEN clause (documented schema; lume records a gap on itself; scan + ingest + no-double-ingest; contract test) gets a verdict + evidence; carry_forwards capture the deferred round-trip, private-repo auth, cache pruning, source-normalisation.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "retro",
+          "path": ".lume/workstreams/0011-tredl-support/retro.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "P2/L1 objective assessed honestly: the INGEST mechanism (capture + git reach + scan + idempotent ingest + contract test) is MET; the full feedback CYCLE is NOT closed (resolution round-trip deferred). Stated, not glossed."
+      },
+      {
+        "checked": true,
+        "text": "Full suite green; render --check passes; this iteration is docs + CI + .lume only (no engine code).",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q && python tools/render_adopters.py --check"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Self-review + handback written; committed. NOTE: workstream NOT closed - P4 (L3 hierarchical workstreams) remains."
+      }
+    ],
+    "preamble": "P2/L1 build step 4 of 4 (plan item P18): close out the cross-repo discovery mechanism. Document gap add/scan/list/resolve + ADOPTERS.json, wire render_adopters --check into CI (the P16 carry-forward), extend the retro with the P2 assessment, and be honest that v0.1 ships INGEST, not the full round-trip cycle. Closeout scopes to P2 - P4 remains, so do NOT lume close. DOGFOOD: DoD carries command + schema-valid checks."
+  },
+  "handback": "P18 done (P2/L1 build step 4 of 4): cross-repo discovery closed out. CHANGES: (1) docs - plugin/README.md gains a 'Cross-repo capability gaps' section + a 'gap' commands row; SKILL.md gains a conventions bullet; both cover gap add/list/scan/resolve, ADOPTERS.json as source of truth, source-normalisation, and the deferred round-trip. (2) CI - .github/workflows/ci.yml now runs 'python tools/render_adopters.py --check', closing P16's unwired-guard gap so ADOPTERS drift fails CI. (3) retro.json EXTENDED (P3+P5 retros preserved) with five P2 done-when assessments (4 met + the overall CYCLE explicitly NOT met/deferred) and four carry_forwards (round-trip, private auth, cache pruning, source normalisation). ASSESSMENT: P2 ingest mechanism MET; full feedback cycle NOT closed (round-trip deferred) - stated, not glossed. Docs + CI + .lume only; suite 363 green; render --check passes. WORKSTREAM NOT CLOSED: P4 (L3 hierarchical workstreams) remains. RECOMMEND next: push branch workstream/cross-repo-discoveries + open the P2 PR (017-022), then pick up P4.",
+  "id": 22,
+  "self_review": "Holds: the closeout is honest about the half-built cycle - the retro's overall verdict and a dedicated done-when clause both say the round-trip is NOT met and deferred, so 'P2 done' cannot be misread as 'the feedback loop works'. The render --check guard is now actually enforced in CI (not just present), closing the specific P16 carry-forward. Docs match what shipped, including the source-normalisation footgun. Weak / watch: (1) the CI render-check addition is validated by the shape-checker + local run, but like P12 it is unproven on a real Actions run until this branch's PR runs CI - first run is the proof. (2) the P2 'met' verdicts cover mechanism + contract test + a public-remote live scan, but private-repo auth and at-scale cache behaviour remain unexercised (carried) - so 'met' means 'works for the lume+tredl public case', which I stated rather than overclaiming. (3) docs now describe four gap subcommands; only add/list/scan and the scan contract are heavily tested - 'resolve' has unit coverage via set_status + the re-scan test but no dedicated CLI test; minor, noted. Nothing deferred silently."
+}

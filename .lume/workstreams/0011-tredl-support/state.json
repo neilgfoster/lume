@@ -304,9 +304,24 @@
       "dod_artifact": "iterations/0021-p17-lume-gap-scan-iterate-adopters-ingest-open-gaps-as-acknowledged-idempotent-on-source-id-contract-test.json",
       "id": 21,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P17: 'lume gap scan' - iterate adopters, ingest open gaps as acknowledged, idempotent on (source,id) (+contract test)",
       "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0022-p18-docs-gap-add-scan-list-resolve-wire-render-adopters-check-into-ci-p2-l1-closeout-retro.json",
+      "id": 22,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P18: docs (gap add/scan/list/resolve) + wire render_adopters --check into CI + P2/L1 closeout retro",
+      "type": "closeout",
       "verdicts": []
     }
   ],
@@ -432,7 +447,7 @@
     },
     {
       "id": "P18",
-      "iter": null,
+      "iter": 22,
       "sketch": "P2/L1 build step 4 of 4 - DOCS + CLOSEOUT. Document the gap mechanism (README/skill + reconcile ADOPTERS.md to gaps/), assess P2 done-when, closeout retro. DONE-WHEN: docs describe gap add/scan/list + the gaps/ record; ADOPTERS.md reconciled; P2 done-when assessed met/not with evidence; retro records the deferred resolution round-trip + the git-cache trust/disk concerns as carry_forwards. ITERATION: closeout.",
       "tag": "committed",
       "type": "closeout"
