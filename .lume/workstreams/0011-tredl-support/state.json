@@ -139,9 +139,24 @@
       "dod_artifact": "iterations/0010-p5-l4-discovery-audit-delivery-gaps-ci-packaging-pyproject-versioning-tagged-release-plugin-install-path.json",
       "id": 10,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P5/L4 discovery: audit delivery gaps - CI, packaging/pyproject, versioning, tagged release, plugin install path",
       "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0011-p5-l4-planning-resolve-ci-version-tag-release-install-verification-forks-into-an-ordered-delivery-build-plan.json",
+      "id": 11,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P5/L4 planning: resolve CI/version-tag/release/install-verification forks into an ordered delivery build plan",
+      "type": "planning",
       "verdicts": []
     }
   ],
@@ -213,6 +228,34 @@
       "id": "P10",
       "iter": 9,
       "sketch": "P3/L2 build step 4 of 4 - DOCS + CLOSEOUT. Document machine-verifiable DoD (README + lume skill), assess the objective done-when for the keystone, log decisions, and run the closeout retro. DONE-WHEN: docs describe the 'check' format + accept veto + 'lume check'; retro verdict recorded; command-check trust soft spot reviewed (kept open as discovery-triggered or resolved). ITERATION: closeout.",
+      "tag": "committed",
+      "type": "closeout"
+    },
+    {
+      "id": "P11",
+      "iter": null,
+      "sketch": "P5/L4 build step 1 of 4 - PYPROJECT + VERSION-CONSISTENCY CHECK. Add pyproject.toml (src-layout plugin/src/lume, project metadata, pytest config) and a small checker (e.g. a test or a tools/ script) asserting pyproject.version == plugin/.claude-plugin/plugin.json version. DONE-WHEN: pyproject present and parseable; 'python -m pytest' still discovers tests via it or conftest; consistency test fails on a deliberate version mismatch and passes when aligned; plugin.json remains the single source of record (pyproject reads/echoes it, no independent truth). ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P12",
+      "iter": null,
+      "sketch": "P5/L4 build step 2 of 4 - CI WORKFLOW. Add .github/workflows/ci.yml running 'python -m pytest -q' on push + pull_request across python 3.10-3.13, plus the version-consistency check from step 1. DONE-WHEN: workflow is valid YAML and triggers on push/PR; matrix covers 3.10-3.13; the suite + consistency check run as steps; README notes CI status; (making it a REQUIRED check is the operator's branch-protection action, noted not done by the agent). ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P13",
+      "iter": null,
+      "sketch": "P5/L4 build step 3 of 4 - TAG + RELEASE. Define and document the release flow: git tag vX.Y.Z where X.Y.Z == plugin.json version, plus a GitHub release; the tag/ref is the pinnable artifact (no built archive required for v0.1). DONE-WHEN: a documented release procedure exists; a check/script verifies tag == plugin.json version before release; an adopter-facing note shows how to pin via 'marketplace add' at a tag. (Cutting the actual v0.1.0 tag/release is an operator action, noted.) ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P14",
+      "iter": null,
+      "sketch": "P5/L4 build step 4 of 4 - INSTALL VERIFICATION DOC + CLOSEOUT. Close the [U] live-install caveat with a documented, reproduced clean-state verification ('/plugin marketplace add' + '/plugin install'); assess the (refined) P5 done-when; closeout retro. DONE-WHEN: install-verification steps recorded with the result; P5 done-when assessed met/not with evidence; retro written; command-check trust + any new soft spots carried forward. ITERATION: closeout.",
       "tag": "committed",
       "type": "closeout"
     }

@@ -1,0 +1,51 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "FORK A (CI shape) resolved + logged: GitHub Actions workflow running 'python -m pytest -q' on push + PR, the python-version matrix (floor justified by syntax: future-annotations everywhere, no match -> propose 3.10+ and let the matrix prove it), and that 'required check' is the operator's branch-protection setting (not something the agent toggles)."
+      },
+      {
+        "checked": true,
+        "text": "FORK B (version/tag consistency) resolved + logged: a check that the release git tag equals plugin/.claude-plugin/plugin.json version, and WHERE it runs (CI release job and/or a dogfood DoD command-check)."
+      },
+      {
+        "checked": true,
+        "text": "FORK C (release process) resolved + logged: minimal tag -> GitHub release flow; tag/source as the pin (a built archive optional)."
+      },
+      {
+        "checked": true,
+        "text": "PYPROJECT (operator decision, overrides iteration-010 refinement): a pyproject.toml IS added. Decision + plan must fix (i) its purpose - package metadata + dev/tooling (editable install, pytest config), the marketplace plugin remains the install path, NOT PyPI as the primary channel; (ii) the SINGLE-SOURCE guard - plugin.json stays the version of record and a consistency check fails CI if pyproject's version diverges (or pyproject reads it / is generated), so there is never a second source of truth; (iii) the src-layout mapping (plugin/src/lume)."
+      },
+      {
+        "checked": true,
+        "text": "FORK D (install verification) resolved + logged: how to close the [U] live-install caveat - a documented, reproduced manual verification vs an automated job - with the limitation (Claude CLI in CI) stated."
+      },
+      {
+        "checked": true,
+        "text": "FORK E (scope guard) restated: delivery only. The iteration-010 'no pyproject' refinement is OVERRIDDEN by operator decision (pyproject added); the guard now is that pyproject must not duplicate the version of record (plugin.json) and PyPI is not introduced as the primary install path.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "decisions",
+          "path": ".lume/workstreams/0011-tredl-support/decisions.json"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Build plan recorded via lume plan add: ordered execution (+closeout) iterations - e.g. pyproject + version-consistency check, CI workflow, tag+release process, install-verification doc - each a binary DoD sketch + committed/optional tag; the first is concrete enough to open next.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine/CI code in this planning iteration."
+      }
+    ],
+    "preamble": "P5/L4 planning: turn the delivery forks from iteration 010 (CI, version/tag consistency, release process, install verification, scope guard) into logged decisions and an ordered build plan. OPERATOR DECISION: a pyproject.toml IS in scope (overrides the iteration-010 'no pyproject' refinement); plugin.json stays the single version of record and a consistency check guards against drift - PyPI is not the primary channel. Decisions + plan only; no CI or engine code - building is the execution iterations."
+  },
+  "handback": "P5/L4 planning done: five forks resolved as logged decisions + a 4-step build plan (P11-P14, committed). DECISIONS: (A) CI = GitHub Actions 'pytest -q' on push/PR, matrix 3.10-3.13; required-check is the operator's branch-protection setting. (PYPROJECT, operator override of iter-010) add pyproject.toml for metadata+tooling over src-layout; plugin.json stays the SINGLE version of record and a consistency check fails CI on drift; PyPI is not the primary channel. (B) version = tag vX.Y.Z == plugin.json version (and == pyproject); (C) release = tag + GitHub release, tag/ref is the pin, archive optional; (D) close the [U] live-install caveat with a documented reproduced manual verification (Claude-CLI-in-CI is out of v0.1). PLAN: P11 pyproject+consistency check, P12 CI workflow, P13 tag+release process, P14 install-verification doc + closeout. P11 is concrete enough to open next (touches pyproject.toml + a consistency test). No CI/engine code this iteration. RECOMMEND next: open the P11 execution iteration.",
+  "id": 11,
+  "self_review": "Holds: each fork is closed with a decision that fits how lume actually ships (marketplace plugin, stdlib-only) and the operator's pyproject request is honoured WITH the single-source guard that was the whole risk - a CI-enforced consistency check, not a trust-the-human sync. The plan isolates the version-source change (P11) from CI (P12) so the consistency check exists before CI depends on it. Weak / watch: (1) CONSISTENCY CHECK READING pyproject - asserting pyproject.version == plugin.json needs a TOML parse; python 3.11+ has tomllib but the 3.10 matrix leg does not, so the checker must either vendor a tiny parser, depend on tomli for 3.10, or the floor moves to 3.11 - an execution-time decision I flagged now so it is not a surprise. (2) Several true completions are OPERATOR actions, not agent ones: making CI a required check, and cutting the actual v0.1.0 tag/release; the plan marks these as noted-not-done, so P5's done-when will be 'met pending two operator actions' rather than fully closed by the agent - called out so the closeout is honest. (3) The live-install verification is manual/documented, weaker than an automated gate; accepted as the v0.1 close per the logged decision. Nothing deferred silently."
+}
