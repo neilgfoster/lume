@@ -1,0 +1,6 @@
+{
+  "slug": "gap-file-naming",
+  "status": "active",
+  "text": "Answer gap G7: gap record filenames follow the workstream convention (<id>-<stub>), adapted for the multi-source gaps store: .lume/gaps/<source>-G<nnnn>-<stub>.json, where <nnnn> is the numeric id zero-padded to 4 (so files sort sequentially per source, like 0001-build-lume) and <stub> is a slugified hint from the title (capped length). The gap id itself stays 'G<n>' and the (source, id) dedupe identity is unchanged - only the filename gains ordering and readability. Done when: add/ingest write the new filename; read/scan/list/link/resolve all work against it; the 9 existing records are migrated (git mv, history-preserving); docs that state the old <source>-<id>.json convention are updated; tests assert the new shape; suite green.",
+  "title": "Gap filenames follow the workstream convention: <source>-G<nnnn>-<stub>.json"
+}

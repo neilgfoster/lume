@@ -5,5 +5,8 @@
   "context": "review/2026-06-11-01: missed because The contract maps findings only to workstream/decision/gap, mirroring lume's existing verbs; no lighter-weight finding type was designed.; proposed: Either document the convention that small fixes are chore plan items proposed against an existing or housekeeping workstream, or extend review_result with a 'fixes' list that ingest maps to a single emitted chore-bundle workstream.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0021"
+  ]
 }

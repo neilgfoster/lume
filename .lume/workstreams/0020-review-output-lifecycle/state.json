@@ -1,0 +1,11 @@
+{
+  "iterations": [],
+  "plan": [],
+  "workstream": {
+    "id": "0020",
+    "objective_artifact": "objective.json",
+    "slug": "review-output-lifecycle",
+    "status": "active",
+    "title": "Review output is born in a workstream; review_gaps auto-captured on ingest"
+  }
+}

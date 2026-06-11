@@ -51,18 +51,46 @@ def next_id(existing: list[dict]) -> str:
     return f"G{highest + 1}"
 
 
-def _filename(source: str, id: str) -> str:
-    """Source-aware filename so one gaps/ store can hold multiple sources."""
+_STUB_MAX = 40
+
+
+def _stub(title: str) -> str:
+    """A slugified, length-capped hint from the title for the filename."""
+    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+    return slug[:_STUB_MAX].rstrip("-") or "gap"
+
+
+def _filename(source: str, id: str, title: str = "") -> str:
+    """Source-aware filename: <source>-<nnnn>-<stub>.json.
+
+    Follows the workstream NNNN-<slug> convention so files sort sequentially
+    per source and carry a readable hint. No 'G' in the name - living under
+    .lume/gaps/ already says it's a gap. The padding and stub live in the
+    FILENAME only - the gap id stays 'G<n>' and (source, id) remains the
+    dedupe identity.
+    """
     safe_source = re.sub(r"[^A-Za-z0-9_.-]+", "-", source).strip("-") or "src"
-    return f"{safe_source}-{id}.json"
+    m = _ID_RE.match(id)
+    padded = f"{int(m.group(1)):04d}" if m else id
+    return f"{safe_source}-{padded}-{_stub(title)}.json"
 
 
 def _write(repo_root, record: dict) -> dict:
     validate_entity("gap", record)
     d = gaps_dir(repo_root)
     d.mkdir(parents=True, exist_ok=True)
-    (d / _filename(record["source"], record["id"])).write_text(
-        json.dumps(record, indent=2) + "\n")
+    path = d / _filename(record["source"], record["id"], record.get("title", ""))
+    # Rename-on-write: a record still sitting at a legacy name migrates here,
+    # so an update never leaves two files for one (source, id).
+    for old in d.glob("*.json"):
+        if old != path:
+            try:
+                doc = json.loads(old.read_text())
+            except ValueError:
+                continue
+            if doc.get("source") == record["source"] and doc.get("id") == record["id"]:
+                old.unlink()
+    path.write_text(json.dumps(record, indent=2) + "\n")
     return record
 
 

@@ -4,10 +4,16 @@
       "dod_artifact": "iterations/0001-gap-linkage-schema-fields-gap-link-verb-structured-resolve-status-surface-dogfood-on-g9.json",
       "id": 1,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Gap linkage: schema fields, gap link verb, structured resolve, status surface, dogfood on G9",
       "type": "execution",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
     }
   ],
   "plan": [],
@@ -15,7 +21,7 @@
     "id": "0018",
     "objective_artifact": "objective.json",
     "slug": "gap-workstream-linkage",
-    "status": "active",
+    "status": "closed",
     "title": "Gap-to-workstream linkage: gaps as the demand backlog, linked to the work that answers them"
   }
 }

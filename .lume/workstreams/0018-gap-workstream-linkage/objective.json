@@ -1,6 +1,6 @@
 {
   "slug": "gap-workstream-linkage",
-  "status": "active",
+  "status": "closed",
   "text": "Answer gap G9: make 'which gap a workstream answers' data, completing the flow gap -> workstream -> plan item -> iteration (decision: gaps are the demand backlog - problems from any source; workstreams the committed work; plan items the steps; linked, not merged). Done when: (1) schemas/gap.json gains optional 'workstreams' (list of workstream ids) and a structured 'resolution' object (kind: implemented|wont-fix|superseded|duplicate, note, optional workstream id) - existing records stay valid; (2) 'lume gap link <source> <id> -w <ws>' records the link (validated: workstream exists); (3) 'lume gap resolve <source> <id>' persists a structured resolution (fixing the found bug where resolution text is silently dropped) with optional -w and note; (4) 'lume status -w <ws>' detail lists the gaps that workstream answers, derived by scanning .lume/gaps/ (read-only, like children rollup); (5) G9 itself is linked to this workstream and resolved through the new mechanism as the dogfood; (6) docs (SKILL.md, plugin/README) describe the linkage; (7) tests cover schema back-compat, link, structured resolve, the status surface, and validation errors; suite green. The pre-existing uncommitted loop residue (0017 accept/close flips, G9) lands on this workstream's first commit.",
   "title": "Gap-to-workstream linkage: gaps as the demand backlog, linked to the work that answers them"
 }

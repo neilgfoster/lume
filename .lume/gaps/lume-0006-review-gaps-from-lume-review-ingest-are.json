@@ -5,5 +5,8 @@
   "context": "Operator direction 2026-06-11 after review/2026-06-11-01: supersede the uniform-emit rule - ingest should write review_gaps directly as open gap records tagged with the review slug, while proposed_workstreams and direction_decisions stay print-only behind the operator gate. Wiring exists (gap.add_gap + validated review_gaps data); needs a decision, a small ingest change, tests, and a doc line.",
   "status": "open",
   "created": "2026-06-11",
-  "resolution": null
+  "resolution": null,
+  "workstreams": [
+    "0020"
+  ]
 }

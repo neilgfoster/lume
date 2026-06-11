@@ -72,7 +72,7 @@ A new iteration can only be opened once the latest one is `accepted`.
   is mechanically verifiable, so the gate is a real test, not just an assertion;
   leave genuinely subjective items prose-only for the operator to judge. Command
   checks run author-supplied shell - trust them as you would the test suite.
-- Cross-repo capability gaps live in `.lume/gaps/<source>-<id>.json`. Gaps are
+- Cross-repo capability gaps live in `.lume/gaps/<source>-<nnnn>-<stub>.json` (numeric id zero-padded in the filename for sequential sort, slugified title hint; the gap id itself stays `G<n>`). Gaps are
   the **demand backlog** (problem statements from adopters, the operator, or a
   review); workstreams are the committed work answering them - separate
   entities, linked not merged. `lume gap add` records one; `lume gap scan`
