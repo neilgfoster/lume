@@ -15,6 +15,7 @@ from .discovery import (
     handle_check,
     handle_entities,
     handle_get,
+    handle_review,
     handle_schema,
     handle_snapshot,
     handle_status,
@@ -50,6 +51,7 @@ HANDLERS = {
     "decide": handle_decide,
     "retro": handle_retro,
     "gap": handle_gap,
+    "review": handle_review,
 }
 
 __all__ = ["HANDLERS", "handle_transition"]

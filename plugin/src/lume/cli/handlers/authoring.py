@@ -133,3 +133,9 @@ def handle_gap(ctx: Context) -> int:
     for r in records:
         print(f"{r['id']}  {r['status']:12}  {r['source']}  {r['title']}")
     return 0
+
+
+def handle_review_ingest(ctx: Context) -> int:
+    """Ingest a review result (the writing half) - lands in the next slice."""
+    from ...errors import LumeError
+    raise LumeError("review ingest is not implemented yet (next slice of workstream 0015).")

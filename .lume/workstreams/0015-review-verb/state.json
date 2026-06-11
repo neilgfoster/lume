@@ -24,23 +24,38 @@
       "dod_artifact": "iterations/0002-planning-slice-the-lume-review-verb-into-plan-items.json",
       "id": 2,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Planning: slice the lume review verb into plan items",
       "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0003-execution-emit-side-charter-gathering-and-protocol-emission-p1-p2.json",
+      "id": 3,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Execution: emit side - charter gathering and protocol emission (P1+P2)",
+      "type": "execution",
       "verdicts": []
     }
   ],
   "plan": [
     {
       "id": "P1",
-      "iter": null,
+      "iter": 3,
       "sketch": "S1 Charter gathering: review.py module - PRIMARY lume-state collection (all workstreams' objectives, decisions, retros, plans), SECONDARY capped pattern scan (12 files / 8192 chars, sorted), --charter override, thin-coverage degradation; unit tests incl. no-docs fixture",
       "tag": "committed",
       "type": "execution"
     },
     {
       "id": "P2",
-      "iter": null,
+      "iter": 3,
       "sketch": "S2 Protocol emission: seven-lens protocol + Result contract instructions, ecosystem-fit live-lookup and META review-gap directives; catalog entry, handle_review in cli/handlers/discovery.py, multi-value --charter flag; --json with labelled charter_sources; golden + byte-identical determinism tests",
       "tag": "committed",
       "type": "execution"
