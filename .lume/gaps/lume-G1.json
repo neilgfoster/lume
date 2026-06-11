@@ -2,8 +2,15 @@
   "context": "Operator note after review-2026-06-11-01: inconsistent with workstream 0016, which relocated gaps to .lume/gaps/ for state co-location; accumulated reviews will clutter the .lume root alongside workstreams/ and gaps/. Proposed: .lume/reviews/<date>-NN/ with migration of the existing folder.",
   "created": "2026-06-11",
   "id": "G1",
-  "resolution": "Resolved by workstream 0017 review-dir-and-landing: reviews now live under .lume/reviews/<date>-NN/ (engine, docs, tests updated; existing folder migrated)",
+  "resolution": {
+    "kind": "implemented",
+    "note": "Resolved by workstream 0017 review-dir-and-landing: reviews now live under .lume/reviews/<date>-NN/ (engine, docs, tests updated; existing folder migrated)",
+    "workstream": "0017"
+  },
   "source": "lume",
   "status": "resolved",
-  "title": "Review artifacts land at .lume/review-<date>-NN/ in the .lume root instead of a co-located .lume/reviews/ subdir"
+  "title": "Review artifacts land at .lume/review-<date>-NN/ in the .lume root instead of a co-located .lume/reviews/ subdir",
+  "workstreams": [
+    "0017"
+  ]
 }

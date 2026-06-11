@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {
+      "context": "Conceptual model ratified by operator 2026-06-11",
+      "date": "2026-06-11",
+      "decision": "Gaps are the demand backlog (problem statements from any source: adopters, operator, reviews); workstreams are committed, gated work; plan items are the steps inside a workstream. They stay separate entities, linked not merged: gap -> workstream via an optional workstreams ref on the gap, workstream -> steps via plan items, plan item -> iteration via plan link",
+      "rationale": "Different lifecycles (a gap can close without work: wont-fix/duplicate/superseded; one gap can spawn several workstreams and vice versa - seen with G1+G8 both closed by 0017); the gap record is the cross-repo contract and must stay small; lume already has the work entities, so only the first arrow was missing as data. Mirrors the established idiom: optional single-direction refs, derived rollups, no new entity (per the 0011 no-parallel-backlog precedent)."
+    }
+  ]
+}

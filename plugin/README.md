@@ -96,9 +96,13 @@ same trust as running its test suite.
 ## Cross-repo capability gaps
 
 A **gap** is a capability gap one repo records about lume - lume writes them
-about itself, and adopters write them about lume. They live per-file under
+about itself, and adopters write them about lume. Gaps are the **demand
+backlog**: problem statements from any source (adopters, the operator, a
+`lume review`). Workstreams are the committed work that answers them; the two
+stay separate entities, linked not merged. They live per-file under
 `.lume/gaps/<source>-<id>.json`, co-located with the rest of lume's state (a small schema: id, source, title, context,
-status `open|acknowledged|resolved`, created, resolution).
+status `open|acknowledged|resolved`, created, optional `workstreams` links and
+a structured `resolution`).
 
 - `lume gap add "<title>" [-c <context>]` records a gap in the current repo.
 - `lume gap list` shows them.
@@ -108,7 +112,14 @@ status `open|acknowledged|resolved`, created, resolution).
   `.lume/gaps/` as `acknowledged` records. It is idempotent on `(source, id)` and
   skips an unreachable adopter rather than failing. Ingested gaps take their
   `source` from the `ADOPTERS.json` project name.
-- `lume gap resolve <source> <id>` marks a gap resolved (a re-scan won't revert it).
+- `lume gap link <source> <id> -w <workstream>` records which workstream
+  answers the gap (data, not prose); `lume status -w <workstream>` lists the
+  gaps a workstream answers, derived by scan.
+- `lume gap resolve <source> <id> [-w <workstream>] [-t <kind>] ["<note>"]`
+  resolves a gap with a structured resolution (`kind`:
+  `implemented|wont-fix|superseded|duplicate`, default `implemented`; the
+  `-w` workstream is linked and recorded in the resolution). A re-scan won't
+  revert it.
 
 This is the lume↔adopter feedback channel. v0.1 delivers the **ingest** half;
 signalling a resolution back to the adopter is a deliberate later step.
@@ -171,7 +182,7 @@ explains one; add `--json` to any verb for machine-readable output.
 | `decide` | log a decision |
 | `retro` | create or refresh the retro artifact |
 | `check` | dry-run the current iteration's DoD machine-checks (read-only) |
-| `gap` | record / list / scan / resolve cross-repo capability gaps |
+| `gap` | record / list / scan / link / resolve cross-repo capability gaps |
 | `review` | emit the adversarial self-review protocol / ingest a review result |
 | `snapshot` | print the derived Done / Now / Next snapshot |
 | `get` / `schema` / `entities` | inspect state and its schemas as JSON |

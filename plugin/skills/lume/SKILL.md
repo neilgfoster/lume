@@ -72,13 +72,19 @@ A new iteration can only be opened once the latest one is `accepted`.
   is mechanically verifiable, so the gate is a real test, not just an assertion;
   leave genuinely subjective items prose-only for the operator to judge. Command
   checks run author-supplied shell - trust them as you would the test suite.
-- Cross-repo capability gaps live in `.lume/gaps/<source>-<id>.json`.
-  `lume gap add` records one; `lume gap scan` reads the repos in `ADOPTERS.json`
-  (its table generates `ADOPTERS.md`), git-clones each into a worktree, and
-  ingests their open gaps into lume's `.lume/gaps/` as `acknowledged` (idempotent on
-  `(source, id)`, source taken from the ADOPTERS project name); `lume gap
-  resolve <source> <id>` marks one resolved. v0.1 is ingest-only - no round-trip
-  back to the adopter yet.
+- Cross-repo capability gaps live in `.lume/gaps/<source>-<id>.json`. Gaps are
+  the **demand backlog** (problem statements from adopters, the operator, or a
+  review); workstreams are the committed work answering them - separate
+  entities, linked not merged. `lume gap add` records one; `lume gap scan`
+  reads the repos in `ADOPTERS.json` (its table generates `ADOPTERS.md`),
+  git-clones each into a worktree, and ingests their open gaps into lume's
+  `.lume/gaps/` as `acknowledged` (idempotent on `(source, id)`, source taken
+  from the ADOPTERS project name); `lume gap link <source> <id> -w <ws>`
+  records the workstream answering a gap (surfaced as "Gaps answered" in
+  `lume status -w`); `lume gap resolve <source> <id> [-w <ws>] [-t <kind>]
+  ["<note>"]` resolves one with a structured resolution (kind
+  `implemented|wont-fix|superseded|duplicate`, default `implemented`). v0.1 is
+  ingest-only - no round-trip back to the adopter yet.
 - Adversarial self-review: `lume review` (alias `review emit`) prints a review
   protocol seeded from lume state (all objectives, decisions, plans, retros)
   plus discovered charter docs (`--charter <glob>` overrides discovery). You do
