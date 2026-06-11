@@ -107,6 +107,54 @@
       "date": "2026-06-11",
       "decision": "Python floor is 3.11 (operator-approved), so the version-consistency check uses stdlib tomllib with no third-party dependency; CI matrix becomes 3.11-3.13.",
       "rationale": "Reading pyproject's version to compare against plugin.json needs a TOML parser; tomllib is stdlib from 3.11. Raising the floor from the proposed 3.10 to 3.11 avoids a tomli dependency or a vendored parser, keeping lume dependency-free."
+    },
+    {
+      "context": "P2/L1 discovery (iter 017) - naming",
+      "date": "2026-06-11",
+      "decision": "Name the cross-repo capability-gap record entity 'gap' (schema 'gap'), stored per-file as gaps/<id>.json at a repo root; keep the word 'discovery' in prose only. Planning to ratify whether the dir is gaps/ or the strategy's discoveries/.",
+      "rationale": "lume already has a 'discovery' iteration type AND a per-workstream discovery.json (findings); a third 'discovery' meaning would be ambiguous in schemas, verbs and docs. A distinct entity name removes the collision; per-file records match the assumed glob and ease an adopter's one-record PR."
+    },
+    {
+      "context": "P2/L1 discovery (iter 017) - reach",
+      "date": "2026-06-11",
+      "decision": "lume reaches adopter repos via git clone/fetch + an ephemeral git worktree (operator decision): parse ADOPTERS.md for repo URLs, clone-if-absent/fetch-if-cached, worktree at the default ref to read gaps/*.json, prune the worktree after; a missing/unreachable repo is skipped+reported, not fatal.",
+      "rationale": "git reach works for any adopter repo URL (not just locally co-located checkouts), matches an integration boundary, and a worktree gives a clean, throwaway checkout without disturbing the cached clone. Graceful degradation keeps one bad adopter from breaking the whole scan."
+    },
+    {
+      "context": "P2/L1 discovery (iter 017) - landing + idempotence",
+      "date": "2026-06-11",
+      "decision": "Ingest is idempotent on dedupe key (source, id); ingested OPEN gaps land in a lume-side backlog store as 'acknowledged' records referencing source+id, NOT auto-created plan items - turning a gap into a workstream stays operator triage.",
+      "rationale": "Idempotence lets the scan run repeatedly (e.g. on a schedule) without duplicating backlog. Keeping ingest separate from plan-creation preserves lume's operator-in-the-loop rule: lume surfaces gaps; the human decides what becomes work. The resolution round-trip back to the adopter is deferred past v0.1."
+    },
+    {
+      "context": "P2/L1 planning (iter 018) - dir + verb surface",
+      "date": "2026-06-11",
+      "decision": "Use 'gaps/<id>.json' (entity 'gap') in every repo; reconcile ADOPTERS.md's 'discoveries/*.json' wording to 'gaps/'. Verb surface: 'lume gap add' (capture in current repo), 'lume gap scan' (clone/fetch adopters + ingest), 'lume gap list' (show gaps incl. ingested).",
+      "rationale": "One name end to end avoids the third 'discovery' meaning; gaps/ matches the entity. A small gap subcommand keeps the surface legible and parallel to 'lume plan add/link'."
+    },
+    {
+      "context": "P2/L1 planning (iter 018) - landing store",
+      "date": "2026-06-11",
+      "decision": "Ingested gaps land in lume's OWN gaps/ dir as records with status 'acknowledged' carrying source+id (and a copy of title/context); lume's self-authored gaps live there too. No separate backlog entity; gaps/ is the single gap store.",
+      "rationale": "Reusing one gaps/ store for self-authored and ingested gaps keeps one schema + one read path; 'acknowledged' marks 'lume has seen it', distinct from an adopter's local 'open'. Avoids inventing a parallel entity."
+    },
+    {
+      "context": "P2/L1 planning (iter 018) - cache + lifecycle",
+      "date": "2026-06-11",
+      "decision": "git reach caches clones under a gitignored .lume/cache/adopters/<slug>/; scan does clone-if-absent / fetch-if-present, adds an ephemeral worktree at the default ref to read gaps/, prunes the worktree after; unreachable repo => skip+report, scan continues. .lume/cache/ is added to .gitignore.",
+      "rationale": "A gitignored in-repo cache keeps the fetched clones out of history while reusing them across scans for speed; ephemeral worktrees give clean reads without dirtying the cache; skip-and-report keeps one bad adopter from failing the whole scan."
+    },
+    {
+      "context": "P2/L1 planning (iter 018) - status + round-trip",
+      "date": "2026-06-11",
+      "decision": "Status: 'lume gap scan' sets ingested gaps to 'acknowledged' (idempotent on source+id); operator moves a gap to 'resolved'. The resolution ROUND-TRIP back to the adopter is OUT of v0.1 (deferred, discovery-triggered) - v0.1 delivers capture + scan + idempotent ingest only.",
+      "rationale": "Ingest is the high-value half and is cleanly testable; the round-trip (lume signalling resolution back so the adopter drops its workaround) needs a publish/notify channel that should be demand-driven, not built speculatively. Shipping ingest first is honest and unblocks tredl's emit side."
+    },
+    {
+      "context": "P2/L1 execution (iter 020, P16)",
+      "date": "2026-06-11",
+      "decision": "ADOPTERS.json (root) is the deterministic source of truth for adopters; ADOPTERS.md's table is GENERATED from it via tools/render_adopters.py (--check guards sync in CI). lume's scan reads ADOPTERS.json, never parses markdown.",
+      "rationale": "Operator decision: parsing a hand-maintained markdown table is fragile; a validated JSON source + generated md table is deterministic and mirrors the plugin.json/pyproject version-consistency guard already in the repo. The md stays the human view; the JSON is what the machine reads."
     }
   ]
 }

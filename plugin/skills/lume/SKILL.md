@@ -72,5 +72,12 @@ A new iteration can only be opened once the latest one is `accepted`.
   is mechanically verifiable, so the gate is a real test, not just an assertion;
   leave genuinely subjective items prose-only for the operator to judge. Command
   checks run author-supplied shell - trust them as you would the test suite.
+- Cross-repo capability gaps live in `gaps/<source>-<id>.json` at a repo root.
+  `lume gap add` records one; `lume gap scan` reads the repos in `ADOPTERS.json`
+  (its table generates `ADOPTERS.md`), git-clones each into a worktree, and
+  ingests their open gaps into lume's `gaps/` as `acknowledged` (idempotent on
+  `(source, id)`, source taken from the ADOPTERS project name); `lume gap
+  resolve <source> <id>` marks one resolved. v0.1 is ingest-only - no round-trip
+  back to the adopter yet.
 
 When in doubt about a verb's exact arguments, ask lume: `lume verbs <verb>`.

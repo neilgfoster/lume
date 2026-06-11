@@ -58,6 +58,10 @@ class Repository:
         """
         return self._require_lume_dir().parent
 
+    def today(self) -> str:
+        """Today's date (ISO) from the injected clock - for stamping records."""
+        return self._clock.today().isoformat()
+
     def ensure_lume_dir(self) -> Path:
         """The operator's .lume/ dir, creating it at the start path if absent.
 

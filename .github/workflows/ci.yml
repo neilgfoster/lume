@@ -22,5 +22,7 @@ jobs:
       # is a TEST tool the runner does not ship - it must be installed here.
       - name: Install test tooling
         run: python -m pip install pytest
+      - name: Check ADOPTERS.md is in sync with ADOPTERS.json
+        run: python tools/render_adopters.py --check
       - name: Run tests
         run: python -m pytest -q

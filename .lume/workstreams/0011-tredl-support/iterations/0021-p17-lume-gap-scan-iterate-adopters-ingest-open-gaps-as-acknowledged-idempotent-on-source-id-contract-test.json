@@ -1,0 +1,46 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "gap.py made source-aware (so one gaps/ store can hold multiple sources): records are written as gaps/<source>-<id>.json, next_id is scoped to a single source, and a helper ingest_gap(repo_root, record) writes only if (source,id) is not already present (returns whether it added). read_gaps still keys off record content. Existing P15 tests updated to the new filename scheme; gap add still works for self-authored gaps."
+      },
+      {
+        "checked": true,
+        "text": "Scan orchestration (adopters.scan_and_ingest(repo_root)): read_adopters, SKIP the self row (project == repo dir), reach_gaps per adopter catching LumeError (skip+report, do not abort), and ingest each OPEN adopter gap into lume's gaps/ as a record {id, source=adopter project, title, context, status 'acknowledged', created, resolution null}. Returns a report (ingested / already-present / failed adopters)."
+      },
+      {
+        "checked": true,
+        "text": "'lume gap scan' runs scan_and_ingest from the project root and prints the report; --json emits it structured. Registered (gap = add|list|scan|resolve).",
+        "check": {
+          "kind": "command",
+          "cmd": "plugin/bin/lume verbs gap >/dev/null"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Status transition supported: gap.set_status(repo_root, source, id, status) moves a gap (e.g. acknowledged->resolved), validated; surfaced as 'lume gap resolve <source> <id>'. Idempotent ingest never overwrites an already-resolved gap back to acknowledged."
+      },
+      {
+        "checked": true,
+        "text": "CONTRACT TEST (tests/test_gap_scan.py): a temp lume repo with ADOPTERS.json pointing at a LOCAL git adopter fixture holding one OPEN and one RESOLVED gap. Asserts: scan ingests only the open gap as 'acknowledged'; a SECOND scan adds nothing (idempotent on source,id); a failed/unreachable adopter is skipped+reported not fatal; set_status moves the ingested gap to resolved and a re-scan does NOT revert it.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q tests/test_gap_scan.py"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Full suite green; self-review + handback written; committed.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      }
+    ],
+    "preamble": "P2/L1 build step 3 of 4 (plan item P17): make 'lume gap scan' real. Iterate ADOPTERS, reach each repo's gaps/ (P16), and ingest OPEN gaps into lume's own gaps/ as 'acknowledged' records, idempotent on (source,id); a failed adopter is skipped+reported, not fatal. Requires making gap storage source-aware (filenames <source>-<id>.json) so one store holds self-authored + ingested records. The resolution ROUND-TRIP back to the adopter stays OUT of v0.1 (deferred). DOGFOOD: DoD carries command checks incl. a contract test."
+  },
+  "handback": "P17 done (P2/L1 build step 3 of 4): 'lume gap scan' is real - the ingest half of the lume<->adopter cycle works end to end. CHANGES: (1) gap.py made source-aware: files are gaps/<source>-<id>.json, next_id scoped per source, + find_gap, ingest_gap (writes only if (source,id) absent), set_status. (2) adopters.scan_and_ingest(repo_root): read adopters, SKIP self, reach each via git worktree catching LumeError (skip+report), ingest OPEN gaps as 'acknowledged' keyed (adopter project, gap id); returns {ingested, already_present, failed}. (3) 'lume gap scan' (+--json report) and 'lume gap resolve <source> <id>'; catalog updated. (4) contract test (tests/test_gap_scan.py): open-only ingest, idempotent rerun, unreachable adopter skipped, resolve sticks across re-scan. P15 gap test updated to source-aware filename. Suite: 363 passed (was 361). LIVE: running 'lume gap scan' in this repo actually cloned the real github tredl repo (gitignored .lume/cache/), found no open gaps -> 0 ingested/0 failed, worktree pruned - so the REMOTE clone path (flagged unproven in P16) is now exercised against a real public remote. Resolution round-trip remains OUT of v0.1. RECOMMEND next: P18 - docs + closeout (wire render_adopters --check into CI, document gap add/scan/list/resolve, assess P2).",
+  "id": 21,
+  "self_review": "Holds: the contract test pins the behaviours that matter (open-only, idempotent on (source,id), failed-adopter-non-fatal, resolved-not-reverted) against a REAL local git fixture, and a real-remote scan against github tredl incidentally closed P16's 'remote unproven' caveat for the public case. ingest_gap never overwrites, so re-scan cannot revert an operator's resolve - verified. Source-aware filenames let one gaps/ store hold self + many adopters without collision; read_gaps keys off content so the rename was low-risk. Weak / watch: (1) source NORMALISATION - ingest keys by the ADOPTERS 'project' name, ignoring whatever the adopter wrote in the gap's own 'source' field; this makes dedupe stable but means a gap's stored source can differ from its origin repo's self-label - intentional, but worth documenting in P18. (2) PRIVATE-repo auth is still unproven (the live test hit a PUBLIC remote); a private adopter would need credential handling not built here - carried. (3) self-skip is by project==repo-dir-name, a heuristic; if lume's dir were renamed it would scan itself (harmless-ish: it would ingest its own open gaps as acknowledged copies under source='lume'). (4) unbounded .lume/cache growth still not pruned. Nothing deferred silently."
+}

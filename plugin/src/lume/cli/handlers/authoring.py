@@ -68,3 +68,68 @@ def handle_retro(ctx: Context) -> int:
     verb = "updated" if existed else "created"
     ctx.ok({"result": "retro", "status": verb}, f"retro: {verb} retro.json")
     return 0
+
+
+def handle_gap(ctx: Context) -> int:
+    """Capture/list cross-repo capability gaps (repo-level, not -w scoped).
+
+    `lume gap add "<title>" [-c <context>]` records a gap in the current repo;
+    `lume gap list` prints them; `lume gap scan` ingests adopters' open gaps;
+    `lume gap resolve <source> <id>` moves a gap to resolved.
+    """
+    from ...adopters import scan_and_ingest
+    from ...gap import add_gap, read_gaps, set_status
+
+    sub = ctx.arg
+    if sub not in ("add", "list", "scan", "resolve"):
+        ctx.fail("usage", "usage: lume gap <add|list|scan|resolve> ...")
+        return 2
+    root = ctx.repo.project_root()  # NoLumeDirError -> dispatch maps to exit 1
+
+    if sub == "scan":
+        report = scan_and_ingest(root)  # LumeError -> dispatch maps to exit 1
+        if ctx.json_mode:
+            ctx.out(report)
+            return 0
+        print(f"gap scan: {len(report['ingested'])} ingested, "
+              f"{len(report['already_present'])} already present, "
+              f"{len(report['failed'])} adopter(s) failed")
+        for f in report["failed"]:
+            print(f"  ! {f['adopter']}: {f['error']}")
+        return 0
+
+    if sub == "resolve":
+        source = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
+        gap_id = ctx.rest[4].strip() if len(ctx.rest) > 4 else ""
+        if not source or not gap_id:
+            ctx.fail("usage", "usage: lume gap resolve <source> <id>")
+            return 2
+        rec = set_status(root, source, gap_id, "resolved")  # LumeError -> exit 1
+        ctx.ok({"result": "gap_resolve", "source": rec["source"], "id": rec["id"],
+                "status": rec["status"]},
+               f"gap resolve: {rec['source']}/{rec['id']} -> {rec['status']}")
+        return 0
+
+    if sub == "add":
+        title = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
+        if not title:
+            ctx.fail("usage", 'usage: lume gap add "<title>" [-c <context>]')
+            return 2
+        record = add_gap(root, title=title, source=root.name,
+                         created=ctx.repo.today(), context=ctx.opt_context or "")
+        ctx.ok({"result": "gap_add", "id": record["id"], "source": record["source"],
+                "status": record["status"], "title": record["title"]},
+               f"gap add: {record['id']} ({record['source']}, {record['status']}): {record['title']}")
+        return 0
+
+    # sub == "list"
+    records = read_gaps(root)
+    if ctx.json_mode:
+        ctx.out(records)
+        return 0
+    if not records:
+        print("(no gaps)")
+        return 0
+    for r in records:
+        print(f"{r['id']}  {r['status']:12}  {r['source']}  {r['title']}")
+    return 0

@@ -1,0 +1,43 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "DIR NAME + entity resolved + logged: gaps/ vs discoveries/ settled one way; the gap schema (id, source, title, context, status, created, resolution?) finalised; ADOPTERS.md note reconciled to whichever name wins (planned, not yet edited)."
+      },
+      {
+        "checked": true,
+        "text": "LANDING STORE resolved + logged: where ingested gaps live in lume (recommended: lume's own gaps/ dir holding acknowledged records that carry source+id) and the verb surface for capture/scan/list."
+      },
+      {
+        "checked": true,
+        "text": "WORKTREE CACHE + lifecycle resolved + logged: cache location (recommended: a gitignored .lume/cache/ or out-of-tree) and clone/fetch/worktree-add/prune lifecycle; failure/offline behaviour."
+      },
+      {
+        "checked": true,
+        "text": "STATUS TRANSITIONS + ROUND-TRIP scope resolved + logged: open->acknowledged on ingest, ->resolved by operator; the resolution round-trip back to the adopter is explicitly IN or OUT of v0.1 (recommended OUT - deferred)."
+      },
+      {
+        "checked": true,
+        "text": "Build plan recorded via lume plan add: ordered execution (+closeout) iterations - e.g. gap schema+capture, git scan/worktree reach, idempotent ingest+contract test, docs+closeout - each a binary DoD sketch + committed/optional tag; the first is concrete enough to open next.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      },
+      {
+        "checked": true,
+        "text": "Scope held: no engine code; decisions + plan only. The git-worktree trust/cache concerns from 017's self-review are carried into the relevant build step, not dropped.",
+        "check": {
+          "kind": "schema-valid",
+          "entity": "decisions",
+          "path": ".lume/workstreams/0011-tredl-support/decisions.json"
+        }
+      }
+    ],
+    "preamble": "P2/L1 planning: turn the forks from iteration 017 (dir name, landing store + verb surface, worktree cache/lifecycle, status transitions, resolution round-trip scope) into logged decisions and an ordered build plan. Carry the operator decisions already made (entity 'gap'; git clone/fetch + worktree reach; idempotent (source,id) ingest; ingest-as-acknowledged-not-plan-item). Decisions + plan only - no engine code; building is the execution iterations."
+  },
+  "handback": "P2/L1 planning done: forks resolved as 4 logged decisions + a 4-step build plan (P15-P18, committed). DECISIONS: (dir+verbs) gaps/<id>.json end to end, verbs 'lume gap add|scan|list', ADOPTERS.md to be reconciled to gaps/. (landing) ingested gaps live in lume's own gaps/ as 'acknowledged' records carrying source+id - one store for self-authored + ingested, no parallel entity. (cache) gitignored .lume/cache/adopters/<slug>/, clone-if-absent/fetch-if-present, ephemeral worktree pruned after read, unreachable repo skip+report. (status+round-trip) scan sets open->acknowledged idempotently on (source,id), operator sets ->resolved; the resolution ROUND-TRIP is OUT of v0.1 (deferred). PLAN: P15 gap schema+capture, P16 git scan/reach (against a local git fixture), P17 ingest+'lume gap scan'+contract test, P18 docs+closeout. P15 is concrete enough to open next. No engine code. RECOMMEND next: open P15.",
+  "id": 18,
+  "self_review": "Holds: every fork is closed consistently with the operator decisions from 017 (entity gap, git+worktree reach, idempotent ingest, ingest!=plan-item), and the plan isolates the cheap testable schema/capture (P15) from the git-reach complexity (P16) and the idempotence contract (P17), so the risky part is contained. The git-cache trust/disk concern from 017 is carried explicitly into P16/P18. Weak / watch: (1) P16's git reach will be tested against a LOCAL git repo fixture, not a real remote/private adopter - so auth for private repos and real-network failure modes stay unproven until exercised against an actual adopter (tredl); flagged for P16/closeout. (2) v0.1 ships ingest only; the feedback CYCLE is not closed until the deferred round-trip lands, so P2's done-when will read 'ingest mechanism met, full cycle pending' - honest, but worth the operator noting. (3) verb surface 'lume gap ...' adds a third noun to the CLI; I kept it parallel to 'plan add/link' but execution should confirm it reads cleanly against the existing catalog. Nothing deferred silently."
+}

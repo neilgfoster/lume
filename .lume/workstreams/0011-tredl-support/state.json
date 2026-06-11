@@ -229,9 +229,99 @@
       "dod_artifact": "iterations/0016-p5-hotfix-ci-must-install-pytest-test-tooling-strengthen-check-ci-workflow-to-require-the-install-step.json",
       "id": 16,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P5 hotfix: CI must install pytest (test tooling); strengthen check_ci_workflow to require the install step",
       "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0017-p2-l1-discovery-design-the-cross-repo-capability-gap-record-schema-adopters-scan-ingest-and-resolve-the-discovery-naming-collision.json",
+      "id": 17,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P2/L1 discovery: design the cross-repo capability-gap record schema + ADOPTERS scan/ingest, and resolve the 'discovery' naming collision",
+      "type": "discovery",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0018-p2-l1-planning-resolve-dir-name-landing-store-worktree-cache-lifecycle-status-transitions-round-trip-scope-into-an-ordered-build-plan.json",
+      "id": 18,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P2/L1 planning: resolve dir-name, landing store, worktree cache/lifecycle, status transitions, round-trip scope into an ordered build plan",
+      "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0019-p15-gap-entity-schema-lume-gap-add-list-gaps-id-json-capture-tests.json",
+      "id": 19,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P15: gap entity schema + lume gap add/list (gaps/<id>.json capture) (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0020-p16-adopters-md-parser-git-clone-fetch-worktree-reach-to-read-adopter-gaps-tests.json",
+      "id": 20,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P16: ADOPTERS.md parser + git clone/fetch/worktree reach to read adopter gaps/ (+tests)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0021-p17-lume-gap-scan-iterate-adopters-ingest-open-gaps-as-acknowledged-idempotent-on-source-id-contract-test.json",
+      "id": 21,
+      "opened": "2026-06-11",
+      "phase": "accepted",
+      "title": "P17: 'lume gap scan' - iterate adopters, ingest open gaps as acknowledged, idempotent on (source,id) (+contract test)",
+      "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0022-p18-docs-gap-add-scan-list-resolve-wire-render-adopters-check-into-ci-p2-l1-closeout-retro.json",
+      "id": 22,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P18: docs (gap add/scan/list/resolve) + wire render_adopters --check into CI + P2/L1 closeout retro",
+      "type": "closeout",
       "verdicts": []
     }
   ],
@@ -245,7 +335,7 @@
     },
     {
       "id": "P2",
-      "iter": null,
+      "iter": 17,
       "sketch": "L1 (order 2) - Promote discoveries to a first-class, cross-repo mechanism. OBJECTIVE: extend 'discovery' (today an in-repo iteration type + discovery.json schema) into a capture-and-scan mechanism: discoveries/*.json records in any repo, captured from lume's own operator feedback AND from adopter repos, that lume can scan (via ADOPTERS) and pull into its backlog. DONE-WHEN: (1) documented discoveries/*.json schema with stable fields (id, source repo, title, context, status open/acknowledged/resolved, optional resolution link); (2) lume can record a discovery on itself; (3) lume can scan ADOPTERS repos, ingest open discoveries, and not double-ingest on rerun; (4) a contract test covers ingest + dedupe + status transitions. This is the integration API between lume and every adopter - design it deliberately. ITERATIONS: discovery, planning, execution, closeout.",
       "tag": "committed",
       "type": "execution"
@@ -331,6 +421,34 @@
       "id": "P14",
       "iter": 15,
       "sketch": "P5/L4 build step 4 of 4 - INSTALL VERIFICATION DOC + CLOSEOUT. Close the [U] live-install caveat with a documented, reproduced clean-state verification ('/plugin marketplace add' + '/plugin install'); assess the (refined) P5 done-when; closeout retro. DONE-WHEN: install-verification steps recorded with the result; P5 done-when assessed met/not with evidence; retro written; command-check trust + any new soft spots carried forward. ITERATION: closeout.",
+      "tag": "committed",
+      "type": "closeout"
+    },
+    {
+      "id": "P15",
+      "iter": 19,
+      "sketch": "P2/L1 build step 1 of 4 - GAP SCHEMA + CAPTURE. Add a 'gap' entity schema (id, source, title, context, status open|acknowledged|resolved, created, resolution?) and 'lume gap add' writing gaps/<id>.json in the current repo (+ 'lume gap list'). DONE-WHEN: schema validates; gap add creates a well-formed record; list shows it; dedupe key (source,id) defined; unit tests cover add/list/validation. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P16",
+      "iter": 20,
+      "sketch": "P2/L1 build step 2 of 4 - GIT SCAN/REACH. Add the ADOPTERS.md parser (repo URLs from the table) and the git reach: clone-if-absent/fetch-if-present under gitignored .lume/cache/adopters/<slug>/, ephemeral worktree at default ref, read gaps/*.json, prune worktree; unreachable repo => skip+report. DONE-WHEN: ADOPTERS table parsed; reach works against a LOCAL git repo fixture (clone+worktree+read); worktree pruned; failure is non-fatal; tests cover parse + reach + cleanup + missing-repo. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P17",
+      "iter": 21,
+      "sketch": "P2/L1 build step 3 of 4 - INGEST + 'lume gap scan'. Wire scan -> read adopter gaps -> ingest OPEN ones into lume's gaps/ as 'acknowledged' (source+id), idempotent on rerun. DONE-WHEN: 'lume gap scan' ingests open gaps once; a second run adds nothing (idempotent); a CONTRACT TEST covers ingest + dedupe + status transition (open->acknowledged); operator can move ->resolved. ITERATION: execution.",
+      "tag": "committed",
+      "type": "execution"
+    },
+    {
+      "id": "P18",
+      "iter": 22,
+      "sketch": "P2/L1 build step 4 of 4 - DOCS + CLOSEOUT. Document the gap mechanism (README/skill + reconcile ADOPTERS.md to gaps/), assess P2 done-when, closeout retro. DONE-WHEN: docs describe gap add/scan/list + the gaps/ record; ADOPTERS.md reconciled; P2 done-when assessed met/not with evidence; retro records the deferred resolution round-trip + the git-cache trust/disk concerns as carry_forwards. ITERATION: closeout.",
       "tag": "committed",
       "type": "closeout"
     }
