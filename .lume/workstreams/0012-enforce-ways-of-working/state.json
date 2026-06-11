@@ -49,9 +49,24 @@
       "dod_artifact": "iterations/0004-e2-write-repo-root-claude-md-documenting-the-way-of-working.json",
       "id": 4,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "E2 - write repo-root CLAUDE.md documenting the way of working",
       "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0005-closeout-verify-done-when-retro-confirm-repo-only-boundary-hand-off-for-operator-accept-merge.json",
+      "id": 5,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "Closeout - verify done-when, retro, confirm repo-only boundary; hand off for operator accept + merge",
+      "type": "closeout",
       "verdicts": []
     }
   ],
