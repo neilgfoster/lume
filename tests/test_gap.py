@@ -49,10 +49,10 @@ class GapModuleTest(unittest.TestCase):
                       created="2026-06-11", context="because Y")
         self.assertEqual(rec["id"], "G1")
         self.assertEqual(rec["status"], "open")
-        # Workstream-style filename: <source>-G<nnnn>-<stub>.json (padded id
+        # Workstream-style filename: <source>-<nnnn>-<stub>.json (padded id
         # and slugified title hint in the NAME only; the id stays G<n>).
         on_disk = json.loads(
-            (gaps_dir(self.root) / "demo-G0001-needs-x-badly.json").read_text())
+            (gaps_dir(self.root) / "demo-0001-needs-x-badly.json").read_text())
         self.assertEqual(on_disk, rec)
         self.assertEqual(read_gaps(self.root), [rec])
 
@@ -65,7 +65,7 @@ class GapModuleTest(unittest.TestCase):
         self.assertEqual(read_gaps(self.root), [legacy])  # legacy name readable
         link_gap(self.root, "demo", "G1", "0019")  # any write renames it
         self.assertFalse((d / "demo-G1.json").exists())
-        self.assertTrue((d / "demo-G0001-old-name.json").exists())
+        self.assertTrue((d / "demo-0001-old-name.json").exists())
         self.assertEqual(len(read_gaps(self.root)), 1)  # no duplicate
 
     def test_read_gaps_sorted_and_empty(self):

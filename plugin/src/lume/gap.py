@@ -61,16 +61,17 @@ def _stub(title: str) -> str:
 
 
 def _filename(source: str, id: str, title: str = "") -> str:
-    """Source-aware filename: <source>-G<nnnn>-<stub>.json.
+    """Source-aware filename: <source>-<nnnn>-<stub>.json.
 
     Follows the workstream NNNN-<slug> convention so files sort sequentially
-    per source and carry a readable hint. The padding and stub live in the
+    per source and carry a readable hint. No 'G' in the name - living under
+    .lume/gaps/ already says it's a gap. The padding and stub live in the
     FILENAME only - the gap id stays 'G<n>' and (source, id) remains the
     dedupe identity.
     """
     safe_source = re.sub(r"[^A-Za-z0-9_.-]+", "-", source).strip("-") or "src"
     m = _ID_RE.match(id)
-    padded = f"G{int(m.group(1)):04d}" if m else id
+    padded = f"{int(m.group(1)):04d}" if m else id
     return f"{safe_source}-{padded}-{_stub(title)}.json"
 
 

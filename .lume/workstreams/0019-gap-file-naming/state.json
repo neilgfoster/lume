@@ -7,7 +7,13 @@
       "phase": "working",
       "title": "Rename gap files to <source>-G<nnnn>-<stub>.json, migrate existing records",
       "type": "execution",
-      "verdicts": []
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": "Filenames don't need the G prefix on the padded id - <source>-<nnnn>-<stub>.json is enough, being under .lume/gaps/ already says it's a gap",
+          "verdict": "rejected"
+        }
+      ]
     }
   ],
   "plan": [],

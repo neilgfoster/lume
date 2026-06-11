@@ -100,7 +100,7 @@ about itself, and adopters write them about lume. Gaps are the **demand
 backlog**: problem statements from any source (adopters, the operator, a
 `lume review`). Workstreams are the committed work that answers them; the two
 stay separate entities, linked not merged. They live per-file under
-`.lume/gaps/<source>-G<nnnn>-<stub>.json` (numeric id zero-padded in the filename for sequential sort, slugified title hint; the gap id itself stays `G<n>`), co-located with the rest of lume's state (a small schema: id, source, title, context,
+`.lume/gaps/<source>-<nnnn>-<stub>.json` (numeric id zero-padded in the filename for sequential sort, slugified title hint; the gap id itself stays `G<n>`), co-located with the rest of lume's state (a small schema: id, source, title, context,
 status `open|acknowledged|resolved`, created, optional `workstreams` links and
 a structured `resolution`).
 
