@@ -21,11 +21,11 @@ def _adopter_repo(path: Path) -> None:
     _git(["init", "-b", "main"], path)
     _git(["config", "user.email", "t@e.com"], path)
     _git(["config", "user.name", "t"], path)
-    (path / "gaps").mkdir()
-    (path / "gaps" / "tredl-G1.json").write_text(json.dumps({
+    (path / ".lume" / "gaps").mkdir(parents=True)
+    (path / ".lume" / "gaps" / "tredl-G1.json").write_text(json.dumps({
         "id": "G1", "source": "tredl", "title": "open gap", "context": "",
         "status": "open", "created": "2026-06-11", "resolution": None}))
-    (path / "gaps" / "tredl-G2.json").write_text(json.dumps({
+    (path / ".lume" / "gaps" / "tredl-G2.json").write_text(json.dumps({
         "id": "G2", "source": "tredl", "title": "resolved gap", "context": "",
         "status": "resolved", "created": "2026-06-11", "resolution": "done"}))
     _git(["add", "."], path)

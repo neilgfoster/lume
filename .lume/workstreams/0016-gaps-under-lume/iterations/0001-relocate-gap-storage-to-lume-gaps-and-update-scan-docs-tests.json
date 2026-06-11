@@ -1,0 +1,42 @@
+{
+  "dod": {
+    "items": [
+      {
+        "check": {
+          "cmd": "grep -q '\\.lume' plugin/src/lume/gap.py",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "gap.py's gaps_dir resolves to .lume/gaps/ and add/list/resolve read and write there."
+      },
+      {
+        "checked": true,
+        "text": "The adopter scan (adopters.py) reads .lume/gaps/ from cloned adopter repos; gap scan still ingests idempotently on (source, id)."
+      },
+      {
+        "checked": true,
+        "text": "Decision logged: state co-location chosen over the original root-level one-file-PR discoverability rationale, and the legacy repo-root fallback question is answered explicitly (kept or dropped, with rationale)."
+      },
+      {
+        "check": {
+          "cmd": "! grep -rn 'repo root in .gaps/\\|repo ROOT in .gaps/' plugin/src/lume/ README.md plugin/skills/lume/SKILL.md",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Every doc describing the convention is consistent with .lume/gaps/: gap.py and adopters.py docstrings, README, SKILL.md, and any ADOPTERS-facing text."
+      },
+      {
+        "check": {
+          "cmd": "python -m pytest -q",
+          "kind": "command"
+        },
+        "checked": true,
+        "text": "Full test suite green, with gap tests asserting the new .lume/gaps/ path."
+      }
+    ],
+    "preamble": "Relocate gap storage from repo-root gaps/ to .lume/gaps/ so all lume state is co-located, updating the scan path, docs, and tests together so the convention has a single consistent description."
+  },
+  "handback": "Gap storage relocated from repo-root gaps/ to .lume/gaps/. Changed: gap.py (gaps_dir + docstrings), adopters.py (docstrings only - it reads via gap.read_gaps), plugin/README.md, SKILL.md, ADOPTERS.md, and three test files (fixtures to the new path, plus a new explicit path assertion). No legacy fallback kept, per decision. DoD machine checks all pass; full suite 374 passed. Note for the parent review-verb workstream: the emitted gap-add queue plan needs no change since it invokes 'lume gap add', which writes wherever gaps_dir points.",
+  "id": 1,
+  "self_review": "Holds: gaps_dir is the single path authority and now resolves to .lume/gaps/; every caller (add/list/resolve, scan ingest, reach_gaps reading cloned adopter worktrees) goes through it, so the relocation is one functional line plus docstrings. All convention descriptions updated together: gap.py and adopters.py docstrings, plugin/README.md, SKILL.md, ADOPTERS.md. Test fixtures (test_gap_scan, test_adopters) now build adopter repos with .lume/gaps/, and test_gap gained an explicit assertion of the new path. Decision logged: co-location over root-level discoverability, NO legacy fallback (operator-confirmed; no gap records exist anywhere yet, so nothing to migrate and a fallback would be dead code). All 3 machine checks pass; suite green at 374 passed. Weak/honest: the adopter side of the contract changes too - tredl (the only other adopter) must place future gaps under .lume/gaps/ to be scanned; nothing in tredl breaks today because it has no gaps/, but its docs/conventions were not touched from here (cross-repo). The initial run caught two test_adopters failures whose fixture still used the old path - fixed, which is the relocation working as intended."
+}
