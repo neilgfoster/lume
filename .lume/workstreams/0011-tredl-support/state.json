@@ -154,9 +154,24 @@
       "dod_artifact": "iterations/0011-p5-l4-planning-resolve-ci-version-tag-release-install-verification-forks-into-an-ordered-delivery-build-plan.json",
       "id": 11,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P5/L4 planning: resolve CI/version-tag/release/install-verification forks into an ordered delivery build plan",
       "type": "planning",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0012-p11-pyproject-toml-src-layout-version-consistency-check-vs-plugin-json-tests.json",
+      "id": 12,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P11: pyproject.toml (src-layout) + version-consistency check vs plugin.json (+tests)",
+      "type": "execution",
       "verdicts": []
     }
   ],
@@ -233,7 +248,7 @@
     },
     {
       "id": "P11",
-      "iter": null,
+      "iter": 12,
       "sketch": "P5/L4 build step 1 of 4 - PYPROJECT + VERSION-CONSISTENCY CHECK. Add pyproject.toml (src-layout plugin/src/lume, project metadata, pytest config) and a small checker (e.g. a test or a tools/ script) asserting pyproject.version == plugin/.claude-plugin/plugin.json version. DONE-WHEN: pyproject present and parseable; 'python -m pytest' still discovers tests via it or conftest; consistency test fails on a deliberate version mismatch and passes when aligned; plugin.json remains the single source of record (pyproject reads/echoes it, no independent truth). ITERATION: execution.",
       "tag": "committed",
       "type": "execution"

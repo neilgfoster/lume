@@ -101,6 +101,12 @@
       "date": "2026-06-11",
       "decision": "Close the [U] live-install caveat with a documented, reproduced manual verification (steps from a clean state via '/plugin marketplace add' + '/plugin install'), recorded in the repo; an automated live-install CI job is OUT of v0.1 because it needs the Claude CLI in CI.",
       "rationale": "test_smoke_install already covers the entry point automatically; the residual gap is the live Claude Code path, which cannot be automated without the Claude CLI in CI. A documented human-reproduced verification is the honest v0.1 close; automating it is a later option, not a v0.1 blocker."
+    },
+    {
+      "context": "P5/L4 execution (iter 012, P11)",
+      "date": "2026-06-11",
+      "decision": "Python floor is 3.11 (operator-approved), so the version-consistency check uses stdlib tomllib with no third-party dependency; CI matrix becomes 3.11-3.13.",
+      "rationale": "Reading pyproject's version to compare against plugin.json needs a TOML parser; tomllib is stdlib from 3.11. Raising the floor from the proposed 3.10 to 3.11 avoids a tomli dependency or a vendored parser, keeping lume dependency-free."
     }
   ]
 }
