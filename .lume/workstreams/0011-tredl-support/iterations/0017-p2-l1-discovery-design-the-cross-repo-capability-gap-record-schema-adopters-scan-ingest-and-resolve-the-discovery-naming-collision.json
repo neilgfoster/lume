@@ -1,0 +1,38 @@
+{
+  "dod": {
+    "items": [
+      {
+        "checked": true,
+        "text": "NAMING COLLISION resolved + logged: lume already has a 'discovery' iteration TYPE and a per-workstream discovery.json (findings). Decide the term + namespace for the NEW cross-repo capability-gap record (keep 'discovery' but disambiguate by location/verb, or rename to e.g. 'gap'/'signal'), so the two concepts are not confused in schema, verbs, or docs."
+      },
+      {
+        "checked": true,
+        "text": "RECORD SCHEMA designed (discoveries/*.json): fields fixed with rationale - at least id, source (repo), title, context, status (open|acknowledged|resolved), optional resolution link, created date; how records are identified for dedupe (source-repo + id)."
+      },
+      {
+        "checked": true,
+        "text": "CAPTURE designed: how lume (and an adopter) RECORDS a gap on itself - the verb/shape, where the file lives (repo-root discoveries/ dir), and that this is the same artifact lume emits about itself and adopters emit about lume (one schema, two sources)."
+      },
+      {
+        "checked": true,
+        "text": "SCAN/INGEST designed: lume reads ADOPTERS.md (the fixed table) for adopter repo URLs, REACHES each repo via git clone/fetch into a git WORKTREE (operator decision - not local sibling paths), reads discoveries/*.json from the checked-out ref, ingests OPEN ones, and does NOT double-ingest on rerun (idempotent dedupe key); plus where ingested gaps LAND in lume (new backlog entity vs plan items vs a discoveries store) - decided or forked. The git/worktree reach is designed: clone-if-absent / fetch-if-cached, which ref, worktree lifecycle + cleanup, and offline/failure behaviour."
+      },
+      {
+        "checked": true,
+        "text": "Open forks for planning listed (what is decided vs deferred): the landing target (where ingested gaps go), the worktree cache location + lifecycle details, the status-transition rules, and how a resolved gap is signalled back to the adopter. (REACH MECHANISM is DECIDED: git clone/fetch + worktrees.)"
+      },
+      {
+        "checked": true,
+        "text": "Scope held: discovery only - no engine code, no new schema files committed as engine; findings + decisions recorded in discovery.json and via lume decide.",
+        "check": {
+          "kind": "command",
+          "cmd": "python -m pytest -q"
+        }
+      }
+    ],
+    "preamble": "P2/L1 lead discovery: design the cross-repo capability-gap mechanism that is the lume<->adopter integration API. tredl (and lume on itself) records capability gaps as discoveries/*.json; lume scans ADOPTERS for them and pulls open ones into its backlog, idempotently. FIRST resolve the naming collision (this new 'discovery' record vs lume's existing 'discovery' iteration type + per-workstream discovery.json), then design the record schema, capture, and scan/ingest, and surface the hard forks (especially HOW lume reaches adopter repos). OPERATOR DECISION: lume reaches adopter repos via git clone/fetch + git worktrees (not local sibling paths). Design + decisions only - no engine code; the build is later iterations."
+  },
+  "handback": "P2/L1 discovery done: the lume<->adopter integration API is designed and recorded as discovery.json P2.1-P2.4 + three logged decisions. NAMING: the cross-repo capability-gap record is the entity 'gap' (gaps/<id>.json, per-file), keeping 'discovery' (iteration type + per-workstream findings) un-collided; ADOPTERS.md's 'discoveries/*.json' wording to be reconciled in planning (gaps/ vs discoveries/). SCHEMA: gap = {id, source, title, context, status open|acknowledged|resolved, created, resolution?}; dedupe key (source, id). CAPTURE: one verb writes a gap in the current repo; lume writes about itself the same way adopters write about lume (one schema, two sources). SCAN/INGEST (operator decision): reach adopter repos by git clone/fetch + ephemeral git worktree (parse ADOPTERS.md URLs, clone/fetch, worktree at default ref, read gaps/*.json, prune worktree); ingest OPEN gaps idempotently on (source,id); unreachable repos skipped+reported. LANDING: ingested gaps go to a lume-side backlog as 'acknowledged' records - NOT auto plan items (operator triage preserved). FORKS for planning: gaps/ vs discoveries/ dir name; landing-store shape+location; worktree cache location/lifecycle; status-transition + resolution-signalled-back-to-adopter (round-trip likely deferred past v0.1); contract-test shape. No engine code. RECOMMEND next: open the P2 PLANNING iteration.",
+  "id": 17,
+  "self_review": "Holds: the hardest fork (how lume reaches adopter repos) is decided by the operator (git clone/fetch + worktrees) and designed concretely incl. failure/cleanup; the naming collision is named and resolved rather than left to bite the build; and the idempotent (source,id) dedupe + ingest-as-acknowledged-not-plan-item keeps lume's operator-in-the-loop contract intact (lume surfaces gaps, the human decides work). Weak / watch: (1) GIT-WORKTREE REACH IS THE NEW TRUST/COMPLEXITY SURFACE - cloning and checking out arbitrary adopter repos to read JSON pulls untrusted content onto disk; reading is data-only (no execution) so the risk is lower than command-checks, but cache location, auth for private repos, and disk growth are real and only sketched - planning/execution must pin them. (2) The resolution ROUND-TRIP (lume tells the adopter a gap is resolved) is the part that makes the cycle actually close, and I have deferred it past v0.1; that means v0.1 delivers ingest but not the full loop - honest, but the headline 'feedback cycle' is only half-built until then. (3) gaps/ vs discoveries/ is left for planning to ratify; I recommended gaps/ for clarity but ADOPTERS.md already says discoveries/, so whichever wins, the other doc must change. Nothing deferred silently."
+}

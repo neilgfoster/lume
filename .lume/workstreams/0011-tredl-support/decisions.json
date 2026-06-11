@@ -107,6 +107,24 @@
       "date": "2026-06-11",
       "decision": "Python floor is 3.11 (operator-approved), so the version-consistency check uses stdlib tomllib with no third-party dependency; CI matrix becomes 3.11-3.13.",
       "rationale": "Reading pyproject's version to compare against plugin.json needs a TOML parser; tomllib is stdlib from 3.11. Raising the floor from the proposed 3.10 to 3.11 avoids a tomli dependency or a vendored parser, keeping lume dependency-free."
+    },
+    {
+      "context": "P2/L1 discovery (iter 017) - naming",
+      "date": "2026-06-11",
+      "decision": "Name the cross-repo capability-gap record entity 'gap' (schema 'gap'), stored per-file as gaps/<id>.json at a repo root; keep the word 'discovery' in prose only. Planning to ratify whether the dir is gaps/ or the strategy's discoveries/.",
+      "rationale": "lume already has a 'discovery' iteration type AND a per-workstream discovery.json (findings); a third 'discovery' meaning would be ambiguous in schemas, verbs and docs. A distinct entity name removes the collision; per-file records match the assumed glob and ease an adopter's one-record PR."
+    },
+    {
+      "context": "P2/L1 discovery (iter 017) - reach",
+      "date": "2026-06-11",
+      "decision": "lume reaches adopter repos via git clone/fetch + an ephemeral git worktree (operator decision): parse ADOPTERS.md for repo URLs, clone-if-absent/fetch-if-cached, worktree at the default ref to read gaps/*.json, prune the worktree after; a missing/unreachable repo is skipped+reported, not fatal.",
+      "rationale": "git reach works for any adopter repo URL (not just locally co-located checkouts), matches an integration boundary, and a worktree gives a clean, throwaway checkout without disturbing the cached clone. Graceful degradation keeps one bad adopter from breaking the whole scan."
+    },
+    {
+      "context": "P2/L1 discovery (iter 017) - landing + idempotence",
+      "date": "2026-06-11",
+      "decision": "Ingest is idempotent on dedupe key (source, id); ingested OPEN gaps land in a lume-side backlog store as 'acknowledged' records referencing source+id, NOT auto-created plan items - turning a gap into a workstream stays operator triage.",
+      "rationale": "Idempotence lets the scan run repeatedly (e.g. on a schedule) without duplicating backlog. Keeping ingest separate from plan-creation preserves lume's operator-in-the-loop rule: lume surfaces gaps; the human decides what becomes work. The resolution round-trip back to the adopter is deferred past v0.1."
     }
   ]
 }

@@ -229,9 +229,24 @@
       "dod_artifact": "iterations/0016-p5-hotfix-ci-must-install-pytest-test-tooling-strengthen-check-ci-workflow-to-require-the-install-step.json",
       "id": 16,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "P5 hotfix: CI must install pytest (test tooling); strengthen check_ci_workflow to require the install step",
       "type": "execution",
+      "verdicts": [
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
+        }
+      ]
+    },
+    {
+      "dod_artifact": "iterations/0017-p2-l1-discovery-design-the-cross-repo-capability-gap-record-schema-adopters-scan-ingest-and-resolve-the-discovery-naming-collision.json",
+      "id": 17,
+      "opened": "2026-06-11",
+      "phase": "working",
+      "title": "P2/L1 discovery: design the cross-repo capability-gap record schema + ADOPTERS scan/ingest, and resolve the 'discovery' naming collision",
+      "type": "discovery",
       "verdicts": []
     }
   ],
@@ -245,7 +260,7 @@
     },
     {
       "id": "P2",
-      "iter": null,
+      "iter": 17,
       "sketch": "L1 (order 2) - Promote discoveries to a first-class, cross-repo mechanism. OBJECTIVE: extend 'discovery' (today an in-repo iteration type + discovery.json schema) into a capture-and-scan mechanism: discoveries/*.json records in any repo, captured from lume's own operator feedback AND from adopter repos, that lume can scan (via ADOPTERS) and pull into its backlog. DONE-WHEN: (1) documented discoveries/*.json schema with stable fields (id, source repo, title, context, status open/acknowledged/resolved, optional resolution link); (2) lume can record a discovery on itself; (3) lume can scan ADOPTERS repos, ingest open discoveries, and not double-ingest on rerun; (4) a contract test covers ingest + dedupe + status transitions. This is the integration API between lume and every adopter - design it deliberately. ITERATIONS: discovery, planning, execution, closeout.",
       "tag": "committed",
       "type": "execution"
