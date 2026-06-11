@@ -10,6 +10,12 @@
   "enabledPlugins": {
     "lume@lume": true
   },
+  "permissions": {
+    "allow": [
+      "Bash(plugin/bin/lume:*)",
+      "Bash(lume:*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
