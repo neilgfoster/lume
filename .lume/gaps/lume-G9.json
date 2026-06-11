@@ -1,0 +1,16 @@
+{
+  "id": "G9",
+  "source": "lume",
+  "title": "No gap-to-workstream linkage: which gap a workstream answers is not data. Gaps need optional workstreams refs, a structured resolution (kind: implemented|wont-fix|superseded|duplicate, note, workstream), a 'lume gap link' verb, an extended 'lume gap resolve', and the workstream detail listing the gaps it answers (derived by scan)",
+  "context": "Operator direction 2026-06-11: gaps are the demand backlog (problems), workstreams the committed work, plan items the steps - linked, not merged. The flow gap -> workstream -> plan item -> iteration needs its first arrow as data. Also subsumes a found bug: 'lume gap resolve' silently drops any resolution text (resolution stays null; G1/G8 were set directly in JSON). Blast radius: gap.py, schemas/gap.json, gap handler, status detail renderer, docs, tests; existing records stay valid (optional fields).",
+  "status": "resolved",
+  "created": "2026-06-11",
+  "resolution": {
+    "kind": "implemented",
+    "note": "Implemented by 0018: workstreams refs + structured resolution in the gap schema, lume gap link, structured lume gap resolve (fixes the dropped-note bug), and the 'Gaps answered' status surface",
+    "workstream": "0018"
+  },
+  "workstreams": [
+    "0018"
+  ]
+}

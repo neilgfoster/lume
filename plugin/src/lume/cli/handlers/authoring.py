@@ -75,14 +75,16 @@ def handle_gap(ctx: Context) -> int:
 
     `lume gap add "<title>" [-c <context>]` records a gap in the current repo;
     `lume gap list` prints them; `lume gap scan` ingests adopters' open gaps;
-    `lume gap resolve <source> <id>` moves a gap to resolved.
+    `lume gap link <source> <id> -w <ws>` records the workstream answering a
+    gap; `lume gap resolve <source> <id> [-w <ws>] [-t <kind>] ["<note>"]`
+    resolves one with a structured resolution.
     """
     from ...adopters import scan_and_ingest
-    from ...gap import add_gap, read_gaps, set_status
+    from ...gap import add_gap, link_gap, read_gaps, resolve_gap
 
     sub = ctx.arg
-    if sub not in ("add", "list", "scan", "resolve"):
-        ctx.fail("usage", "usage: lume gap <add|list|scan|resolve> ...")
+    if sub not in ("add", "list", "scan", "link", "resolve"):
+        ctx.fail("usage", "usage: lume gap <add|list|scan|link|resolve> ...")
         return 2
     root = ctx.repo.project_root()  # NoLumeDirError -> dispatch maps to exit 1
 
@@ -98,16 +100,39 @@ def handle_gap(ctx: Context) -> int:
             print(f"  ! {f['adopter']}: {f['error']}")
         return 0
 
+    if sub == "link":
+        source = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
+        gap_id = ctx.rest[4].strip() if len(ctx.rest) > 4 else ""
+        if not source or not gap_id or ctx.target is None:
+            ctx.fail("usage", "usage: lume gap link <source> <id> -w <workstream>")
+            return 2
+        ws = ctx.require_ws()  # unknown workstream -> LumeError -> exit 1
+        rec = link_gap(root, source, gap_id, ws.id)  # LumeError -> exit 1
+        ctx.ok({"result": "gap_link", "source": rec["source"], "id": rec["id"],
+                "workstreams": rec["workstreams"]},
+               f"gap link: {rec['source']}/{rec['id']} <- workstream {ws.id}")
+        return 0
+
     if sub == "resolve":
         source = ctx.rest[3].strip() if len(ctx.rest) > 3 else ""
         gap_id = ctx.rest[4].strip() if len(ctx.rest) > 4 else ""
+        note = ctx.rest[5].strip() if len(ctx.rest) > 5 else ""
         if not source or not gap_id:
-            ctx.fail("usage", "usage: lume gap resolve <source> <id>")
+            ctx.fail("usage",
+                     'usage: lume gap resolve <source> <id> [-w <ws>] [-t <kind>] ["<note>"]')
             return 2
-        rec = set_status(root, source, gap_id, "resolved")  # LumeError -> exit 1
+        kind = ctx.opt_type or "implemented"
+        if kind not in ("implemented", "wont-fix", "superseded", "duplicate"):
+            ctx.fail("usage", "kind must be implemented, wont-fix, superseded "
+                              f"or duplicate, got '{kind}'.")
+            return 2
+        ws_id = ctx.require_ws().id if ctx.target is not None else None
+        rec = resolve_gap(root, source, gap_id, kind=kind, note=note,
+                          workstream_id=ws_id)  # LumeError -> exit 1
         ctx.ok({"result": "gap_resolve", "source": rec["source"], "id": rec["id"],
-                "status": rec["status"]},
-               f"gap resolve: {rec['source']}/{rec['id']} -> {rec['status']}")
+                "status": rec["status"], "resolution": rec["resolution"]},
+               f"gap resolve: {rec['source']}/{rec['id']} -> {rec['status']} "
+               f"({rec['resolution']['kind']})")
         return 0
 
     if sub == "add":

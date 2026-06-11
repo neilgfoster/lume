@@ -64,7 +64,8 @@ def _ok(json_mode: bool, data: dict, *human_lines: str) -> None:
             print(line)
 
 
-def _render_detail(ws: Workstream, children: list[Workstream] | None = None) -> None:
+def _render_detail(ws: Workstream, children: list[Workstream] | None = None,
+                   gaps: list[dict] | None = None) -> None:
     """Single-workstream view: objective, current iteration, Done/Now/Next."""
     current = ws.current_iteration()
     if current is None:
@@ -94,6 +95,11 @@ def _render_detail(ws: Workstream, children: list[Workstream] | None = None) -> 
             it = c.current_iteration()
             where = f"{it.id:03d} {it.type} {it.phase}" if it is not None else "(no iterations)"
             print(f"- {c.name} [{c.id}]  {'closed' if c.is_closed else where}")
+    if gaps:
+        print()
+        print("## Gaps answered")
+        for g in gaps:
+            print(f"- {g['source']}/{g['id']} ({g['status']})  {g['title']}")
 
 
 def _render_queue(workstreams: list[Workstream]) -> None:
@@ -159,7 +165,8 @@ def _child_summary(ws: Workstream) -> dict:
             "phase": it.phase if it is not None else None}
 
 
-def _detail_data(ws: Workstream, children: list[Workstream] | None = None) -> dict:
+def _detail_data(ws: Workstream, children: list[Workstream] | None = None,
+                 gaps: list[dict] | None = None) -> dict:
     """Single-workstream status as a structured object (the --json form of _render_detail)."""
     return {
         "id": ws.id,
@@ -170,6 +177,8 @@ def _detail_data(ws: Workstream, children: list[Workstream] | None = None) -> di
         "current_iteration": _iteration_summary(ws.current_iteration()),
         "dod_verifiability": _dod_verifiability(ws),
         "children": [_child_summary(c) for c in (children or [])],
+        "gaps": [{"source": g["source"], "id": g["id"], "status": g["status"],
+                  "title": g["title"]} for g in (gaps or [])],
     }
 
 

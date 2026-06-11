@@ -4,7 +4,7 @@
       "dod_artifact": "iterations/0001-relocate-review-output-to-lume-review-date-nn-migrate-the-existing-folder-land-orphaned-state.json",
       "id": 1,
       "opened": "2026-06-11",
-      "phase": "working",
+      "phase": "accepted",
       "title": "Relocate review output to .lume/review/<date>-NN, migrate the existing folder, land orphaned state",
       "type": "execution",
       "verdicts": [
@@ -12,6 +12,11 @@
           "date": "2026-06-11",
           "reason": "Reviews must live under .lume/reviews/ (plural), matching workstreams/ and gaps/ container naming - fold G8 into this iteration alongside G1",
           "verdict": "rejected"
+        },
+        {
+          "date": "2026-06-11",
+          "reason": null,
+          "verdict": "accepted"
         }
       ]
     }
@@ -21,7 +26,7 @@
     "id": "0017",
     "objective_artifact": "objective.json",
     "slug": "review-dir-and-landing",
-    "status": "active",
+    "status": "closed",
     "title": "Relocate reviews to .lume/review/ and land orphaned review state"
   }
 }
